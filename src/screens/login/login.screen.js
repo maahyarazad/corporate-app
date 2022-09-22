@@ -1,0 +1,333 @@
+import React, { useContext, useState } from "react";
+import { Alert, Image, TouchableOpacity, View } from "react-native";
+import { Checkbox, TextInput } from "react-native-paper";
+import { SafeArea } from "../../components/safearea.component";
+import { Spacer } from "../../components/spacer/spacer.component";
+import { Label } from "../../components/typography/label.component";
+import styled from "styled-components/native";
+import { LoadingOverlay } from "../../components/loading/loading.component";
+import { useTheme } from "styled-components";
+import { StatusBar } from "expo-status-bar";
+import { AuthContext } from "../../services/auth/auth.context";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { navigate } from "../../navigation/navigate";
+import Background from "../../components/background/background.component";
+import { CustomTextInput } from "../../components/customTextInput";
+import { UserContext } from "../../services/user/user.context";
+import * as WebBrowser from "expo-web-browser";
+import { isValidURL } from "../../utils/isValidURL";
+import { EULAPrivacyLink } from "../../utils/constants";
+
+export const TextInputForm = styled(TextInput)`
+  border-radius: 10px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+`;
+
+export const LoginButton = styled(TouchableOpacity)`
+  flex: 1;
+  min-height: 60px;
+  max-height: 60px;
+  background-color: ${({ checked }) => (checked ? "#207ede" : "#c7c7c7")};
+  border-radius: 5px;
+  justify-content: center;
+  align-items: center;
+`;
+
+export const LoginScreen = ({ navigation }) => {
+  const [checked, setChecked] = useState(false);
+  const [username, setUsername] = useState(null);
+  const [password, setPassword] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [canRegister, setCanRegister] = useState(true);
+  const { login, setUser, user } = useContext(AuthContext);
+  const { getUserInfo } = useContext(UserContext);
+
+  const theme = useTheme();
+
+  const handleForgetPassword = () => [navigate("ForgotPassword")];
+
+  const handleLogin = async () => {
+    try {
+      if (
+        (!username || username.trim().match(/^\s+$|^$/)) &&
+        (!password || password.trim().match(/^\s+$|^$/))
+      ) {
+        Alert.alert("Invalid Login", "Please enter your username and password");
+        return;
+      }
+
+      if (!username || username.trim().match(/^\s+$|^$/)) {
+        Alert.alert("Invalid Login", "Please enter your username");
+        return;
+      }
+
+      if (!password || password.trim().match(/^\s+$|^$/)) {
+        Alert.alert("Invalid Login", "Please enter your password");
+        return;
+      }
+
+      setLoading(true);
+      const credentials = {
+        username,
+        password,
+        ...user,
+      };
+
+      const response = await login(credentials);
+
+      setLoading(false);
+      if (response.status) {
+        setUser({
+          ...user,
+          user_id: response.user_id,
+          isAuthorized: response.isAuthorized,
+          submitCard: response.hasSubmit,
+        });
+
+        getUserInfo(response.user_id);
+
+        navigation.navigate("VerifyOTP", {
+          hiddenNumber: response.phone_number,
+        });
+      } else {
+        navigation.navigate("Unverified Email", {
+          userId: response.user_id,
+        });
+      }
+    } catch (err) {
+      setLoading(false);
+    }
+  };
+
+  const handleBrowser = async () => {
+    try {
+      if (isValidURL(EULAPrivacyLink)) {
+        await WebBrowser.openBrowserAsync(EULAPrivacyLink);
+      }
+    } catch (error) {
+      Alert.alert("Error Occured", "Cannot Open Document");
+    }
+  };
+
+  return (
+    <>
+      <LoadingOverlay display={loading} />
+      <StatusBar style="light" />
+      <View style={{ flex: 1, backgroundColor: "black" }}>
+        <Background>
+          <SafeArea
+            style={{
+              height: "100%",
+              backgroundColor: "transparent",
+              justifyContent: "flex-end",
+            }}
+          >
+            <KeyboardAwareScrollView
+              automaticallyAdjustKeyboardInsets={true}
+              keyboardShouldPersistTaps={"always"}
+              style={{ height: "100%" }}
+              contentContainerStyle={{ flexGrow: 1 }}
+            >
+              <View
+                style={{
+                  height: "100%",
+                  justifyContent: "flex-end",
+                }}
+              >
+                <Image
+                  style={{
+                    width: 100,
+                    height: 50,
+                    resizeMode: "contain",
+                    marginLeft: 16,
+                    position: "relative",
+                    top: 0,
+                  }}
+                  source={require("../../../assets/IFZA-Logo.png")}
+                />
+
+                <View
+                  style={{
+                    flex: 1,
+                    justifyContent: "flex-end",
+                    margin: 16,
+                  }}
+                >
+                  <Label
+                    style={{
+                      color: "white",
+                    }}
+                    shadow={true}
+                    size={"h5"}
+                    weight={"medium"}
+                  >
+                    {/* Wilkommen! */}
+                    Welcome!
+                  </Label>
+                  <Spacer position={"top"} size={"small"} />
+                  <Label
+                    style={{ color: "white" }}
+                    size={"caption"}
+                    weight={"medium"}
+                    shadow={true}
+                  >
+                    Sign in with your username and password.
+                    {/* Melden Sie sich mit Ihrem Club-Benutzernamen und Passwort an. */}
+                  </Label>
+                  <Spacer position={"top"} size={"small"} />
+
+                  <CustomTextInput
+                    onChangeText={setUsername}
+                    label={"Username or Email"}
+                    value={username}
+                    autoFillPassword={true}
+                    // label={"Nutzername"}
+                  />
+                  <Spacer position={"top"} size={"small"} />
+                  <CustomTextInput
+                    onChangeText={setPassword}
+                    secureTextEntry={true}
+                    showEye={true}
+                    value={password}
+                    autoFillPassword={true}
+                    label={"Password"}
+                  />
+                  <Spacer position={"top"} size={"medium"} />
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={handleForgetPassword}
+                  >
+                    <Label
+                      shadow={true}
+                      style={{
+                        color: "white",
+                        textDecorationLine: "underline",
+                      }}
+                    >
+                      Forgot password?
+                      {/* Passwort vergessen? */}
+                    </Label>
+                  </TouchableOpacity>
+                  <Spacer position={"top"} size={"medium"} />
+                  <Spacer position={"right"} size={"large"}>
+                    <View style={{ flexDirection: "row" }}>
+                      <Checkbox.Android
+                        status={checked ? "checked" : "unchecked"}
+                        onPress={() => {
+                          setChecked(!checked);
+                        }}
+                        uncheckedColor="white"
+                        color="white"
+                      />
+                      <View style={{ flex: 0.98 }}>
+                        <Label
+                          elevation={10}
+                          shadow={true}
+                          style={{ color: "white", elevation: 9 }}
+                          size={"caption"}
+                        >
+                          {/* Ich akzeptiere die Endnutzer-Lizenzvereinbarung & die
+                        Datenschutz-Bestimmungen. */}
+                          {`I accept the `}
+                          <Label
+                            onPress={() => {
+                              // navigate("Login Privacy Policy");
+                              handleBrowser();
+                            }}
+                            style={{
+                              color: "white",
+                              textDecorationLine: "underline",
+                            }}
+                            size={"caption"}
+                          >
+                            End User License Agreement & the Privacy Policy.
+                          </Label>
+                        </Label>
+                      </View>
+                    </View>
+                  </Spacer>
+
+                  <Spacer position={"top"} size={"medium"} />
+
+                  <LoginButton
+                    onPress={handleLogin}
+                    activeOpacity={0.8}
+                    disabled={!checked}
+                    checked={checked}
+                  >
+                    <Label style={{ color: "white" }} weight={"bold"}>
+                      Login
+                    </Label>
+                  </LoginButton>
+                </View>
+                {canRegister && (
+                  <View>
+                    <View
+                      style={{
+                        height: 50,
+                        justifyContent: "center",
+                      }}
+                    >
+                      <View
+                        style={{
+                          width: 50,
+                          height: 50,
+                          borderRadius: 25,
+                          backgroundColor: "white",
+                          position: "absolute",
+                          alignSelf: "center",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          zIndex: 20,
+                        }}
+                      >
+                        <Label size={"body"} weight={"bold"}>
+                          OR
+                        </Label>
+                      </View>
+                      <View
+                        style={{
+                          borderColor: "white",
+                          borderTopWidth: 2,
+                        }}
+                      ></View>
+                    </View>
+                    <View
+                      style={{
+                        margin: 16,
+                      }}
+                    >
+                      <TouchableOpacity
+                        activeOpacity={0.8}
+                        onPress={() => {
+                          // navigation.navigate("RegisterSuccess");
+                          navigation.navigate("Registration");
+                        }}
+                        style={{
+                          height: 60,
+                          backgroundColor: theme.colors.ui.button,
+                          borderRadius: 5,
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Label
+                          style={{ color: "white" }}
+                          size={"body"}
+                          weight={"bold"}
+                        >
+                          Create an Account
+                        </Label>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                )}
+              </View>
+            </KeyboardAwareScrollView>
+          </SafeArea>
+        </Background>
+      </View>
+    </>
+  );
+};

@@ -1,0 +1,72 @@
+{
+  "expo": {
+    "name": "GEC Corporate",
+    "slug": "GEC-Corporate",
+    "version": "1.0.5",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#131313"
+    },
+    "plugins": [
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow ${PRODUCT_NAME} to access your photos.",
+          "savePhotosPermission": "Allow ${PRODUCT_NAME} to save photos.",
+          "isAccessMediaLocationEnabled": "true"
+        }
+      ]
+    ],
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Turning on location services allows us to show you nearby shops with offers.",
+        "NSPhotoLibraryUsageDescription": "The app needs to access the photo of your GEC Corporate card.",
+        "NSPhotoLibraryAddUsageDescription": "The app needs to save a photo of your GEC Corporate card.",
+        "NSCameraUsageDescription": "The app needs to take a photo of your GEC Corporate card."
+      },
+      "bundleIdentifier": "com.buenapublica.GECCorporate",
+      
+      "config": {
+        "googleMapsApiKey": "AIzaSyBtZTwjvW-SZadWwFKwMXk1pEKOszzW9ic"
+      }
+    },
+    "android": {
+      "versionCode": 2,
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyCMsLOPcJjKYWE1kMB9tRJ2HOZdZVT0kCo"
+        }
+      },
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#131313"
+      },
+      "package": "com.buenapublica.GECCorporate",
+      "permissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.ACCESS_MEDIA_LOCATION"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "description": "",
+    "extra": {
+      "eas": {
+        "projectId": "7dc0b84b-8086-42fb-a155-46bff3800b1f"
+      }
+    }
+  }
+}
