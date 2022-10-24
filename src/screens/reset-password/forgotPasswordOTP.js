@@ -17,10 +17,11 @@ import { Label } from "../../components/typography/label.component";
 import { colors } from "../../infrastructure/theme/colors";
 import { navigate } from "../../navigation/navigate";
 import { UserService } from "../../services/user/user.service";
+import { config } from "../../utils/constants";
 
 export const ForgotPasswordOTPScreen = ({ route }) => {
   const MAX_CODE_LENGTH = 6;
-  const { mobileNum, user_id } = route.params;
+  const { mobileCode, mobile, user_id, login } = route.params;
   const { width } = Dimensions.get("window");
   const [pinReady, setPinReady] = useState(false);
   //   const [mobileNum, setMobileNum] = useState("");
@@ -36,18 +37,27 @@ export const ForgotPasswordOTPScreen = ({ route }) => {
     };
   }, []);
 
-  const handleResend = () => {
-    navigate("ChangePassword");
+  const handleResend = async () => {
+    const data = {
+      login,
+      mobile,
+      mobileCode,
+      app_id: config.APP_ID,
+    };
+
+    const result = await UserService.requestForgetPass(data);
+    if (!result.success) {
+      Alert.alert(result.title, result.message);
+    }
   };
 
   const handleVerify = async () => {
     const data = {
       otp: code,
-      mobileNum,
+      mobileNum: `${mobileCode}${mobile}`,
       user_id,
     };
 
-    console.log(route.params);
     setIsLoading(true);
     const response = await UserService.verifyForgetPass(data);
     if (isMounted.current) {
@@ -105,7 +115,8 @@ export const ForgotPasswordOTPScreen = ({ route }) => {
                   style={{ color: "white", fontSize: width * 0.04 }}
                   weight={"bold"}
                 >
-                  +{mobileNum.replace(/\d(?=(?:\D*\d){3})/g, "*")}
+                  +
+                  {`${mobileCode}${mobile}`.replace(/\d(?=(?:\D*\d){3})/g, "*")}
                 </Label>{" "}
                 to proceed
               </Label>

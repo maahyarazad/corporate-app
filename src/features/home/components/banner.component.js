@@ -74,6 +74,7 @@ const renderBanner = ({ item, screenWidth, setLoading, loading }) => {
       >
         <BannerContainer>
           <LoadingOverlay display={loading} />
+          {console.log(`${config.SERVER_HOST}/banners/${item.banner_image}`)}
           <BannerImage
             onLoad={bannerLoaded}
             screenWidth={screenWidth}

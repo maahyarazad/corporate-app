@@ -65,11 +65,15 @@ const res = (response) => response.data;
 
 export const PartnerService = {
   getAvailableCategories() {
-    return axiosInstance.get(`${API_URL}/category-available`).then(result);
+    return axiosInstance
+      .post(`${API_URL}/category-available2`, { app_id: config.APP_ID })
+      .then(result);
   },
 
   getAvailableTags() {
-    return axiosInstance.get(`${API_URL}/tags-available`).then(result);
+    return axiosInstance
+      .post(`${API_URL}/tags-available2`, { app_id: config.APP_ID })
+      .then(result);
   },
 
   getAllSpecialtags() {
@@ -77,7 +81,9 @@ export const PartnerService = {
   },
 
   getTopPerCategories(data) {
-    return axiosInstance.post(`location/top-per-category`, data).then(result);
+    return axiosInstance
+      .post(`location/top-per-category`, { ...data, app_id: config.APP_ID })
+      .then(result);
   },
 
   getPartners() {

@@ -33,6 +33,7 @@ import { ChangePasswordScreen } from "./src/screens/reset-password/changePasswor
 import { AuthEditProfileScreen } from "./src/screens/login/authEditProfile";
 import { UnverifiedEmailScreen } from "./src/screens/login/unverifiedEmail.screen";
 import { PrivacyPolicyScreen } from "./src/screens/profile/privacyPolicy.screen";
+import { EventDetailScreen } from "./src/screens/events/eventDetail.screen";
 
 const AuthStack = createStackNavigator();
 const MainStack = createStackNavigator();
@@ -278,6 +279,20 @@ const MainScreen = () => {
               shadowColor: "transparent",
               backgroundColor: "transparent",
             },
+            cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+            gestureDirection: "horizontal",
+            gestureResponseDistance: 200,
+          }}
+        />
+
+        <MainStack.Screen
+          name={"Event Detail"}
+          component={EventDetailScreen}
+          options={{
+            headerShown: false,
+            headerBackTitleVisible: false,
+            headerTitleAlign: "left",
+            headerTintColor: "black",
             cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
             gestureDirection: "horizontal",
             gestureResponseDistance: 200,

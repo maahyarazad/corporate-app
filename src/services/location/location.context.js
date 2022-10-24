@@ -1,4 +1,6 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { AuthContext } from "../auth/auth.context";
+import { EventService } from "../event/event.service";
 import {
   getUserLocation,
   getLocations,
@@ -11,6 +13,8 @@ export const LocationContext = createContext();
 export const LocationContextProvider = ({ children }) => {
   const [currentMerchant, setCurrentMerchant] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
+  const [eventList, setEventList] = useState([]);
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     let isMounted = true;
@@ -23,10 +27,23 @@ export const LocationContextProvider = ({ children }) => {
           console.log(err);
         });
     })();
+
+    if (user.user_id !== undefined) getEventsList();
+
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [user]);
+
+  const getEventsList = async () => {
+    const data = {
+      user_id: user.user_id,
+      lang: "en",
+    };
+    console.log(user);
+    const response = await EventService.getEvents(data);
+    setEventList(response.data);
+  };
 
   return (
     <LocationContext.Provider
@@ -38,6 +55,8 @@ export const LocationContextProvider = ({ children }) => {
         userLocation,
         currentMerchant,
         getCoords,
+        eventList,
+        getEventsList,
       }}
     >
       {children}

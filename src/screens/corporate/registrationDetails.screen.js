@@ -10,6 +10,7 @@ import {
   Touchable,
   Pressable,
   TouchableWithoutFeedback,
+  Platform,
 } from "react-native";
 import { config, honorificList } from "../../utils/constants";
 import { useTheme } from "styled-components";
@@ -101,12 +102,9 @@ export const RegistrationDetailsScreen = ({ route }) => {
   const submit = () => {
     setIsSubmitted(true);
     if (validateInfo()) {
-      const app_id = config.APP_ID;
-
       const register1 = route.params.login;
 
       const user = {
-        app_id,
         ...register1,
         ...state,
         birthdate: state.birthdate.toDateString(),
@@ -136,6 +134,10 @@ export const RegistrationDetailsScreen = ({ route }) => {
 
   const handleBdayChange = (_, date) => {
     setTempBday(date);
+  };
+
+  const handleBdayChangeAndroid = (date) => {
+    setState({ ...state, birthdate: date });
   };
 
   const handleHonorificChange = (_, value) => {
@@ -186,10 +188,10 @@ export const RegistrationDetailsScreen = ({ route }) => {
           >
             <DateTimePicker
               // style={{ flex: 1, height: 200, width: 200 }}
-              themeVariant={"light"}
+              themeVariant={"dark"}
               value={tempBday}
               mode={"date"}
-              display="spinner"
+              display={Platform.OS === "ios" ? "spinner" : "calendar"}
               maximumDate={dateLimit}
               onChange={handleBdayChange}
             />
@@ -381,6 +383,7 @@ export const RegistrationDetailsScreen = ({ route }) => {
                 mode={"date"}
                 display="spinner"
               /> */}
+
               <View
                 style={{
                   flexDirection: "row",
@@ -389,28 +392,65 @@ export const RegistrationDetailsScreen = ({ route }) => {
                   maxHeight: 60,
                 }}
               >
-                <View style={{ marginBottom: 0, flex: 1 }}>
-                  <CustomTextInput
-                    value={
-                      state.birthdate
-                        ? moment(state.birthdate).format("L")
-                        : "mm/dd/yyyy"
-                    }
-                    // onChangeText={setBirthdate}
-                    label={"Birthdate *"}
-                    inputStyle={{ color: !state.birthdate ? "#999" : "black" }}
-                    style={{
-                      width: "100%",
-                      maxHeight: 60,
-                      position: "absolute",
-                    }}
-                    error={!state.birthdate}
-                  ></CustomTextInput>
-                  <Pressable
-                    style={{ flex: 1 }}
-                    onPress={openBdayModal}
-                  ></Pressable>
-                </View>
+                {Platform.OS === "ios" ? (
+                  <View style={{ marginBottom: 0, flex: 1 }}>
+                    <CustomTextInput
+                      value={
+                        state.birthdate
+                          ? moment(state.birthdate).format("L")
+                          : ""
+                      }
+                      // onChangeText={setBirthdate}
+                      label={"Birthdate *"}
+                      style={{
+                        width: "100%",
+                        maxHeight: 60,
+                        position: "absolute",
+                      }}
+                      error={!state.birthdate && isSubmitted}
+                    ></CustomTextInput>
+                    <Pressable
+                      style={{ flex: 1 }}
+                      onPress={openBdayModal}
+                    ></Pressable>
+                  </View>
+                ) : (
+                  <View style={{ marginBottom: 0, flex: 1 }}>
+                    <CustomTextInput
+                      value={
+                        state.birthdate
+                          ? moment(state.birthdate).format("L")
+                          : ""
+                      }
+                      // onChangeText={setBirthdate}
+                      label={"Birthdate *"}
+                      style={{
+                        width: "100%",
+                        maxHeight: 60,
+                        position: "absolute",
+                      }}
+                      error={!state.birthdate && isSubmitted}
+                    ></CustomTextInput>
+                    <DatePicker
+                      value={state.birthdate}
+                      onDateChange={handleBdayChangeAndroid}
+                      title="Birthdate"
+                      isNullable={false}
+                      iosMode="date"
+                      androidMode="date"
+                      androidDisplay="default"
+                      textColor="black"
+                      maximumDate={dateLimit}
+                      locale="en"
+                      iosDisplay="spinner"
+                      style={{
+                        width: "100%",
+                        height: 58,
+                        marginTop: 6,
+                      }}
+                    />
+                  </View>
+                )}
                 <Spacer position={"left"} size={"small"} />
                 <View
                   style={{
@@ -419,17 +459,16 @@ export const RegistrationDetailsScreen = ({ route }) => {
                   }}
                 >
                   <CustomTextInput
-                    value={state.gender ? state.gender : "select gender"}
+                    value={state.gender}
                     // onChangeText={setGender}
                     label={"Gender *"}
-                    inputStyle={{ color: !state.gender ? "#999" : "black" }}
                     style={{
                       width: "100%",
                       maxHeight: 58,
                       position: "absolute",
                     }}
                     right={<TextInput.Icon name="chevron-down" />}
-                    error={!state.gender}
+                    error={!state.gender && isSubmitted}
                   ></CustomTextInput>
                   <ModalDropdown
                     textStyle={{

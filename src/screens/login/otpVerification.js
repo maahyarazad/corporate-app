@@ -19,6 +19,7 @@ import {
 } from "../../components/styles";
 import { Label } from "../../components/typography/label.component";
 import { AuthContext } from "../../services/auth/auth.context";
+import { config } from "../../utils/constants";
 
 export const OtpVerification = ({ route, navigation }) => {
   const MAX_CODE_LENGTH = 4;
@@ -32,7 +33,7 @@ export const OtpVerification = ({ route, navigation }) => {
   const [resendStatus, setResendStatus] = useState(false);
 
   const handleVerify = async () => {
-    const otp_details = { otp: code, user_id, device_id };
+    const otp_details = { otp: code, user_id, app_id: config.APP_ID };
     await verify(otp_details);
   };
 

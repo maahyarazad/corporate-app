@@ -3,6 +3,7 @@ import { axiosInstance } from "../interceptor/axiosInstance";
 import * as Network from "expo-network";
 import * as Application from "expo-application";
 import { Platform } from "react-native";
+import { config } from "../../utils/constants";
 
 // const API_URL = `${config.BASE_URL}user`;
 
@@ -132,7 +133,7 @@ export const checkAuthorization = async (user_id) => {
   return new Promise((resolve, reject) => {
     try {
       axiosInstance
-        .get(`user/check-authorization/${user_id}`)
+        .post(`user/check-authorization`, { user_id, app_id: config.APP_ID })
         .then((response) => {
           resolve(response.data.result);
         })

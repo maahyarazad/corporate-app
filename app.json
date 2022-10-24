@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "GEC Corporate",
-    "slug": "GEC-Corporate",
+    "name": "GEC Rewards",
+    "slug": "GEC-Rewards",
     "version": "1.0.5",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -35,7 +35,7 @@
         "NSPhotoLibraryAddUsageDescription": "The app needs to save a photo of your GEC Corporate card.",
         "NSCameraUsageDescription": "The app needs to take a photo of your GEC Corporate card."
       },
-      "bundleIdentifier": "com.buenapublica.GECCorporate",
+      "bundleIdentifier": "com.buenapublica.GECRewards",
       
       "config": {
         "googleMapsApiKey": "AIzaSyBtZTwjvW-SZadWwFKwMXk1pEKOszzW9ic"
@@ -52,7 +52,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#131313"
       },
-      "package": "com.buenapublica.GECCorporate",
+      "package": "com.buenapublica.GECRewards",
       "permissions": [
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",

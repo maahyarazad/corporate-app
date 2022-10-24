@@ -33,6 +33,21 @@ export const settingsList = [
   //   },
   // },
   {
+    label: "App Settings & Permissions",
+    backgroundColor: "white",
+    textColor: theme.colors.ui.lightGray2,
+    triggerFunction: 4,
+    icon: () => {
+      return (
+        <MaterialCommunityIcons
+          color={theme.colors.ui.lightGray2}
+          name={"cog-outline"}
+          size={25}
+        />
+      );
+    },
+  },
+  {
     label: "EULA & Privacy Policy",
     backgroundColor: "white",
     textColor: theme.colors.ui.lightGray2,

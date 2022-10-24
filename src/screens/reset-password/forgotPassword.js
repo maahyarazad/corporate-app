@@ -22,6 +22,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { navigate } from "../../navigation/navigate";
 import { UserService } from "../../services/user/user.service";
 import { LoadingOverlay } from "../../components/loading/loading.component";
+import { config } from "../../utils/constants";
 
 export const ForgotPasswordScreen = () => {
   const [mobile, setMobile] = useState("");
@@ -89,6 +90,7 @@ export const ForgotPasswordScreen = () => {
         login,
         mobileCode,
         mobile,
+        app_id: config.APP_ID,
       };
 
       setLoading(true);
@@ -99,8 +101,9 @@ export const ForgotPasswordScreen = () => {
           setLoading(false);
 
           navigate("ForgotPasswordOTP", {
-            mobileNum: `${mobileCode}${mobile}`,
-            user_id: result.data.user_id,
+            mobileCode,
+            mobile,
+            login,
           });
         } else {
           setLoading(false);

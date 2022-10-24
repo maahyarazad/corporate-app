@@ -22,31 +22,6 @@ import { itemSeparatorVM } from "../../../components/styles";
 const screenWidth = Dimensions.get("window").width;
 const offerItemWidth = (screenWidth - (16 * 2 + 8 * 3)) / 4;
 
-const OffersHeaderView = styled(View)``;
-
-const OfferItemContainer = styled(View)`
-  width: ${offerItemWidth}px;
-`;
-
-// const OfferItemImageContainer = styled(View)`
-const OfferItemImageContainer = styled(ImageBackground)`
-  ${() => {
-    return `
-    width: ${offerItemWidth}px;
-    height: ${offerItemWidth}px;
-    `;
-  }}
-  border-radius: 10px;
-  background-color: black;
-  /* background-color: lightblue; */
-  elevation: 6;
-  box-shadow: 3px 4px 4px rgba(0, 0, 0, ${Platform.OS === "ios" ? 0.3 : 1});
-  overflow: hidden;
-  justify-content: center;
-  align-items: center;
-  padding: 10px;
-`;
-
 const OffersContentView = styled(View)``;
 
 const OffersItemLabelContainer = styled(View)`
@@ -57,6 +32,44 @@ const OffersItemLabelContainer = styled(View)`
 const { height } = Dimensions.get("window");
 
 export const SpecialTags = ({ data, handlePress }) => {
+  const OffersHeaderView = styled(View)``;
+  const itemWidth = 93;
+  console.log("num items:", data.length);
+  const numcol = Math.floor(screenWidth / itemWidth);
+  console.log("num col:", numcol);
+
+  // const marginPerItem =
+  //   numcol > data.length
+  //     ? (screenWidth - data.length * itemWidth - 32) / (data.length - 1)
+  //     : (screenWidth - numcol * itemWidth - 24) / numcol;
+
+  const marginPerItem = (screenWidth - numcol * itemWidth - 24) / numcol;
+  const OfferItemContainer = styled(View)`
+    width: ${itemWidth}px;
+    margin-right: ${marginPerItem}px;
+  `;
+
+  // width: ${offerItemWidth}px;
+  //     height: ${offerItemWidth}px;
+  // const OfferItemImageContainer = styled(View)`
+  const OfferItemImageContainer = styled(ImageBackground)`
+    ${() => {
+      return `
+        width: ${itemWidth}px;
+        height: ${itemWidth}px;
+      `;
+    }}
+    border-radius: 10px;
+    background-color: black;
+    /* background-color: lightblue; */
+    elevation: 6;
+    box-shadow: 3px 4px 4px rgba(0, 0, 0, ${Platform.OS === "ios" ? 0.3 : 1});
+    overflow: hidden;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+  `;
+
   const renderOffers = ({ item }) => {
     return (
       <TouchableOpacity onPress={() => handlePress(item)}>
@@ -76,8 +89,8 @@ export const SpecialTags = ({ data, handlePress }) => {
             >
               <Image
                 style={{
-                  width: "100%",
-                  height: "100%",
+                  width: 80,
+                  height: 80,
                   tintColor: "white",
                 }}
                 resizeMode="cover"
@@ -116,10 +129,11 @@ export const SpecialTags = ({ data, handlePress }) => {
           keyExtractor={(item) => item.id}
           scrollEnabled={false}
           nestedScrollEnabled={true}
-          numColumns={4}
+          numColumns={numcol}
           style={{ paddingVertical: 16 }}
+          contentContainerStyle={{}}
           columnWrapperStyle={{
-            justifyContent: "space-between",
+            justifyContent: "flex-start",
             paddingHorizontal: 16,
           }}
           ItemSeparatorComponent={itemSeparatorVM}

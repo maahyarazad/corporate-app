@@ -15,8 +15,7 @@ export interface IUser{
     mobile?: string;
     mobileCode?: string;
     nationality: string | TranslationLanguageCodeMap;
-    cardNumber?: string;
-    cardValidity?: string;
+    partner_id: number;
 }
 
 export interface IUserDetails {

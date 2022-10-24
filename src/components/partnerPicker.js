@@ -9,7 +9,7 @@ import { PartnerService } from "../services/location/location.service";
 import { CustomTextInput } from "./customTextInput";
 import { Label } from "./typography/label.component";
 
-export const PartnerPicker = ({ data, setPartner }) => {
+export const PartnerPicker = ({ data, setPartner, error }) => {
   const [selectedPartner, setSelectedPartner] = useState("");
   const [openPartner, setOpenPartner] = useState(false);
   // const [partnerList, setPartnerList] = useState();
@@ -39,6 +39,7 @@ export const PartnerPicker = ({ data, setPartner }) => {
             maxHeight: 58,
             position: "absolute",
           }}
+          error={error}
           right={
             <MaterialCommunityIcons
               name="chevron-down"

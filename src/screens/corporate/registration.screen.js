@@ -38,7 +38,7 @@ export const RegistrationScreen = () => {
     mobile: "",
     mobileCode: "971",
     mobileCountry: "AE",
-    partner: null,
+    partner_id: null,
     app_id: config.APP_ID,
   });
 
@@ -83,7 +83,7 @@ export const RegistrationScreen = () => {
       state.cpassword.trim() === "" ||
       state.email.trim() === "" ||
       state.mobile.trim() === "" ||
-      state.partner == undefined
+      state.partner_id == undefined
     ) {
       shake();
       Alert.alert("Empty Fields", "Some fields are empty.");
@@ -128,11 +128,11 @@ export const RegistrationScreen = () => {
   };
 
   const handlePartnerChange = (partnerId) => {
-    setState({ ...state, partner: partnerId });
+    setState({ ...state, partner_id: partnerId });
   };
 
   const handleUsernameChange = (prev) => {
-    setState({ ...state, username: prev.replaceAll(" ", ``) });
+    setState({ ...state, username: prev.replace(/[\s+]/g, ``) });
   };
 
   const handlePasswordChange = (prev) => {
@@ -339,6 +339,7 @@ export const RegistrationScreen = () => {
               <PartnerPicker
                 data={partnerList}
                 setPartner={handlePartnerChange}
+                error={!state.partner_id && isSubmitted}
               />
               <Spacer position={"top"} size={"small"} />
               <PhoneInput

@@ -125,7 +125,7 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
   };
 
   const loadLocations = (data) => {
-    getLocations(data)
+    getLocations({ ...data, app_id: config.APP_ID })
       .then((response) => {
         if (isMounted.current) {
           setIsLoading(false);

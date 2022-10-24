@@ -1,7 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import {
   Alert,
   FlatList,
+  Linking,
   StyleSheet,
   TouchableHighlight,
   View,
@@ -14,8 +15,11 @@ import { EULAPrivacyLink } from "../../utils/constants";
 import { settingsList } from "../../utils/settingsDefinition";
 import * as WebBrowser from "expo-web-browser";
 import * as Constants from "expo-constants";
+import { AuthContext } from "../../services/auth/auth.context";
 
 export const ProfSettings = () => {
+  const { user } = useContext(AuthContext);
+
   useEffect(() => {}, []);
 
   const handleLogout = () => {
@@ -51,7 +55,7 @@ export const ProfSettings = () => {
               const response = await UserService.removeUser(user.user_id);
               if (response.success) {
                 Alert.alert(response.title, response.message);
-                logout();
+                navigate("Logout");
               } else {
                 Alert.alert(response.title, response.message);
               }
@@ -78,11 +82,20 @@ export const ProfSettings = () => {
     }
   };
 
+  const handleSettings = async () => {
+    try {
+      await Linking.openSettings();
+    } catch (err) {
+      Alert.alert("Error Occured", "Cannot Open Settings");
+    }
+  };
+
   const actions = [
     handleLogout,
     handleDelete,
     handleContactUs,
     handlePrivacyPolicy,
+    handleSettings,
   ];
 
   const renderSettings = ({ item }) => {

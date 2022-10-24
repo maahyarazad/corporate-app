@@ -1,5 +1,6 @@
 import { AxiosResponse } from "axios";
 import { IUser, UserServiceType } from "../../@types/user";
+import { config } from "../../utils/constants";
 import { axiosInstance } from "../interceptor/axiosInstance";
 
 const API_URL = 'user'
@@ -14,13 +15,13 @@ const resData = (response: AxiosResponse) => {
 
 export const UserService: UserServiceType = {
     createUser(user): Promise<boolean> {
-        return axiosInstance.post<boolean>(`${API_URL}/register`, user).then(success);
+        return axiosInstance.post<boolean>(`${API_URL}/register2`, user).then(success);
     },
     updateUser(user): Promise<boolean> {
         return axiosInstance.put<boolean>(`${API_URL}/update`, user).then(success);
     },
     getUserInfo(userId): Promise<IUser> {
-        return axiosInstance.get<IUser>(`${API_URL}/getInfo/${userId}`).then(result)
+        return axiosInstance.post<IUser>(`${API_URL}/getInfo`, {userId, app_id: config.APP_ID}).then(result)
     },
     validateDetails(data): Promise<boolean> {
         return axiosInstance.post(`${API_URL}/validate-details`, data).then(response)
@@ -38,10 +39,10 @@ export const UserService: UserServiceType = {
         return axiosInstance.put(`${API_URL}/change-password/`, data).then(response)
     },
     resendEmailVerification(userId): Promise<boolean> {
-        return axiosInstance.post(`${API_URL}/resend-confirmation/`, {userId}).then(success)
+        return axiosInstance.post(`${API_URL}/resend-confirmation/`, {userId, app_id: config.APP_ID}).then(success)
     },
     removeUser(userId): Promise<boolean>  {
-        return axiosInstance.delete(`${API_URL}/delete-user/${userId}`).then(response)
+        return axiosInstance.delete(`${API_URL}/delete-user/${userId}/${config.APP_ID}`).then(response)
     },
 }
 

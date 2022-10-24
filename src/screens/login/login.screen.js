@@ -16,7 +16,7 @@ import { CustomTextInput } from "../../components/customTextInput";
 import { UserContext } from "../../services/user/user.context";
 import * as WebBrowser from "expo-web-browser";
 import { isValidURL } from "../../utils/isValidURL";
-import { EULAPrivacyLink } from "../../utils/constants";
+import { config, EULAPrivacyLink } from "../../utils/constants";
 
 export const TextInputForm = styled(TextInput)`
   border-radius: 10px;
@@ -69,6 +69,7 @@ export const LoginScreen = ({ navigation }) => {
 
       setLoading(true);
       const credentials = {
+        app_id: config.APP_ID,
         username,
         password,
         ...user,

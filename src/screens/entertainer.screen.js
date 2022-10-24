@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { TabItems } from "../utils/routes";
 import { IconButton } from "react-native-paper";
@@ -6,12 +6,14 @@ import { useTheme } from "styled-components";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { Image, Platform, View } from "react-native";
+import { LocationContext } from "../services/location/location.context";
 
 const Tab = createMaterialTopTabNavigator();
 // const Tab = createBottomTabNavigator();
 
 export const EntertainerScreen = () => {
   const theme = useTheme();
+  const { eventList } = useContext(LocationContext);
   return (
     <>
       {/* <View
@@ -71,12 +73,14 @@ export const EntertainerScreen = () => {
         }}
       >
         {TabItems.map((tab, index) => {
+          if (tab.route === "Events" && !eventList.length) return;
           return (
             <Tab.Screen
               key={index}
               name={tab.route}
               component={tab.component}
               // options={TabItems[index].options}
+
               options={{
                 tabBarStyle: {
                   // marginBottom: 10,
@@ -88,16 +92,6 @@ export const EntertainerScreen = () => {
                 // },
                 tabBarIcon: ({ focused }) => {
                   return (
-                    // <IconButton
-                    //   icon={tab.inactiveIcon}
-                    //   size={30}
-                    //   color={
-                    //     focused
-                    //       ? theme.colors.icons.active
-                    //       : theme.colors.icons.inactive
-                    //   }
-                    // />
-
                     <MaterialCommunityIcons
                       name={tab.inactiveIcon}
                       size={30}
