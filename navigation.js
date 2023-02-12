@@ -34,6 +34,10 @@ import { AuthEditProfileScreen } from "./src/screens/login/authEditProfile";
 import { UnverifiedEmailScreen } from "./src/screens/login/unverifiedEmail.screen";
 import { PrivacyPolicyScreen } from "./src/screens/profile/privacyPolicy.screen";
 import { EventDetailScreen } from "./src/screens/events/eventDetail.screen";
+import { EventGuestsScreen } from "./src/screens/events/eventGuests.screen";
+import { TranslationContext } from "./src/services/translation/translation.context";
+import { UpdateMemberScreen } from "./src/screens/login/updateMember.screen";
+import * as SecureStore from "expo-secure-store";
 
 const AuthStack = createStackNavigator();
 const MainStack = createStackNavigator();
@@ -109,6 +113,17 @@ const AuthStackScreen = () => {
       />
 
       <AuthStack.Screen
+        name="UpdateMember"
+        component={UpdateMemberScreen}
+        options={{
+          headerShown: false,
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+          gestureDirection: "horizontal",
+          gestureResponseDistance: 200,
+        }}
+      />
+
+      <AuthStack.Screen
         name="RegisterDetails"
         component={RegistrationDetailsScreen}
         options={{
@@ -162,6 +177,9 @@ const AuthStackScreen = () => {
 
 const MainScreen = () => {
   const { userInfo } = useContext(UserContext);
+  const { i18n, hello } = useContext(TranslationContext);
+
+  console.log(i18n.t("welcome"));
 
   return (
     <>
@@ -184,11 +202,17 @@ const MainScreen = () => {
                       size={"subtitle"}
                       weight={"bold"}
                     >
-                      {`Hi there, ${
+                      {/* {`Hi there, ${
                         userInfo != undefined
                           ? userInfo.first_name.split(" ")[0]
                           : ""
-                      }!`}
+                      }!`} */}
+                      {i18n.t("user_greeting", {
+                        name:
+                          userInfo != undefined
+                            ? userInfo.first_name.split(" ")[0]
+                            : "",
+                      })}
                     </Label>
                   </View>
                 </>
@@ -196,14 +220,19 @@ const MainScreen = () => {
             },
             headerLeft: () => {
               return (
-                <View style={{ width: "100%" }}>
+                <View
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                  }}
+                >
                   <Image
                     style={{
-                      height: 50,
-                      width: 100,
+                      height: 40,
+                      width: 80,
                       resizeMode: "contain",
                     }}
-                    source={require("./assets/ifza-icon-black.png")}
+                    source={require("./assets/GE-LOGO-GOLD.png")}
                   />
                 </View>
               );
@@ -253,13 +282,14 @@ const MainScreen = () => {
           component={TransactionSummaryScreen}
           options={{
             headerShown: true,
-            title: "Transaction Summary",
+            title: i18n.t("redemption-success.transaction-summary"),
             gestureEnabled: false,
             headerBackTitleVisible: false,
           }}
         />
         <MainStack.Screen
           name={"Location View"}
+          pa
           component={LocationViewScreen}
           options={{
             headerShown: false,
@@ -288,6 +318,20 @@ const MainScreen = () => {
         <MainStack.Screen
           name={"Event Detail"}
           component={EventDetailScreen}
+          options={{
+            headerShown: false,
+            headerBackTitleVisible: false,
+            headerTitleAlign: "left",
+            headerTintColor: "black",
+            cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+            gestureDirection: "horizontal",
+            gestureResponseDistance: 200,
+          }}
+        />
+
+        <MainStack.Screen
+          name={"Attend Guests"}
+          component={EventGuestsScreen}
           options={{
             headerShown: false,
             headerBackTitleVisible: false,
@@ -351,13 +395,29 @@ const ExceedTimeout = () => {
 };
 
 export const AppNavigation = () => {
-  const { isRetrieving, user, isUserVerified } = useContext(AuthContext);
+  const { isRetrieving, user, isUserVerified, skip } = useContext(AuthContext);
+  // const [skip, setSkip] = useState(0);
+  // useEffect(() => {
+  //   let isMounted = true;
+  //   const getSkip = async () => {
+  //     const test = await SecureStore.getItemAsync("skip");
+  //     setSkip(test);
+  //     console.log("skip: ", test);
+  //   };
+
+  //   getSkip();
+
+  //   return () => {
+  //     isMounted = false;
+  //   };
+  // }, []);
+
   // const [timePassed, setTimePassed] = useState(false);
   const [assets] = useAssets([
     require("./assets/IFZA-Logo.png"),
     require("./assets/ifza-login-bg2.jpg"),
     require("./assets/ifza-login-bg.webp"),
-    require("./assets/ifza-icon-black.png"),
+    require("./assets/GE-LOGO-GOLD.png"),
 
     //----------Category Icons------------
     require("./assets/Food_Drinks.png"),
@@ -443,15 +503,15 @@ export const AppNavigation = () => {
   ]);
 
   if (isRetrieving || !assets) {
-    console.log(user);
     return <SplashScreen />;
   }
 
   return (
     <>
+      {/* user.isAuthorized && user.submitCard ? ( */}
       <NavigationContainer ref={navigationRef}>
         {user.token ? (
-          user.isAuthorized && user.submitCard ? (
+          (user.isAuthorized && user.submitCard) || skip ? (
             <MainScreen />
           ) : (
             <ApprovalScreen />

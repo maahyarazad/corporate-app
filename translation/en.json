@@ -1,0 +1,177 @@
+{
+    "en": 
+        {
+        "bottom-tabs": {
+            "home": "Home",
+            "offers": "Offers",
+            "events": "Events",
+            "profile": "Profile"
+        },
+        "profile-tabs": {
+            "user-profile": "User Profile",
+            "savings": "Savings",
+            "settings": "Settings",
+            "profile": {
+                "username": "Username",
+                "email": "Email Address",
+                "mobile": "Mobile Number",
+                "partner": "Partner",
+                "name": "Full Name",
+                "birthdate": "Birthdate",
+                "gender": "Gender",
+                "firstname": "First Name",
+                "middlename": "Middle Name",
+                "lastname": "Last Name",
+                "nationality": "Nationality"
+            },
+            "savings-text": "Your total savings as of today",
+            "history-breakdown": {
+                "hide": "Hide",
+                "show": "Show",
+                "breakdown": "Breakdown",
+
+                "transaction-details": "Transaction Details",
+                "transaction-code": "Transaction Code",
+                "availed": "Availed Offer",
+                "merchant": "Merchant",
+                "category": "Category",
+                "transaction-date": "Transaction Date",
+                "paid": "Total Paid",
+                "savings": "Total Savings"
+            },
+            "settings-menu": {
+                "settings-permission": "App Settings & Permissions",
+                "legal": "EULA & Privacy Policy",
+                "contact-us": "Contact Us",
+                "delete-account": "Delete Account",
+                "logout": "Logout"
+            }
+        },
+        "welcome": "Welcome to GEC App",
+        "user_greeting": "Hello there, %{name}",
+        "search": "Search",
+        "categories": "Categories",
+        "offer-details": {
+            "offers": "Offers",
+            "location": "Location",
+            "about": "About %{partner}",
+            "get-directions": "Get Directions",
+            "visit-website": "Visit Website",
+            "valid-until": "Valid until"
+        },
+        "see-all": "See all",
+        "search-all": "Search All",
+        "redeem-offer": {
+            "instruction": "Please present this Offer Code onsite to %{location.name}'s cashier to avail the offer.",
+            "use-code": "Use Code",
+            "call-now": "Call Now",
+            "redeem": "Redeem",
+            "total-bill": "Total Bill (before Discount)",
+            "discount": "Discount Amount",
+            "actual-paid": "Actual Discounted Payment",
+            "merchant-pin": "Enter 6-Digit Cashier Pin",
+            "avail-offer": "Avail Offer",
+            "highlights": "Highlights",
+            "fine-prints": "Fine Prints / Terms & Conditions",
+            "view-offer": "View Offers"
+        },
+        "redemption": {
+            "confirm": "Confirm Redemption",
+            "message": "Are you sure you want to use this offer?",
+            "error-header": "Redemption Unsuccessful",
+            "error-merchant-pin": "Wrong Merchant Pin"
+        },
+        "close": "Close",
+        "cancel": "Cancel",
+        "redemption-success": {
+            "transaction-summary": "Transaction Summary",
+            "success": "Redemption Successful",
+            "text1": "You saved",
+            "text2": "You paid a total of %{amount} %{currency} to %{partner}",
+            "text3": "Please present this reference code to %{partner}'s Cashier",
+            "done": "Done"
+        },
+        "events": {
+            "title": "Upcoming Events",
+            "include-guests": "include guests",
+            "attend": "Attend",
+            "unattend": "Unattend",
+            "attend-w-guests": "Attend with Guest(s)",
+            "confirm-attendance": "Confirm Attendance",
+            "confirm-attendance-msg": "Are you sure you want to attend this event?",
+            "confirm-attendance-w-msg": "Are you sure you want to attend this event with Guests?",
+            "event-detail": "Event Details",
+            "cancel-attendance": "Cancel Attendance",
+            "cancel-attendance-msg": "Are you sure you want to cancel your attendance?",
+            "guest-list": {
+                "header": "Guest List",
+                "subheader": "You can register up to ${guests} Guest(s) ",
+                "confirm-guest": "Confirm Guest",
+                "add-more": "Add more guest",
+                "guest": "Guest",
+                "firstname": "First Name",
+                "lastname": "Last Name",
+                "registration-success": "Registration Success",
+                "registration-success-msg": "We have added your attendance along with your guest(s)."
+            }
+        },
+        "read-more": "Read More",
+        "proceed": "Proceed",
+        "auth": {
+            "account-verification": "Konto bestätigen",
+            "message": "Please enter the %{codeLength}-digit code sent to %{mobileNumber}",
+            "verify-code": "Verify Code",
+            "resend-code": "Resend Code",
+            "code-sent": "Code has been resent"
+        },
+        "end-of-list": "End of List",
+        "submit": "Submit",
+        "return": "Return",
+        "contact-us": {
+            "sent-successful": "Sent Successfully",
+            "message-sent": "Your message has been sent. Thank you for your message!",
+            "form-email": "E-mail Address",
+            "form-name": "Full Name",
+            "form-phone-number": "Phone Number",
+            "form-message": "Message"
+        },
+        "delete-account": {
+            "header": "Warning",
+            "message": "Are you sure you want to delete this account? \n\nWarning: This action is permanent and your account cannot be recovered."
+        },
+        "logout": {
+            "header": "Logout",
+            "message": "Are you sure you want to logout?"
+        },
+        "no": "No",
+        "yes": "Yes",
+        "free": "Free",
+        "offer-restriction": {
+            "title": "Incomplete Profile",
+            "message": "You need to upload your member card to use any offers or you can also call us to order a card",
+            "order-now": "Order Card",
+            "upload-card": "Upload Card"
+        },
+        "card-upload": {
+            "heading": "Please upload here the front side photo of your GEC Rewards card!",
+            "text": "Add your GEC Rewards card photo to your profile now!",
+            "notice": "Notice:\nPlease make sure your name and expiration date are clearly visible.",
+            "edit-profile": "Edit Profile",
+            "upload": "Upload",
+            "skip": "Skip Upload",
+            "use-image": "Use Image",
+            "retake": "Retake",
+            "uploaded": {
+                "heading": "Authorization Pending",
+                "message": "Your authorization request has been sent to GEC Rewards team. After the authorization process is completed, the approval will then be sent to your registered mobile number and email address.",
+                "note": "Note:\nYou can only use the GEC Rewards App on one mobile device at any given time. Should you login to another device, you will then be asked to redo the authorization process."
+            }
+        },
+        "gender": {
+            "title": "Gender",
+            "male": "Male",
+            "female": "Female"
+        },
+        "update": "Update"
+    }
+}   

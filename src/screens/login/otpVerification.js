@@ -19,11 +19,13 @@ import {
 } from "../../components/styles";
 import { Label } from "../../components/typography/label.component";
 import { AuthContext } from "../../services/auth/auth.context";
+import { TranslationContext } from "../../services/translation/translation.context";
 import { config } from "../../utils/constants";
 
 export const OtpVerification = ({ route, navigation }) => {
   const MAX_CODE_LENGTH = 4;
   const { isLoading, verify, resendOTP, user } = useContext(AuthContext);
+  const { i18n } = useContext(TranslationContext);
 
   const [code, setCode] = useState("");
   const [pinReady, setPinReady] = useState(false);
@@ -74,7 +76,7 @@ export const OtpVerification = ({ route, navigation }) => {
                   style={{ color: "white", fontSize: width * 0.08 }}
                   weight={"bold"}
                 >
-                  Account Verification
+                  {i18n.t("auth.account-verification")}
                 </Label>
                 <Spacer position={"top"} size={"medium"} />
                 <Label
@@ -85,14 +87,17 @@ export const OtpVerification = ({ route, navigation }) => {
                   }}
                   weight={"regular"}
                 >
-                  Please enter the {MAX_CODE_LENGTH}-digit code sent to
+                  {i18n.t("auth.message", {
+                    codeLength: MAX_CODE_LENGTH,
+                    mobileNumber: `+${mobileNum}`,
+                  })}
                 </Label>
-                <Label
+                {/* <Label
                   style={{ color: "white", fontSize: width * 0.04 }}
                   weight={"bold"}
                 >
                   +{mobileNum}
-                </Label>
+                </Label> */}
               </View>
               <Spacer position={"top"} size={"medium"} />
 
@@ -123,19 +128,19 @@ export const OtpVerification = ({ route, navigation }) => {
                     size={"heading"}
                     weight={"medium"}
                   >
-                    Verify Code
+                    {i18n.t("auth.verify-code")}
                   </Label>
                 )}
               </VerifyButton>
               <Spacer position={"top"} size={"medium"} />
               {resendStatus ? (
                 <Label style={{ color: "#aaa" }} size={"title"}>
-                  Code has been resent
+                  {i18n.t("auth.code-sent")}
                 </Label>
               ) : (
                 <TouchableOpacity onPress={handleResend}>
                   <Label style={{ color: "white" }} size={"title"}>
-                    Resend Code
+                    {i18n.t("auth.resend-code")}
                   </Label>
                 </TouchableOpacity>
               )}

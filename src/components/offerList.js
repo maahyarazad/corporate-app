@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   Animated,
   Easing,
@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Offer } from "../features/offers/components/offer.component";
 import { OfferModalInfo } from "../features/offers/components/offerModalForm";
+import { TranslationContext } from "../services/translation/translation.context";
 import { CustomModal } from "./modal/customModal.component";
 import { itemSeparatorVS } from "./styles";
 import { Label } from "./typography/label.component";
@@ -20,7 +21,7 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
   const [shortOfferList, setShortOfferList] = useState();
   const [showModal, setShowModal] = useState(false);
   const [selectedOffer, setSelectedOffer] = useState();
-
+  const { i18n } = useContext(TranslationContext);
   const toggleShowAll = async () => {
     if (!showAll) {
       await setShowAll(!showAll);
@@ -92,7 +93,7 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
         size={"heading"}
         weight={"bold"}
       >
-        Offers
+        {i18n.t("offer-details.offers")}
       </Label>
       {/* <Offer /> */}
       {shortOfferList != undefined && (

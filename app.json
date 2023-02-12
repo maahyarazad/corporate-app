@@ -1,8 +1,9 @@
 {
   "expo": {
+    "scheme": "gecrewards",
     "name": "GEC Rewards",
     "slug": "GEC-Rewards",
-    "version": "1.0.5",
+    "version": "1.0.10",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -15,8 +16,8 @@
       [
         "expo-media-library",
         {
-          "photosPermission": "Allow ${PRODUCT_NAME} to access your photos.",
-          "savePhotosPermission": "Allow ${PRODUCT_NAME} to save photos.",
+          "photosPermission": "The app needs to access the photo of your GEC Rewards card.",
+          "savePhotosPermission": "The app needs to save a photo of your GEC Rewards card.",
           "isAccessMediaLocationEnabled": "true"
         }
       ]
@@ -28,24 +29,25 @@
       "**/*"
     ],
     "ios": {
+      "associatedDomains": ["applinks:buenapublica.com"],
+      "buildNumber": "6",
       "supportsTablet": true,
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Turning on location services allows us to show you nearby shops with offers.",
-        "NSPhotoLibraryUsageDescription": "The app needs to access the photo of your GEC Corporate card.",
-        "NSPhotoLibraryAddUsageDescription": "The app needs to save a photo of your GEC Corporate card.",
+        "NSPhotoLibraryUsageDescription": "The app needs to access the photo of your GEC Rewards card.",
+        "NSPhotoLibraryAddUsageDescription": "The app needs to save a photo of your GEC Rewards card.",
         "NSCameraUsageDescription": "The app needs to take a photo of your GEC Corporate card."
       },
       "bundleIdentifier": "com.buenapublica.GECRewards",
-      
       "config": {
-        "googleMapsApiKey": "AIzaSyBtZTwjvW-SZadWwFKwMXk1pEKOszzW9ic"
+        "googleMapsApiKey": "AIzaSyARBZ-ZBNWxmlP8sTXqeqFJuBkkQm6zuKE"
       }
     },
     "android": {
-      "versionCode": 2,
+      "versionCode": 4,
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyCMsLOPcJjKYWE1kMB9tRJ2HOZdZVT0kCo"
+          "apiKey": "AIzaSyBdMYAFwnxqA6KI4AE31v8BWBsr1ZDRogQ"
         }
       },
       "adaptiveIcon": {
@@ -65,7 +67,7 @@
     "description": "",
     "extra": {
       "eas": {
-        "projectId": "7dc0b84b-8086-42fb-a155-46bff3800b1f"
+        "projectId": "62fbe3bc-6c85-43b1-af3d-4546f8f80ffe"
       }
     }
   }

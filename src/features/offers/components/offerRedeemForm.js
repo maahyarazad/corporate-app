@@ -1,5 +1,5 @@
 import { CommonActions, useNavigation } from "@react-navigation/native";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -15,6 +15,7 @@ import { Spacer } from "../../../components/spacer/spacer.component";
 import { TextInputCurrency } from "../../../components/textInputCurrency/textInputCurrency.component";
 import { Label } from "../../../components/typography/label.component";
 import { navigate } from "../../../navigation/navigate";
+import { TranslationContext } from "../../../services/translation/translation.context";
 import { Offer } from "./offer.component";
 
 export const OfferRedeemForm = ({
@@ -32,6 +33,7 @@ export const OfferRedeemForm = ({
   );
   const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(false);
+  const { i18n } = useContext(TranslationContext);
 
   useEffect(() => {
     let isMounted = true;
@@ -44,32 +46,71 @@ export const OfferRedeemForm = ({
   }, []);
 
   const calculate = () => {
+    const correctedPaid = paidAmount.toString().split(/,|٫/gm).join(".");
     const total =
       offerInfo.freebie_value > 0
-        ? parseFloat(paidAmount) + offerInfo.freebie_value
-        : paidAmount * offerInfo.percentage;
+        ? parseFloat(correctedPaid) + offerInfo.freebie_value
+        : correctedPaid * offerInfo.percentage;
     const disc =
       offerInfo.freebie_value > 0
         ? offerInfo.freebie_value
-        : paidAmount * offerInfo.percentage - paidAmount;
+        : correctedPaid * offerInfo.percentage - correctedPaid;
 
     setDiscAmount(disc.toFixed(2));
     setTotalAmount(total.toFixed(2));
+  };
+
+  const calculateReverse = () => {
+    const correctedTotal = totalAmount
+      ? totalAmount.toString().split(/,|٫/gm).join(".")
+      : 0;
+    const paid = parseFloat(correctedTotal) / offerInfo.percentage;
+    const disc = parseFloat(correctedTotal) - paid;
+
+    setDiscAmount(disc.toFixed(2));
+    setPaidAmount(paid.toFixed(2));
   };
 
   const onChangePaidAmount = (amount) => {
     setPaidAmount(amount);
   };
 
+  const onChangeTotalBill = (amount) => {
+    setTotalAmount(amount);
+  };
+
   const onFocusPaid = () => {
     setPaidAmount("");
   };
 
+  const onFocusTotal = () => {
+    setTotalAmount("");
+  };
+
   const onBlurPaidAmount = () => {
     setPaidAmount(
-      paidAmount < offerInfo.min_value ? offerInfo.min_value : paidAmount
+      paidAmount
+        ? paidAmount < offerInfo.min_value
+          ? offerInfo.min_value
+          : parseFloat(paidAmount.toString().split(/,|٫/gm).join("."))
+        : "0.00"
     );
     calculate();
+  };
+
+  const onBlurTotalBill = () => {
+    // setPaidAmount(
+    //   paidAmount < offerInfo.min_value ? offerInfo.min_value : paidAmount
+    // );
+    setTotalAmount(
+      totalAmount
+        ? parseFloat(totalAmount.toString().split(/,|٫/gm).join("."))
+        : "0.00"
+    );
+    // setPaidAmount(
+    //   parseFloat(paidAmount.toString().split(/,|٫/gm).join(".")) ?? 0.00
+    // );
+    calculateReverse();
   };
 
   const handleRedeem = async () => {
@@ -90,27 +131,26 @@ export const OfferRedeemForm = ({
     } else {
       setIsLoading(false);
 
-      alert("Wrong Merchant Pin");
+      Alert.alert(
+        i18n.t("redemption.error-header"),
+        i18n.t("redemption.error-merchant-pin")
+      );
     }
   };
 
   const handleConfirm = () => {
-    Alert.alert(
-      "Confirm Redemption",
-      "Are you sure you want to use this offer?",
-      [
-        {
-          text: "Cancel",
-          onPress: () => {},
+    Alert.alert(i18n.t("redemption.confirm"), i18n.t("redemption.message"), [
+      {
+        text: i18n.t("cancel"),
+        onPress: () => {},
+      },
+      {
+        text: i18n.t("proceed"),
+        onPress: () => {
+          handleRedeem();
         },
-        {
-          text: "Proceed",
-          onPress: () => {
-            handleRedeem();
-          },
-        },
-      ]
-    );
+      },
+    ]);
   };
 
   return (
@@ -156,29 +196,33 @@ export const OfferRedeemForm = ({
                 }}
               >
                 <TextInputCurrency
-                  disabled={true}
+                  onBlur={onBlurTotalBill}
+                  onFocus={onFocusTotal}
+                  onChangeText={onChangeTotalBill}
+                  disabled={offerInfo.with_freebie == 1}
                   value={totalAmount.toString()}
                   style={{ marginVertical: 6 }}
-                  label={"Total Bill (before Discount)"}
+                  label={i18n.t("redeem-offer.total-bill")}
                 />
                 <TextInputCurrency
                   disabled={true}
                   value={discAmount.toString()}
                   style={{ marginVertical: 6 }}
-                  label={"Discount Amount"}
+                  label={i18n.t("redeem-offer.discount")}
                 />
                 <TextInputCurrency
                   onBlur={onBlurPaidAmount}
                   onFocus={onFocusPaid}
                   onChangeText={onChangePaidAmount}
-                  disabled={offerInfo.with_freebie === 2}
+                  disabled={false}
+                  // disabled={offerInfo.with_freebie === 1}
                   minValue={offerInfo.min_value}
                   value={paidAmount.toString()}
                   style={{ marginVertical: 6 }}
-                  label={"Actual Discounted Payment"}
+                  label={i18n.t("redeem-offer.actual-paid")}
                 />
                 <View style={{ marginTop: 8 }}>
-                  <Label>Enter 6-Digit Cashier Pin</Label>
+                  <Label>{i18n.t("redeem-offer.merchant-pin")}</Label>
                   <CodeInputField
                     code={merchantCode}
                     setCode={setCode}
@@ -208,7 +252,7 @@ export const OfferRedeemForm = ({
           mode="contained"
           onPress={onCloseModal}
         >
-          Close
+          {i18n.t("close")}
         </Button>
         <Spacer position={"left"} size={"small"} />
         <Button
@@ -224,7 +268,7 @@ export const OfferRedeemForm = ({
           mode="contained"
           onPress={handleConfirm}
         >
-          Redeem
+          {i18n.t("redeem-offer.redeem")}
         </Button>
       </View>
     </KeyboardAwareScrollView>

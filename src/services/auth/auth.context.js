@@ -1,8 +1,17 @@
-import React, { createContext, useEffect, useRef, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { navigate } from "../../navigation/navigate";
 import { adminFileBaseURL } from "../../utils/constants";
+import * as SecureStore from "expo-secure-store";
+import { axiosInstance } from "../interceptor/axiosInstance";
+import { TranslationContext } from "../translation/translation.context";
 import {
   verifyOTP,
-  login,
   retrieveToken,
   removeStorage,
   resendOTP,
@@ -20,12 +29,33 @@ export const AuthContextProvider = ({ children }) => {
   const [isUserVerified, setIsUserVerified] = useState(false);
   const [user, setUser] = useState({});
   const isLogout = useRef(false);
+  const { setLang } = useContext(TranslationContext);
+  const [skip, setSkip] = useState(null);
 
   useEffect(() => {
     (async () => {
       await retrieve();
+      const getSkip = parseInt(await SecureStore.getItemAsync("skip"));
+      setSkip(getSkip);
+      console.log("getSkip: ", getSkip);
     })();
   }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const saveSkip = async () => {
+      if (isMounted) await SecureStore.setItemAsync("skip", skip.toString());
+    };
+
+    if (skip) {
+      saveSkip();
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [skip]);
 
   const retrieve = async () => {
     try {
@@ -45,12 +75,15 @@ export const AuthContextProvider = ({ children }) => {
         remarks: result.remarks,
         requestDate: result.date_created,
         requestId: result.requestId,
+        member: result.member,
       });
-      console.log(user);
-      setIsRetrieving(false);
+      // setUser({});
+      // await SecureStore.deleteItemAsync("user_details");
+      console.log("skip: ", skip);
     } catch (err) {
-      console.log();
       alert(err);
+    } finally {
+      setIsRetrieving(false);
     }
   };
 
@@ -62,6 +95,7 @@ export const AuthContextProvider = ({ children }) => {
     setIsLoading(true);
     isLogout.current = true;
     setUser({ ...user, token: null, status: 0, requestId: null });
+    setSkip(0);
     await removeStorage();
     setIsLoading(false);
   };
@@ -82,6 +116,39 @@ export const AuthContextProvider = ({ children }) => {
       });
   };
 
+  const login = (credentials) => {
+    return new Promise((resolve, reject) => {
+      axiosInstance
+        .post(`user/login`, credentials)
+        .then(async (response) => {
+          try {
+            const res = response.data;
+            if (res.member) {
+              // alert(res.member_id);
+              setLang("de");
+              if (res.member_id) {
+                navigate("UpdateMember", {
+                  member_id: res.member_id,
+                  credentials,
+                });
+                return;
+              }
+            } else {
+              setLang("en");
+            }
+            await SecureStore.setItemAsync("user_id", res.user_id.toString());
+            resolve(res);
+          } catch (err) {
+            console.log(err);
+          }
+        })
+        .catch(() => {
+          // console.log(err.data.message);
+          reject();
+        });
+    });
+  };
+
   const contextValue = {
     logout,
     login,
@@ -95,6 +162,8 @@ export const AuthContextProvider = ({ children }) => {
     user,
     storeToken,
     isLogout,
+    skip,
+    setSkip,
   };
 
   return (

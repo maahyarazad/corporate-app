@@ -15,6 +15,10 @@ import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";
 import { theme } from "../../infrastructure/theme";
 import { AuthContext } from "../../services/auth/auth.context";
+import {
+  i18n,
+  TranslationContext,
+} from "../../services/translation/translation.context";
 import { UserService } from "../../services/user/user.service";
 import { config } from "../../utils/constants";
 
@@ -162,7 +166,7 @@ export const ProfRedeemHistory = () => {
             flex: 1,
           }}
         >
-          <Label size="subtitle">Your total savings as of today</Label>
+          <Label size="subtitle">{i18n.t("profile-tabs.savings-text")}</Label>
           <Label size="subtitle">({moment(new Date()).format("LL")})</Label>
           <View style={{ paddingVertical: 16 }}>
             {overall != undefined ? (
@@ -233,7 +237,13 @@ export const ProfRedeemHistory = () => {
                 name={displayBreakdown ? "chevron-down" : "chevron-up"}
                 size={25}
               />
-              <Label>{displayBreakdown ? "Hide" : "Show"} Breakdown</Label>
+              <Label>
+                {displayBreakdown
+                  ? i18n.t("profile-tabs.history-breakdown.hide")
+                  : i18n.t("profile-tabs.history-breakdown.show")}
+                {` `}
+                {i18n.t("profile-tabs.history-breakdown.breakdown")}
+              </Label>
             </View>
           </TouchableOpacity>
           <ScrollView
@@ -262,7 +272,9 @@ export const ProfRedeemHistory = () => {
                     paddingVertical: 16,
                   }}
                 >
-                  <Label style={{ color: "#aaa" }}>-- End of List --</Label>
+                  <Label style={{ color: "#aaa" }}>
+                    -- {i18n.t("end-of-list")} --
+                  </Label>
                 </View>
               </ScrollView>
             ) : (

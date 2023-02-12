@@ -7,12 +7,14 @@ import moment from "moment";
 import { genderEnum } from "../../utils/constants";
 import { Button } from "react-native-paper";
 import { AuthContext } from "../../services/auth/auth.context";
+import { TranslationContext } from "../../services/translation/translation.context";
 
 const { width } = Dimensions.get("window");
 const labelWidth = width * (1 / 3);
 
 export const ProfInfo = () => {
   const { userInfo } = useContext(UserContext);
+  const { i18n } = useContext(TranslationContext);
   // console.log(userInfo);
 
   const RenderRow = ({ label, value }) => {
@@ -41,39 +43,63 @@ export const ProfInfo = () => {
           paddingVertical: 16,
         }}
       >
-        <RenderRow label={"Username"} value={`${userInfo.username}`} />
-        <RenderRow label={"Email Address"} value={userInfo.email} />
         <RenderRow
-          label={"Mobile Number"}
+          label={i18n.t("profile-tabs.profile.username")}
+          value={`${userInfo.username}`}
+        />
+        <RenderRow
+          label={i18n.t("profile-tabs.profile.email")}
+          value={userInfo.email}
+        />
+        <RenderRow
+          label={i18n.t("profile-tabs.profile.mobile")}
           value={`+${userInfo.area_code} ${userInfo.phone_number}`}
         />
+        {userInfo.card_number != undefined &&
+          userInfo.card_number.trim() != "" && (
+            <RenderRow
+              label={"Card Number"}
+              value={userInfo.card_number
+                .toString()
+                .replace(/.{4}/g, `$& `)
+                .trim()}
+            />
+          )}
         {userInfo.card_number != undefined && (
-          <RenderRow
-            label={"Card Number"}
-            value={userInfo.card_number
-              .toString()
-              .replace(/.{4}/g, `$& `)
-              .trim()}
-          />
-        )}
-        {userInfo.card_valid_date != undefined && (
-          <RenderRow
-            label={"Validity Date"}
-            value={moment(userInfo.card_valid_date).format("MM/YY")}
-          />
+          <>
+            <Label>{userInfo.card_valid_date}</Label>
+            <RenderRow
+              label={"Validity Date"}
+              value={moment(userInfo.card_valid_date).format("MM/YY")}
+            />
+          </>
         )}
 
+        {userInfo.partner_name != undefined &&
+          userInfo.partner_name.trim() != "" && (
+            <RenderRow
+              label={i18n.t("profile-tabs.profile.partner")}
+              value={userInfo.partner_name}
+            />
+          )}
+
         <RenderRow
-          label={"Full Name"}
-          value={`${userInfo.honorifics} ${userInfo.first_name} ${userInfo.middle_name} ${userInfo.last_name}`}
+          label={i18n.t("profile-tabs.profile.name")}
+          value={`${userInfo.honorifics}${userInfo.first_name}${
+            !!userInfo.middlename ? ` ${userInfo.middle_name} ` : " "
+          }${userInfo.last_name}`}
         />
         <RenderRow
-          label={"Birthdate"}
+          label={i18n.t("profile-tabs.profile.birthdate")}
           value={moment(userInfo.birthdate).format("LL")}
         />
         <RenderRow
-          label={"Gender"}
-          value={genderEnum[userInfo.gender.toLowerCase()]}
+          label={i18n.t("profile-tabs.profile.gender")}
+          value={
+            userInfo.gender.toLowerCase() === "m"
+              ? i18n.t("gender.male")
+              : i18n.t("gender.female")
+          }
         />
       </ScrollView>
     </View>

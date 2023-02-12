@@ -39,6 +39,9 @@ import { expiryToDate } from "../../utils/expiryToDate";
 import { LoadingOverlay } from "../../components/loading/loading.component";
 import { useNavigation } from "@react-navigation/native";
 import { validateCardExpiryDate } from "../../utils/validateCardExpiryDate";
+import { PartnerPicker } from "../../components/partnerPicker";
+import { PartnerService } from "../../services/location/location.service";
+import { TranslationContext } from "../../services/translation/translation.context";
 
 export const AuthEditProfileScreen = () => {
   const { user } = useContext(AuthContext);
@@ -60,20 +63,24 @@ export const AuthEditProfileScreen = () => {
     email: "---",
     mobile: "---",
     nationality: "---",
-    cardNumber: "---",
-    cardValidity: "---",
+    partner_id: "---",
+    partner_name: "---",
   });
   const dateLimit = new Date();
   dateLimit.setFullYear(dateLimit.getFullYear() - 18);
   const honorificLabelList = honorificList.map((x) => ({ label: x, value: x }));
   const isMounted = useRef(true);
   const navigation = useNavigation();
+  const [partnerList, setPartnerList] = useState([]);
+  const { i18n, lang } = useContext(TranslationContext);
 
   useLayoutEffect(() => {
     isMounted.current = true;
-    console.log(userInfo);
+    // console.log(userInfo);
 
     if (userInfo != undefined) {
+      // console.log(userInfo.partner_id);
+
       const data = {
         ...state,
         user_id: user.user_id,
@@ -87,12 +94,41 @@ export const AuthEditProfileScreen = () => {
         nationality: userInfo.nationality,
         gender: userInfo.gender.toLowerCase(),
         honorifics: userInfo.honorifics,
-        cardNumber: userInfo.card_number,
-        cardValidity: moment(userInfo.card_valid_date).format("MM/YY"),
+        partner_id: userInfo.partner_id,
+        partner_name: "---",
       };
+
+      const getPartners = async () => {
+        try {
+          const response = await PartnerService.getPartners();
+          if (response.success && isMounted) {
+            setPartnerList(response.data);
+
+            setState({
+              ...data,
+              partner_name: response.data.filter(
+                (partner) => partner.value == userInfo.partner_id
+              )[0].label,
+            });
+          } else {
+            Alert.alert(
+              "Error Occured",
+              "There's a problem loading the partners"
+            );
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      };
+
+      getPartners();
+      console.log("get partner");
+
       setState(data);
       setStateCopy(data);
     }
+
+    console.log(state.partner_name);
 
     return () => {
       isMounted.current = false;
@@ -108,9 +144,15 @@ export const AuthEditProfileScreen = () => {
     return () => {};
   }, [state]);
 
+  const handlePartnerChange = (partnerId, partnerName) => {
+    setState({ ...state, partner_id: partnerId, partner_name: partnerName });
+  };
+
   const handleSubmit = async () => {
     try {
-      const data = { ...state, cardValidity: expiryToDate(state.cardValidity) };
+      const data = { ...state };
+
+      console.log(state);
 
       setIsLoading(true);
       const response = await UserService.updateUser(data);
@@ -132,13 +174,6 @@ export const AuthEditProfileScreen = () => {
     }
   };
 
-  const handleValidity = (prev) => {
-    setState({
-      ...state,
-      cardValidity: validateCardExpiryDate(state.cardValidity, prev),
-    });
-  };
-
   const toggleDropDownGender = useCallback(() => {
     setIsOpenGender(!isOpenGender);
     setIsOpenHonorifics(false);
@@ -157,6 +192,7 @@ export const AuthEditProfileScreen = () => {
           <CompanyLogo
             style={{
               resizeMode: "contain",
+              marginBottom: 15,
             }}
             source={companyLogo}
           />
@@ -182,7 +218,7 @@ export const AuthEditProfileScreen = () => {
                 weight="bold"
                 style={{ color: "#dfdfdf", justifyContent: "center" }}
               >
-                Return
+                {i18n.t("return")}
               </Label>
             </TouchableOpacity>
             <Label
@@ -190,7 +226,7 @@ export const AuthEditProfileScreen = () => {
               weight="bold"
               style={{ color: "#dfdfdf", justifyContent: "center" }}
             >
-              Edit Profile
+              {i18n.t("card-upload.edit-profile")}
             </Label>
           </View>
           <KeyboardAwareScrollView
@@ -208,15 +244,19 @@ export const AuthEditProfileScreen = () => {
             <CustomTextInput
               value={state.username}
               disable={true}
-              label="Username"
+              label={i18n.t("profile-tabs.profile.username")}
             />
             <Spacer position={"top"} size="medium" />
-            <CustomTextInput value={state.email} disable={true} label="Email" />
+            <CustomTextInput
+              value={state.email}
+              disable={true}
+              label={i18n.t("profile-tabs.profile.email")}
+            />
             <Spacer position={"top"} size="medium" />
             <CustomTextInput
               value={state.mobile}
               disable={true}
-              label="Mobile Number"
+              label={i18n.t("profile-tabs.profile.mobile")}
             />
             <Spacer position={"top"} size="medium" />
             <View
@@ -259,7 +299,7 @@ export const AuthEditProfileScreen = () => {
               onChangeText={(prev) => {
                 setState({ ...state, firstname: prev });
               }}
-              label="First Name"
+              label={i18n.t("profile-tabs.profile.firstname")}
             />
             <Spacer position={"top"} size="medium" />
             <CustomTextInput
@@ -267,7 +307,7 @@ export const AuthEditProfileScreen = () => {
               onChangeText={(prev) => {
                 setState({ ...state, middlename: prev });
               }}
-              label="Middle Name"
+              label={i18n.t("profile-tabs.profile.middlename")}
             />
             <Spacer position={"top"} size="medium" />
             <CustomTextInput
@@ -275,7 +315,7 @@ export const AuthEditProfileScreen = () => {
               onChangeText={(prev) => {
                 setState({ ...state, lastname: prev });
               }}
-              label="Last Name"
+              label={i18n.t("profile-tabs.profile.lastname")}
             />
             <Spacer position={"top"} size="medium" />
 
@@ -287,11 +327,13 @@ export const AuthEditProfileScreen = () => {
             >
               <CustomTextInput
                 value={
-                  genderEnum[state.gender.toLowerCase()] != undefined
-                    ? genderEnum[state.gender.toLowerCase()]
+                  state.gender.toLowerCase() != undefined
+                    ? state.gender.toLowerCase() === "m"
+                      ? i18n.t("gender.male")
+                      : i18n.t("gender.female")
                     : "---"
                 }
-                label={"Gender"}
+                label={i18n.t("gender.title")}
                 style={{
                   width: "100%",
                   maxHeight: 58,
@@ -318,8 +360,8 @@ export const AuthEditProfileScreen = () => {
                 display: "none",
               }}
               items={[
-                { label: "Male", value: "m" },
-                { label: "Female", value: "f" },
+                { label: i18n.t("gender.male"), value: "m" },
+                { label: i18n.t("gender.female"), value: "f" },
               ]}
               open={isOpenGender}
               setOpen={setIsOpenGender}
@@ -334,7 +376,7 @@ export const AuthEditProfileScreen = () => {
               <CustomTextInput
                 value={moment(state.birthdate).format("LL")}
                 // onChangeText={setBirthdate}
-                label={"Birthdate"}
+                label={i18n.t("profile-tabs.profile.birthdate")}
                 style={{
                   width: "100%",
                   maxHeight: 60,
@@ -344,14 +386,13 @@ export const AuthEditProfileScreen = () => {
               <DatePicker
                 value={state.birthdate}
                 onDateChange={(date) => setState({ ...state, birthdate: date })}
-                title="Birthdate"
+                title={i18n.t("profile-tabs.profile.birthdate")}
                 isNullable={false}
                 iosMode="date"
                 androidMode="date"
                 androidDisplay="default"
                 textColor="black"
-                maximumDate={dateLimit}
-                locale="en"
+                locale={lang}
                 iosDisplay="spinner"
                 style={{
                   width: "100%",
@@ -370,7 +411,7 @@ export const AuthEditProfileScreen = () => {
             >
               <CustomTextInput
                 value={state.nationality}
-                label={"Nationality"}
+                label={i18n.t("profile-tabs.profile.nationality")}
                 style={{
                   width: "100%",
                   height: 58,
@@ -418,25 +459,13 @@ export const AuthEditProfileScreen = () => {
               </View>
             </View>
             <Spacer position={"top"} size="medium" />
-            <CustomTextInput
-              value={state.cardNumber}
-              keyboardType="numeric"
-              maxLength={12}
-              onChangeText={(prev) => {
-                setState({ ...state, cardNumber: prev });
-              }}
-              label="IFZA Card Number"
-            />
-            <Spacer position={"top"} size="medium" />
-            <CustomTextInput
-              value={state.cardValidity}
-              //   value={state.cardValidity}
-              placeholder={"mm/yy"}
-              keyboardType="numeric"
-              maxLength={5}
-              onChangeText={handleValidity}
-              label="Validity Date"
-            />
+            {!user.member && (
+              <PartnerPicker
+                data={partnerList}
+                selectedPartnerName={state.partner_name}
+                setPartner={handlePartnerChange}
+              />
+            )}
             <Spacer position={"top"} size="medium" />
             <AnimatedButton
               onPress={handleSubmit}
@@ -447,7 +476,7 @@ export const AuthEditProfileScreen = () => {
               textColor={"#fff"}
               textSize={"title"}
               textWeight={"medium"}
-              label={"Update"}
+              label={i18n.t("update")}
               disabled={disableButton}
             ></AnimatedButton>
           </KeyboardAwareScrollView>

@@ -1,14 +1,18 @@
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { Text, View } from "react-native";
+import { Linking, Text, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
-import { TouchableRipple } from "react-native-paper";
+import { Button, TouchableRipple } from "react-native-paper";
 import styled from "styled-components";
+import { CacheImage } from "../components/cacheImage";
 import { LoadingOverlay } from "../components/loading/loading.component";
 import { SafeArea } from "../components/safearea.component";
+import { Spacer } from "../components/spacer/spacer.component";
 import { Label } from "../components/typography/label.component";
 import { AuthContext } from "../services/auth/auth.context";
 import { LocationContext } from "../services/location/location.context";
+import { TranslationContext } from "../services/translation/translation.context";
+import { adminFileBaseURL } from "../utils/constants";
 
 export const StyledMap = styled(MapView)`
   flex: 1;
@@ -37,6 +41,16 @@ export const MapScreen = ({ navigation }) => {
     useContext(LocationContext);
   const [myLocation, setMyLocation] = useState(null);
   const [partnerLocations, setPartnerLocations] = useState();
+  const [showImageload, setShowImageload] = useState(false);
+  const [locationState, setLocationState] = useState({
+    locationName: "",
+    locationImage: "",
+    lat: 0,
+    lng: 0,
+    locationId: 0,
+  });
+  const [showPartnerDetails, setShowPartnerDetails] = useState(false);
+  const { i18n } = useContext(TranslationContext);
   const mapRef = useRef();
 
   useEffect(() => {
@@ -73,6 +87,43 @@ export const MapScreen = ({ navigation }) => {
         },
         { duration: 500 }
       );
+  };
+
+  const handlePartnerCentre = (lat, lng) => {
+    mapRef != undefined &&
+      mapRef.current.animateCamera(
+        {
+          center: {
+            latitude: lat - 0.005,
+            longitude: lng,
+          },
+          altitude: 10000,
+          zoom: 15,
+          pitch: 1,
+          heading: 1,
+        },
+        { duration: 200 }
+      );
+  };
+
+  const goLocation = (locationId) => {
+    navigation.navigate("Location View", {
+      locId: locationId,
+    });
+  };
+
+  const getDirections = (lat, lng, place) => {
+    const scheme = Platform.select({
+      ios: "maps:0,0?q=",
+      android: "geo:0,0?q=",
+    });
+    const latLng = `${lat},${lng}`;
+    const label = place;
+    const url = Platform.select({
+      ios: `${scheme}${label}@${latLng}`,
+      android: `${scheme}${latLng}(${label})`,
+    });
+    Linking.openURL(url);
   };
 
   const navigateBack = () => {
@@ -173,7 +224,20 @@ export const MapScreen = ({ navigation }) => {
                   longitude: location.lng,
                   latitude: location.lat,
                 }}
-              />
+                onPress={() => {
+                  setLocationState({
+                    ...locationState,
+                    locationName: location.title,
+                    locationImage: location.file,
+                    locationId: location.id,
+                    lat: location.lat,
+                    lng: location.lng,
+                  });
+
+                  handlePartnerCentre(location.lat, location.lng);
+                  setShowPartnerDetails(true);
+                }}
+              ></Marker>
             ))}
           </MapView>
         ) : (
@@ -185,7 +249,10 @@ export const MapScreen = ({ navigation }) => {
             position: "absolute",
             top: 0,
             width: "100%",
+            flexDirection: "column",
+            height: "100%",
           }}
+          pointerEvents="box-none"
         >
           <View
             style={{
@@ -194,6 +261,7 @@ export const MapScreen = ({ navigation }) => {
               width: "100%",
               justifyContent: "space-between",
             }}
+            pointerEvents="box-none"
           >
             <View>
               <TouchableRipple
@@ -237,6 +305,120 @@ export const MapScreen = ({ navigation }) => {
               </TouchableRipple>
             </View>
           </View>
+          {showPartnerDetails ? (
+            <View
+              style={{
+                flex: 1,
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "flex-end",
+              }}
+              pointerEvents="box-none"
+            >
+              <View
+                style={{
+                  backgroundColor: "white",
+                  height: "auto",
+                  width: "90%",
+                  padding: 20,
+                  marginRight: 20,
+                  marginLeft: 20,
+                  borderRadius: 10,
+                  shadowOpacity: 0.4,
+                  shadowOffset: {
+                    height: 5,
+                    width: 5,
+                  },
+                  shadowRadius: 7,
+                }}
+              >
+                <View>
+                  <View>
+                    {showImageload ? (
+                      <View
+                        style={{
+                          width: "100%",
+                          height: 150,
+                          borderRadius: 10,
+                          overflow: "hidden",
+                          position: "absolute",
+                          zIndex: 1,
+                        }}
+                      >
+                        <LoadingOverlay display={true}></LoadingOverlay>
+                      </View>
+                    ) : (
+                      <></>
+                    )}
+
+                    <CacheImage
+                      onLoadStart={() => {
+                        setShowImageload(true);
+                        console.log("starting");
+                        //alert(`${adminFileBaseURL}${locationState.locationImage}`)
+                      }}
+                      onLoad={() => {
+                        setShowImageload(false);
+                        console.log("complete");
+                      }}
+                      uri={`${adminFileBaseURL}${locationState.locationImage}`}
+                      style={{
+                        width: "100%",
+                        height: 150,
+                        resizeMode: "cover",
+                        borderRadius: 10,
+                      }}
+                    />
+                  </View>
+                  <Spacer size={"medium"} position={"top"}></Spacer>
+                  <Label size={"title"} weight={"bold"}>
+                    {locationState.locationName}
+                  </Label>
+                  <Spacer size={"medium"} position={"top"}></Spacer>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      // flex: 1,
+                    }}
+                  >
+                    <Button
+                      style={{
+                        borderRadius: 20,
+                        // flex: 1,
+                      }}
+                      color={"#0082FF"}
+                      mode="contained"
+                      onPress={() =>
+                        getDirections(
+                          locationState.lat,
+                          locationState.lng,
+                          locationState.locationName
+                        )
+                      }
+                    >
+                      {i18n.t("offer-details.get-directions")}
+                    </Button>
+                    <Spacer size={"small"} position={"left"}></Spacer>
+                    <Button
+                      style={{
+                        borderRadius: 20,
+                        // flex: 1,
+                      }}
+                      color={"#0082FF"}
+                      mode="contained"
+                      onPress={() => {
+                        goLocation(locationState.locationId);
+                      }}
+                    >
+                      {i18n.t("redeem-offer.view-offer")}
+                    </Button>
+                  </View>
+                </View>
+              </View>
+            </View>
+          ) : (
+            <></>
+          )}
         </SafeArea>
       </View>
     </>

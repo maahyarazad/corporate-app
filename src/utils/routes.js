@@ -3,6 +3,7 @@ import { SpecialsScreen } from "../screens/specials.screen";
 import { ProfileScreen } from "../screens/profile/profile.screen";
 import { Image, View } from "react-native";
 import { EventsScreen } from "../screens/events/events.screen";
+import { i18n } from "../services/translation/translation.context";
 
 export const TabItems = [
   {
@@ -11,6 +12,7 @@ export const TabItems = [
     component: HomeNavigation,
     activeIcon: "",
     inactiveIcon: "home",
+    name: i18n.t("bottom-tabs.home"),
     options: {
       headerShown: false,
     },
@@ -20,6 +22,7 @@ export const TabItems = [
     component: SpecialsScreen,
     activeIcon: " ",
     inactiveIcon: "tag-multiple",
+    name: i18n.t("bottom-tabs.offers"),
     options: {
       headerShown: true,
       headerTitle: "2",
@@ -35,7 +38,7 @@ export const TabItems = [
                 width: 100,
                 resizeMode: "contain",
               }}
-              source={require("../../assets/ifza-icon-black.png")}
+              source={require("../../assets/GE-LOGO-GOLD.png")}
             />
           </View>
         );
@@ -47,6 +50,7 @@ export const TabItems = [
     component: EventsScreen,
     activeIcon: " ",
     inactiveIcon: "calendar-month",
+    name: i18n.t("bottom-tabs.events"),
     options: {
       headerShown: true,
       headerTitle: "2",
@@ -61,7 +65,7 @@ export const TabItems = [
                 width: 100,
                 resizeMode: "contain",
               }}
-              source={require("../../assets/ifza-icon-black.png")}
+              source={require("../../assets/GE-LOGO-GOLD.png")}
             />
           </View>
         );
@@ -73,6 +77,7 @@ export const TabItems = [
     component: ProfileScreen,
     activeIcon: " ",
     inactiveIcon: "account-circle",
+    name: i18n.t("bottom-tabs.profile"),
     options: {
       headerShown: true,
       headerTitle: "",
@@ -88,7 +93,7 @@ export const TabItems = [
                 width: 100,
                 resizeMode: "contain",
               }}
-              source={require("../../assets/ifza-icon-black.png")}
+              source={require("../../assets/GE-LOGO-GOLD.png")}
             />
           </View>
         );

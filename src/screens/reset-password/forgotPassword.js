@@ -104,6 +104,7 @@ export const ForgotPasswordScreen = () => {
             mobileCode,
             mobile,
             login,
+            user_id: result.data.user_id,
           });
         } else {
           setLoading(false);

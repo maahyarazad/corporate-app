@@ -1,7 +1,6 @@
 import { axiosInstance } from "../interceptor/axiosInstance";
 import * as Location from "expo-location";
 import { config, typeEnum, typeEnumString } from "../../utils/constants";
-import { getEnumKey } from "../../../helper/helper";
 
 export const getUserLocation = async () => {
   return new Promise(async (resolve, reject) => {
@@ -46,10 +45,10 @@ export const getLocations = (data) => {
   });
 };
 
-export const getOneLocation = (id) => {
+export const getOneLocation = (id, lang) => {
   return new Promise((resolve, reject) => {
     axiosInstance
-      .get(`location/${id}?app=${config.APP_ID}`)
+      .get(`location/${id}?app=${config.APP_ID}&lang=${lang}`)
       .then((response) => {
         resolve(response.data);
       })
@@ -64,15 +63,18 @@ const result = (response) => response.data.result;
 const res = (response) => response.data;
 
 export const PartnerService = {
-  getAvailableCategories() {
+  getAvailableCategories(data) {
     return axiosInstance
-      .post(`${API_URL}/category-available2`, { app_id: config.APP_ID })
+      .post(`${API_URL}/category-available2`, {
+        ...data,
+        app_id: config.APP_ID,
+      })
       .then(result);
   },
 
-  getAvailableTags() {
+  getAvailableTags(data) {
     return axiosInstance
-      .post(`${API_URL}/tags-available2`, { app_id: config.APP_ID })
+      .get(`${API_URL}/tags-available?app_id=${config.APP_ID}&lang=${data}`)
       .then(result);
   },
 

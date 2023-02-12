@@ -10,17 +10,19 @@ import { Label } from "../components/typography/label.component";
 import { createStackNavigator } from "@react-navigation/stack";
 import { UserContext } from "../services/user/user.context";
 import { SearchButton } from "../components/searchbutton";
+import { TranslationContext } from "../services/translation/translation.context";
 
 const OffersStack = createStackNavigator();
 
 export const SpecialsScreen = ({ navigation }) => {
   const [specialTagList, setSpecialTagList] = useState([]);
   const { userInfo } = useContext(UserContext);
+  const { i18n, lang } = useContext(TranslationContext);
 
   useEffect(() => {
     let isMounted = true;
 
-    PartnerService.getAvailableTags()
+    PartnerService.getAvailableTags(lang)
       .then((response) => {
         if (isMounted) setSpecialTagList(response);
       })
@@ -51,7 +53,7 @@ export const SpecialsScreen = ({ navigation }) => {
       page: 1,
       limit: 10,
       source: 2,
-      headerTitle: "Search All",
+      headerTitle: i18n.t("search-all"),
     });
   };
 

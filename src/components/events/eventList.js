@@ -10,19 +10,21 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Button, Card } from "react-native-paper";
+import { Button, Card, Checkbox } from "react-native-paper";
 import { theme } from "../../infrastructure/theme";
 import { navigate } from "../../navigation/navigate";
 import { AuthContext } from "../../services/auth/auth.context";
 import { EventService } from "../../services/event/event.service";
 import { LocationContext } from "../../services/location/location.context";
+import { TranslationContext } from "../../services/translation/translation.context";
 import { Spacer } from "../spacer/spacer.component";
-import { width } from "../styles";
 import { Label } from "../typography/label.component";
 
 export const EventList = () => {
-  const { eventList, getEventsList } = useContext(LocationContext);
+  const { eventList, getEventsList, setEventList } =
+    useContext(LocationContext);
   const { user } = useContext(AuthContext);
+  const { i18n } = useContext(TranslationContext);
 
   const handleSelectEvent = (eventId, registered) => {
     navigate("Event Detail", {
@@ -31,17 +33,21 @@ export const EventList = () => {
     });
   };
 
+  useEffect(() => {
+    return () => {};
+  }, []);
+
   const confirmAttendance = (eventId) => {
     Alert.alert(
-      "Confirm Attendance",
-      "Are you sure you want to attend this event?",
+      i18n.t("events.confirm-attendance"),
+      i18n.t("events.confirm-attendance-msg"),
       [
         {
-          text: "Cancel",
+          text: i18n.t("cancel"),
           onPress: () => {},
         },
         {
-          text: "Proceed",
+          text: i18n.t("proceed"),
           onPress: () => {
             handleAttend(eventId);
           },
@@ -50,17 +56,40 @@ export const EventList = () => {
     );
   };
 
-  const confirmCancel = (eventId) => {
+  const confirmAttendanceGuests = (eventId) => {
     Alert.alert(
-      "Cancel Attendance",
-      "Are you sure you want to cancel your attendance?",
+      i18n.t("events.confirm-attendance"),
+      i18n.t("events.confirm-attendance-w-msg"),
       [
         {
-          text: "Cancel",
+          text: i18n.t("cancel"),
           onPress: () => {},
         },
         {
-          text: "Proceed",
+          text: i18n.t("proceed"),
+          onPress: () => {
+            navigate("Attend Guests", {
+              id: eventId,
+              user_id: user.user_id,
+              origin: "Events",
+            });
+          },
+        },
+      ]
+    );
+  };
+
+  const confirmCancel = (eventId) => {
+    Alert.alert(
+      i18n.t("events.cancel-attendance"),
+      i18n.t("events.cancel-attendance-msg"),
+      [
+        {
+          text: i18n.t("cancel"),
+          onPress: () => {},
+        },
+        {
+          text: i18n.t("proceed"),
           onPress: () => {
             handleCancel(eventId);
           },
@@ -106,8 +135,19 @@ export const EventList = () => {
     }
   };
 
-  const renderCard = ({ item }) => {
-    console.log(item);
+  const guestIcon = (item) => {
+    return (
+      <MaterialCommunityIcons
+        size={20}
+        name={item.includeGuests ? "account-group" : "account"}
+        color={"white"}
+        style={{ marginRight: 5 }}
+      />
+    );
+  };
+
+  const renderCard = ({ item, index }) => {
+    // console.log(item);
     return (
       <TouchableOpacity
         onPress={() => handleSelectEvent(item.id, item.registered)}
@@ -158,6 +198,49 @@ export const EventList = () => {
               </Label>
             </View>
           </Card.Content>
+          {item.guests === 1 && !item.registered && (
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginTop: 8,
+              }}
+            >
+              <Checkbox.Android
+                status={item.includeGuests ? "checked" : "unchecked"}
+                onPress={() => {
+                  // item.includeGuests = !item.includeGuests;
+                  // eventList[index].includeGuests = !item.includeGuests;
+                  // const testing = [...eventList];
+                  // testing[index].includeGuests = !item.includeGuests;
+
+                  setEventList(
+                    eventList.map((element, index1) =>
+                      index1 === index
+                        ? { ...element, includeGuests: !item.includeGuests }
+                        : t
+                    )
+                  );
+                  // console.log(eventList[index]);
+                }}
+                uncheckedColor="black"
+                color="black"
+              />
+              <Label
+                onPress={() => {
+                  setEventList(
+                    eventList.map((element, index1) =>
+                      index1 === index
+                        ? { ...element, includeGuests: !item.includeGuests }
+                        : element
+                    )
+                  );
+                }}
+              >
+                {i18n.t("events.include-guests")}
+              </Label>
+            </View>
+          )}
           <Card.Actions style={{ flex: 1, justifyContent: "space-around" }}>
             <Button
               mode="outlined"
@@ -174,19 +257,28 @@ export const EventList = () => {
               }}
               color={theme.colors.icons.active}
             >
-              READ MORE
+              {i18n.t("read-more")}
             </Button>
             <Spacer position={"left"} size={"small"} />
             <Button
               onPress={() => {
                 if (item.registered) {
                   confirmCancel(item.id);
+                } else if (item.includeGuests) {
+                  confirmAttendanceGuests(item.id);
                 } else {
                   confirmAttendance(item.id);
                 }
               }}
               mode="contained"
               style={{ flex: 1 }}
+              icon={
+                item.registered
+                  ? null
+                  : () => {
+                      return guestIcon(item);
+                    }
+              }
               contentStyle={[styles.cardActionButton]}
               labelStyle={{
                 fontWeight: "bold",
@@ -194,7 +286,9 @@ export const EventList = () => {
               }}
               color={item.registered ? "#842323" : theme.colors.icons.active}
             >
-              {item.registered ? "UNATTEND" : "ATTEND"}
+              {item.registered
+                ? i18n.t("events.unattend")
+                : i18n.t("events.attend")}
             </Button>
           </Card.Actions>
         </Card>
@@ -210,6 +304,7 @@ export const EventList = () => {
         {eventList && eventList.length > 0 && (
           <FlatList
             data={eventList}
+            extraData={eventList}
             renderItem={renderCard}
             contentContainerStyle={styles.eventListContainer}
             ItemSeparatorComponent={() => {

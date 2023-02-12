@@ -19,6 +19,7 @@ import { Skeleton } from "../../../components/skeleton";
 import { itemSeparatorHM } from "../../../components/styles";
 import { PartnerService } from "../../../services/location/location.service";
 import { AuthContext } from "../../../services/auth/auth.context";
+import { TranslationContext } from "../../../services/translation/translation.context";
 
 const renderCategory = ({ item, navigation }) => {
   const handleOnPress = () => {
@@ -110,7 +111,7 @@ const SkeletonCategoryHome = () => {
 
 export const HomeCategory = ({ size }) => {
   const navigation = useContext(NavigationContext);
-
+  const { i18n, lang } = useContext(TranslationContext);
   const { setSectionTitle } = useContext(SectionContext);
   const [categoryList, setCategoryList] = useState();
   const { isLogout } = useContext(AuthContext);
@@ -120,7 +121,7 @@ export const HomeCategory = ({ size }) => {
 
     const getCategories = async () => {
       console.log("category");
-      const categories = await PartnerService.getAvailableCategories();
+      const categories = await PartnerService.getAvailableCategories({ lang });
       if (isMounted && categories) {
         setCategoryList(categories);
       }
@@ -140,13 +141,13 @@ export const HomeCategory = ({ size }) => {
         style={{
           flex: 1,
           justifyContent: "flex-start",
-          marginTop: -12,
+          marginTop: 12,
         }}
       >
         <CategoryHeaderView>
           <Spacer position="left" size="medium">
             <Label style={{ marginTop: 8 }} size="heading" weight="bold">
-              Categories
+              {i18n.t("categories")}
             </Label>
           </Spacer>
         </CategoryHeaderView>

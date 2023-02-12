@@ -38,7 +38,7 @@ axiosInstance.interceptors.response.use(
       return new Promise((resolve, reject) => {
         // console.log(error.response);
         // console.log(error);
-        console.log("eyot");
+        console.log("interceptor error response");
         reject(error);
       });
     }

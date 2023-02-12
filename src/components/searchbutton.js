@@ -1,9 +1,11 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import React from "react";
+import React, { useContext } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { TranslationContext } from "../services/translation/translation.context";
 import { Label } from "./typography/label.component";
 
 export const SearchButton = ({ onPress }) => {
+  const { i18n } = useContext(TranslationContext);
   return (
     <View style={{ flex: 1 }}>
       <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={onPress}>
@@ -35,7 +37,7 @@ export const SearchButton = ({ onPress }) => {
             size={"title"}
             weight="medium"
           >
-            Search
+            {i18n.t("search")}
           </Label>
         </View>
       </TouchableOpacity>

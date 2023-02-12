@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Dimensions, FlatList, Image, StyleSheet, View } from "react-native";
 import { adminFileBaseURL } from "../utils/constants";
+import { CacheImage } from "./cacheImage";
 import { LoadingOverlay } from "./loading/loading.component";
 import { Label } from "./typography/label.component";
 
@@ -14,13 +15,11 @@ export const Slideshow = ({ images }) => {
   };
 
   const renderContainer = ({ item, index }) => (
-    <Image
-      key={index}
+    <CacheImage
+      imgKey={index}
       onLoad={imageLoaded}
       style={{ width: width, height: "100%", resizeMode: "cover" }}
-      source={{
-        uri: `${adminFileBaseURL}${item.image}`,
-      }}
+      uri={`${adminFileBaseURL}${item.image}`}
     />
   );
 

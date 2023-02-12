@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   Dimensions,
   FlatList,
@@ -18,6 +18,7 @@ import { specialsLogo, typeEnum } from "../../../utils/constants";
 import { navigate } from "../../../navigation/navigate";
 import { StackActions } from "@react-navigation/native";
 import { itemSeparatorVM } from "../../../components/styles";
+import { TranslationContext } from "../../../services/translation/translation.context";
 
 const screenWidth = Dimensions.get("window").width;
 const offerItemWidth = (screenWidth - (16 * 2 + 8 * 3)) / 4;
@@ -34,14 +35,8 @@ const { height } = Dimensions.get("window");
 export const SpecialTags = ({ data, handlePress }) => {
   const OffersHeaderView = styled(View)``;
   const itemWidth = 93;
-  console.log("num items:", data.length);
   const numcol = Math.floor(screenWidth / itemWidth);
-  console.log("num col:", numcol);
-
-  // const marginPerItem =
-  //   numcol > data.length
-  //     ? (screenWidth - data.length * itemWidth - 32) / (data.length - 1)
-  //     : (screenWidth - numcol * itemWidth - 24) / numcol;
+  const { i18n } = useContext(TranslationContext);
 
   const marginPerItem = (screenWidth - numcol * itemWidth - 24) / numcol;
   const OfferItemContainer = styled(View)`
@@ -49,9 +44,6 @@ export const SpecialTags = ({ data, handlePress }) => {
     margin-right: ${marginPerItem}px;
   `;
 
-  // width: ${offerItemWidth}px;
-  //     height: ${offerItemWidth}px;
-  // const OfferItemImageContainer = styled(View)`
   const OfferItemImageContainer = styled(ImageBackground)`
     ${() => {
       return `
@@ -118,7 +110,7 @@ export const SpecialTags = ({ data, handlePress }) => {
       <OffersHeaderView>
         <Spacer position="left" size="medium">
           <Label size="heading" weight="bold">
-            Offers
+            {i18n.t("offer-details.offers")}
           </Label>
         </Spacer>
       </OffersHeaderView>

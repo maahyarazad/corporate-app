@@ -5,17 +5,21 @@ import { Skeleton } from "../../../components/skeleton";
 import { Spacer } from "../../../components/spacer/spacer.component";
 import { AuthContext } from "../../../services/auth/auth.context";
 import { PartnerService } from "../../../services/location/location.service";
+import { TranslationContext } from "../../../services/translation/translation.context";
 
 export const TopPartners = () => {
   const [topPartners, setTopPartners] = useState();
   const { isLogout } = useContext(AuthContext);
+  const { lang } = useContext(TranslationContext);
 
   useEffect(() => {
     let isMounted = true;
 
     const getTopPartners = async () => {
-      console.log("partners");
-      const result = await PartnerService.getTopPerCategories({ count: 5 });
+      const result = await PartnerService.getTopPerCategories({
+        count: 5,
+        lang,
+      });
       if (isMounted && result) {
         setTopPartners(result);
       }

@@ -3,7 +3,7 @@ import { axiosInstance } from "../interceptor/axiosInstance";
 import * as Network from "expo-network";
 import * as Application from "expo-application";
 import { Platform } from "react-native";
-import { config } from "../../utils/constants";
+import { navigate } from "../../navigation/navigate";
 
 // const API_URL = `${config.BASE_URL}user`;
 
@@ -23,7 +23,7 @@ export const verifyOTP = (otp_details) => {
           reject(res.message);
         }
       })
-      .catch((err) => {
+      .catch(() => {
         // console.log(err.response);
         reject("Invalid Code");
       });
@@ -33,6 +33,7 @@ export const verifyOTP = (otp_details) => {
 export const getDeviceInfo = async () => {
   try {
     const info = {};
+    console.log("getting info");
     info.ip_address = await Network.getIpAddressAsync();
     const platform = Platform.OS;
     const deviceId =
@@ -45,35 +46,15 @@ export const getDeviceInfo = async () => {
     info.platform = platform;
     return info;
   } catch (err) {
+    console.log("error in getting device info");
     console.log(err);
   }
 };
 
-export const login = (credentials) => {
-  return new Promise(async (resolve, reject) => {
-    axiosInstance
-      .post(`user/login`, credentials)
-      .then(async (response) => {
-        try {
-          const res = response.data;
-          await SecureStore.setItemAsync("user_id", res.user_id.toString());
-
-          resolve(res);
-        } catch (err) {
-          console.log(err);
-        }
-      })
-      .catch((err) => {
-        // console.log(err.data.message);
-        reject();
-      });
-  });
-};
-
 export const retrieveToken = () => {
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     try {
-      const data = await SecureStore.getItemAsync("token");
+      const data = SecureStore.getItemAsync("token");
       resolve(data);
     } catch (err) {
       console.log(err);
@@ -95,9 +76,9 @@ export const retrieveToken = () => {
 // };
 
 export const storeToken = (value) => {
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     try {
-      await SecureStore.setItemAsync("token", value);
+      SecureStore.setItemAsync("token", value);
       resolve();
     } catch (err) {
       reject(err);
@@ -132,13 +113,15 @@ export const resendOTP = async (user_id) => {
 export const checkAuthorization = async (user_id) => {
   return new Promise((resolve, reject) => {
     try {
+      console.log("CHECKING");
       axiosInstance
-        .post(`user/check-authorization`, { user_id, app_id: config.APP_ID })
+        .get(`user/check-authorization/${user_id}`)
         .then((response) => {
+          console.log("response:", response);
           resolve(response.data.result);
         })
         .catch((err) => {
-          console.log(err);
+          console.log("eehhh", err);
           reject(false);
         });
     } catch (err) {
@@ -148,9 +131,9 @@ export const checkAuthorization = async (user_id) => {
 };
 
 export const retrieveUserId = () => {
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     try {
-      resolve(await SecureStore.getItemAsync("user_id"));
+      resolve(SecureStore.getItemAsync("user_id"));
     } catch (err) {
       console.log(err);
       reject(null);

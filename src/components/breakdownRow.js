@@ -1,9 +1,10 @@
 import moment from "moment";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { StyleSheet, TouchableHighlight, View } from "react-native";
 import { ActivityIndicator, Button } from "react-native-paper";
 import { theme } from "../infrastructure/theme";
 import { TransactionService } from "../services/transaction/transaction.service";
+import { TranslationContext } from "../services/translation/translation.context";
 import { config } from "../utils/constants";
 // import { Button } from "react-native-paper";
 import { CustomModal } from "./modal/customModal.component";
@@ -13,7 +14,7 @@ export const BreakdownRow = ({ item }) => {
   const [showModal, setShowModal] = useState(false);
   const [transaction, setTransaction] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-
+  const { i18n } = useContext(TranslationContext);
   const handleOnItemPress = async (id) => {
     // setUser({ ...user, sample: "hello" });
     // console.log("changed something");
@@ -82,7 +83,9 @@ export const BreakdownRow = ({ item }) => {
                 padding: 16,
               }}
             >
-              <Label weight={"bold"}>Transaction Details</Label>
+              <Label weight={"bold"}>
+                {i18n.t("profile-tabs.history-breakdown.transaction-details")}
+              </Label>
             </View>
             <View
               style={{
@@ -106,42 +109,46 @@ export const BreakdownRow = ({ item }) => {
                 />
               </View>
               <RowDetails
-                label={"Transaction Code"}
+                label={i18n.t(
+                  "profile-tabs.history-breakdown.transaction-code"
+                )}
                 value={transaction ? transaction.transaction_code : ""}
               />
               <RowDetails
-                label={"Availed Offer"}
+                label={i18n.t("profile-tabs.history-breakdown.availed")}
                 value={`${
                   transaction
                     ? transaction.with_freebie
-                      ? `Free ${transaction.freebie}`
+                      ? `${i18n.t("free")} ${transaction.freebie}`
                       : transaction.premium
                     : ""
                 } on ${transaction ? transaction.prodname : ""}`}
               />
               <RowDetails
-                label={"Merchant"}
+                label={i18n.t("profile-tabs.history-breakdown.merchant")}
                 value={transaction ? transaction.merchant : ""}
               />
               <RowDetails
-                label={"Category"}
+                label={i18n.t("profile-tabs.history-breakdown.category")}
                 value={transaction ? transaction.category : ""}
               />
               <RowDetails
-                label={"Transaction Date"}
+                label={i18n.t(
+                  "profile-tabs.history-breakdown.transaction-date"
+                )}
                 value={moment(
                   transaction ? transaction.date_transaction : new Date()
                 ).format("lll")}
               />
 
               <RowDetails
-                label={"Total Paid"}
+                label={i18n.t("profile-tabs.history-breakdown.paid")}
                 value={`${transaction ? transaction.paid.toFixed(2) : ""} ${
                   config.CURRENCY
                 }`}
               />
               <RowDetails
-                label={"Total Savings"}
+                label={i18n.t("profile-tabs.history-breakdown.savings")}
                 value={`${
                   transaction
                     ? transaction.with_freebie
@@ -164,7 +171,7 @@ export const BreakdownRow = ({ item }) => {
                 onPress={handleCloseModal}
                 mode="contained"
               >
-                Close
+                {i18n.t("close")}
               </Button>
             </View>
           </View>

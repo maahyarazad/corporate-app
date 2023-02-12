@@ -9,22 +9,25 @@ import { LocationContextProvider } from "./src/services/location/location.contex
 import { AppNavigation } from "./navigation";
 import { UploadContextProvider } from "./src/services/upload/upload.context";
 import { UserContextProvider } from "./src/services/user/user.context";
+import { TranslationContextProvider } from "./src/services/translation/translation.context";
 
 export default function App() {
   return (
     <>
       <ThemeProvider theme={theme}>
-        <AuthContextProvider>
-          <UserContextProvider>
-            <UploadContextProvider>
-              <LocationContextProvider>
-                <SectionContextProvider>
-                  <AppNavigation />
-                </SectionContextProvider>
-              </LocationContextProvider>
-            </UploadContextProvider>
-          </UserContextProvider>
-        </AuthContextProvider>
+        <TranslationContextProvider>
+          <AuthContextProvider>
+            <UserContextProvider>
+              <UploadContextProvider>
+                <LocationContextProvider>
+                  <SectionContextProvider>
+                    <AppNavigation />
+                  </SectionContextProvider>
+                </LocationContextProvider>
+              </UploadContextProvider>
+            </UserContextProvider>
+          </AuthContextProvider>
+        </TranslationContextProvider>
       </ThemeProvider>
       <ExpoStatusBar style="dark" />
     </>

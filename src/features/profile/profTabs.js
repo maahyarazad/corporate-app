@@ -7,6 +7,7 @@ import { ProfSettings as ProfSettings } from "./profSettings";
 import { ProfRedeemHistory } from "./profRedeemHistory";
 import { Fontisto, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Spacer } from "../../components/spacer/spacer.component";
+import { i18n } from "../../services/translation/translation.context";
 
 const ProfileTab = createMaterialTopTabNavigator();
 
@@ -65,7 +66,7 @@ export const ProfTabs = () => {
             return (
               <CustomLabel
                 icon={<MaterialCommunityIcons size={20} name="account" />}
-                label={"User Profile"}
+                label={i18n.t("profile-tabs.user-profile")}
               />
             );
           },
@@ -81,7 +82,7 @@ export const ProfTabs = () => {
             return (
               <CustomLabel
                 icon={<Fontisto size={20} name="dollar" />}
-                label={"Savings"}
+                label={i18n.t("profile-tabs.savings")}
               />
             );
           },
@@ -95,7 +96,7 @@ export const ProfTabs = () => {
             return (
               <CustomLabel
                 icon={<MaterialCommunityIcons size={20} name="cog" />}
-                label={"Settings"}
+                label={i18n.t("profile-tabs.settings")}
               />
             );
           },

@@ -7,9 +7,14 @@ const StyledSafeArea = styled(SafeAreaView)`
   ${Platform.OS === "android" && `padding-top: ${StatusBar.currentHeight}px`}
 `;
 
-export const SafeArea = ({ style, children }) => {
+export const SafeArea = ({ style, children, pointerEvents }) => {
   return (
-    <StyledSafeArea style={[styles.default, style]}>{children}</StyledSafeArea>
+    <StyledSafeArea
+      style={[styles.default, style]}
+      pointerEvents={pointerEvents}
+    >
+      {children}
+    </StyledSafeArea>
   );
 };
 

@@ -16,6 +16,7 @@ import { adminFileBaseURL, offerChipIcon } from "../../../utils/constants";
 import { Skeleton } from "../../../components/skeleton";
 import { KeyboardAwareFlatList } from "react-native-keyboard-aware-scroll-view";
 import { itemSeparatorHS, itemSeparatorVS } from "../../../components/styles";
+import { CacheImage } from "../../../components/cacheImage";
 
 const { width, height } = Dimensions.get("window");
 
@@ -110,13 +111,13 @@ export const LocationList = ({
                 opacityMin={0.1}
                 style={{ position: "absolute", zIndex: -1 }}
               />
-              <Image
+              <CacheImage
                 style={{
                   width: "100%",
                   height: "100%",
                   resizeMode: "cover",
                 }}
-                source={{ uri: `${adminFileBaseURL}${item.file}` }}
+                uri={`${adminFileBaseURL}${item.file}`}
               />
             </View>
             <Spacer position={"left"} size={"small"} />

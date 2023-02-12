@@ -1,5 +1,5 @@
 {
-  "name": "gec-app",
+  "name": "gec-appw",
   "version": "1.0.0",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
@@ -7,7 +7,9 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "eject": "expo eject"
+    "eject": "expo eject",
+    "lint": "eslint app/",
+    "lint:fix": "eslint app/ --fix"
   },
   "dependencies": {
     "@expo/vector-icons": "^13.0.0",
@@ -22,6 +24,7 @@
     "@react-navigation/native": "^6.0.10",
     "@react-navigation/stack": "^6.2.1",
     "axios": "^0.27.2",
+    "country-list-js": "^3.1.7",
     "expo": "~45.0.0",
     "expo-application": "~4.1.0",
     "expo-asset": "~8.5.0",
@@ -31,6 +34,8 @@
     "expo-file-system": "~14.0.0",
     "expo-image-manipulator": "~10.3.1",
     "expo-linear-gradient": "~11.3.0",
+    "expo-linking": "~3.1.0",
+    "expo-localization": "~13.0.0",
     "expo-location": "~14.2.2",
     "expo-media-library": "~14.1.0",
     "expo-network": "~4.2.0",
@@ -40,6 +45,7 @@
     "expo-updates": "~0.13.4",
     "expo-web-browser": "~10.2.1",
     "geolib": "^3.3.3",
+    "i18n-js": "^4.2.0",
     "moment": "^2.29.4",
     "react": "17.0.2",
     "react-dom": "17.0.2",
@@ -68,16 +74,19 @@
     "react-native-webview": "11.18.1",
     "react-native-woodpicker": "^0.3.17",
     "rn-pdf-reader-js": "^4.1.1",
+    "shorthash": "^0.0.2",
     "socket.io-client": "^4.5.1",
     "styled-components": "^5.3.5"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
+    "babel-eslint": "^10.1.0",
     "eslint": "^7.32.0 || ^8.2.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-jsx-a11y": "^6.5.1",
-    "eslint-plugin-react": "^7.28.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-react": "^7.32.1",
     "eslint-plugin-react-hooks": "^4.3.0",
     "typescript": "~4.3.5"
   },

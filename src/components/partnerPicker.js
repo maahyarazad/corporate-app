@@ -9,15 +9,24 @@ import { PartnerService } from "../services/location/location.service";
 import { CustomTextInput } from "./customTextInput";
 import { Label } from "./typography/label.component";
 
-export const PartnerPicker = ({ data, setPartner, error }) => {
+export const PartnerPicker = ({
+  data,
+  setPartner,
+  error,
+  selectedPartnerName = "",
+}) => {
   const [selectedPartner, setSelectedPartner] = useState("");
   const [openPartner, setOpenPartner] = useState(false);
   // const [partnerList, setPartnerList] = useState();
 
+  // useEffect(() => {
+  //   setSelectedPartner(selectedPartnerName);
+  // }, []);
+
   const handleSelection = (e) => {
     setOpenPartner(false);
     setSelectedPartner(e.label);
-    setPartner(e.value);
+    setPartner(e.value, e.label);
   };
 
   const handleToggle = () => {
@@ -32,7 +41,7 @@ export const PartnerPicker = ({ data, setPartner, error }) => {
         }}
       >
         <CustomTextInput
-          value={selectedPartner}
+          value={selectedPartner ? selectedPartner : selectedPartnerName}
           label={"Partner *"}
           style={{
             width: "100%",

@@ -12,25 +12,100 @@ import { theme } from "../../infrastructure/theme";
 import { navigate } from "../../navigation/navigate";
 import { UserService } from "../../services/user/user.service";
 import { EULAPrivacyLink } from "../../utils/constants";
-import { settingsList } from "../../utils/settingsDefinition";
 import * as WebBrowser from "expo-web-browser";
 import * as Constants from "expo-constants";
 import { AuthContext } from "../../services/auth/auth.context";
+import { TranslationContext } from "../../services/translation/translation.context";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export const ProfSettings = () => {
   const { user } = useContext(AuthContext);
+  const { i18n } = useContext(TranslationContext);
+  const settingsList = [
+    {
+      label: i18n.t("profile-tabs.settings-menu.settings-permission"),
+      backgroundColor: "white",
+      textColor: theme.colors.ui.lightGray2,
+      triggerFunction: 4,
+      icon: () => {
+        return (
+          <MaterialCommunityIcons
+            color={theme.colors.ui.lightGray2}
+            name={"cog-outline"}
+            size={25}
+          />
+        );
+      },
+    },
+    {
+      label: i18n.t("profile-tabs.settings-menu.legal"),
+      backgroundColor: "white",
+      textColor: theme.colors.ui.lightGray2,
+      triggerFunction: 3,
+      icon: () => {
+        return (
+          <MaterialCommunityIcons
+            color={theme.colors.ui.lightGray2}
+            name={"shield-search"}
+            size={25}
+          />
+        );
+      },
+    },
+    {
+      label: i18n.t("profile-tabs.settings-menu.contact-us"),
+      backgroundColor: "white",
+      textColor: theme.colors.ui.lightGray2,
+      triggerFunction: 2,
+      icon: () => {
+        return (
+          <MaterialCommunityIcons
+            color={theme.colors.ui.lightGray2}
+            name={"face-agent"}
+            size={25}
+          />
+        );
+      },
+    },
+    {
+      label: i18n.t("profile-tabs.settings-menu.delete-account"),
+      backgroundColor: "white",
+      textColor: theme.colors.ui.warning,
+      triggerFunction: 1,
+      icon: () => {
+        return (
+          <MaterialCommunityIcons
+            color={theme.colors.ui.warning}
+            name={"account-remove-outline"}
+            size={25}
+          />
+        );
+      },
+    },
+    {
+      label: i18n.t("profile-tabs.settings-menu.logout"),
+      backgroundColor: "#CC1515",
+      textColor: "white",
+      triggerFunction: 0,
+      icon: () => {
+        return (
+          <MaterialCommunityIcons color={"white"} name={"logout"} size={25} />
+        );
+      },
+    },
+  ];
 
   useEffect(() => {}, []);
 
   const handleLogout = () => {
     // logout();
-    Alert.alert("Confirm Logout", "Do you really want to logout?", [
+    Alert.alert(i18n.t("logout.header"), i18n.t("logout.message"), [
       {
-        text: "No",
+        text: i18n.t("no"),
         onPress: () => {},
       },
       {
-        text: "Yes",
+        text: i18n.t("yes"),
         onPress: () => {
           navigate("Logout");
         },
@@ -41,15 +116,15 @@ export const ProfSettings = () => {
   const handleDelete = () => {
     // logout();
     Alert.alert(
-      "Warning",
-      "Are you sure you want to delete this Account? \n\nNote: This action is permanent and your account cannot be recovered.",
+      i18n.t("delete-account.header"),
+      i18n.t("delete-account.message"),
       [
         {
-          text: "No",
+          text: i18n.t("no"),
           onPress: () => {},
         },
         {
-          text: "Yes",
+          text: i18n.t("yes"),
           onPress: async () => {
             if (user.user_id) {
               const response = await UserService.removeUser(user.user_id);

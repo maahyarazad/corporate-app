@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Dimensions,
   KeyboardAvoidingView,
@@ -21,10 +21,12 @@ import { OfferRedeemForm } from "../../features/offers/components/offerRedeemFor
 import { OfferService } from "../../services/offer/offer.service";
 import { goback } from "../../navigation/navigate";
 import { LocationInfo } from "../../components/location/LocationInfo.component";
+import { TranslationContext } from "../../services/translation/translation.context";
 
 export const AvailOfferScreen = ({ route }) => {
   const { location, offerInfo, distance, offerCode } = route.params.state;
   const [showModal, setShowModal] = useState(false);
+  const { i18n } = useContext(TranslationContext);
 
   const onCloseModal = () => {
     setShowModal(false);
@@ -86,7 +88,7 @@ export const AvailOfferScreen = ({ route }) => {
                   justifyContent: "center",
                 }}
               >
-                Return
+                {i18n.t("return")}
               </Label>
             </TouchableOpacity>
           </View>
@@ -141,8 +143,9 @@ export const AvailOfferScreen = ({ route }) => {
               style={{ color: "#FFDC00", fontSize: 16, textAlign: "center" }}
               weight={"bold"}
             >
-              Please present this Offer Code onsite to {location.name}'s cashier
-              to avail the offer.
+              {i18n.t("redeem-offer.instruction", {
+                locationName: location.name,
+              })}
             </Label>
           </View>
           <View
@@ -198,12 +201,12 @@ export const AvailOfferScreen = ({ route }) => {
                   style={{ flex: 1, backgroundColor: "#1282FF" }}
                   mode="contained"
                 >
-                  Use Code
+                  {i18n.t("redeem-offer.use-code")}
                 </Button>
                 <Spacer position={"left"} size={"small"} />
                 <Button
                   onPress={() => {
-                    Linking.openURL(`tel:${location.phone}`);
+                    Linking.openURL(`tel:${location.phone.split("|")[0]}`);
                   }}
                   labelStyle={{ fontSize: 12 }}
                   contentStyle={{ padding: 10 }}
@@ -213,7 +216,7 @@ export const AvailOfferScreen = ({ route }) => {
                     return <Ionicons name="call" color={"white"} size={20} />;
                   }}
                 >
-                  Call Now
+                  {i18n.t("redeem-offer.call-now")}
                 </Button>
               </View>
             </View>

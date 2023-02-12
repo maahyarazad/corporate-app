@@ -1,6 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
 import React, { useContext, useEffect, useLayoutEffect, useState } from "react";
-import { Alert, Platform, StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Button } from "react-native-paper";
 import { CustomTextInput } from "../../components/customTextInput";
@@ -9,13 +15,15 @@ import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";
 import { goback } from "../../navigation/navigate";
 import { SupportService } from "../../services/support/support.service";
+import { TranslationContext } from "../../services/translation/translation.context";
 import { UserContext } from "../../services/user/user.context";
 import { config } from "../../utils/constants";
 
 export const ContactUsScreen = () => {
-    const { userInfo } = useContext(UserContext)
-    const [disableButton, setDisableButton] = useState(true)
-    const [state, setState] = useState({
+  const { userInfo } = useContext(UserContext);
+  const { i18n } = useContext(TranslationContext);
+  const [disableButton, setDisableButton] = useState(true);
+  const [state, setState] = useState({
     name: ".",
     email: ".",
     mobile: ".",
@@ -23,111 +31,115 @@ export const ContactUsScreen = () => {
   });
 
   useLayoutEffect(() => {
-    let isMounted = true
-  
-    if(userInfo != undefined && isMounted){
-        setState({...state, 
-            name: `${userInfo.first_name} ${userInfo.last_name}`,
-            email: userInfo.email,
-            mobile: `${userInfo.area_code}${userInfo.phone_number}`})
+    let isMounted = true;
+
+    if (userInfo != undefined && isMounted) {
+      setState({
+        ...state,
+        name: `${userInfo.first_name} ${userInfo.last_name}`,
+        email: userInfo.email,
+        mobile: `${userInfo.area_code}${userInfo.phone_number}`,
+      });
     }
 
     return () => {
-     isMounted = false
+      isMounted = false;
     };
-  }, [])
-  
-  useEffect(() => {
-    const empty = Object.keys(state).find(key => {
-        // console.log('There is Empty', key)
-        // console.log(state[key])
-        return state[key].trim() === ``
-    })
-    
-    if(empty){
-        setDisableButton(true)
-    }else{
+  }, []);
 
-        setDisableButton(false)
+  useEffect(() => {
+    const empty = Object.keys(state).find((key) => {
+      // console.log('There is Empty', key)
+      // console.log(state[key])
+      return state[key].trim() === ``;
+    });
+
+    if (empty) {
+      setDisableButton(true);
+    } else {
+      setDisableButton(false);
     }
-  }, [state])
-  
+  }, [state]);
 
   const handleNameChange = (prev) => {
-    setState({...state, name: prev})
-  }
+    setState({ ...state, name: prev });
+  };
 
   const handleEmailChange = (prev) => {
-    setState({...state, email: prev})
-  }
-  
+    setState({ ...state, email: prev });
+  };
+
   const handleMessageChange = (prev) => {
-    setState({...state, message: prev})
-  }
+    setState({ ...state, message: prev });
+  };
 
   const handleMobileChange = (prev) => {
-    setState({...state, mobile: prev})
-  }
+    setState({ ...state, mobile: prev });
+  };
 
   const handleSubmit = async () => {
-    const data = {...state, app: config.APP_ID}
-    const response = await SupportService.sendFeedbackMsg(data)
-    if(response.success){
-        Alert.alert('Sent Successfully', 'Your message has been sent. Thank you for contacting us!')
-        goback()
-    }else{
-        Alert.alert('Sending Failed', response.message)
+    const data = { ...state, app: config.APP_ID };
+    const response = await SupportService.sendFeedbackMsg(data);
+    if (response.success) {
+      Alert.alert(
+        "Sent Successfully",
+        "Your message has been sent. Thank you for contacting us!"
+      );
+      goback();
+    } else {
+      Alert.alert("Sending Failed", response.message);
     }
-  }
+  };
 
   return (
     <View style={styles.container}>
-        <View
+      <View
+        style={{
+          flexDirection: "row",
+          marginVertical: 16,
+          justifyContent: "space-between",
+          alignItems: "center",
+          alignSelf: "stretch",
+        }}
+      >
+        <TouchableOpacity
+          onPress={goback}
           style={{
             flexDirection: "row",
-            marginVertical: 16,
-            justifyContent: "space-between",
             alignItems: "center",
-            alignSelf: "stretch",
           }}
+          activeOpacity={0.5}
         >
-          <TouchableOpacity
-            onPress={goback}
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-            }}
-            activeOpacity={0.5}
+          <Ionicons name="arrow-back" size={35} color={"#555"} />
+          <Label
+            size={"body"}
+            weight="bold"
+            style={{ color: "#555", justifyContent: "center" }}
           >
-            <Ionicons name="arrow-back" size={35} color={"#555"} />
-            <Label
-              size={"body"}
-              weight="bold"
-              style={{ color: "#555", justifyContent: "center" }}
-            >
-              Return
-            </Label>
-          </TouchableOpacity>
+            {i18n.t("return")}
+          </Label>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.contactContainer}>
+        <View style={{ marginBottom: 24, paddingHorizontal: 16 }}>
+          <Label
+            size={"h5"}
+            weight="bold"
+            style={{ color: "#555", justifyContent: "center" }}
+          >
+            {i18n.t("profile-tabs.settings-menu.contact-us")}
+          </Label>
         </View>
-        <View style={styles.contactContainer}>
-          <View style={{ marginBottom: 24, paddingHorizontal: 16 }}>
-            <Label
-              size={"h5"}
-              weight="bold"
-              style={{ color: "#555", justifyContent: "center" }}
-            >
-              Contact Us
-            </Label>
-          </View>
-          <KeyboardAwareScrollView
-        //   scroll
-            // automaticallyAdjustKeyboardInsets
-            keyboardShouldPersistTaps="always"
-            keyboardDismissMode={Platform.OS === "ios" ? "interactive" : 'on-drag'}
-            style={{paddingHorizontal: 16}}
-            contentContainerStyle={{paddingVertical: 12}}
-          >
-            
+        <KeyboardAwareScrollView
+          //   scroll
+          // automaticallyAdjustKeyboardInsets
+          keyboardShouldPersistTaps="always"
+          keyboardDismissMode={
+            Platform.OS === "ios" ? "interactive" : "on-drag"
+          }
+          style={{ paddingHorizontal: 16 }}
+          contentContainerStyle={{ paddingVertical: 12 }}
+        >
           <View>
             <CustomTextInput
               value={state.name}
@@ -140,7 +152,7 @@ export const ContactUsScreen = () => {
                 },
               }}
               onChangeText={handleNameChange}
-              label="Name *"
+              label={`${i18n.t("contact-us.form-name")} *`}
             />
             <Spacer position={"top"} size="medium" />
             <CustomTextInput
@@ -154,7 +166,7 @@ export const ContactUsScreen = () => {
                 },
               }}
               onChangeText={handleEmailChange}
-              label="Email *"
+              label={`${i18n.t("contact-us.form-email")} *`}
             />
             <Spacer position={"top"} size="medium" />
             <CustomTextInput
@@ -168,7 +180,7 @@ export const ContactUsScreen = () => {
                 },
               }}
               onChangeText={handleMobileChange}
-              label="Phone Number *"
+              label={`${i18n.t("contact-us.form-phone-number")} *`}
             />
             <Spacer position={"top"} size="medium" />
             <CustomTextInput
@@ -186,18 +198,24 @@ export const ContactUsScreen = () => {
                 paddingBottom: 16,
               }}
               onChangeText={handleMessageChange}
-              label="Message *"
+              label={`${i18n.t("contact-us.form-message")} *`}
               multiline={true}
             />
             <Spacer position={"top"} size="medium" />
-            <Button disabled={disableButton} onPress={handleSubmit} contentStyle={{paddingVertical: 8}} color={'orange'} mode="contained">
-                <Label size={'body'} weight={"medium"}>
-                    Submit
-                </Label>
+            <Button
+              disabled={disableButton}
+              onPress={handleSubmit}
+              contentStyle={{ paddingVertical: 8 }}
+              color={"orange"}
+              mode="contained"
+            >
+              <Label size={"body"} weight={"medium"}>
+                {i18n.t("submit")}
+              </Label>
             </Button>
           </View>
-          </KeyboardAwareScrollView>
-        </View>
+        </KeyboardAwareScrollView>
+      </View>
     </View>
   );
 };

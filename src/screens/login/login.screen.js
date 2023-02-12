@@ -16,7 +16,7 @@ import { CustomTextInput } from "../../components/customTextInput";
 import { UserContext } from "../../services/user/user.context";
 import * as WebBrowser from "expo-web-browser";
 import { isValidURL } from "../../utils/isValidURL";
-import { config, EULAPrivacyLink } from "../../utils/constants";
+import { companyLogo, config, EULAPrivacyLink } from "../../utils/constants";
 
 export const TextInputForm = styled(TextInput)`
   border-radius: 10px;
@@ -78,6 +78,7 @@ export const LoginScreen = ({ navigation }) => {
       const response = await login(credentials);
 
       setLoading(false);
+      console.log(response);
       if (response.status) {
         setUser({
           ...user,
@@ -145,7 +146,7 @@ export const LoginScreen = ({ navigation }) => {
                     position: "relative",
                     top: 0,
                   }}
-                  source={require("../../../assets/IFZA-Logo.png")}
+                  source={companyLogo}
                 />
 
                 <View

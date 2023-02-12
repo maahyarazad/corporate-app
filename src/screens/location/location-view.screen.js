@@ -21,6 +21,7 @@ import { SkeletonLocation } from "../../components/skeletonLocation";
 import { itemSeparatorHS } from "../../components/styles";
 import { OfferList } from "../../components/offerList";
 import { LocationInfo } from "../../components/location/LocationInfo.component";
+import { TranslationContext } from "../../services/translation/translation.context";
 
 const { width, height } = Dimensions.get("window");
 
@@ -28,6 +29,7 @@ export const LocationViewScreen = ({ route, navigation }) => {
   const locationId = route.params.locId;
   const { getOneLocation, userLocation } = useContext(LocationContext);
   const [location, setLocation] = useState(null);
+  const { i18n, lang } = useContext(TranslationContext);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [distance, setDistance] = useState();
@@ -56,7 +58,7 @@ export const LocationViewScreen = ({ route, navigation }) => {
 
   const onRefresh = () => {
     setLoading(true);
-    getOneLocation(locationId)
+    getOneLocation(locationId, lang)
       .then((response) => {
         if (isMounted.current) {
           setLocation(response);
@@ -165,7 +167,7 @@ export const LocationViewScreen = ({ route, navigation }) => {
                     }}
                   >
                     <Label size={"heading"} weight={"bold"}>
-                      Location
+                      {i18n.t("offer-details.location")}
                     </Label>
                     <View style={{ marginBottom: 8 }}>
                       <Label weight={"medium"}>
@@ -206,7 +208,7 @@ export const LocationViewScreen = ({ route, navigation }) => {
                         style={style.mapButtons}
                         onPress={getDirections}
                       >
-                        Get Directions
+                        {`${i18n.t("offer-details.get-directions")}`}
                       </Button>
                       {location != undefined && location.web != undefined && (
                         <Button
@@ -220,7 +222,7 @@ export const LocationViewScreen = ({ route, navigation }) => {
                           style={style.mapButtons}
                           onPress={() => openWebsite(location.web)}
                         >
-                          Visit Website
+                          {`${i18n.t("offer-details.visit-website")}`}
                         </Button>
                       )}
                     </View>
@@ -234,7 +236,9 @@ export const LocationViewScreen = ({ route, navigation }) => {
                   }}
                 >
                   <Label size={"heading"} weight={"bold"}>
-                    About {location.name}
+                    {`${i18n.t("offer-details.about", {
+                      partner: location.name,
+                    })}`}
                   </Label>
                   <Label size={"body"} weight={"regular"}>
                     {location.about_en}

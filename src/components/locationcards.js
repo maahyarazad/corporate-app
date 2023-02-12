@@ -10,7 +10,10 @@ import {
 import { Card, Chip } from "react-native-paper";
 import { navigate } from "../navigation/navigate";
 import { LocationContext } from "../services/location/location.context";
+import { TranslationContext } from "../services/translation/translation.context";
 import { adminFileBaseURL, typeEnum } from "../utils/constants";
+import { CacheImage } from "./cacheImage";
+import { MyCard } from "./myCard.component";
 import { Skeleton } from "./skeleton";
 import { Spacer } from "./spacer/spacer.component";
 import { itemSeparatorHM } from "./styles";
@@ -19,6 +22,7 @@ import { Label } from "./typography/label.component";
 export const LocationCards = ({ label, locationList }) => {
   const { width } = Dimensions.get("window");
   const { userLocation } = useContext(LocationContext);
+  const { i18n } = useContext(TranslationContext);
 
   const handlePress = (id) => {
     navigate("Location View", {
@@ -72,22 +76,32 @@ export const LocationCards = ({ label, locationList }) => {
               style={{ width: width - 32, borderRadius: 10, marginBottom: 16 }}
               key={`${item}`}
             >
-              <Card style={{ borderRadius: 10 }}>
+              <MyCard
+                distance={`${getDistanceInKM(item.lat, item.lng)} km`}
+                imgUrl={`${adminFileBaseURL}${item.file}`}
+                main_name={item.main_name}
+                outlet_name={item.outlet_name}
+                offer_types={item.offer_types}
+                tags={item.tags}
+                userLocation={userLocation}
+                size="partner"
+              />
+              {/* <Card style={{ borderRadius: 10 }}>
                 <View
                   style={{
                     position: "relative",
                     // backgroundColor: "#ccc",
                   }}
                 >
-                  <Card.Cover
+                  <CacheImage
                     style={{
                       borderTopLeftRadius: 10,
                       borderTopRightRadius: 10,
                       backgroundColor: "#aaa",
+                      width: "100%",
+                      height: 250,
                     }}
-                    source={{
-                      uri: `${adminFileBaseURL}${item.file}`,
-                    }}
+                    uri={`${adminFileBaseURL}${item.file}`}
                   />
                   {userLocation && (
                     <View
@@ -162,17 +176,13 @@ export const LocationCards = ({ label, locationList }) => {
                     );
                   })}
                 </Card.Content>
-              </Card>
+              </Card> */}
             </View>
           </TouchableOpacity>
         </>
       );
     }
   }
-
-  // const renderLocation = ({ item }) => {
-
-  // };
 
   return (
     <View style={styles.container}>
@@ -198,7 +208,7 @@ export const LocationCards = ({ label, locationList }) => {
             size={"body"}
             weight={"medium"}
           >
-            {`See all`}
+            {i18n.t("see-all")}
           </Label>
         </TouchableOpacity>
       </View>
@@ -207,7 +217,6 @@ export const LocationCards = ({ label, locationList }) => {
           marginBottom: 8,
         }}
       >
-        {/* {false ? ( */}
         {locationList != undefined ? (
           <FlatList
             style={{ flex: 1 }}

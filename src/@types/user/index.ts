@@ -34,6 +34,15 @@ export interface IUserChangePass {
     mobile: string
 }
 
+export interface IMemberInfo {
+    firstname: string,
+    middlename?: string,
+    lastname: string,
+    email: string,
+    mobileCode: string,
+    mobileNubmer: string
+}
+
 export type UserServiceType = {
     createUser: (user: IUser) => Promise<boolean>;
     updateUser: (user: IUser) => Promise<boolean>;
@@ -45,4 +54,6 @@ export type UserServiceType = {
     changePassword: (data: any) => Promise<any>
     resendEmailVerification: (userId: number) => Promise<boolean>;
     removeUser: (userId: number) => Promise<boolean>;
+    getMemberInfo: (user_id: number) => Promise<any>;
+    addMember: (data: IMemberInfo) => Promise<boolean>;
 }

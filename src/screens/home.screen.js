@@ -14,14 +14,16 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { UserContext } from "../services/user/user.context";
 import { AuthContext } from "../services/auth/auth.context";
 import { navigate } from "../navigation/navigate";
-import { SectionContext } from "../services/section/section.context";
 import { SearchButton } from "../components/searchbutton";
 import { TopPartners } from "../features/home/components/toppartners.component";
-import { typeEnum } from "../utils/constants";
+import { config, typeEnum } from "../utils/constants";
 import { isDevice } from "expo-device";
 import * as SecureStorage from "expo-secure-store";
 import * as Notifications from "expo-notifications";
 import { NotificationsService } from "../services/notifications/notifications.service";
+import { TranslationContext } from "../services/translation/translation.context";
+import { Hotpicks } from "../components/hotpick/hotpicks.component";
+import { UrlListener } from "../utils/urlRouter";
 
 const HomeContainer = styled(FlatList)`
   flex: 1;
@@ -41,7 +43,8 @@ export const HomeScreen = ({ ...props }) => {
   const [refreshing, setRefreshing] = useState(false);
   const { getUserInfo, userInfo, setIsHomeInit } = useContext(UserContext);
   const { user } = useContext(AuthContext);
-  const { setSectionTitle } = useContext(SectionContext);
+  const { i18n } = useContext(TranslationContext);
+  // const { setSectionTitle } = useContext(SectionContext);
 
   useEffect(() => {
     let isMounted = true;
@@ -97,6 +100,8 @@ export const HomeScreen = ({ ...props }) => {
       if (!response.success) {
         Alert.alert(response.title, response.message);
       }
+      console.log("whattt");
+      console.log(user);
       // await SecureStorage.setItemAsync("pushtoken", token);
     } else {
       alert("Must use physical device for Push Notifications");
@@ -118,7 +123,7 @@ export const HomeScreen = ({ ...props }) => {
   };
 
   const handleSearch = () => {
-    setSectionTitle("Search All");
+    // setSectionTitle("Search All");
 
     navigate("LocationList", {
       type: typeEnum.category,
@@ -126,7 +131,7 @@ export const HomeScreen = ({ ...props }) => {
       page: 1,
       limit: 20,
       source: 2,
-      headerTitle: "Search All",
+      headerTitle: i18n.t("search-all"),
     });
   };
 
@@ -138,18 +143,11 @@ export const HomeScreen = ({ ...props }) => {
 
       return (
         <>
+          <UrlListener />
           <Spacer position={"top"} size={"medium"}>
             <Spacer position={"left"} size={"medium"}>
               <Spacer position={"right"} size={"medium"}>
                 <View style={{ flexDirection: "row" }}>
-                  {/* <TouchableOpacity style={{flex:}} onPress={() => {}}>
-                      <Searchbar
-                        // editable={false}
-                        style={{ flex: 1 }}
-                        onPressIn={handleSearch}
-                        placeholder="Search"
-                      />
-                    </TouchableOpacity> */}
                   <SearchButton onPress={handleSearch} />
                   <Spacer position={"left"} size={"small"} />
                   <NearMeButton
@@ -167,6 +165,7 @@ export const HomeScreen = ({ ...props }) => {
             </Spacer>
           </Spacer>
           <FeaturedBanner />
+          <Hotpicks />
           <HomeCategory />
           <TopPartners />
         </>

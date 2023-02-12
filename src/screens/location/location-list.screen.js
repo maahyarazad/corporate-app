@@ -16,6 +16,7 @@ import { SocketContext } from "../../services/socket/socket.context";
 import { Suggestion } from "../../components/suggestion";
 import { config, searchSource } from "../../utils/constants";
 import { io } from "socket.io-client";
+import { TranslationContext } from "../../services/translation/translation.context";
 
 const Search = styled(Searchbar)`
   margin: 0 12px;
@@ -25,6 +26,7 @@ const Search = styled(Searchbar)`
 export const LocationListScreen = ({ navigation, route, ...props }) => {
   const { type, search, limit, source } = route.params;
   const { getLocations } = useContext(LocationContext);
+  const { lang } = useContext(TranslationContext);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [socket, setSocket] = useState();
   const [suggestedList, setSuggestedList] = useState([]);
@@ -125,7 +127,7 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
   };
 
   const loadLocations = (data) => {
-    getLocations({ ...data, app_id: config.APP_ID })
+    getLocations({ ...data, app_id: config.APP_ID, lang })
       .then((response) => {
         if (isMounted.current) {
           setIsLoading(false);
@@ -256,10 +258,6 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
         </View>
 
         <LocationList
-          // onLayout={() => {
-          //   alert("atay");
-          //   searchRef.current.focus();
-          // }}
           onScrollBegin={onScroll}
           navigation={navigation}
           locations={locations}
@@ -268,7 +266,6 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
           // loadMore={loadMore}
           onMomentumScrollEnd={loadMore}
         />
-
         {suggestedList.length > 0 && searchBarFocused && (
           <Suggestion onPress={onSearch} suggestedList={suggestedList} />
         )}

@@ -34,6 +34,8 @@ import { PostCardUpload } from "../../components/postCardUpload";
 import { LoadingOverlay } from "../../components/loading/loading.component";
 import Background from "../../components/background/background.component";
 import moment from "moment";
+import * as SecureStore from "expo-secure-store";
+import { TranslationContext } from "../../services/translation/translation.context";
 
 const imageHeightRatio = width * (1 / 1);
 const cardRatio = 2.125 / 3.375;
@@ -54,7 +56,8 @@ export const RequestApprovalScreen = () => {
   //context
   const { uploadCard, loading, setLoading, abortUpload } =
     useContext(UploadContext);
-  const { user } = useContext(AuthContext);
+  const { user, setUser, setSkip } = useContext(AuthContext);
+  const { i18n } = useContext(TranslationContext);
 
   const cameraContainerAnimated = useRef(
     new Animated.Value(width * cardRatio)
@@ -88,6 +91,13 @@ export const RequestApprovalScreen = () => {
   const handleCancel = () => {
     abortUpload();
     setLoading(false);
+  };
+
+  const handleSkip = async () => {
+    // setUser({ ...user });
+    // await SecureStore.setItemAsync("skip", "1");
+    setSkip(1);
+    console.log(user);
   };
 
   const handleUpload = async () => {
@@ -200,6 +210,7 @@ export const RequestApprovalScreen = () => {
               <CompanyLogo
                 style={{
                   resizeMode: "contain",
+                  marginBottom: 15,
                 }}
                 source={companyLogo}
               />
@@ -297,7 +308,7 @@ export const RequestApprovalScreen = () => {
                         {!isCameraOpen ? (
                           <MaterialCommunityIcons
                             color={"#00000088"}
-                            name="image-plus"
+                            name="camera"
                             size={50}
                           />
                         ) : (
@@ -416,14 +427,18 @@ export const RequestApprovalScreen = () => {
                                   >
                                     <TouchableHighlight onPress={closeCamera}>
                                       <View style={styles.cameraButtons}>
-                                        <Label>Use Image</Label>
+                                        <Label style={{ textAlign: "center" }}>
+                                          {i18n.t("card-upload.use-image")}
+                                        </Label>
                                       </View>
                                     </TouchableHighlight>
                                     <TouchableHighlight
                                       onPress={handleUseImage}
                                     >
                                       <View style={styles.cameraButtons}>
-                                        <Label>Retake</Label>
+                                        <Label style={{ textAlign: "center" }}>
+                                          {i18n.t("card-upload.retake")}
+                                        </Label>
                                       </View>
                                     </TouchableHighlight>
                                   </View>
@@ -447,8 +462,7 @@ export const RequestApprovalScreen = () => {
                     size={"heading"}
                     weight={"bold"}
                   >
-                    Please upload here the front side photo of your IFZA Rewards
-                    card!
+                    {i18n.t("card-upload.heading")}
                   </Label>
                   <Spacer position={"top"} size={"medium"} />
                   <View
@@ -466,9 +480,7 @@ export const RequestApprovalScreen = () => {
                       size={"title"}
                       weight={"regular"}
                     >
-                      Add your IFZA Rewards card photo to your profile now!
-                      {/* Please
-                          upload a photo of the front of your IFZA Rewards card. */}
+                      {i18n.t("card-upload.text")}
                     </Label>
                     <Spacer position={"top"} size={"large"} />
                     <View>
@@ -480,18 +492,7 @@ export const RequestApprovalScreen = () => {
                         size={"body"}
                         weight={"regular"}
                       >
-                        Notice:
-                      </Label>
-                      <Label
-                        style={{
-                          color: "#fff",
-                          textAlign: "left",
-                        }}
-                        size={"body"}
-                        weight={"regular"}
-                      >
-                        Please make sure your name and expiration date are
-                        clearly visible.
+                        {i18n.t("card-upload.notice")}
                       </Label>
                     </View>
 
@@ -511,7 +512,7 @@ export const RequestApprovalScreen = () => {
                           }}
                           size="title"
                         >
-                          Edit Profile
+                          {i18n.t("card-upload.edit-profile")}
                         </Label>
                       </TouchableOpacity>
                     </View>
@@ -532,9 +533,29 @@ export const RequestApprovalScreen = () => {
                       textColor={"#fff"}
                       textSize={"title"}
                       textWeight={"regular"}
-                      label={"Upload"}
+                      label={i18n.t("card-upload.upload")}
                     ></AnimatedButton>
                   </View>
+                </View>
+                <View
+                  style={{
+                    flex: 1,
+                    alignItems: "center",
+                    marginTop: 15,
+                  }}
+                >
+                  <TouchableOpacity onPress={handleSkip}>
+                    {/* <Text style={{textDecorationLine}}></Text> */}
+                    <Label
+                      style={{
+                        textDecorationLine: "underline",
+                        color: "white",
+                      }}
+                      size="title"
+                    >
+                      {i18n.t("card-upload.skip")}
+                    </Label>
+                  </TouchableOpacity>
                 </View>
               </View>
             )}

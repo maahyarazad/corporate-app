@@ -1,4 +1,5 @@
-import React from "react";
+import moment from "moment";
+import React, { useContext } from "react";
 import {
   Image,
   StyleSheet,
@@ -6,11 +7,15 @@ import {
   TouchableHighlight,
   View,
 } from "react-native";
+import RibbonSVG from "../../../components/ribbon.component";
 import { width } from "../../../components/styles";
 import { Label } from "../../../components/typography/label.component";
+import { TranslationContext } from "../../../services/translation/translation.context";
 import { offerStamps } from "../../../utils/constants";
 
 export const Offer = ({ offer, onPress, backgroundColor = "#efefef" }) => {
+  const { i18n } = useContext(TranslationContext);
+
   return (
     <TouchableHighlight onPress={onPress} style={{ borderRadius: 10 }}>
       <View style={styles.container}>
@@ -31,6 +36,53 @@ export const Offer = ({ offer, onPress, backgroundColor = "#efefef" }) => {
             ]}
           />
           <View style={[styles.offerTicket, { backgroundColor: offer.color }]}>
+            {offer && !!offer.isHotpick && (
+              <View style={{ position: "absolute", zIndex: 2, top: 6 }}>
+                <RibbonSVG fill={"#FF9600"} />
+                <View
+                  style={{
+                    position: "absolute",
+                    height: "100%",
+                    // backgroundColor: "green",
+                    width: "100%",
+                    paddingRight: 16,
+                    display: "flex",
+                    // alignItems: "flex-start",
+                    flexDirection: "row",
+                  }}
+                >
+                  <View style={{ position: "relative", height: 30, width: 20 }}>
+                    <Image
+                      style={{
+                        height: 30,
+                        width: 20,
+                        tintColor: "#FF5000",
+                        position: "absolute",
+                        top: -10,
+                      }}
+                      source={require("./../../../../assets/specials/Hot_Pick.png")}
+                    />
+                  </View>
+                  <View
+                    style={{
+                      flex: 1,
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Label
+                      style={{
+                        color: "white",
+                        fontSize: 13,
+                      }}
+                      weight={"bold"}
+                    >
+                      Hot Pick
+                    </Label>
+                  </View>
+                </View>
+              </View>
+            )}
+
             <View style={styles.bottomNotch}></View>
             <View style={[styles.bottomNotch, styles.topNotch]}></View>
 
@@ -58,12 +110,13 @@ export const Offer = ({ offer, onPress, backgroundColor = "#efefef" }) => {
                       {offer.prodname_en}
                     </Label>
                   </View>
-                  <Label style={styles.expiryDate}>
+                  <Label style={styles.expiryDate} size={"caption"}>
                     {/* {console.log(
                     new Date(Date.parse(offer.date_end)).toLocaleDateString()
                   )} */}
-                    valid until{" "}
-                    {new Date(Date.parse(offer.date_end)).toLocaleDateString()}
+                    {`${i18n.t("offer-details.valid-until")} ${moment(
+                      new Date(Date.parse(offer.date_end))
+                    ).format("D-MMM, Y")}`}
                   </Label>
                 </View>
               </View>

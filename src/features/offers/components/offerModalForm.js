@@ -1,14 +1,22 @@
 import React, { useContext, useState } from "react";
-import { StyleSheet, TouchableHighlight, View } from "react-native";
+import {
+  Alert,
+  Linking,
+  StyleSheet,
+  TouchableHighlight,
+  View,
+} from "react-native";
 import { Button } from "react-native-paper";
 import WebView from "react-native-webview";
 import { LoadingOverlay } from "../../../components/loading/loading.component";
 import { LocationInfo } from "../../../components/location/LocationInfo.component";
+import { CustomModal } from "../../../components/modal/customModal.component";
 import { Spacer } from "../../../components/spacer/spacer.component";
 import { Label } from "../../../components/typography/label.component";
 import { navigate } from "../../../navigation/navigate";
 import { AuthContext } from "../../../services/auth/auth.context";
 import { OfferService } from "../../../services/offer/offer.service";
+import { TranslationContext } from "../../../services/translation/translation.context";
 import { Offer } from "./offer.component";
 
 export const OfferModalInfo = ({
@@ -18,9 +26,15 @@ export const OfferModalInfo = ({
   distance,
 }) => {
   const [loading, setLoading] = useState(false);
-  const { user } = useContext(AuthContext);
+  const { user, skip, setSkip } = useContext(AuthContext);
+  const { i18n } = useContext(TranslationContext);
+  const [showModal, setShowModal] = useState(false);
 
   const onAvailOffer = () => {
+    if (skip) {
+      setShowModal(true);
+      return;
+    }
     setLoading(true);
     const data = {
       user_id: user.user_id,
@@ -50,6 +64,16 @@ export const OfferModalInfo = ({
       });
   };
 
+  const handleCall = () => {
+    Linking.openURL(`tel:+971562050066`).catch((err) => {
+      alert("Unable to call this number");
+    });
+  };
+
+  const handleUpload = () => {
+    setSkip(0);
+  };
+
   return (
     <View
       style={{
@@ -59,6 +83,65 @@ export const OfferModalInfo = ({
         backgroundColor: "#000000aa",
       }}
     >
+      <CustomModal showModal={showModal}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "#000000aa",
+          }}
+        >
+          <View
+            style={{
+              width: "95%",
+              maxHeight: 550,
+              backgroundColor: "white",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              borderRadius: 12,
+              padding: 16,
+            }}
+          >
+            <Label size={"heading"} weight={"bold"}>
+              {i18n.t("offer-restriction.title")}
+            </Label>
+            <Spacer position={"top"} size={"medium"} />
+            <Label>{i18n.t("offer-restriction.message")}</Label>
+            <View style={{ flexDirection: "row", marginTop: 20 }}>
+              <Button
+                onPress={handleCall}
+                labelStyle={{ fontSize: 12 }}
+                contentStyle={{
+                  width: "100%",
+                }}
+                style={{
+                  flex: 1,
+                  backgroundColor: "#1282FF",
+                }}
+                mode="contained"
+              >
+                {i18n.t("offer-restriction.order-now")}
+              </Button>
+              <Spacer position={"right"} size={"small"} />
+              <Button
+                onPress={handleUpload}
+                labelStyle={{ fontSize: 12 }}
+                contentStyle={{
+                  width: "100%",
+                }}
+                style={{
+                  flex: 1,
+                  backgroundColor: "#1282FF",
+                }}
+                mode="contained"
+              >
+                {i18n.t("offer-restriction.upload-card")}
+              </Button>
+            </View>
+          </View>
+        </View>
+      </CustomModal>
       <LoadingOverlay display={loading} />
       <View
         style={{
@@ -112,23 +195,22 @@ export const OfferModalInfo = ({
                 ${
                   offerInfo.highlights_en != "" &&
                   offerInfo.highlights_en != undefined
-                    ? `<div style="margin-bottom: 90px"><strong>Highlights</strong>
+                    ? `<div style="margin-bottom: 90px"><strong>${i18n.t(
+                        "redeem-offer.highlights"
+                      )}</strong>
                 ${offerInfo.highlights_en}</div>`
                     : ""
                 }
                 ${
                   offerInfo.fineprints_en != "" &&
                   offerInfo.fineprints_en != undefined
-                    ? `<div style="margin-bottom: 90px"><strong>Fine Prints</strong>
+                    ? `<div style="margin-bottom: 90px"><strong>${i18n.t(
+                        "redeem-offer.fine-prints"
+                      )}</strong>
                 ${offerInfo.fineprints_en}</div>`
                     : ""
                 }
-                ${
-                  offerInfo.tnc_en != "" && offerInfo.tnc_en != undefined
-                    ? `<div style="margin-bottom: 90px;"><strong>Terms & Conditions</strong>
-                ${offerInfo.tnc_en}</div>`
-                    : ""
-                }
+               
                 
               </div>
             `,
@@ -159,7 +241,7 @@ export const OfferModalInfo = ({
           }}
           mode="contained"
         >
-          Avail Offer
+          {i18n.t("redeem-offer.avail-offer")}
         </Button>
         <Spacer position={"left"} size={"medium"} />
         <Button
@@ -175,7 +257,7 @@ export const OfferModalInfo = ({
           }}
           mode="contained"
         >
-          Close
+          {i18n.t("close")}
         </Button>
       </View>
     </View>

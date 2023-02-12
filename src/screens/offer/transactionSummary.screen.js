@@ -1,11 +1,12 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import moment from "moment";
-import React, { useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import { Animated, ScrollView, StyleSheet, View } from "react-native";
 import { Button } from "react-native-paper";
 import { Label } from "../../components/typography/label.component";
 import { theme } from "../../infrastructure/theme";
+import { TranslationContext } from "../../services/translation/translation.context";
 import { config } from "../../utils/constants";
 
 export const TransactionSummaryScreen = () => {
@@ -14,6 +15,7 @@ export const TransactionSummaryScreen = () => {
   const animatedOpacity3 = useRef(new Animated.Value(0.6)).current;
   const route = useRoute();
   const navigation = useNavigation();
+  const { i18n } = useContext(TranslationContext);
   const { discount, merchant, paid, prodname, transactDate, refCode } =
     route.params;
 
@@ -91,7 +93,7 @@ export const TransactionSummaryScreen = () => {
               weight={"bold"}
               size={"heading"}
             >
-              Redemption Successful
+              {i18n.t("redemption-success.success")}
             </Label>
             <Label
               style={{ color: theme.colors.ui.lightGray, textAlign: "center" }}
@@ -109,7 +111,9 @@ export const TransactionSummaryScreen = () => {
               }}
             ></View>
 
-            <Label style={{ textAlign: "center" }}>You saved</Label>
+            <Label style={{ textAlign: "center" }}>
+              {i18n.t("redemption-success.text1")}
+            </Label>
             <View style={{ marginVertical: 12 }}>
               <Label
                 style={{ textAlign: "center" }}
@@ -120,9 +124,11 @@ export const TransactionSummaryScreen = () => {
               </Label>
             </View>
             <Label style={{ textAlign: "center" }}>
-              {`You paid a total of ${parseFloat(paid).toFixed(2)} ${
-                config.CURRENCY
-              } to ${merchant}`}
+              {i18n.t("redemption-success.text2", {
+                amount: parseFloat(paid).toFixed(2),
+                currency: config.CURRENCY,
+                partner: merchant,
+              })}
             </Label>
           </View>
         </Animated.View>
@@ -148,7 +154,7 @@ export const TransactionSummaryScreen = () => {
           </Label>
           <View style={{ width: "80%" }}>
             <Label style={{ textAlign: "center" }}>
-              Please present this reference code to {merchant}'s Cashier
+              {i18n.t("redemption-success.text3", { partner: merchant })}
             </Label>
           </View>
         </Animated.View>
@@ -165,7 +171,7 @@ export const TransactionSummaryScreen = () => {
             onPress={handleDone}
           >
             <Label weight={"bold"} size={"title"}>
-              Done
+              {i18n.t("redemption-success.done")}
             </Label>
           </Button>
         </Animated.View>

@@ -12,7 +12,7 @@ import {
   TouchableWithoutFeedback,
   Platform,
 } from "react-native";
-import { config, honorificList } from "../../utils/constants";
+import { companyLogo, config, honorificList } from "../../utils/constants";
 import { useTheme } from "styled-components";
 import { Button, TextInput } from "react-native-paper";
 import { DatePicker } from "react-native-woodpicker";
@@ -85,7 +85,6 @@ export const RegistrationDetailsScreen = ({ route }) => {
   const validateInfo = () => {
     if (
       state.firstname.trim() === "" ||
-      state.middlename.trim() === "" ||
       state.lastname.trim() === "" ||
       state.birthdate === null ||
       state.honorifics === "" ||
@@ -188,7 +187,7 @@ export const RegistrationDetailsScreen = ({ route }) => {
           >
             <DateTimePicker
               // style={{ flex: 1, height: 200, width: 200 }}
-              themeVariant={"dark"}
+              themeVariant={"light"}
               value={tempBday}
               mode={"date"}
               display={Platform.OS === "ios" ? "spinner" : "calendar"}
@@ -215,10 +214,7 @@ export const RegistrationDetailsScreen = ({ route }) => {
       </CustomModal>
       <Background>
         <SafeArea style={styles.safeArea}>
-          <Image
-            style={styles.companyLogo}
-            source={require("../../../assets/IFZA-Logo.png")}
-          />
+          <Image style={styles.companyLogo} source={companyLogo} />
           <Animated.View style={[styles.safeArea, shakeAnimatedStyle]}>
             <KeyboardAwareScrollView
               automaticallyAdjustKeyboardInsets
@@ -315,8 +311,7 @@ export const RegistrationDetailsScreen = ({ route }) => {
               <CustomTextInput
                 value={state.middlename}
                 onChangeText={handleMiddleNameChange}
-                label={"Middle Name *"}
-                error={isSubmitted && state.middlename.trim() === ""}
+                label={"Middle Name"}
               ></CustomTextInput>
               <Spacer position={"top"} size={"small"} />
               <CustomTextInput

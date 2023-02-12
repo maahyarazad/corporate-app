@@ -3,12 +3,14 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { Animated, StyleSheet, View } from "react-native";
 import { Button } from "react-native-paper";
 import { AuthContext } from "../services/auth/auth.context";
+import { TranslationContext } from "../services/translation/translation.context";
 import { Spacer } from "./spacer/spacer.component";
 import { Label } from "./typography/label.component";
 
 export const PostCardUpload = () => {
   const animatedValue = useRef(new Animated.Value(0)).current;
   const { retrieve } = useContext(AuthContext);
+  const { i18n } = useContext(TranslationContext);
 
   useEffect(() => {
     let isMounted = true;
@@ -38,13 +40,11 @@ export const PostCardUpload = () => {
     <View style={styles.container}>
       <Animated.View style={[styles.animatedView, animatedStyle]}>
         <Label size={"h5"} weight={"bold"} style={styles.label}>
-          Authorization Pending
+          {i18n.t("card-upload.uploaded.heading")}
         </Label>
         <Spacer position={"top"} size={"medium"} />
         <Label size={"title"} weight={"medium"} style={styles.label}>
-          Your authorization request has been sent to IFZA rewards cards team.
-          After the authorization process is completed, the approval will then
-          be sent to your registered mobile number and email address.
+          {i18n.t("card-upload.uploaded.message")}
         </Label>
         <Spacer position={"top"} size={"large"} />
         <View style={styles.notecontainer}>
@@ -53,10 +53,7 @@ export const PostCardUpload = () => {
             weight={"regular"}
             style={[styles.label, styles.notelabel]}
           >
-            Note:{"\n"}
-            You can only use the IFZA Rewards App on one mobile device at any
-            given time. Should you login to another device, you will then be
-            asked to redo the authorization process.
+            {i18n.t("card-upload.uploaded.note")}
           </Label>
         </View>
       </Animated.View>

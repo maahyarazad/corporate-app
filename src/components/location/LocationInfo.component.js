@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Image, Linking, StyleSheet, View } from "react-native";
 import { adminFileBaseURL } from "../../utils/constants";
+import { CacheImage } from "../cacheImage";
 import { Label } from "../typography/label.component";
 
 export const LocationInfo = ({
@@ -31,7 +32,7 @@ export const LocationInfo = ({
               padding: 5,
             }}
           >
-            <Image
+            <CacheImage
               style={{
                 resizeMode: "contain",
                 flex: 1,
@@ -39,9 +40,7 @@ export const LocationInfo = ({
                 height: imageH - 10,
                 backgroundColor: "white",
               }}
-              source={{
-                uri: `${adminFileBaseURL}${location.logo}`,
-              }}
+              uri={`${adminFileBaseURL}${location.logo}`}
             />
           </View>
         )}

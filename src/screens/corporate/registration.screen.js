@@ -24,7 +24,7 @@ import { validateCardExpiryDate } from "../../utils/validateCardExpiryDate";
 import { isValidEmail } from "../../utils/isEmailValid";
 import { PartnerPicker } from "../../components/partnerPicker";
 import { PartnerService } from "../../services/location/location.service";
-import { config } from "../../utils/constants";
+import { companyLogo, config } from "../../utils/constants";
 
 export const RegistrationScreen = () => {
   const theme = useTheme();
@@ -211,10 +211,7 @@ export const RegistrationScreen = () => {
     <>
       <Background>
         <SafeArea style={styles.safeArea}>
-          <Image
-            style={styles.companyLogo}
-            source={require("../../../assets/IFZA-Logo.png")}
-          />
+          <Image style={styles.companyLogo} source={companyLogo} />
 
           <Animated.View style={[styles.safeArea, shakeAnimatedStyle]}>
             <KeyboardAwareScrollView
@@ -345,7 +342,7 @@ export const RegistrationScreen = () => {
               <PhoneInput
                 defaultCode="AE"
                 layout="first"
-                placeholder="543248901"
+                placeholder="541234567"
                 onChangeText={handleMobileChange}
                 onChangeCountry={handleMobileCountryChange}
                 containerStyle={{

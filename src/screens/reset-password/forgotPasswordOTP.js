@@ -58,6 +58,8 @@ export const ForgotPasswordOTPScreen = ({ route }) => {
       user_id,
     };
 
+    console.log("USER ID:", user_id);
+
     setIsLoading(true);
     const response = await UserService.verifyForgetPass(data);
     if (isMounted.current) {
