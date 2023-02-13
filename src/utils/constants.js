@@ -14,13 +14,13 @@ export const config = {
   // BASE_URL: "http://172.20.10.4:3300/v1/api/",
   // BASE_URL: "http://10.16.8.181:3300/v1/api/",
   // BASE_URL: "http://192.168.13.75:3300/v1/api/",
-  BASE_URL: "http://192.168.0.100:3300/v1/api/",
+  BASE_URL: "http://192.168.0.199:3300/v1/api/",
 
   // BASE_URL: "https://staging.german-emirates-club.com/admin/node/v1/api/", // Production
   // SERVER_HOST: "https://staging.german-emirates-club.com/admin/node/", //Production÷
   // SERVER_HOST: "http://192.168.13.75:3300",
   // SERVER_HOST: "http://10.16.8.181:3300",
-  SERVER_HOST: "http://192.168.0.100:3300",
+  SERVER_HOST: "http://192.168.0.199:3300",
   // SERVER_HOST: "http://192.168.0.197:3300",
   // SERVER_HOST: "http://172.20.10.4:3300",
 

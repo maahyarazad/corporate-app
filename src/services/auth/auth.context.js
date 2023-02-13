@@ -94,6 +94,7 @@ export const AuthContextProvider = ({ children }) => {
   const logout = async () => {
     setIsLoading(true);
     isLogout.current = true;
+    console.log("removing storage");
     setUser({ ...user, token: null, status: 0, requestId: null });
     setSkip(0);
     await removeStorage();

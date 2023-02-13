@@ -92,6 +92,7 @@ export const removeStorage = async () => {
     await SecureStore.deleteItemAsync("token");
     await SecureStore.deleteItemAsync("user_id");
     await SecureStore.deleteItemAsync("user_details");
+    await SecureStore.deleteItemAsync("skip");
   } catch (err) {
     console.log(err);
   }
@@ -122,6 +123,7 @@ export const checkAuthorization = async (user_id) => {
         })
         .catch((err) => {
           console.log("eehhh", err);
+          navigate("Logout");
           reject(false);
         });
     } catch (err) {

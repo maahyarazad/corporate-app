@@ -38,6 +38,7 @@ axiosInstance.interceptors.response.use(
       return new Promise((resolve, reject) => {
         // console.log(error.response);
         // console.log(error);
+        // navigate("Logout");
         console.log("interceptor error response");
         reject(error);
       });
@@ -51,6 +52,8 @@ axiosInstance.interceptors.response.use(
       });
     } else if (error.response.status === 503) {
       Alert.alert("Service Unavailable", "Could not reach the server");
+
+      navigate("Logout");
       reject(error.response);
     } else {
       return new Promise((resolve, reject) => {
