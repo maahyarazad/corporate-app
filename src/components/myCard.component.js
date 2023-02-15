@@ -1,9 +1,17 @@
-import React, { useContext } from "react";
-import { StyleSheet, View } from "react-native";
+import React, { useContext, useState } from "react";
+import {
+  Image,
+  Pressable,
+  StyleSheet,
+  TouchableHighlight,
+  View,
+} from "react-native";
 import { Card, Chip } from "react-native-paper";
 import { CARD_SIZE } from "../infrastructure/theme/sizes";
 import { LocationContext } from "../services/location/location.context";
+import { offerStamps } from "../utils/constants";
 import { CacheImage } from "./cacheImage";
+import { width } from "./styles";
 import { Label } from "./typography/label.component";
 
 export const MyCard = ({
@@ -14,8 +22,13 @@ export const MyCard = ({
   tags,
   offer_types,
   userLocation,
+  offer_name,
   size = "partner",
+  stamp,
+  onPress,
 }) => {
+  const [press, setPress] = useState(false);
+
   return (
     <View
       style={[
@@ -30,92 +43,164 @@ export const MyCard = ({
         },
       ]}
     >
-      <Card style={{ borderRadius: 10 }}>
-        <View
-          style={{
-            position: "relative",
-            // backgroundColor: "#ccc",
+      {/* <TouchableHighlight> */}
+      <Card style={{ borderRadius: 10, overflow: "hidden" }}>
+        <TouchableHighlight
+          underlayColor={"#00000022"}
+          onPress={onPress}
+          onPressOut={() => {
+            setPress(false);
+          }}
+          onPressIn={() => {
+            setPress(true);
           }}
         >
-          <CacheImage
-            style={{
-              borderTopLeftRadius: 10,
-              borderTopRightRadius: 10,
-              backgroundColor: "#aaa",
-              width: CARD_SIZE[size].image.width,
-              height: CARD_SIZE[size].image.height,
-            }}
-            uri={imgUrl}
-          />
-          {userLocation && (
+          <>
             <View
               style={{
-                position: "absolute",
-                bottom: 0,
-                right: 0,
-                zIndex: 100,
-                borderRadius: 20,
-                padding: 8,
-                backgroundColor: "#eee",
-                margin: 8,
+                position: "relative",
+                // backgroundColor: "#ccc",
               }}
             >
-              <Label size={"mini"} weight={"bold"}>
-                {distance}
-              </Label>
-            </View>
-          )}
-        </View>
+              {/* <View
+                style={{
+                  backgroundColor: "#000",
+                  height: "100%",
+                  width: "100%",
+                  opacity: press ? 0.3 : 0,
+                  zIndex: 10,
+                  position: "absolute",
+                }}
+              ></View> */}
 
-        <View style={{ flex: 0, paddingHorizontal: 16, paddingVertical: 8 }}>
-          <View style={{ height: 40, justifyContent: "center" }}>
-            <Label size={"title"} weight="bold">
-              {outlet_name}
-            </Label>
-            {main_name != undefined && (
-              <Label style={{ color: "#aaa" }} size={"body"} weight="bold">
-                {main_name}
-              </Label>
-            )}
-          </View>
-          {tags && (
-            <View style={{ paddingTop: 8, paddingBottom: 2 }}>
-              <Label
-                numberOfLines={2}
-                size={"body"}
-                weight="regular"
-                style={{ color: "#aaa" }}
-              >
-                {tags.map(
-                  ({ tag }, index) =>
-                    `${tag}${index < tags.length - 1 ? " • " : ""}`
-                )}
-              </Label>
-            </View>
-          )}
-        </View>
-        <Card.Content style={{ flexDirection: "row", padding: 0, margin: 0 }}>
-          {offer_types &&
-            offer_types.map((type, index) => {
-              return (
-                <Chip
-                  // textStyle={{ marginLeft: 0 }}
-                  key={`${type}${index}`}
+              <CacheImage
+                style={{
+                  //   backgroundColor: "green",
+                  borderTopLeftRadius: 10,
+                  borderTopRightRadius: 10,
+                  backgroundColor: "#aaa",
+                  width: CARD_SIZE[size].image.width,
+                  height: CARD_SIZE[size].image.height,
+                  opacity: press ? 0.7 : 1,
+                  zIndex: 1,
+                }}
+                uri={imgUrl}
+              />
+              {userLocation && (
+                <View
                   style={{
-                    backgroundColor: "#FFD892",
-                    padding: 0,
-                    height: 20,
-                    alignItems: "flex-start",
-                    justifyContent: "center",
-                    marginRight: 8,
+                    position: "absolute",
+                    bottom: 0,
+                    right: 0,
+                    zIndex: 100,
+                    borderRadius: 20,
+                    padding: 8,
+                    backgroundColor: "#eee",
+                    margin: 8,
                   }}
                 >
-                  {type.premium_en}
-                </Chip>
-              );
-            })}
-        </Card.Content>
+                  <Label size={"mini"} weight={"bold"}>
+                    {distance}
+                  </Label>
+                </View>
+              )}
+            </View>
+
+            <View
+              style={{
+                flex: 0,
+                paddingHorizontal: 8,
+                paddingVertical: 8,
+                flexDirection: CARD_SIZE[size].type === 1 ? "column" : "row",
+                justifyContent: "space-between",
+              }}
+            >
+              {stamp && CARD_SIZE[size].type === 2 && (
+                <View style={{ marginRight: 6 }}>
+                  <Image
+                    style={{
+                      width: 55,
+                      height: 55,
+                      opacity: press ? 0.7 : 1,
+                    }}
+                    source={stamp}
+                  />
+                </View>
+              )}
+              <View
+                style={{
+                  flex: 1,
+                  height: 50,
+                  justifyContent: "center",
+                }}
+              >
+                {CARD_SIZE[size].type === 2 && (
+                  <>
+                    <Label size={"title"} weight="bold" numberOfLines={1}>
+                      {/* {offer_name} chu chu chu chu */}2 for the price of 1
+                      on PADI Open Water Diver Course: 3-day course
+                    </Label>
+                  </>
+                )}
+                <Label
+                  size={CARD_SIZE[size].type === 2 ? "body" : "title"}
+                  numberOfLines={1}
+                  weight="bold"
+                >
+                  {outlet_name}
+                </Label>
+                {CARD_SIZE[size].type === 1 && main_name != undefined && (
+                  <Label style={{ color: "#aaa" }} size={"body"} weight="bold">
+                    {main_name}
+                  </Label>
+                )}
+              </View>
+
+              {tags && (
+                <View style={{ paddingTop: 8, paddingBottom: 2 }}>
+                  <Label
+                    numberOfLines={2}
+                    size={"body"}
+                    weight="regular"
+                    style={{ color: "#aaa" }}
+                  >
+                    {tags.map(
+                      ({ tag }, index) =>
+                        `${tag}${index < tags.length - 1 ? " • " : ""}`
+                    )}
+                  </Label>
+                </View>
+              )}
+            </View>
+            {CARD_SIZE[size].type === 1 && (
+              <Card.Content
+                style={{ flexDirection: "row", padding: 0, margin: 0 }}
+              >
+                {offer_types &&
+                  offer_types.map((type, index) => {
+                    return (
+                      <Chip
+                        // textStyle={{ marginLeft: 0 }}
+                        key={`${type}${index}`}
+                        style={{
+                          backgroundColor: "#FFD892",
+                          padding: 0,
+                          height: 20,
+                          alignItems: "flex-start",
+                          justifyContent: "center",
+                          marginRight: 8,
+                        }}
+                      >
+                        {type.premium_en}
+                      </Chip>
+                    );
+                  })}
+              </Card.Content>
+            )}
+          </>
+        </TouchableHighlight>
       </Card>
+      {/* </TouchableHighlight> */}
     </View>
   );
 };

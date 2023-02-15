@@ -3,7 +3,14 @@ import { StyleSheet, View, Image } from "react-native";
 import * as FileSystem from "expo-file-system";
 import shorthash from "shorthash";
 
-export const CacheImage = ({ uri, style, imgKey, onLoad, onLoadStart }) => {
+export const CacheImage = ({
+  uri,
+  style,
+  imgKey,
+  onLoad,
+  onLoadStart,
+  pointerEvents,
+}) => {
   const [state, setState] = useState({ source: null });
 
   useEffect(() => {

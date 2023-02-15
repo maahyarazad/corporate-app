@@ -6,6 +6,7 @@ const HOTPICK_ITEM_HEIGHT = HOTPICK_ITEM_WIDTH * 0.5625;
 
 export const CARD_SIZE = {
   partner: {
+    type: 1,
     image: {
       width: "100%",
       height: 250,
@@ -17,6 +18,7 @@ export const CARD_SIZE = {
   },
 
   hotpick: {
+    type: 2,
     image: {
       width: HOTPICK_ITEM_WIDTH,
       height: HOTPICK_ITEM_HEIGHT,
