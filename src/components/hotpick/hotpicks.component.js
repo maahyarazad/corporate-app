@@ -27,7 +27,7 @@ export const Hotpicks = () => {
   const { i18n } = useContext(TranslationContext);
   const progressValue = useSharedValue(0);
   const [isVertical, setIsVertical] = useState(false);
-  const [hotpickList, setHotpickList] = useState({});
+  const [hotpickList, setHotpickList] = useState([]);
 
   useEffect(() => {
     let isMounted = true;
@@ -35,7 +35,8 @@ export const Hotpicks = () => {
     const getHotpicks = async () => {
       const response = await OfferService.getHotpicks();
       if (isMounted) {
-        setHotpickList(response);
+        setHotpickList(response.data);
+        console.log(response.data);
       }
     };
 
@@ -165,7 +166,7 @@ export const Hotpicks = () => {
           }}
         />
 
-        {/* {!!progressValue && (
+        {!!progressValue && (
           <View
             style={
               isVertical
@@ -187,20 +188,21 @@ export const Hotpicks = () => {
                   }
             }
           >
-            {hotpickList.map((_, index) => {
-              return (
-                <PaginationItem
-                  backgroundColor={"#ccc"}
-                  animValue={progressValue}
-                  index={index}
-                  key={index}
-                  isRotate={isVertical}
-                  length={test_data.length}
-                />
-              );
-            })}
+            {hotpickList &&
+              hotpickList.map((_, index) => {
+                return (
+                  <PaginationItem
+                    backgroundColor={"#ccc"}
+                    animValue={progressValue}
+                    index={index}
+                    key={index}
+                    isRotate={isVertical}
+                    length={test_data.length}
+                  />
+                );
+              })}
           </View>
-        )} */}
+        )}
 
         {/* <Card>
             <Card.Cover
