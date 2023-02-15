@@ -14,4 +14,7 @@ export const OfferService = {
   consumeOfferCode(data) {
     return axiosInstance.post(`${API_URL}/consume`, data).then(resData);
   },
+  getHotpicks(data) {
+    return axiosInstance.post(`${API_URL}/hotpicks`, data).then(resData);
+  },
 };

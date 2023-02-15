@@ -17,7 +17,19 @@ export const MyCard = ({
   size = "partner",
 }) => {
   return (
-    <View style={[styles.container, { maxWidth: CARD_SIZE[size].card.width }]}>
+    <View
+      style={[
+        styles.container,
+        {
+          width: CARD_SIZE[size].card.width,
+          //   height: CARD_SIZE[size].card.height,
+          //   backgroundColor: "red",
+          shadowOpacity: 0.4,
+          shadowRadius: 10,
+          elevation: 10,
+        },
+      ]}
+    >
       <Card style={{ borderRadius: 10 }}>
         <View
           style={{
@@ -55,7 +67,7 @@ export const MyCard = ({
           )}
         </View>
 
-        <View style={{ flex: 1, paddingHorizontal: 16, paddingVertical: 8 }}>
+        <View style={{ flex: 0, paddingHorizontal: 16, paddingVertical: 8 }}>
           <View style={{ height: 40, justifyContent: "center" }}>
             <Label size={"title"} weight="bold">
               {outlet_name}
