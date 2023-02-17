@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Svg, Path, Rect } from "react-native-svg";
+import { Svg, Path } from "react-native-svg";
 
 export default function RibbonSVG({ fill }) {
   return (

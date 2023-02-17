@@ -29,6 +29,7 @@ import {
   mycard_size,
   offerStamps,
 } from "../../utils/constants";
+import { navigate } from "../../navigation/navigate";
 
 const test_data = [
   { outlet_name: "Merchant A" },
@@ -41,6 +42,7 @@ export const Hotpicks = () => {
   const progressValue = useSharedValue(0);
   const [isVertical, setIsVertical] = useState(false);
   const [hotpickList, setHotpickList] = useState([]);
+  const { lang } = useContext(TranslationContext);
 
   useEffect(() => {
     let isMounted = true;
@@ -48,6 +50,7 @@ export const Hotpicks = () => {
     const getHotpicks = async () => {
       const data = {
         app_id: config.APP_ID,
+        lang: lang,
         limit: 2,
       };
       const response = await OfferService.getHotpicks(data);
@@ -126,13 +129,21 @@ export const Hotpicks = () => {
     );
   };
 
+  const handlePress = (id) => {
+    navigate("Location View", {
+      locId: id,
+    });
+  };
+
   const renderItem = ({ item }) => {
     return (
       <View key={item.outlet_name} style={styles.slideContainer}>
         {/* <TouchableHighlight onPress={() => {}}> */}
         <MyCard
           //ADD ONPRESS FUNCTION HERE
-          onPress
+          onPress={() => {
+            handlePress(item.partner_id);
+          }}
           size={"hotpick"}
           stamp={offerStamps[item.premium_id - 1]}
           offer_name={item.offer_name}

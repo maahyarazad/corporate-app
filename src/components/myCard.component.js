@@ -55,24 +55,13 @@ export const MyCard = ({
             setPress(true);
           }}
         >
-          <>
+          <View style={{ marginBottom: CARD_SIZE[size].type === 1 ? 16 : 0 }}>
             <View
               style={{
                 position: "relative",
                 // backgroundColor: "#ccc",
               }}
             >
-              {/* <View
-                style={{
-                  backgroundColor: "#000",
-                  height: "100%",
-                  width: "100%",
-                  opacity: press ? 0.3 : 0,
-                  zIndex: 10,
-                  position: "absolute",
-                }}
-              ></View> */}
-
               <CacheImage
                 style={{
                   //   backgroundColor: "green",
@@ -109,14 +98,45 @@ export const MyCard = ({
             <View
               style={{
                 flex: 0,
-                paddingHorizontal: 8,
+                paddingHorizontal: 16,
+                paddingRight: 8,
                 paddingVertical: 8,
                 flexDirection: CARD_SIZE[size].type === 1 ? "column" : "row",
                 justifyContent: "space-between",
               }}
             >
+              <View
+                style={{
+                  flex: 1,
+                  height: 50,
+                  justifyContent: "center",
+                }}
+              >
+                {CARD_SIZE[size].type === 2 && (
+                  <>
+                    <Label size={"title"} weight="bold" numberOfLines={2}>
+                      {offer_name}
+                    </Label>
+                  </>
+                )}
+                <Label
+                  size={CARD_SIZE[size].type === 2 ? "body" : "title"}
+                  numberOfLines={1}
+                  weight="bold"
+                  style={{
+                    color: CARD_SIZE[size].type === 1 ? "#000" : "#aaa",
+                  }}
+                >
+                  {outlet_name}
+                </Label>
+                {CARD_SIZE[size].type === 1 && main_name != undefined && (
+                  <Label style={{ color: "#aaa" }} size={"body"} weight="bold">
+                    {main_name}
+                  </Label>
+                )}
+              </View>
               {stamp && CARD_SIZE[size].type === 2 && (
-                <View style={{ marginRight: 6 }}>
+                <View style={{}}>
                   <Image
                     style={{
                       width: 55,
@@ -127,34 +147,6 @@ export const MyCard = ({
                   />
                 </View>
               )}
-              <View
-                style={{
-                  flex: 1,
-                  height: 50,
-                  justifyContent: "center",
-                }}
-              >
-                {CARD_SIZE[size].type === 2 && (
-                  <>
-                    <Label size={"title"} weight="bold" numberOfLines={1}>
-                      {/* {offer_name} chu chu chu chu */}2 for the price of 1
-                      on PADI Open Water Diver Course: 3-day course
-                    </Label>
-                  </>
-                )}
-                <Label
-                  size={CARD_SIZE[size].type === 2 ? "body" : "title"}
-                  numberOfLines={1}
-                  weight="bold"
-                >
-                  {outlet_name}
-                </Label>
-                {CARD_SIZE[size].type === 1 && main_name != undefined && (
-                  <Label style={{ color: "#aaa" }} size={"body"} weight="bold">
-                    {main_name}
-                  </Label>
-                )}
-              </View>
 
               {tags && (
                 <View style={{ paddingTop: 8, paddingBottom: 2 }}>
@@ -197,7 +189,7 @@ export const MyCard = ({
                   })}
               </Card.Content>
             )}
-          </>
+          </View>
         </TouchableHighlight>
       </Card>
       {/* </TouchableHighlight> */}
