@@ -14,6 +14,7 @@ const labelWidth = width * (1 / 3);
 
 export const ProfInfo = () => {
   const { userInfo } = useContext(UserContext);
+  const { skip } = useContext(AuthContext);
   const { i18n } = useContext(TranslationContext);
   // console.log(userInfo);
 
@@ -43,6 +44,21 @@ export const ProfInfo = () => {
           paddingVertical: 16,
         }}
       >
+        {!!skip && (
+          <View
+            style={{
+              alignItems: "center",
+              marginBottom: 16,
+              paddingHorizontal: 32,
+            }}
+          >
+            <Label
+              style={{ fontStyle: "italic", color: "red", textAlign: "center" }}
+            >
+              {`Da Sie keine gültige Karte hochgeladen haben, können Sie möglicherweise nicht auf bestimmte App-Funktionen zugreifen.`}
+            </Label>
+          </View>
+        )}
         <RenderRow
           label={i18n.t("profile-tabs.profile.username")}
           value={`${userInfo.username}`}
