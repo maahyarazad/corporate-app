@@ -267,6 +267,7 @@ const styles = StyleSheet.create({
   header: {
     marginLeft: 16,
     marginTop: 0,
+    marginBottom: -16,
   },
   hotpickContent: {
     // backgroundColor: "green",
