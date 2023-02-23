@@ -17,6 +17,7 @@ import { Skeleton } from "../../../components/skeleton";
 import { KeyboardAwareFlatList } from "react-native-keyboard-aware-scroll-view";
 import { itemSeparatorHS, itemSeparatorVS } from "../../../components/styles";
 import { CacheImage } from "../../../components/cacheImage";
+import { LinearGradient } from "expo-linear-gradient";
 
 const { width, height } = Dimensions.get("window");
 
@@ -180,6 +181,18 @@ export const LocationList = ({
                   }}
                   ItemSeparatorComponent={itemSeparatorHS}
                 />
+                <LinearGradient
+                  colors={["#ffffff00", "#fff"]}
+                  style={{
+                    flex: 1,
+                    position: "absolute",
+                    width: 20,
+                    height: 20,
+                    right: 0,
+                  }}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                ></LinearGradient>
               </View>
             </View>
           </View>

@@ -1,3 +1,4 @@
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useContext, useState } from "react";
 import {
   Image,
@@ -165,29 +166,43 @@ export const MyCard = ({
               )}
             </View>
             {CARD_SIZE[size].type === 1 && (
-              <Card.Content
-                style={{ flexDirection: "row", padding: 0, margin: 0 }}
-              >
-                {offer_types &&
-                  offer_types.map((type, index) => {
-                    return (
-                      <Chip
-                        // textStyle={{ marginLeft: 0 }}
-                        key={`${type}${index}`}
-                        style={{
-                          backgroundColor: "#FFD892",
-                          padding: 0,
-                          height: 20,
-                          alignItems: "flex-start",
-                          justifyContent: "center",
-                          marginRight: 8,
-                        }}
-                      >
-                        {type.premium_en}
-                      </Chip>
-                    );
-                  })}
-              </Card.Content>
+              <>
+                <Card.Content
+                  style={{ flexDirection: "row", padding: 0, margin: 0 }}
+                >
+                  {offer_types &&
+                    offer_types.map((type, index) => {
+                      return (
+                        <Chip
+                          // textStyle={{ marginLeft: 0 }}
+                          key={`${type}${index}`}
+                          style={{
+                            backgroundColor: "#FFD892",
+                            padding: 0,
+                            height: 20,
+                            alignItems: "flex-start",
+                            justifyContent: "center",
+                            marginRight: 8,
+                          }}
+                        >
+                          {type.premium_en}
+                        </Chip>
+                      );
+                    })}
+                </Card.Content>
+                <LinearGradient
+                  colors={["#ffffff00", "#fff", "#fff"]}
+                  style={{
+                    flex: 1,
+                    position: "absolute",
+                    width: 50,
+                    height: 50,
+                    right: 0,
+                  }}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                ></LinearGradient>
+              </>
             )}
           </View>
         </TouchableHighlight>
