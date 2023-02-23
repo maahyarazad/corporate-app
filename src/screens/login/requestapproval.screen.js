@@ -3,8 +3,10 @@ import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import {
+  Alert,
   Animated,
   ImageBackground,
+  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -96,7 +98,28 @@ export const RequestApprovalScreen = () => {
   const handleSkip = async () => {
     // setUser({ ...user });
     // await SecureStore.setItemAsync("skip", "1");
-    setSkip(1);
+
+    Alert.alert(
+      i18n.t("skip-auth-msg.header"),
+      i18n.t("skip-auth-msg.message"),
+      [
+        {
+          text: i18n.t("skip-auth-msg.button-order"),
+          onPress: () => {
+            Linking.openURL(`tel:+971562050066`).catch((err) => {
+              alert("Unable to call this number");
+            });
+          },
+        },
+        {
+          text: i18n.t("skip-auth-msg.button-proceed"),
+          onPress: () => {
+            setSkip(1);
+          },
+        },
+      ]
+    );
+
     console.log(user);
   };
 
@@ -537,26 +560,31 @@ export const RequestApprovalScreen = () => {
                     ></AnimatedButton>
                   </View>
                 </View>
-                <View
-                  style={{
-                    flex: 1,
-                    alignItems: "center",
-                    marginTop: 15,
-                  }}
-                >
-                  <TouchableOpacity onPress={handleSkip}>
-                    {/* <Text style={{textDecorationLine}}></Text> */}
-                    <Label
+                {user.member ? (
+                  <>
+                    <View
                       style={{
-                        textDecorationLine: "underline",
-                        color: "white",
+                        flex: 1,
+                        alignItems: "center",
+                        marginTop: 15,
                       }}
-                      size="title"
                     >
-                      {i18n.t("card-upload.skip")}
-                    </Label>
-                  </TouchableOpacity>
-                </View>
+                      <TouchableOpacity onPress={handleSkip}>
+                        <Label
+                          style={{
+                            textDecorationLine: "underline",
+                            color: "white",
+                          }}
+                          size="title"
+                        >
+                          {i18n.t("card-upload.skip")}
+                        </Label>
+                      </TouchableOpacity>
+                    </View>
+                  </>
+                ) : (
+                  <></>
+                )}
               </View>
             )}
           </ScrollView>
