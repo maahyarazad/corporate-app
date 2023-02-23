@@ -118,7 +118,7 @@
         "read-more": "Read More",
         "proceed": "Proceed",
         "auth": {
-            "account-verification": "Konto bestätigen",
+            "account-verification": "Account Verification",
             "message": "Please enter the %{codeLength}-digit code sent to %{mobileNumber}",
             "verify-code": "Verify Code",
             "resend-code": "Resend Code",
@@ -172,6 +172,12 @@
             "male": "Male",
             "female": "Female"
         },
-        "update": "Update"
+        "update": "Update",
+        "skip-auth-msg": {
+            "header": "Skip for now",
+            "message": "To claim the offers available in the app, you must upload your valid card. \n\nNote: In case you do not possess a card, you may place a request for one by calling our number.",
+            "button-order": "Call to order",
+            "button-proceed": "Proceed to skip"
+        }
     }
 }   
