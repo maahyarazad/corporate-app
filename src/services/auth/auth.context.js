@@ -20,6 +20,7 @@ import {
   checkAuthorization,
   retrieveUserId,
 } from "./auth.service";
+import { Alert } from "react-native";
 
 export const AuthContext = createContext();
 
@@ -62,21 +63,35 @@ export const AuthContextProvider = ({ children }) => {
       setIsRetrieving(true);
       const deviceInfo = await getDeviceInfo();
       const user_id = await retrieveUserId();
-      const result = user_id !== null && (await isAuthorized(user_id));
-      console.log("-------------");
-      console.log("Authorized: ", result.isAuthorized);
-      setUser({
-        ...user,
-        ...deviceInfo,
-        user_id: user_id,
-        token: await retrieveToken(),
-        isAuthorized: result.isAuthorized,
-        submitCard: result.hasSubmit,
-        remarks: result.remarks,
-        requestDate: result.date_created,
-        requestId: result.requestId,
-        member: result.member,
-      });
+      if (user_id !== null) {
+        const result = await isAuthorized(user.token);
+        console.log("-------------");
+        console.log("Authorized: ", result.isAuthorized);
+        setUser({
+          ...user,
+          ...deviceInfo,
+          user_id: user_id,
+          token: await retrieveToken(),
+          isAuthorized: result.isAuthorized,
+          submitCard: result.hasSubmit,
+          remarks: result.remarks,
+          requestDate: result.date_created,
+          requestId: result.requestId,
+          member: result.member,
+        });
+
+        console.log("Result: ", result);
+
+        if (result && result.expired) {
+          Alert.alert(
+            "Card Expired",
+            "Your membership card has expired. Please login again."
+          );
+          // setExpired(true);
+          setUser({ ...user, token: "" });
+          removeStorage();
+        }
+      }
       // setUser({});
       // await SecureStore.deleteItemAsync("user_details");
       console.log("skip: ", skip);
