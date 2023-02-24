@@ -1,3 +1,4 @@
+import { LinearGradient } from "expo-linear-gradient";
 import React, { useContext, useState } from "react";
 import {
   Image,
@@ -75,7 +76,7 @@ export const MyCard = ({
                 }}
                 uri={imgUrl}
               />
-              {userLocation && (
+              {userLocation && !!distance && (
                 <View
                   style={{
                     position: "absolute",
@@ -187,6 +188,18 @@ export const MyCard = ({
                       </Chip>
                     );
                   })}
+                <LinearGradient
+                  colors={["#ffffff00", "#fff", "#fff"]}
+                  style={{
+                    flex: 1,
+                    position: "absolute",
+                    width: 50,
+                    height: 50,
+                    right: 0,
+                  }}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                ></LinearGradient>
               </Card.Content>
             )}
           </View>

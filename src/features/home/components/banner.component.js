@@ -23,8 +23,9 @@ const BannerList = styled(FlatList)`
 
 const ListContainerHeight = () => {
   const screenWidth = Dimensions.get("window").width;
-  const imageHeight =
-    (screenWidth + (Platform.OS === "ios" ? 40 : 10)) * (3 / 4);
+  // const imageHeight =
+  //   (screenWidth + (Platform.OS === "ios" ? 40 : 10)) * (3 / 4);
+  const imageHeight = screenWidth * (3 / 4);
   return imageHeight;
 };
 

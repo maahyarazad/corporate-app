@@ -80,7 +80,11 @@ export const LocationCards = ({ label, locationList }) => {
               onPress={() => {
                 handlePress(item.id);
               }}
-              distance={`${getDistanceInKM(item.lat, item.lng)} km`}
+              distance={
+                !!item.lat && !!item.lng
+                  ? `${getDistanceInKM(item.lat, item.lng)} km`
+                  : undefined
+              }
               imgUrl={`${adminFileBaseURL}${item.file}`}
               main_name={item.main_name}
               outlet_name={item.outlet_name}
