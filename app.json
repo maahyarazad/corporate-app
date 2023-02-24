@@ -3,7 +3,7 @@
     "scheme": "gecrewards",
     "name": "GEC Rewards",
     "slug": "GEC-Rewards",
-    "version": "1.0.10",
+    "version": "1.0.11",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -23,33 +23,28 @@
       ]
     ],
     "updates": {
-      "fallbackToCacheTimeout": 0
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/62fbe3bc-6c85-43b1-af3d-4546f8f80ffe"
     },
     "assetBundlePatterns": [
       "**/*"
     ],
     "ios": {
-      "associatedDomains": ["applinks:buenapublica.com"],
-      "buildNumber": "6",
+      "associatedDomains": [
+        "applinks:buenapublica.com"
+      ],
+      "buildNumber": "7",
       "supportsTablet": true,
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Turning on location services allows us to show you nearby shops with offers.",
-        "NSPhotoLibraryUsageDescription": "The app needs to access the photo of your GEC Rewards card.",
-        "NSPhotoLibraryAddUsageDescription": "The app needs to save a photo of your GEC Rewards card.",
-        "NSCameraUsageDescription": "The app needs to take a photo of your GEC Corporate card."
+        "NSPhotoLibraryUsageDescription": "The app needs to access the photo of your GEC Membership card.",
+        "NSPhotoLibraryAddUsageDescription": "The app needs to save a photo of your GEC Membership card.",
+        "NSCameraUsageDescription": "The app needs to take a photo of your GEC Membership card."
       },
-      "bundleIdentifier": "com.buenapublica.GECRewards",
-      "config": {
-        "googleMapsApiKey": "AIzaSyARBZ-ZBNWxmlP8sTXqeqFJuBkkQm6zuKE"
-      }
+      "bundleIdentifier": "com.buenapublica.GECRewards"
     },
     "android": {
-      "versionCode": 4,
-      "config": {
-        "googleMaps": {
-          "apiKey": "AIzaSyBdMYAFwnxqA6KI4AE31v8BWBsr1ZDRogQ"
-        }
-      },
+      "versionCode": 5,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#131313"
@@ -69,6 +64,9 @@
       "eas": {
         "projectId": "62fbe3bc-6c85-43b1-af3d-4546f8f80ffe"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
     }
   }
 }
