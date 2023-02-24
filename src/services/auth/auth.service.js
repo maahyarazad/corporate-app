@@ -116,7 +116,7 @@ export const checkAuthorization = async (user_id) => {
     try {
       console.log("CHECKING");
       axiosInstance
-        .get(`user/check-authorization/${user_id}`)
+        .post(`user/check-authorization/`)
         .then((response) => {
           console.log("response:", response);
           resolve(response.data.result);

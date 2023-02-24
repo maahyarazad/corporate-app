@@ -61,7 +61,7 @@ export const LocationCards = ({ label, locationList }) => {
 
       return (
         <>
-          <TouchableOpacity
+          {/* <TouchableOpacity
             activeOpacity={0.4}
             onPress={() => handlePress(item.id)}
             style={{
@@ -70,23 +70,26 @@ export const LocationCards = ({ label, locationList }) => {
               shadowRadius: 4,
               elevation: 10,
             }}
+          > */}
+          <View
+            needsOffscreenAlphaCompositing={true}
+            style={{ width: width - 32, borderRadius: 10, marginBottom: 16 }}
+            key={`${item}`}
           >
-            <View
-              needsOffscreenAlphaCompositing={true}
-              style={{ width: width - 32, borderRadius: 10, marginBottom: 16 }}
-              key={`${item}`}
-            >
-              <MyCard
-                distance={`${getDistanceInKM(item.lat, item.lng)} km`}
-                imgUrl={`${adminFileBaseURL}${item.file}`}
-                main_name={item.main_name}
-                outlet_name={item.outlet_name}
-                offer_types={item.offer_types}
-                tags={item.tags}
-                userLocation={userLocation}
-                size="partner"
-              />
-              {/* <Card style={{ borderRadius: 10 }}>
+            <MyCard
+              onPress={() => {
+                handlePress(item.id);
+              }}
+              distance={`${getDistanceInKM(item.lat, item.lng)} km`}
+              imgUrl={`${adminFileBaseURL}${item.file}`}
+              main_name={item.main_name}
+              outlet_name={item.outlet_name}
+              offer_types={item.offer_types}
+              tags={item.tags}
+              userLocation={userLocation}
+              size="partner"
+            />
+            {/* <Card style={{ borderRadius: 10 }}>
                 <View
                   style={{
                     position: "relative",
@@ -177,8 +180,8 @@ export const LocationCards = ({ label, locationList }) => {
                   })}
                 </Card.Content>
               </Card> */}
-            </View>
-          </TouchableOpacity>
+          </View>
+          {/* </TouchableOpacity> */}
         </>
       );
     }
