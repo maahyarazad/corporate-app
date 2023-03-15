@@ -161,7 +161,7 @@ export const Hotpicks = () => {
       {!!hotpickList && hotpickList.length > 0 && (
         <>
           <View style={styles.header}>
-            <Label style={{ marginTop: 8 }} size="heading" weight="bold">
+            <Label style={{ marginTop: 16 }} size="heading" weight="bold">
               {/* {i18n.t("categories")} */}
               Hot Picks
             </Label>

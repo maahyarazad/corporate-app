@@ -217,7 +217,8 @@ export const ProfSettings = () => {
             >
               <View style={styles.versionView}>
                 <Label style={{ color: "#777" }}>
-                  v{Constants.default.manifest.version}
+                  v{Constants.default.expoConfig.version}
+                  {/* v{Constants.default.expoConfig.version} */}
                 </Label>
               </View>
             </View>
