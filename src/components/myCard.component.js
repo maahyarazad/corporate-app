@@ -25,8 +25,12 @@ export const MyCard = ({
   userLocation,
   offer_name,
   size = "partner",
+  width,
+  imgWidth,
+  imgHeight,
   stamp,
   onPress,
+  style,
 }) => {
   const [press, setPress] = useState(false);
 
@@ -35,17 +39,16 @@ export const MyCard = ({
       style={[
         styles.container,
         {
-          width: CARD_SIZE[size].card.width,
-          //   height: CARD_SIZE[size].card.height,
-          //   backgroundColor: "red",
+          width: width != undefined ? width : CARD_SIZE[size].card.width,
           shadowOpacity: 0.4,
-          shadowRadius: 10,
+          shadowRadius: 6,
           elevation: 10,
         },
+        style,
       ]}
     >
       {/* <TouchableHighlight> */}
-      <Card style={{ borderRadius: 10, overflow: "hidden" }}>
+      <Card style={{ borderRadius: 10, marginTop: 10, overflow: "hidden" }}>
         <TouchableHighlight
           underlayColor={"#00000022"}
           onPress={onPress}
@@ -69,8 +72,11 @@ export const MyCard = ({
                   borderTopLeftRadius: 10,
                   borderTopRightRadius: 10,
                   backgroundColor: "#aaa",
-                  width: CARD_SIZE[size].image.width,
-                  height: CARD_SIZE[size].image.height,
+                  width:
+                    imgWidth != undefined
+                      ? imgWidth
+                      : CARD_SIZE[size].image.width,
+                  height: imgHeight ?? CARD_SIZE[size].image.height,
                   opacity: press ? 0.7 : 1,
                   zIndex: 1,
                 }}
