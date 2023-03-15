@@ -153,8 +153,8 @@
             "upload-card": "Upload Card"
         },
         "card-upload": {
-            "heading": "Please upload here the front side photo of your GEC Rewards card!",
-            "text": "Add your GEC Rewards card photo to your profile now!",
+            "heading": "Please upload here the front side photo of your GEC Membership card!",
+            "text": "Add your GEC Membership card photo to your profile now!",
             "notice": "Notice:\nPlease make sure your name and expiration date are clearly visible.",
             "edit-profile": "Edit Profile",
             "upload": "Upload",
@@ -163,8 +163,8 @@
             "retake": "Retake",
             "uploaded": {
                 "heading": "Authorization Pending",
-                "message": "Your authorization request has been sent to GEC Rewards team. After the authorization process is completed, the approval will then be sent to your registered mobile number and email address.",
-                "note": "Note:\nYou can only use the GEC Rewards App on one mobile device at any given time. Should you login to another device, you will then be asked to redo the authorization process."
+                "message": "Your authorization request has been sent to GEC mobile team. After the authorization process is completed, the approval will then be sent to your registered mobile number and email address.",
+                "note": "Note:\nYou can only use the GEC Membership App on one mobile device at any given time. Should you login to another device, you will then be asked to redo the authorization process."
             }
         },
         "gender": {

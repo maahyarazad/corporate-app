@@ -155,8 +155,8 @@
             "upload-card": "Karte hochladen"
         }, 
         "card-upload": {
-            "heading": "Bitte laden Sie hier die Vorderseite ihrer GEC Rewards Karte hoch",
-            "text": "Fügen Sie Ihr Photo der GEC Rewardskarte zu Ihrem Profil hinzu!",
+            "heading": "Bitte laden Sie hier die Vorderseite ihrer GEC Mitgliedskarte hoch",
+            "text": "Fügen Sie Ihr Photo der GEC Mitgliedskarte zu Ihrem Profil hinzu!",
             "notice": "Achtung:\nBitte stellen Sie sicher, dass Ihr Name und das Ablaufdatum deutlich sichtbar sind.",
             "edit-profile": "Profil bearbeiten",
             "upload": "Hochladen",
@@ -165,8 +165,8 @@
             "retake": "Bild erneut aufnehmen",
             "uploaded": {
                 "heading": "Genehmigung ausstehend",
-                "message": "Ihre Autorisierungsanfrage wurde an das GEC Rewards-Team gesendet. Nachdem der Autorisierungsprozess abgeschlossen ist, wird die Genehmigung an Ihre registrierte Handynummer und E-Mail-Adresse gesendet.",
-                "note": "Achtung:\nSie können die GEC Rewards App jeweils nur auf einem Mobilgerät verwenden. Sollten Sie sich auf einem anderen Gerät anmelden, werden Sie anschließend aufgefordert, den Autorisierungsprozess zu wiederholen."
+                "message": "Ihre Autorisierungsanfrage wurde an das GEC Mobile-Team gesendet. Nachdem der Autorisierungsprozess abgeschlossen ist, wird die Genehmigung an Ihre registrierte Handynummer und E-Mail-Adresse gesendet.",
+                "note": "Achtung:\nSie können die GEC Mitgliedskarte App jeweils nur auf einem Mobilgerät verwenden. Sollten Sie sich auf einem anderen Gerät anmelden, werden Sie anschließend aufgefordert, den Autorisierungsprozess zu wiederholen."
             }
         },
         "gender": {
