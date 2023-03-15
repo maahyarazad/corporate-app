@@ -1,6 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useContext, useEffect, useState } from "react";
 import {
+  Alert,
   Dimensions,
   KeyboardAvoidingView,
   Linking,
@@ -22,17 +23,39 @@ import { OfferService } from "../../services/offer/offer.service";
 import { goback } from "../../navigation/navigate";
 import { LocationInfo } from "../../components/location/LocationInfo.component";
 import { TranslationContext } from "../../services/translation/translation.context";
+import { TextInputCurrency } from "../../components/textInputCurrency/textInputCurrency.component";
+import { CodeInputField } from "../../components/codeInputField";
+import { useNavigation } from "@react-navigation/native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 export const AvailOfferScreen = ({ route }) => {
   const { location, offerInfo, distance, offerCode } = route.params.state;
   const [showModal, setShowModal] = useState(false);
+  const [merchantCode, setCode] = useState("");
+  const [pinReady, setPinReady] = useState(false);
+  const [paidAmount, setPaidAmount] = useState(offerInfo.min_value);
+  const [discAmount, setDiscAmount] = useState(offerInfo.freebie_value);
+  const [totalAmount, setTotalAmount] = useState(
+    offerInfo.freebie_value + offerInfo.min_value
+  );
+  const [isLoading, setIsLoading] = useState(false);
+  const navigation = useNavigation();
+  const { height, width } = Dimensions.get("window");
   const { i18n } = useContext(TranslationContext);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    calculate();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const onCloseModal = () => {
     setShowModal(false);
   };
-
-  const { height, width } = Dimensions.get("window");
 
   const onConsume = async (discount, total, paid) => {
     const data = {
@@ -50,6 +73,115 @@ export const AvailOfferScreen = ({ route }) => {
 
   const displayModal = () => {
     setShowModal(true);
+  };
+
+  const calculate = () => {
+    const correctedPaid = paidAmount.toString().split(/,|٫/gm).join(".");
+    const total =
+      offerInfo.freebie_value > 0
+        ? parseFloat(correctedPaid) + offerInfo.freebie_value
+        : correctedPaid * offerInfo.percentage;
+    const disc =
+      offerInfo.freebie_value > 0
+        ? offerInfo.freebie_value
+        : correctedPaid * offerInfo.percentage - correctedPaid;
+
+    setDiscAmount(disc.toFixed(2));
+    setTotalAmount(total.toFixed(2));
+  };
+
+  const calculateReverse = () => {
+    const correctedTotal = totalAmount
+      ? totalAmount.toString().split(/,|٫/gm).join(".")
+      : 0;
+    const paid = parseFloat(correctedTotal) / offerInfo.percentage;
+    const disc = parseFloat(correctedTotal) - paid;
+
+    setDiscAmount(disc.toFixed(2));
+    setPaidAmount(paid.toFixed(2));
+  };
+
+  const onChangePaidAmount = (amount) => {
+    setPaidAmount(amount);
+  };
+
+  const onChangeTotalBill = (amount) => {
+    setTotalAmount(amount);
+  };
+
+  const onFocusPaid = () => {
+    setPaidAmount("");
+  };
+
+  const onFocusTotal = () => {
+    setTotalAmount("");
+  };
+
+  const onBlurPaidAmount = () => {
+    setPaidAmount(
+      paidAmount
+        ? paidAmount < offerInfo.min_value
+          ? offerInfo.min_value
+          : parseFloat(paidAmount.toString().split(/,|٫/gm).join("."))
+        : "0.00"
+    );
+    calculate();
+  };
+
+  const onBlurTotalBill = () => {
+    // setPaidAmount(
+    //   paidAmount < offerInfo.min_value ? offerInfo.min_value : paidAmount
+    // );
+    setTotalAmount(
+      totalAmount
+        ? parseFloat(totalAmount.toString().split(/,|٫/gm).join("."))
+        : "0.00"
+    );
+    // setPaidAmount(
+    //   parseFloat(paidAmount.toString().split(/,|٫/gm).join(".")) ?? 0.00
+    // );
+    calculateReverse();
+  };
+
+  const handleRedeem = async () => {
+    setIsLoading(true);
+    console.log("Merchant Pin: ", merchantCode);
+    if (parseInt(merchantCode) === parseInt(location.merchant_pin)) {
+      const consumed = await onConsume(discAmount, totalAmount, paidAmount);
+      setIsLoading(false);
+      if (consumed.success) {
+        // onCloseModal();
+        navigation.reset({
+          routes: [{ name: "TransactionSummary", params: consumed.data }],
+        });
+      } else {
+        Alert.alert("Transaction Failed", consumed.message);
+      }
+
+      // console.log(te);
+    } else {
+      setIsLoading(false);
+
+      Alert.alert(
+        i18n.t("redemption.error-header"),
+        i18n.t("redemption.error-merchant-pin")
+      );
+    }
+  };
+
+  const handleConfirm = () => {
+    Alert.alert(i18n.t("redemption.confirm"), i18n.t("redemption.message"), [
+      {
+        text: i18n.t("cancel"),
+        onPress: () => {},
+      },
+      {
+        text: i18n.t("proceed"),
+        onPress: () => {
+          handleRedeem();
+        },
+      },
+    ]);
   };
 
   return (
@@ -93,71 +225,84 @@ export const AvailOfferScreen = ({ route }) => {
             </TouchableOpacity>
           </View>
           {/* <ScrollView indicatorStyle="white"> */}
-          <View style={{ width: "100%", padding: 16, paddingVertical: 8 }}>
-            <LocationInfo
-              distance={distance}
-              location={location}
-              headerSize={"title"}
-              subheaderSize={"body"}
-              infoSize={"subheading"}
-              headerColor="white"
-              color="white"
-              showContact={false}
-              imageH={80}
-              imageW={80}
-            />
-          </View>
-          <View style={{ alignItems: "center", paddingTop: 12 }}>
-            <Label
-              style={{ color: "white", textAlign: "center" }}
-              size={"h5"}
-              weight={"bold"}
-            >
-              {`${offerInfo.premium_en}${
-                offerInfo.freebie_en != undefined && offerInfo.freebie_en != ""
-                  ? ` ${offerInfo.freebie_en}`
-                  : ""
-              }`}
-            </Label>
-          </View>
-          <View style={{ alignItems: "center", paddingVertical: 12 }}>
-            <Label
-              style={{ color: "white", textAlign: "center" }}
-              size={"title"}
-              weight={"medium"}
-            >
-              {offerInfo.prodname_en}
-            </Label>
-          </View>
-          <View
-            style={{
-              paddingHorizontal: 32,
-              paddingVertical: 16,
-              backgroundColor: "#00000088",
-              marginBottom: 12,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
+          <KeyboardAwareScrollView
+            centerContent={true}
+            indicatorStyle="black"
+            contentContainerStyle={{ flexGrow: 1 }}
           >
-            <Label
-              style={{ color: "#FFDC00", fontSize: 16, textAlign: "center" }}
-              weight={"bold"}
+            <View
+              style={{
+                width: "100%",
+                padding: 16,
+                paddingVertical: 8,
+                flexGrow: 1,
+              }}
             >
-              {i18n.t("redeem-offer.instruction", {
-                locationName: location.name,
-              })}
-            </Label>
-          </View>
-          <View
-            style={{
-              width: "100%",
-              justifyContent: "space-evenly",
-              alignItems: "center",
-              flex: 1,
-              paddingBottom: 16,
-            }}
-          >
-            <View style={{ width: (height - 300) * 0.5 }}>
+              <LocationInfo
+                distance={distance}
+                location={location}
+                headerSize={"title"}
+                subheaderSize={"body"}
+                infoSize={"subheading"}
+                headerColor="white"
+                color="white"
+                showContact={false}
+                imageH={80}
+                imageW={80}
+              />
+            </View>
+            <View style={{ alignItems: "center", paddingTop: 12 }}>
+              <Label
+                style={{ color: "white", textAlign: "center" }}
+                size={"h5"}
+                weight={"bold"}
+              >
+                {`${offerInfo.premium_en}${
+                  offerInfo.freebie_en != undefined &&
+                  offerInfo.freebie_en != ""
+                    ? ` ${offerInfo.freebie_en}`
+                    : ""
+                }`}
+              </Label>
+            </View>
+            <View style={{ alignItems: "center", paddingVertical: 12 }}>
+              <Label
+                style={{ color: "white", textAlign: "center" }}
+                size={"title"}
+                weight={"medium"}
+              >
+                {offerInfo.prodname_en}
+              </Label>
+            </View>
+            <View
+              style={{
+                paddingHorizontal: 32,
+                paddingVertical: 16,
+                backgroundColor: "#00000088",
+                marginBottom: 12,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Label
+                style={{ color: "#FFDC00", fontSize: 16, textAlign: "center" }}
+                weight={"bold"}
+              >
+                {i18n.t("redeem-offer.instruction", {
+                  locationName: location.name,
+                })}
+              </Label>
+            </View>
+            <View
+              style={{
+                width: "100%",
+                justifyContent: "space-evenly",
+                alignItems: "center",
+                flex: 1,
+                paddingBottom: 16,
+              }}
+            >
+              {/* <View style={{ width: (height - 300) * 0.5 }}>
               <QRCode
                 size={(height - 300) * 0.5}
                 quietZone={20}
@@ -180,47 +325,108 @@ export const AvailOfferScreen = ({ route }) => {
                   {offerCode}
                 </Label>
               </View>
-            </View>
-            <View
-              style={{
-                paddingHorizontal: 32,
-                paddingVertical: 24,
-                width: "100%",
-              }}
-            >
+            </View> */}
+              <View style={{ padding: 16 }}>
+                {/* <View style={{ marginVertical: 8 }}>
+                <Offer offer={offerInfo} backgroundColor="white" />
+              </View> */}
+                <View
+                  style={{
+                    borderWidth: 1,
+                    marginVertical: 8,
+                    borderRadius: 8,
+                    borderColor: "#aaa",
+                    paddingHorizontal: 12,
+                    backgroundColor: "white",
+                  }}
+                >
+                  <TextInputCurrency
+                    onBlur={onBlurTotalBill}
+                    onFocus={onFocusTotal}
+                    onChangeText={onChangeTotalBill}
+                    disabled={offerInfo.with_freebie == 1}
+                    value={totalAmount.toString()}
+                    style={{ marginVertical: 6 }}
+                    label={i18n.t("redeem-offer.total-bill")}
+                  />
+                  <TextInputCurrency
+                    disabled={true}
+                    value={discAmount.toString()}
+                    style={{ marginVertical: 6 }}
+                    label={i18n.t("redeem-offer.discount")}
+                  />
+                  <TextInputCurrency
+                    onBlur={onBlurPaidAmount}
+                    onFocus={onFocusPaid}
+                    onChangeText={onChangePaidAmount}
+                    disabled={offerInfo.with_freebie === 2}
+                    minValue={offerInfo.min_value}
+                    value={paidAmount.toString()}
+                    style={{ marginVertical: 6 }}
+                    label={i18n.t("redeem-offer.actual-paid")}
+                  />
+                  <View style={{ marginTop: 8 }}>
+                    <Label>{i18n.t("redeem-offer.merchant-pin")}</Label>
+                    <CodeInputField
+                      code={merchantCode}
+                      setCode={setCode}
+                      setPinReady={setPinReady}
+                      maxLength={6}
+                      hidden={true}
+                      inputBoxStyle={{
+                        borderRadius: 6,
+                        width: 40,
+                        height: 40,
+                        borderColor: "#aaa",
+                      }}
+                      containerStyle={{
+                        marginTop: 4,
+                      }}
+                    />
+                  </View>
+                </View>
+              </View>
               <View
                 style={{
-                  flexDirection: "row",
+                  paddingHorizontal: 32,
+                  paddingVertical: 24,
                   width: "100%",
                 }}
               >
-                <Button
-                  onPress={displayModal}
-                  contentStyle={{ padding: 10 }}
-                  labelStyle={{ fontSize: 12 }}
-                  style={{ flex: 1, backgroundColor: "#1282FF" }}
-                  mode="contained"
-                >
-                  {i18n.t("redeem-offer.use-code")}
-                </Button>
-                <Spacer position={"left"} size={"small"} />
-                <Button
-                  onPress={() => {
-                    Linking.openURL(`tel:${location.phone.split("|")[0]}`);
-                  }}
-                  labelStyle={{ fontSize: 12 }}
-                  contentStyle={{ padding: 10 }}
-                  style={{ flex: 1, backgroundColor: "#1282FF" }}
-                  mode="contained"
-                  icon={() => {
-                    return <Ionicons name="call" color={"white"} size={20} />;
+                <View
+                  style={{
+                    flexDirection: "row",
+                    width: "100%",
                   }}
                 >
-                  {i18n.t("redeem-offer.call-now")}
-                </Button>
+                  <Button
+                    onPress={handleConfirm}
+                    contentStyle={{ padding: 10 }}
+                    labelStyle={{ fontSize: 12 }}
+                    style={{ flex: 1, backgroundColor: "#1282FF" }}
+                    mode="contained"
+                  >
+                    {i18n.t("redeem-offer.redeem")}
+                  </Button>
+                  <Spacer position={"left"} size={"small"} />
+                  <Button
+                    onPress={() => {
+                      Linking.openURL(`tel:${location.phone.split("|")[0]}`);
+                    }}
+                    labelStyle={{ fontSize: 12 }}
+                    contentStyle={{ padding: 10 }}
+                    style={{ flex: 1, backgroundColor: "#1282FF" }}
+                    mode="contained"
+                    icon={() => {
+                      return <Ionicons name="call" color={"white"} size={20} />;
+                    }}
+                  >
+                    {i18n.t("redeem-offer.call-now")}
+                  </Button>
+                </View>
               </View>
             </View>
-          </View>
+          </KeyboardAwareScrollView>
           {/* </ScrollView> */}
         </SafeArea>
       </Background>
