@@ -43,6 +43,7 @@ export const Hotpicks = () => {
   const [isVertical, setIsVertical] = useState(false);
   const [hotpickList, setHotpickList] = useState([]);
   const { lang } = useContext(TranslationContext);
+  const [reverse, setReverse] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -148,8 +149,8 @@ export const Hotpicks = () => {
           stamp={offerStamps[item.premium_id - 1]}
           offer_name={item.offer_name}
           // offer_name={item.offer_name}
-          imgUrl={`${adminFileBaseURL}${item.file}`}
           outlet_name={item.outlet_name}
+          imgUrl={`${item.file}`}
         />
       </View>
     );
@@ -157,104 +158,151 @@ export const Hotpicks = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Label style={{ marginTop: 8 }} size="heading" weight="bold">
-          {/* {i18n.t("categories")} */}
-          Hot Picks
-        </Label>
-      </View>
-      <View style={styles.hotpickContent}>
-        {/* <MyCard
-            size="hotpick"
-            imgUrl={`https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi.stack.imgur.com%2FpzSVV.jpg%3Fs%3D328%26g%3D1&f=1&nofb=1&ipt=7f817033da4b51dadf56417a4410244101c557fd7458bb1fc3b1910eca835fa9&ipo=images`}
-          /> */}
-        <Carousel
-          style={{
-            flex: 1,
-            alignContent: "center",
-            justifyContent: "center",
-            alignItems: "center",
-            flexDirection: "column",
-          }}
-          data={hotpickList}
-          renderItem={renderItem}
-          autoPlay={true}
-          snapEnabled={true}
-          autoPlayInterval={3000}
-          width={Dimensions.get("screen").width}
-          height={Dimensions.get("screen").width * 0.6}
-          mode="parallax"
-          pagingEnabled={true}
-          onProgressChange={(_, absoluteProgress) => {
-            progressValue.value = absoluteProgress;
-          }}
-          withAnimation={{
-            type: "timing",
-            config: {
-              duration: 500,
-            },
-          }}
-          modeConfig={{
-            parallaxScrollingScale: 0.8,
-            parallaxScrollingOffset: 185,
-          }}
-        />
-
-        {hotpickList && hotpickList.length > 1 && !!progressValue && (
-          <View
-            style={
-              isVertical
-                ? {
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    width: 10,
-                    alignSelf: "center",
-                    position: "absolute",
-                    right: 5,
-                    top: 40,
-                  }
-                : {
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    // justifyContent: "space-between",
-                    width: 100,
-                    alignSelf: "center",
-                  }
-            }
-          >
-            {hotpickList &&
-              hotpickList.map((_, index) => {
-                return (
-                  <PaginationItem
-                    backgroundColor={"#ccc"}
-                    animValue={progressValue}
-                    index={index}
-                    key={index}
-                    isRotate={isVertical}
-                    length={test_data.length}
-                  />
-                );
-              })}
+      {!!hotpickList && hotpickList.length > 0 && (
+        <>
+          <View style={styles.header}>
+            <Label style={{ marginTop: 8 }} size="heading" weight="bold">
+              {/* {i18n.t("categories")} */}
+              Hot Picks
+            </Label>
           </View>
-        )}
+          <View style={styles.hotpickContent}>
+            {hotpickList.length > 2 ? (
+              <Carousel
+                style={{
+                  flex: 1,
+                  alignContent: "center",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  flexDirection: "column",
+                }}
+                data={hotpickList}
+                renderItem={renderItem}
+                autoPlay={true}
+                snapEnabled={true}
+                autoPlayInterval={3000}
+                width={Dimensions.get("screen").width}
+                height={Dimensions.get("screen").width * 0.64}
+                mode="parallax"
+                pagingEnabled={true}
+                onProgressChange={(_, absoluteProgress) => {
+                  progressValue.value = absoluteProgress;
+                }}
+                withAnimation={{
+                  type: "timing",
+                  config: {
+                    duration: 500,
+                  },
+                }}
+                modeConfig={{
+                  parallaxScrollingScale: 0.8,
+                  parallaxScrollingOffset: 185,
+                }}
+              />
+            ) : hotpickList.length === 1 ? (
+              <>
+                {/* Show only 1 card */}
+                <MyCard
+                  //ADD ONPRESS FUNCTION HERE
+                  onPress={() => {
+                    handlePress(hotpickList[0].partner_id);
+                  }}
+                  size={"hotpick"}
+                  width={"100%"}
+                  imgWidth={"100%"}
+                  imgHeight={Dimensions.get("screen").width * 0.5}
+                  stamp={offerStamps[hotpickList[0].premium_id - 1]}
+                  offer_name={hotpickList[0].offer_name}
+                  imgUrl={`${hotpickList[0].file}`}
+                  // imgUrl={`${item.file}`}
+                  outlet_name={hotpickList[0].outlet_name}
+                  style={{ padding: 16, paddingTop: 26 }}
+                />
+              </>
+            ) : (
+              <>
+                {/* Show only 2 cards */}
+                <Carousel
+                  style={{
+                    flex: 1,
+                    alignContent: "center",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    flexDirection: "column",
+                  }}
+                  data={hotpickList}
+                  renderItem={renderItem}
+                  autoPlay={true}
+                  autoPlayReverse={reverse}
+                  loop={false}
+                  snapEnabled={true}
+                  autoPlayInterval={3000}
+                  width={Dimensions.get("screen").width}
+                  height={Dimensions.get("screen").width * 0.64}
+                  mode="parallax"
+                  pagingEnabled={true}
+                  onProgressChange={(_, absoluteProgress) => {
+                    progressValue.value = absoluteProgress;
+                    if (absoluteProgress === 0) {
+                      setReverse(false);
+                    } else if (absoluteProgress === 1) {
+                      setReverse(true);
+                    }
+                  }}
+                  withAnimation={{
+                    type: "timing",
+                    config: {
+                      duration: 500,
+                    },
+                  }}
+                  modeConfig={{
+                    parallaxScrollingScale: 0.8,
+                    parallaxScrollingOffset: 150,
+                  }}
+                />
+              </>
+            )}
 
-        {/* <Card>
-            <Card.Cover
-              resizeMethod={"resize"}
-              resizeMode={"cover"}
-              style={{ height: 110 }}
-              source={{
-                uri: `https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi.stack.imgur.com%2FpzSVV.jpg%3Fs%3D328%26g%3D1&f=1&nofb=1&ipt=7f817033da4b51dadf56417a4410244101c557fd7458bb1fc3b1910eca835fa9&ipo=images`,
-              }}
-            />
-            <Card.Title title={"Eyowt"}>
-              
-            </Card.Title>
-            <Card.Content>
-              <Label>Hmmmm</Label>
-            </Card.Content>
-          </Card> */}
-      </View>
+            {hotpickList && hotpickList.length > 1 && !!progressValue && (
+              <View
+                style={[
+                  { marginBottom: 12 },
+                  isVertical
+                    ? {
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                        width: 10,
+                        alignSelf: "center",
+                        position: "absolute",
+                        right: 5,
+                        top: 40,
+                      }
+                    : {
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        width: 100,
+                        alignSelf: "center",
+                      },
+                ]}
+              >
+                {hotpickList &&
+                  hotpickList.map((_, index) => {
+                    return (
+                      <PaginationItem
+                        backgroundColor={"#ccc"}
+                        animValue={progressValue}
+                        index={index}
+                        key={index}
+                        isRotate={isVertical}
+                        length={hotpickList.length}
+                      />
+                    );
+                  })}
+              </View>
+            )}
+          </View>
+        </>
+      )}
     </View>
   );
 };
