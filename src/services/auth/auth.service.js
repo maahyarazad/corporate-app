@@ -111,7 +111,7 @@ export const resendOTP = async (user_id) => {
   });
 };
 
-export const checkAuthorization = async (user_id) => {
+export const checkAuthorization = async () => {
   return new Promise((resolve, reject) => {
     try {
       console.log("CHECKING");
@@ -133,9 +133,10 @@ export const checkAuthorization = async (user_id) => {
 };
 
 export const retrieveUserId = () => {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     try {
-      resolve(SecureStore.getItemAsync("user_id"));
+      const userId = await SecureStore.getItemAsync("user_id");
+      resolve(userId);
     } catch (err) {
       console.log(err);
       reject(null);

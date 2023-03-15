@@ -14,18 +14,23 @@ export const UserContextProvider = ({ children }) => {
     let isMounted = true;
     (async () => {
       console.log("test");
-      const info = await SecureStorage.getItemAsync("user_details");
-      if (info != undefined) {
-        console.log("test1");
-        console.log(info);
+      if (!!user.token) {
+        const info = await SecureStorage.getItemAsync("user_details");
+        console.log("info: ", info);
+        if (info != undefined) {
+          // console.log("test1");
+          // // console.log(info);
+          console.log("------- retrieve (user_details) -------");
+          console.log(user.user_id);
 
-        if (isMounted) setUserInfo(JSON.parse(info));
-      } else {
-        console.log("test2");
+          if (isMounted) setUserInfo(JSON.parse(info));
+        } else {
+          // console.log("test2");
 
-        console.log("------- retrieve -------");
-        console.log(user.user_id);
-        if (isMounted) getUserInfo(user.user_id);
+          console.log("------- retrieve (server)-------");
+          console.log(user.user_id);
+          if (isMounted) getUserInfo(user.user_id);
+        }
       }
     })();
 
