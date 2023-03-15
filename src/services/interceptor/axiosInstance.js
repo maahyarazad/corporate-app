@@ -40,7 +40,12 @@ axiosInstance.interceptors.response.use(
         // console.log(error);
         // navigate("Logout");
         console.log("interceptor error response");
-        reject(error);
+        console.log("hhmmm HERE");
+        reject({
+          status: error.response.status,
+          title: error.response.data.title ?? "Alert",
+          message: error.response.data.message ?? "Error Occurred",
+        });
       });
     }
 
@@ -52,16 +57,27 @@ axiosInstance.interceptors.response.use(
       });
     } else if (error.response.status === 503) {
       Alert.alert("Service Unavailable", "Could not reach the server");
-
-      navigate("Logout");
-      reject(error.response);
-    } else {
       return new Promise((resolve, reject) => {
-        const { title = "Error" } = error.response.data;
-
-        console.log(error.response);
-        Alert.alert(title, error.response.data.message);
+        console.log("asdfasd");
         reject(error.response);
+      });
+    } else {
+      // return new Promise((resolve, reject) => {
+      //   // const { title = "Error" } = error.response.data;
+
+      //   // console.log(error.response.data);
+      //   // Alert.alert(title, error.response.data.message);
+      //   // Alert.alert(title, "Something went wrong");
+      //   reject("Something went wrong");
+      // });
+      return new Promise((resolve, reject) => {
+        // alert("IN HERE");
+        reject({
+          status: error.response.status,
+          title: error.response.data.title ?? "Alert",
+          message: error.response.data.message ?? "Error Occurred",
+        });
+        // reject(error.response.status);
       });
     }
   }

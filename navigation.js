@@ -38,6 +38,7 @@ import { EventGuestsScreen } from "./src/screens/events/eventGuests.screen";
 import { TranslationContext } from "./src/services/translation/translation.context";
 import { UpdateMemberScreen } from "./src/screens/login/updateMember.screen";
 import * as SecureStore from "expo-secure-store";
+import { NoConnectionScreen } from "./src/screens/noConnection.screen";
 
 const AuthStack = createStackNavigator();
 const MainStack = createStackNavigator();
@@ -53,6 +54,18 @@ const config = {
     restDisplacementThreshold: 0.01,
     restSpeedThreshold: 0.01,
   },
+};
+
+const TimeoutStackScreen = () => {
+  return (
+    <TimeoutStack.Navigator>
+      <TimeoutStack.Screen
+        name="noconnection"
+        component={NoConnectionScreen}
+        options={{ headerShown: false }}
+      />
+    </TimeoutStack.Navigator>
+  );
 };
 
 const AuthStackScreen = () => {
@@ -395,7 +408,7 @@ const ExceedTimeout = () => {
 };
 
 export const AppNavigation = () => {
-  const { isRetrieving, user, isUserVerified, skip } = useContext(AuthContext);
+  const { isRetrieving, user, noConnection, skip } = useContext(AuthContext);
   // const [skip, setSkip] = useState(0);
   // useEffect(() => {
   //   let isMounted = true;
@@ -510,7 +523,9 @@ export const AppNavigation = () => {
     <>
       {/* user.isAuthorized && user.submitCard ? ( */}
       <NavigationContainer ref={navigationRef}>
-        {user.token ? (
+        {noConnection ? (
+          <TimeoutStackScreen />
+        ) : user.token ? (
           (user.isAuthorized && user.submitCard) || skip ? (
             <MainScreen />
           ) : (

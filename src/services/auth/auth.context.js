@@ -12,6 +12,7 @@ import { axiosInstance } from "../interceptor/axiosInstance";
 import { TranslationContext } from "../translation/translation.context";
 import {
   verifyOTP,
+  login,
   retrieveToken,
   removeStorage,
   resendOTP,
@@ -27,23 +28,30 @@ export const AuthContext = createContext();
 export const AuthContextProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isRetrieving, setIsRetrieving] = useState(false);
-  const [isUserVerified, setIsUserVerified] = useState(false);
   const [user, setUser] = useState({});
+  const [noConnection, setNoConnection] = useState(false);
+  const [noConnectionRetry, setNoConnectionRetry] = useState({});
   const isLogout = useRef(false);
   const { setLang } = useContext(TranslationContext);
   const [skip, setSkip] = useState(null);
 
   useEffect(() => {
+    let isMounted = true;
+
     (async () => {
-      await retrieve();
       const getSkip = parseInt(await SecureStore.getItemAsync("skip"));
       setSkip(getSkip);
-      console.log("getSkip: ", getSkip);
-    })();
-  }, []);
+      const deviceInfo = await getDeviceInfo();
+      const token = await retrieveToken();
+      console.log("TOKEN: ", token);
+      setUser((prev) => ({
+        ...prev,
+        ...deviceInfo,
+        token,
+      }));
 
-  useEffect(() => {
-    let isMounted = true;
+      if (!!token) await retrieve();
+    })();
 
     const saveSkip = async () => {
       if (isMounted) await SecureStore.setItemAsync("skip", skip.toString());
@@ -54,62 +62,91 @@ export const AuthContextProvider = ({ children }) => {
     }
 
     return () => {
-      isMounted = false;
+      let isMounted = false;
     };
-  }, [skip]);
+  }, []);
 
   const retrieve = async () => {
     try {
       setIsRetrieving(true);
-      const deviceInfo = await getDeviceInfo();
+      // const deviceInfo = await getDeviceInfo();
+      // const user_id = await retrieveUserId();
       const user_id = await retrieveUserId();
-      if (user_id !== null) {
-        const result = await isAuthorized(user.token);
-        console.log("-------------");
-        console.log("Authorized: ", result.isAuthorized);
-        setUser({
-          ...user,
-          ...deviceInfo,
-          user_id: user_id,
-          token: await retrieveToken(),
-          isAuthorized: result.isAuthorized,
-          submitCard: result.hasSubmit,
-          remarks: result.remarks,
-          requestDate: result.date_created,
-          requestId: result.requestId,
-          member: result.member,
-        });
+      console.log("USERID:", user_id);
 
-        console.log("Result: ", result);
+      // console.log("[Retrieved User ID from LS]: ", user_id);
+      // console.log("[Device Info]: ", deviceInfo);
+      if (user_id !== null) {
+        setUser((prev) => ({
+          ...prev,
+          user_id: user_id,
+        }));
+
+        // // console.log("CONSOLE LOG BEFORE AUTH");
+        // console.log("[USER (CONTEXT)]: ", user);
+        const token = await retrieveToken();
+        const result = await isAuthorized(token);
+
+        console.log("-------------");
+        if (result) {
+          console.log("Authorized: ", result.isAuthorized);
+          setUser((prev) => ({
+            ...prev,
+            isAuthorized: result?.isAuthorized ?? 0,
+            submitCard: result.hasSubmit,
+            remarks: result.remarks,
+            requestDate: result.date_created,
+            requestId: result.requestId,
+          }));
+        }
 
         if (result && result.expired) {
           Alert.alert(
             "Card Expired",
-            "Your membership card has expired. Please login again."
+            "Your membership card has expired. Please contact your administrator."
           );
-          // setExpired(true);
           setUser({ ...user, token: "" });
           removeStorage();
         }
+        setNoConnection(false);
       }
-      // setUser({});
-      // await SecureStore.deleteItemAsync("user_details");
-      console.log("skip: ", skip);
     } catch (err) {
-      alert(err);
+      // console.log("erra: ", err);
+
+      console.log("err:", err);
+      switch (err.status) {
+        case 0:
+          setNoConnection(true);
+          setNoConnectionRetry({
+            fn: () => {
+              console.log("aw");
+              retrieve();
+            },
+          });
+          break;
+        case 403:
+          setNoConnection(false);
+          setUser({ ...user, token: "" });
+          Alert.alert(err.title, err.message);
+
+          break;
+      }
     } finally {
       setIsRetrieving(false);
     }
   };
 
-  const isAuthorized = async (user_id) => {
-    return await checkAuthorization(user_id);
+  const isAuthorized = async () => {
+    try {
+      return await checkAuthorization();
+    } catch (error) {
+      throw error;
+    }
   };
 
   const logout = async () => {
     setIsLoading(true);
     isLogout.current = true;
-    console.log("removing storage");
     setUser({ ...user, token: null, status: 0, requestId: null });
     setSkip(0);
     await removeStorage();
@@ -127,7 +164,7 @@ export const AuthContextProvider = ({ children }) => {
       })
       .catch((err) => {
         setIsLoading(false);
-        alert(err);
+        // alert(err);
         return false;
       });
   };
@@ -172,14 +209,15 @@ export const AuthContextProvider = ({ children }) => {
     verify,
     retrieve,
     isRetrieving,
-    isUserVerified,
     resendOTP,
     setUser,
     user,
     storeToken,
     isLogout,
-    skip,
-    setSkip,
+    noConnection,
+    setNoConnection,
+    noConnectionRetry,
+    setNoConnectionRetry,
   };
 
   return (
