@@ -52,7 +52,7 @@ export const Hotpicks = () => {
       const data = {
         app_id: config.APP_ID,
         lang: lang,
-        limit: 2,
+        limit: 10,
       };
       const response = await OfferService.getHotpicks(data);
       if (isMounted) {
