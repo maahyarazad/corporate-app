@@ -97,6 +97,7 @@ export const AuthContextProvider = ({ children }) => {
             remarks: result.remarks,
             requestDate: result.date_created,
             requestId: result.requestId,
+            member: result.member,
           }));
         }
 
@@ -212,6 +213,8 @@ export const AuthContextProvider = ({ children }) => {
     isRetrieving,
     resendOTP,
     setUser,
+    setSkip,
+    skip,
     user,
     storeToken,
     isLogout,
