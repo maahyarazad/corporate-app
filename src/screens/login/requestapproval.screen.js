@@ -135,6 +135,7 @@ export const RequestApprovalScreen = () => {
     formData.append("app_id", config.APP_ID);
     formData.append("ip_address", user.ip_address);
     formData.append("device_id", user.device_id);
+    formData.append("version", user.version);
     formData.append("platform", user.platform);
     formData.append("request_id", user.requestId);
 

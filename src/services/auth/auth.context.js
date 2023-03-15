@@ -195,9 +195,10 @@ export const AuthContextProvider = ({ children }) => {
             console.log(err);
           }
         })
-        .catch(() => {
+        .catch((err) => {
           // console.log(err.data.message);
-          reject();
+          Alert.alert(err.title, err.message);
+          reject(err);
         });
     });
   };
