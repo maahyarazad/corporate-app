@@ -2,8 +2,9 @@ import * as SecureStore from "expo-secure-store";
 import { axiosInstance } from "../interceptor/axiosInstance";
 import * as Network from "expo-network";
 import * as Application from "expo-application";
-import { Platform } from "react-native";
 import { navigate } from "../../navigation/navigate";
+import { Alert, Platform } from "react-native";
+import * as Constants from "expo-constants";
 
 // const API_URL = `${config.BASE_URL}user`;
 
@@ -42,8 +43,10 @@ export const getDeviceInfo = async () => {
         : platform === "android"
         ? await Application.androidId
         : "n/a";
+    const version = Constants.default.expoConfig.version;
     info.device_id = deviceId;
     info.platform = platform;
+    info.version = version;
     return info;
   } catch (err) {
     console.log("error in getting device info");

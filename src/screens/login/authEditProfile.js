@@ -76,11 +76,8 @@ export const AuthEditProfileScreen = () => {
 
   useLayoutEffect(() => {
     isMounted.current = true;
-    // console.log(userInfo);
 
     if (userInfo != undefined) {
-      // console.log(userInfo.partner_id);
-
       const data = {
         ...state,
         user_id: user.user_id,
