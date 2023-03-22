@@ -45,7 +45,7 @@ export const UserService: UserServiceType = {
         return axiosInstance.post(`${API_URL}/resend-confirmation/`, {userId, app_id: config.APP_ID}).then(success)
     },
     removeUser(userId): Promise<boolean>  {
-        return axiosInstance.delete(`${API_URL}/delete-user/${userId}/${config.APP_ID}`).then(response)
+        return axiosInstance.delete(`${API_URL}/delete-user/${userId}`).then(response)
     },
     getMemberInfo(user_id): Promise<any> {
         return axiosInstance.get(`${API_URL}/getMemberInfo/${user_id}`).then(response)
