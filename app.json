@@ -1,9 +1,9 @@
 {
   "expo": {
     "scheme": "gecrewards",
-    "name": "GEC Rewards",
+    "name": "GEC Mobile",
     "slug": "GEC-Rewards",
-    "version": "1.0.10",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -16,8 +16,8 @@
       [
         "expo-media-library",
         {
-          "photosPermission": "The app needs to access the photo of your GEC Rewards card.",
-          "savePhotosPermission": "The app needs to save a photo of your GEC Rewards card.",
+          "photosPermission": "The app needs to access the photo of your GEC Membership card.",
+          "savePhotosPermission": "The app needs to save a photo of your GEC Membership card.",
           "isAccessMediaLocationEnabled": "true"
         }
       ]
@@ -29,8 +29,10 @@
       "**/*"
     ],
     "ios": {
-      "associatedDomains": ["applinks:buenapublica.com"],
-      "buildNumber": "6",
+      "associatedDomains": [
+        "applinks:buenapublica.com"
+      ],
+      "buildNumber": "11",
       "supportsTablet": true,
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Turning on location services allows us to show you nearby shops with offers.",
@@ -44,7 +46,7 @@
       }
     },
     "android": {
-      "versionCode": 4,
+      "versionCode": 6,
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyBdMYAFwnxqA6KI4AE31v8BWBsr1ZDRogQ"
