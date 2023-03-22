@@ -32,7 +32,7 @@ export const config = {
 };
 
 // export const EULAPrivacyLink = `http://www.buenapublica.com/wp-content/uploads/tnc.pdf`;
-export const EULAPrivacyLink = `https://ifza.buenapublica.com/uploads/privacy-policy.pdf`;
+export const EULAPrivacyLink = `https://www.buenapublica.com/uploads/privacy-policy.pdf`;
 
 export const loginBGImage = require("../../assets/ifza-login-bg2.jpg");
 

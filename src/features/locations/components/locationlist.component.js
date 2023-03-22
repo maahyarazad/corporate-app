@@ -153,7 +153,7 @@ export const LocationList = ({
                 >
                   {item.tags.map(
                     ({ tag }, index) =>
-                      `${tag}${index < item.tags.length ? " • " : ""}`
+                      `${tag}${index < item.tags.length - 1 ? " • " : ""}`
                   )}
                 </Text>
               </View>
