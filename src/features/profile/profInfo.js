@@ -71,8 +71,10 @@ export const ProfInfo = () => {
           label={i18n.t("profile-tabs.profile.mobile")}
           value={`+${userInfo.area_code} ${userInfo.phone_number}`}
         />
-        {userInfo.card_number != undefined &&
-          userInfo.card_number.trim() != "" && (
+        {/* {console.log("CARD NUMBER:", userInfo.card_number)} */}
+        {!!userInfo.card_number &&
+          userInfo.card_number.trim() != "" &&
+          userInfo.card_number != "" && (
             <RenderRow
               label={"Card Number"}
               value={userInfo.card_number
@@ -81,9 +83,9 @@ export const ProfInfo = () => {
                 .trim()}
             />
           )}
-        {userInfo.card_number != undefined && (
+        {!!userInfo.card_number && (
           <>
-            <Label>{userInfo.card_valid_date}</Label>
+            {/* <Label>{userInfo.card_valid_date}</Label> */}
             <RenderRow
               label={"Validity Date"}
               value={moment(userInfo.card_valid_date).format("MM/YY")}
