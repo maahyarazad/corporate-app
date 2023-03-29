@@ -62,8 +62,12 @@ const renderBanner = ({ item, screenWidth, setLoading, loading }) => {
 
   const handleClick = async () => {
     // await Linking.openURL(item.url_link);
-    if (isValidURL(item.url_link)) {
-      await WebBrowser.openBrowserAsync(item.url_link);
+    try {
+      if (isValidURL(item.url_link)) {
+        await WebBrowser.openBrowserAsync(item.url_link);
+      }
+    } catch (error) {
+      Alert.alert("Banner Error", "Can't open the link");
     }
   };
 
