@@ -3,7 +3,7 @@
     "scheme": "gecrewards",
     "name": "GEC Mobile",
     "slug": "GEC-Rewards",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -32,13 +32,13 @@
       "associatedDomains": [
         "applinks:buenapublica.com"
       ],
-      "buildNumber": "11",
+      "buildNumber": "12",
       "supportsTablet": true,
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Turning on location services allows us to show you nearby shops with offers.",
-        "NSPhotoLibraryUsageDescription": "The app needs to access the photo of your GEC Rewards card.",
-        "NSPhotoLibraryAddUsageDescription": "The app needs to save a photo of your GEC Rewards card.",
-        "NSCameraUsageDescription": "The app needs to take a photo of your GEC Corporate card."
+        "NSPhotoLibraryUsageDescription": "The app needs to access the photo of your GEC Membership card.",
+        "NSPhotoLibraryAddUsageDescription": "The app needs to save a photo of your GEC Membership card.",
+        "NSCameraUsageDescription": "The app needs to take a photo of your GEC Membership card."
       },
       "bundleIdentifier": "com.buenapublica.GECRewards",
       "config": {
@@ -46,7 +46,7 @@
       }
     },
     "android": {
-      "versionCode": 6,
+      "versionCode": 7,
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyBdMYAFwnxqA6KI4AE31v8BWBsr1ZDRogQ"
