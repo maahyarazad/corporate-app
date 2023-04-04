@@ -33,7 +33,9 @@ export const AvailOfferScreen = ({ route }) => {
   const [showModal, setShowModal] = useState(false);
   const [merchantCode, setCode] = useState("");
   const [pinReady, setPinReady] = useState(false);
-  const [paidAmount, setPaidAmount] = useState(offerInfo.min_value);
+  const [paidAmount, setPaidAmount] = useState(
+    !!offerInfo.min_value ? offerInfo.minValue : "0.00"
+  );
   const [discAmount, setDiscAmount] = useState(offerInfo.freebie_value);
   const [totalAmount, setTotalAmount] = useState(
     offerInfo.freebie_value + offerInfo.min_value

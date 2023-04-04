@@ -42,6 +42,9 @@ export const PostCardUpload = () => {
         <Label size={"h5"} weight={"bold"} style={styles.label}>
           {i18n.t("card-upload.uploaded.heading")}
         </Label>
+        <Label size={"h5"} weight={"bold"} style={styles.label}>
+          {i18n.t("card-upload.uploaded.heading")}
+        </Label>
         <Spacer position={"top"} size={"medium"} />
         <Label size={"title"} weight={"medium"} style={styles.label}>
           {i18n.t("card-upload.uploaded.message")}

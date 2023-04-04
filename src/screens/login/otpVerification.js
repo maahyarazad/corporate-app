@@ -1,9 +1,10 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { ActivityIndicator } from "react-native-paper";
+import { sub } from "react-native-reanimated";
 import { useTheme } from "styled-components";
 import Background from "../../components/background/background.component";
 import { CodeInputField } from "../../components/codeInputField";
@@ -24,14 +25,15 @@ import { config } from "../../utils/constants";
 
 export const OtpVerification = ({ route, navigation }) => {
   const MAX_CODE_LENGTH = 4;
+  const OTP_COOLDOWN = 120;
   const { isLoading, verify, resendOTP, user } = useContext(AuthContext);
   const { i18n } = useContext(TranslationContext);
-
+  const [otpCooldown, setOtpCooldown] = useState(OTP_COOLDOWN);
+  const mobileNum = route.params.hiddenNumber;
   const [code, setCode] = useState("");
   const [pinReady, setPinReady] = useState(false);
   const { colors } = useTheme();
   const { user_id, device_id } = user;
-  const mobileNum = route.params.hiddenNumber;
   const [resendStatus, setResendStatus] = useState(false);
 
   const handleVerify = async () => {
@@ -39,9 +41,40 @@ export const OtpVerification = ({ route, navigation }) => {
     await verify(otp_details);
   };
 
+  useEffect(() => {
+    let isMounted = true;
+
+    let subInterval = setInterval(() => {
+      cooldownTimer(subInterval);
+    }, 1000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(subInterval);
+    };
+  }, [resendStatus]);
+
+  const cooldownTimer = (interval) => {
+    if (resendStatus) {
+      setOtpCooldown((prev) => {
+        if (prev > 0) {
+          return prev - 1;
+        } else {
+          setResendStatus(false);
+          clearInterval(interval);
+          return;
+        }
+      });
+    } else {
+      setOtpCooldown(OTP_COOLDOWN);
+      clearInterval(interval);
+    }
+  };
+
   const handleResend = () => {
-    resendOTP(user_id).then((response) => {});
-    setResendStatus(true);
+    resendOTP(user_id).then((response) => {
+      setResendStatus(true);
+    });
   };
 
   return (
@@ -135,7 +168,7 @@ export const OtpVerification = ({ route, navigation }) => {
               <Spacer position={"top"} size={"medium"} />
               {resendStatus ? (
                 <Label style={{ color: "#aaa" }} size={"title"}>
-                  {i18n.t("auth.code-sent")}
+                  {`${i18n.t("auth.code-sent")} (${otpCooldown}s)`}
                 </Label>
               ) : (
                 <TouchableOpacity onPress={handleResend}>

@@ -96,9 +96,6 @@ export const RequestApprovalScreen = () => {
   };
 
   const handleSkip = async () => {
-    // setUser({ ...user });
-    // await SecureStore.setItemAsync("skip", "1");
-
     Alert.alert(
       i18n.t("skip-auth-msg.header"),
       i18n.t("skip-auth-msg.message"),
@@ -561,6 +558,7 @@ export const RequestApprovalScreen = () => {
                     ></AnimatedButton>
                   </View>
                 </View>
+                {console.log("Member:", user)}
                 {user.member ? (
                   <>
                     <View

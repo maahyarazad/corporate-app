@@ -134,12 +134,12 @@ export const UpdateMemberScreen = ({ navigation }) => {
 
       console.log("add member: ", response);
       if (response.status) {
-        setUser({
-          ...user,
+        setUser((prev) => ({
+          ...prev,
           user_id: response.user_id,
           isAuthorized: response.isAuthorized,
           submitCard: response.hasSubmit,
-        });
+        }));
 
         getUserInfo(response.user_id);
         setLoading(false);
