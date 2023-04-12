@@ -22,7 +22,11 @@
                 "firstname": "First Name",
                 "middlename": "Middle Name",
                 "lastname": "Last Name",
-                "nationality": "Nationality"
+                "nationality": "Nationality",
+                "update": {
+                    "heading": "Successfully Updated",
+                    "text": "Your profile information has been saved."
+                }
             },
             "savings-text": "Your total savings as of today",
             "history-breakdown": {
@@ -33,7 +37,7 @@
                 "transaction-details": "Transaction Details",
                 "transaction-code": "Transaction Code",
                 "availed": "Availed Offer",
-                "merchant": "Merchant",
+                "merchant": "Partner",
                 "category": "Category",
                 "transaction-date": "Transaction Date",
                 "paid": "Total Paid",
@@ -79,7 +83,7 @@
             "confirm": "Confirm Redemption",
             "message": "Are you sure you want to use this offer?",
             "error-header": "Redemption Unsuccessful",
-            "error-merchant-pin": "Wrong Merchant Pin"
+            "error-merchant-pin": "Wrong Partner Pin"
         },
         "close": "Close",
         "cancel": "Cancel",
@@ -153,8 +157,9 @@
             "upload-card": "Upload Card"
         },
         "card-upload": {
-            "heading": "Please upload here the front side photo of your GEC Membership card!",
-            "text": "Add your GEC Membership card photo to your profile now!",
+            "click-here": "Click Here!",
+            "heading": "Please upload here the front side photo of your GEC Corporate card!",
+            "text": "Add your GEC Corporate card photo to your profile now!",
             "notice": "Notice:\nPlease make sure your name and expiration date are clearly visible.",
             "edit-profile": "Edit Profile",
             "upload": "Upload",
@@ -162,9 +167,10 @@
             "use-image": "Use Image",
             "retake": "Retake",
             "uploaded": {
-                "heading": "Authorization Pending",
+                "heading": "Boom! Well done!",
+                "heading2": "Authorization Pending",
                 "message": "Your authorization request has been sent to GEC mobile team. After the authorization process is completed, the approval will then be sent to your registered mobile number and email address.",
-                "note": "Note:\nYou can only use the GEC Membership App on one mobile device at any given time. Should you login to another device, you will then be asked to redo the authorization process."
+                "note": "Note:\nYou can only use the GEC Mobile App on one mobile device at any given time. Should you login to another device, you will then be asked to redo the authorization process."
             }
         },
         "gender": {
@@ -178,6 +184,11 @@
             "message": "To claim the offers available in the app, you must upload your valid card. \n\nNote: In case you do not possess a card, you may place a request for one by calling our number.",
             "button-order": "Call to order",
             "button-proceed": "Proceed to skip"
+        },
+        "creation": {
+            "heading": "Your account has been created!",
+            "text": "Before you can login, please activate your account by clicking the verification link we have sent to your email.",
+            "button": "Back to login"
         }
     }
 }   
