@@ -22,7 +22,6 @@ export const CacheImage = ({
       const name = shorthash.unique(uri);
       const extension = uri.slice(findCharRight(uri, "."));
       const path = `${FileSystem.cacheDirectory}${name}${extension}`;
-      console.log("filesystem: ", path);
       const image = await FileSystem.getInfoAsync(path);
 
       if (image.exists) {
