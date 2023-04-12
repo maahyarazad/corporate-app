@@ -490,7 +490,7 @@ export const AppNavigation = () => {
     require("./assets/stamps/GEC_6_for_5.png"),
     require("./assets/stamps/GEC_7_for_6.png"),
     require("./assets/stamps/GEC_Freebie.png"),
-    require("./assets/stamps/GEC_Special_Offer.png"),
+    // require("./assets/stamps/GEC_Special_Offer.png"),
 
     //----------Specials Icons------------
     require("./assets/specials/Workspace.png"),
