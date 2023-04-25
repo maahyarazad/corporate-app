@@ -109,7 +109,7 @@ export const ProfInfo = () => {
         />
         <RenderRow
           label={i18n.t("profile-tabs.profile.birthdate")}
-          value={moment(userInfo.birthdate).format("LL")}
+          value={moment(userInfo.birthdate).format("DD.MMM YYYY")}
         />
         <RenderRow
           label={i18n.t("profile-tabs.profile.gender")}
