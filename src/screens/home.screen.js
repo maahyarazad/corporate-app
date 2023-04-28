@@ -9,6 +9,8 @@ import {
   Alert,
   FlatList,
   RefreshControl,
+  ScrollView,
+  Text,
   TouchableHighlight,
   View,
 } from "react-native";
@@ -140,6 +142,7 @@ export const HomeScreen = ({ ...props }) => {
       limit: 20,
       source: 2,
       headerTitle: i18n.t("search-all"),
+      focus: true,
     });
   };
 
@@ -152,30 +155,32 @@ export const HomeScreen = ({ ...props }) => {
       return (
         <>
           <UrlListener />
-          <Spacer position={"top"} size={"medium"}>
-            <Spacer position={"left"} size={"medium"}>
-              <Spacer position={"right"} size={"medium"}>
-                <View style={{ flexDirection: "row" }}>
-                  <SearchButton onPress={handleSearch} />
-                  <Spacer position={"left"} size={"small"} />
-                  <NearMeButton
-                    underlayColor={"#EEE"}
-                    onPress={handleNavigateMap}
-                  >
-                    <MaterialCommunityIcons
-                      name="map-search"
-                      size={25}
-                      color={"#555"}
-                    />
-                  </NearMeButton>
-                </View>
+          <ScrollView nestedScrollEnabled={true} removeClippedSubviews={true}>
+            <Spacer position={"top"} size={"medium"}>
+              <Spacer position={"left"} size={"medium"}>
+                <Spacer position={"right"} size={"medium"}>
+                  <View style={{ flexDirection: "row" }}>
+                    <SearchButton onPress={handleSearch} />
+                    <Spacer position={"left"} size={"small"} />
+                    <NearMeButton
+                      underlayColor={"#EEE"}
+                      onPress={handleNavigateMap}
+                    >
+                      <MaterialCommunityIcons
+                        name="map-search"
+                        size={25}
+                        color={"#555"}
+                      />
+                    </NearMeButton>
+                  </View>
+                </Spacer>
               </Spacer>
             </Spacer>
-          </Spacer>
-          <FeaturedBanner />
-          <Hotpicks />
-          <HomeCategory />
-          <TopPartners />
+            <FeaturedBanner />
+            <Hotpicks />
+            <HomeCategory />
+            <TopPartners />
+          </ScrollView>
         </>
       );
     }

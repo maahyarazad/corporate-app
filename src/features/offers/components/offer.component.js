@@ -95,7 +95,7 @@ export const Offer = ({ offer, onPress, backgroundColor = "#efefef" }) => {
               </View>
               <View style={styles.textContent}>
                 <View style={{ flex: 1 }}>
-                  <Label weight={"medium"} size={"subtitle"}>
+                  <Label weight={"medium"} size={14}>
                     {`${offer.premium_en}${
                       offer.freebie_en ? ` ${offer.freebie_en}` : ""
                     } on`}
@@ -103,8 +103,8 @@ export const Offer = ({ offer, onPress, backgroundColor = "#efefef" }) => {
                   <View style={styles.offerName}>
                     <Label
                       weight={"bold"}
-                      size={"title"}
-                      numberOfLines={2}
+                      size={16}
+                      numberOfLines={3}
                       ellipsizeMode="tail"
                     >
                       {offer.prodname_en}
@@ -116,7 +116,7 @@ export const Offer = ({ offer, onPress, backgroundColor = "#efefef" }) => {
                   )} */}
                     {`${i18n.t("offer-details.valid-until")} ${moment(
                       new Date(Date.parse(offer.date_end))
-                    ).format("D-MMM, Y")}`}
+                    ).format("DD.MMM YYYY")}`}
                   </Label>
                 </View>
               </View>

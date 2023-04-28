@@ -138,7 +138,7 @@ export const BreakdownRow = ({ item }) => {
                 )}
                 value={moment(
                   transaction ? transaction.date_transaction : new Date()
-                ).format("lll")}
+                ).format("DD.MMMM YYYY H:mm A")}
               />
 
               <RowDetails
@@ -189,7 +189,7 @@ export const BreakdownRow = ({ item }) => {
           </View>
           <View style={{ flex: 3, alignItems: "flex-end" }}>
             <Label size={"caption"}>
-              {moment(item.date_transaction).format("DD-MMM, YYYY")}
+              {moment(item.date_transaction).format("DD.MMM YYYY")}
             </Label>
           </View>
           <View style={{ flex: 2, alignItems: "flex-end" }}>
