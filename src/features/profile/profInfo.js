@@ -55,7 +55,7 @@ export const ProfInfo = () => {
             <Label
               style={{ fontStyle: "italic", color: "red", textAlign: "center" }}
             >
-              {`Da Sie keine gültige Karte hochgeladen haben, können Sie möglicherweise nicht auf bestimmte App-Funktionen zugreifen.`}
+              {`Da Sie keine gültige MemberCard hochgeladen haben, können Sie nicht auf bestimmte App-Funktionen zugreifen. Bitte besorgen Sie sich eine MemberCard. \n\nBitte kontaktieren Sie die GEC Hotline : 00971.56 20 500 66 um Ihre (gültige) MemberCard zu erhalten!`}
             </Label>
           </View>
         )}

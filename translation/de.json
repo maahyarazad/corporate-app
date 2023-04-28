@@ -22,7 +22,11 @@
                 "firstname": "Vorname",
                 "middlename": "Zweitname",
                 "lastname": "Nachname",
-                "nationality": "Nationalität"
+                "nationality": "Nationalität",
+                "update": {
+                    "heading": "Erfolgreich aktualisiert",
+                    "text": "Ihre Profilinformationen wurden gespeichert."
+                }
 
             },
             "savings-text": "bisher erzielte Einsparungen",
@@ -31,9 +35,9 @@
                 "show": "zeigen",
                 "breakdown": "gruppieren",
                 "transaction-details": "Transaktionsdetails",
-                "transaction-code": "Transaktionszahl",
+                "transaction-code": "Transaktionscode",
                 "availed": "Angebot genutzt",
-                "merchant": "Händler",
+                "merchant": "Partner",
                 "category": "Kategorie",
                 "transaction-date": "Transaktionsdatum",
                 "paid": "Gesamtbetrag gezahlt",
@@ -43,7 +47,7 @@
             "settings-menu": {
                 "settings-permission": "App Einstellungen & Rechte",
                 "legal": "EULA & Datenschutz",
-                "contact-us": "Kontaktiere uns",
+                "contact-us": "Kontaktiere",
                 "delete-account": "Konto löschen",
                 "logout": "Abmelden"
             }
@@ -64,74 +68,74 @@
         "search-all": "alles durchsuchen",
         "redeem-offer": {
             "instruction": "Zeigen Sie den Code an der Kasse vor %{locationName} um das Angebot zu nutzen",
-            "use-code": "Code benutzen",
+            "use-code": "Code nutzen",
             "call-now": "Jetzt anrufen",
-            "redeem": "einlösen",
-            "total-bill": "Preis (vor Rabatt) ",
-            "discount": "Rabattbetrag",
-            "actual-paid": "Preis mit Rabatt",
-            "merchant-pin": "Geben Sie 6-stelligen Pin ein",
-            "avail-offer": "Angebot einlösen",
-            "highlights": "Höhepunkte",
-            "fine-prints": "Feingedruckte / Allgemeine Geschäftsbedningunge",
+            "redeem": "Redeem",
+            "total-bill": "Total Bill (before Discount)",
+            "discount": "Discount Amount",
+            "actual-paid": "Actual Discounted Payment",
+            "merchant-pin": "Enter 6-Digit Cashier Pin",
+            "avail-offer": "Angebot erhalten",
+            "highlights": "Highlights",
+            "fine-prints": "Das Feingedruckte / Allgemeine Geschäftsbedingungen",
             "view-offer": "sicht Angebote"
         },
         "redemption": {
-            "confirm": "Einlösung bestätigen",
-            "message": "Sind Sie sich sicher das Angebot zu nutzen?",
-            "error-header": "Einlösung fehlgeschlagen",
-            "error-merchant-pin": "Falscher Händler-PIN"
+            "confirm": "Confirm Redemption",
+            "message": "Are you sure you want to use this offer?",
+            "error-header": "Redemption Unsuccessful",
+            "error-merchant-pin": "Wrong Partner-Pin"
         },
-        "close": "schließe",
+        "close": "Schließen",
         "cancel": "Absagen",
         "redemption-success": {
-            "transaction-summary": "TransaktionsÜberblick",
+            "transaction-summary": "Transaktionsüberblick",
             "success": "Einlösung erfolgreich",
             "text1": "Sie haben gesparrt",
-            "text2": "Sie haben den Gesamtbetrag von %{amount} %{currency} an %{partner} gezahlt",
-            "text3": "Bitte zeigen Sie den Referenzcode an der Kasse vor %{partner}",
+            "text2": "Sie haben insgesamt %{amount} %{currency} an %{partner} gezahlt",
+            "text3": "Bitte zeigen Sie den Referenzcode an der Kasse bei %{partner}",
             "done": "Fertig"
         },
         "events": {
-            "title": "Zukünftige events",
-            "include-guests": "Gast hinzufügen",
+            "title": "Nächste Veranstaltungen",
+            "include-guests": "Gäste hinzufügen",
             "attend": "Teilnehmen",
             "unattend": "Teilnahme absagen",
-            "attend-w-guests": "Teilnahme mit Gast",
-            "confirm-attendance": "Teilnahme bestätigt",
+            "attend-w-guests": "Teilnahme mit Gästen",
+            "confirm-attendance": "Teilnahme bestätigen",
             "confirm-attendance-msg": "Das Event mit besuchen?",
-            "confirm-attendance-w-msg": "Das Event mit einem Gast besuchen?",
-            "event-detail": "Event informationen",
+            "confirm-attendance-w-msg": "Das Event mit Gästen besuchen?",
+            "event-detail": "Eventinformationen",
             "cancel-attendance": "Teilnahme absagen",
             "cancel-attendance-msg": "Möchten Sie Ihre Teilnahme wirklich stornieren?",
             "guest-list": {
                 "header": "Gästeliste",
-                "subheader-1": "Sie koennen bis zu ",
-                "subheader-2": " an Gäste registrieren",
-                "confirm-guest": "Gast bestätigten",
+                "subheader-1": "Sie können bis zu ",
+                "subheader-2": " Gäste registrieren ",
+                "confirm-guest": "Gast bestätigen",
                 "add-more": "Weitere Gäste hinzufügen",
                 "guest": "Gast",
                 "firstname": "Vorname",
                 "lastname": "Nachname",
-                "registration-success": "Registrierung fehlgeschlagen",
-                "registration-success-msg": "Wir haben Ihre Teilnahme zusammen mit Ihren Gästen hinzugefügt"
+                "registration-success": "Registrierung erfolgreich",
+                "registration-success-msg": "Ihre Teilnahme mit Gästen ist bestätigt."
             }
         },
-        "read-more": "Weiterlesen",
+        "read-more": "Mehr...",
         "proceed": "Weiter",
         "auth": {
-            "account-verification": "Konto bestätigen",
-            "message": "Bitte den %{codeLength}-stelligen Code eingeben den Sie an %{mobileNumber} gesendet haben",
+            "account-verification": "Account bestätigen",
+            "message": "Bitte den an %{mobileNumber} gesendeten %{codeLength}-stelligen Code eingeben",
             "verify-code": "Code bestätigen",
             "resend-code": "Code erneut senden",
             "code-sent": "Code gesendet"
         },
         "end-of-list": "Ende der Liste",
-        "submit": "Einreichen",
-        "return": "Zurückgehen",
+        "submit": "Versenden",
+        "return": "Zurück",
         "contact-us": {
             "sent-successful": "Erfolgreich versendet",
-            "message-sent": "Ihre Nachricht wurde geschickt. Danke für Ihre Nachricht!",
+            "message-sent": "Ihre Nachricht wurde versendet. Danke für Ihre Nachricht!",
             "form-email": "Email Adresse",
             "form-name": "vollst. Name",
             "form-phone-number": "Telefonnummer",
@@ -139,7 +143,7 @@
         },
         "delete-account": {
             "header": "Warnung",
-            "message": "Sie wollen das Konto löschen? \n\nWarnung: Konto kann nach Löschung nicht wiederherstellen werden"
+            "message": "Wollen Sie den Account wirklich löschen? \n\nWarnung: Der Account kann nach Löschung nicht wiederhergestellt werden."
         },
         "logout": {
             "header": "Logout bestätigen",
@@ -150,29 +154,31 @@
         "free": "Kostenlos",
         "offer-restriction": {
             "title": "Unvollständiges Profil",
-            "message": "Sie müssen Ihre Mitgliedskarte hochladen, um alle Angebote nutzen zu können, oder rufen Sie uns an, um eine Karte zu bestellen",
-            "order-now": "Karte bestellen",
+            "message": "Bitte laden Sie Ihre gültige MemberCard in Ihrem Profil hoch um die Angebote der ClubPartner nutzen zu können. \n\nSollten Sie (noch) keine (gültige) MemberCard besitzen, so rufen Sie bitte die GEC Hotline: 00971.56 20 500 66 an, um Ihre MemberCard zu bestellen!",
+            "order-now": "MemberCard bestellen",
             "upload-card": "Karte hochladen"
         }, 
         "card-upload": {
-            "heading": "Bitte laden Sie hier die Vorderseite ihrer GEC Mitgliedskarte hoch",
-            "text": "Fügen Sie Ihr Photo der GEC Mitgliedskarte zu Ihrem Profil hinzu!",
+            "click-here": "Klick Hier!",
+            "heading": "Bitte laden Sie hier ein Foto der Vorderseite ihrer gültigen GEC MemberCard hoch",
+            "text": "",
             "notice": "Achtung:\nBitte stellen Sie sicher, dass Ihr Name und das Ablaufdatum deutlich sichtbar sind.",
             "edit-profile": "Profil bearbeiten",
             "upload": "Hochladen",
-            "skip": "Vorerst überspringen",
-            "use-image": "Bild benutzen",
-            "retake": "Bild erneut aufnehmen",
+            "skip": "Hochladen überspringen",
+            "use-image": "Foto benutzen",
+            "retake": "Erneut aufnehmen",
             "uploaded": {
-                "heading": "Genehmigung ausstehend",
+                "heading": "Boom! Klasse gemacht!",
+                "heading2": "Autorisierung ausstehend",
                 "message": "Ihre Autorisierungsanfrage wurde an das GEC Mobile-Team gesendet. Nachdem der Autorisierungsprozess abgeschlossen ist, wird die Genehmigung an Ihre registrierte Handynummer und E-Mail-Adresse gesendet.",
-                "note": "Achtung:\nSie können die GEC Mitgliedskarte App jeweils nur auf einem Mobilgerät verwenden. Sollten Sie sich auf einem anderen Gerät anmelden, werden Sie anschließend aufgefordert, den Autorisierungsprozess zu wiederholen."
+                "note": "Achtung:\nSie können die GEC Mobile App jeweils nur auf einem Mobilgerät verwenden. Sollten Sie sich auf einem anderen Gerät anmelden, werden Sie anschließend aufgefordert, den Autorisierungsprozess zu wiederholen."
             }
         },
         "gender": {
             "title": "Geschlecht",
-            "male": "Männlich",
-            "female": "Weiblich"
+            "male": "männlich",
+            "female": "weiblich"
         },
         "update": "Aktualisieren",
         "skip-auth-msg": {
@@ -180,6 +186,11 @@
             "message": "um von dem Angebot gebrauch zu machen, muss eine gültige Karte hochgeladen werden.\n\nNote: falls keine gültige Karte vorliegt, bitte Hotline anrufen und neue Karte anfordern.",
             "button-order": "Anrufen um zu bestellen",
             "button-proceed": "Weiter zum Überspringen"
+        },
+        "creation": {
+            "heading": "Ihr Konto wurde erstellt!",
+            "text": "Before you can login, please activate your account by clicking the verification link we have sent to your email.",
+            "button": "Back to login"
         }
     }
 }   

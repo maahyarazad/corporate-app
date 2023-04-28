@@ -43,6 +43,10 @@ export const PostCardUpload = () => {
           {i18n.t("card-upload.uploaded.heading")}
         </Label>
         <Spacer position={"top"} size={"medium"} />
+        <Label size={"h5"} weight={"bold"} style={styles.label}>
+          {i18n.t("card-upload.uploaded.heading2")}
+        </Label>
+        <Spacer position={"top"} size={"medium"} />
         <Label size={"title"} weight={"medium"} style={styles.label}>
           {i18n.t("card-upload.uploaded.message")}
         </Label>
@@ -57,7 +61,7 @@ export const PostCardUpload = () => {
           </Label>
         </View>
       </Animated.View>
-      <View style={{ flex: 1, marginTop: "40%" }}>
+      <View style={{ flex: 1, marginTop: "20%" }}>
         <Button
           onPress={handleRefresh}
           mode="contained"

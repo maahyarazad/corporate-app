@@ -27,7 +27,7 @@ export const UploadContextProvider = ({ children }) => {
       .then(async (response) => {
         try {
           getUserInfo(user.user_id);
-          setUser({ ...user, submitCard: 1 });
+          setUser((prev) => ({ ...prev, submitCard: 1 }));
           await SecureStore.setItemAsync("submitCard", "1");
           setLoading(false);
         } catch (err) {

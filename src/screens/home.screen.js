@@ -1,4 +1,10 @@
-import React, { PureComponent, useContext, useEffect, useState } from "react";
+import React, {
+  PureComponent,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   Alert,
   FlatList,
@@ -40,11 +46,13 @@ const NearMeButton = styled(TouchableHighlight)`
 
 export const HomeScreen = ({ ...props }) => {
   const { navigation } = props;
-  const [refreshing, setRefreshing] = useState(false);
+  const [refreshing, setRefreshing] = useState(0);
+  const [refreshCount, setRefreshCount] = useState(0);
   const { getUserInfo, userInfo, setIsHomeInit } = useContext(UserContext);
   const { user } = useContext(AuthContext);
   const { i18n } = useContext(TranslationContext);
   // const { setSectionTitle } = useContext(SectionContext);
+  const testing = useRef(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -118,8 +126,8 @@ export const HomeScreen = ({ ...props }) => {
   };
 
   const onRefresh = () => {
-    setRefreshing(true);
-    setRefreshing(false);
+    testing.current = false;
+    setRefreshing((prev) => prev + 1);
   };
 
   const handleSearch = () => {
@@ -184,7 +192,7 @@ export const HomeScreen = ({ ...props }) => {
   return (
     <HomeContainer
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        <RefreshControl refreshing={testing.current} onRefresh={onRefresh} />
       }
       showsVerticalScrollIndicator={false}
       ListFooterComponent={renderFooter}

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet, View, Image } from "react-native";
 import * as FileSystem from "expo-file-system";
 import shorthash from "shorthash";
+import { findCharRight } from "../utils/findCharRight";
 
 export const CacheImage = ({
   uri,
@@ -10,6 +11,7 @@ export const CacheImage = ({
   onLoad,
   onLoadStart,
   pointerEvents,
+  resizeMode,
 }) => {
   const [state, setState] = useState({ source: null });
 
@@ -18,11 +20,13 @@ export const CacheImage = ({
 
     const cache = async () => {
       const name = shorthash.unique(uri);
-      const path = `${FileSystem.cacheDirectory}${name}`;
+      const extension = uri.slice(findCharRight(uri, "."));
+      const path = `${FileSystem.cacheDirectory}${name}${extension}`;
       const image = await FileSystem.getInfoAsync(path);
 
       if (image.exists) {
         if (isMounted) {
+          // console.log("path:", path);
           // console.log("image from cache");
           setState({
             source: {
@@ -32,7 +36,6 @@ export const CacheImage = ({
         }
         return;
       }
-
       const newImage = await FileSystem.downloadAsync(uri, path);
 
       if (isMounted) {
@@ -44,8 +47,8 @@ export const CacheImage = ({
         });
       }
     };
-
-    cache();
+    //www.reaconverter.com/howto/wp-content/uploads/2017/02/animation-1.gif
+    https: cache();
 
     return () => {
       isMounted = false;
@@ -56,6 +59,7 @@ export const CacheImage = ({
     <Image
       key={imgKey}
       onLoad={onLoad}
+      resizeMode={resizeMode}
       onLoadStart={onLoadStart}
       source={state.source}
       style={style}

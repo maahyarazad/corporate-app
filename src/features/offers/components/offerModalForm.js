@@ -114,6 +114,7 @@ export const OfferModalInfo = ({
                 labelStyle={{ fontSize: 12 }}
                 contentStyle={{
                   width: "100%",
+                  flexWrap: 1,
                 }}
                 style={{
                   flex: 1,
@@ -127,11 +128,8 @@ export const OfferModalInfo = ({
               <Button
                 onPress={handleUpload}
                 labelStyle={{ fontSize: 12 }}
-                contentStyle={{
-                  width: "100%",
-                }}
+                contentStyle={{}}
                 style={{
-                  flex: 1,
                   backgroundColor: "#1282FF",
                 }}
                 mode="contained"

@@ -17,6 +17,11 @@ import { config } from "../../../utils/constants";
 import { isValidURL } from "../../../utils/isValidURL";
 import { AppServices } from "../../../services/app/app.services";
 import { AuthContext } from "../../../services/auth/auth.context";
+import Carousel from "react-native-reanimated-carousel";
+import { CacheImage } from "../../../components/cacheImage";
+
+const SIZE_RATIO = 9 / 16;
+// const SIZE_RATIO = 9 / 16;
 
 const BannerList = styled(FlatList)`
   padding-top: 10px;
@@ -25,12 +30,13 @@ const BannerList = styled(FlatList)`
 
 const ListContainerHeight = () => {
   const screenWidth = Dimensions.get("window").width;
-  const imageHeight = screenWidth * (3 / 4);
+  const imageHeight = screenWidth * SIZE_RATIO;
   return imageHeight;
 };
 
 const ListContainer = styled(View)`
   height: ${ListContainerHeight}px;
+  margin-top: 8px;
 `;
 
 const BannerImage = styled(Image)`
@@ -40,13 +46,16 @@ const BannerImage = styled(Image)`
 `;
 
 const Pressable = styled(TouchableOpacity)`
-  width: ${({ screenWidth }) => screenWidth - 32}px;
-  height: ${({ screenWidth }) => (screenWidth - 32) * (3 / 4)}px;
+  width: ${({ screenWidth }) => screenWidth}px;
+  height: ${({ screenWidth }) => (screenWidth - 20) * SIZE_RATIO}px;
   border-radius: 10px;
   border-left-width: 0px;
   border-right-width: 0px;
   border-color: rgba(0, 0, 0, 0.05);
   box-shadow: 4px 4px 4px rgba(0, 0, 0, ${Platform.OS === "ios" ? 0.3 : 1});
+  justify-content: center;
+  padding-left: 16px;
+  padding-right: 16px;
   /* elevation: 6; */
 `;
 
@@ -61,9 +70,22 @@ const renderBanner = ({ item, screenWidth, setLoading, loading }) => {
   const bannerLoaded = () => setLoading(false);
 
   const handleClick = async () => {
-    // await Linking.openURL(item.url_link);
-    if (isValidURL(item.url_link)) {
-      await WebBrowser.openBrowserAsync(item.url_link);
+    try {
+      if (item.withLink != undefined) {
+        switch (item.withLink) {
+          //Website Link
+          case 1:
+            if (isValidURL(item.url_link)) {
+              await WebBrowser.openBrowserAsync(item.url_link);
+            }
+            break;
+          case 2:
+            await Linking.openURL(item.url_link);
+            break;
+        }
+      }
+    } catch (error) {
+      Alert.alert("Banner Error", "Can't open the link");
     }
   };
 
@@ -71,20 +93,17 @@ const renderBanner = ({ item, screenWidth, setLoading, loading }) => {
     <>
       <Pressable
         onPress={handleClick}
-        // disabled={item.url_link}
-        disabled={!isValidURL(item.url_link)}
+        disabled={item.withLink === 0}
         activeOpacity={0.5}
         screenWidth={screenWidth}
       >
         <BannerContainer>
           <LoadingOverlay display={loading} />
-          <BannerImage
+
+          <CacheImage
             onLoad={bannerLoaded}
-            screenWidth={screenWidth}
-            resizeMode="cover"
-            source={{
-              uri: `${config.SERVER_HOST}/banners/${item.banner_image}`,
-            }}
+            style={{ width: screenWidth, height: "100%", resizeMode: "cover" }}
+            uri={`${config.SERVER_HOST}/banners/${item.banner_image}`}
           />
         </BannerContainer>
       </Pressable>
@@ -126,21 +145,15 @@ export const FeaturedBanner = ({ bannerData }) => {
         <>
           <Spacer position={"top"} size={"small"} />
           <ListContainer>
-            <BannerList
+            <Carousel
+              width={Dimensions.get("screen").width}
+              height={Dimensions.get("screen").width * (9 / 16)}
               data={bannerList}
-              horizontal
-              disableIntervalMomentum
-              decelerationRate={"fast"}
-              showsHorizontalScrollIndicator={false}
-              pagingEnabled
-              snapToAlignment="start"
-              snapToInterval={screenWidth}
+              autoPlay={true}
+              autoPlayInterval={5000}
               renderItem={({ item }) =>
                 renderBanner({ item, screenWidth, setLoading, loading })
               }
-              contentContainerStyle={{ paddingHorizontal: 16 }}
-              ItemSeparatorComponent={itemSeparatorHL}
-              keyExtractor={(item) => item.id}
             />
           </ListContainer>
         </>

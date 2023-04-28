@@ -182,7 +182,7 @@ export const Hotpicks = () => {
                 snapEnabled={true}
                 autoPlayInterval={3000}
                 width={Dimensions.get("screen").width}
-                height={Dimensions.get("screen").width * 0.64}
+                height={Dimensions.get("screen").width * 0.6}
                 mode="parallax"
                 pagingEnabled={true}
                 onProgressChange={(_, absoluteProgress) => {
@@ -196,7 +196,7 @@ export const Hotpicks = () => {
                 }}
                 modeConfig={{
                   parallaxScrollingScale: 0.8,
-                  parallaxScrollingOffset: 185,
+                  parallaxScrollingOffset: 205,
                 }}
               />
             ) : hotpickList.length === 1 ? (

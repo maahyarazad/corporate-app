@@ -159,7 +159,7 @@ export const AuthContextProvider = ({ children }) => {
     verifyOTP(otp_details)
       .then((response) => {
         isLogout.current = false;
-        setUser({ ...user, status: 1, token: response.token });
+        setUser((prev) => ({ ...prev, status: 1, token: response.token }));
         setIsLoading(false);
         return true;
       })

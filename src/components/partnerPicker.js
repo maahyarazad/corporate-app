@@ -70,6 +70,7 @@ export const PartnerPicker = ({
         onPress={handleToggle}
         onSelectItem={handleSelection}
         open={openPartner}
+        onClose={handleToggle}
         // setValue=
         listMode="MODAL"
         searchable
