@@ -47,7 +47,7 @@
             "settings-menu": {
                 "settings-permission": "App Einstellungen & Rechte",
                 "legal": "EULA & Datenschutz",
-                "contact-us": "Kontaktiere",
+                "contact-us": "Kontakt",
                 "delete-account": "Konto löschen",
                 "logout": "Abmelden"
             }
@@ -78,7 +78,7 @@
             "avail-offer": "Angebot erhalten",
             "highlights": "Highlights",
             "fine-prints": "Das Feingedruckte / Allgemeine Geschäftsbedingungen",
-            "view-offer": "sicht Angebote"
+            "view-offer": "Angebote"
         },
         "redemption": {
             "confirm": "Confirm Redemption",
@@ -99,15 +99,18 @@
         "events": {
             "title": "Nächste Veranstaltungen",
             "include-guests": "Gäste hinzufügen",
-            "attend": "Teilnehmen",
-            "unattend": "Teilnahme absagen",
+            "attend": "Anmelden",
+            "unattend": "Stornieren",
             "attend-w-guests": "Teilnahme mit Gästen",
-            "confirm-attendance": "Teilnahme bestätigen",
-            "confirm-attendance-msg": "Das Event mit besuchen?",
+            "confirm-attendance": "Anmeldung bestätigen",
+            "confirm-attendance-msg": "Am Event teilnehmen?",
             "confirm-attendance-w-msg": "Das Event mit Gästen besuchen?",
+            "participation-msg": "Anmeldung bestätigt!",
+            "cancellation-msg": "Teilnahme storniert!",
             "event-detail": "Eventinformationen",
-            "cancel-attendance": "Teilnahme absagen",
+            "cancel-attendance": "Teilnahme Stornieren",
             "cancel-attendance-msg": "Möchten Sie Ihre Teilnahme wirklich stornieren?",
+            "action-button": "Ja, stornieren",
             "guest-list": {
                 "header": "Gästeliste",
                 "subheader-1": "Sie können bis zu ",
@@ -122,24 +125,27 @@
             }
         },
         "read-more": "Mehr...",
-        "proceed": "Weiter",
+        "proceed": "Bestätigen",
         "auth": {
             "account-verification": "Account bestätigen",
-            "message": "Bitte den an %{mobileNumber} gesendeten %{codeLength}-stelligen Code eingeben",
+            "message": "Bitte den per SMS an Ihre Mobiltelefonnummer %{mobileNumber} gesendeten %{codeLength}-stelligen Code eingeben",
             "verify-code": "Code bestätigen",
             "resend-code": "Code erneut senden",
-            "code-sent": "Code gesendet"
+            "code-sent": "Code gesendet",
+            "code-sent2": "Code wurde erneut gesendet",
+            "fail-header": "Ungültiger Code",
+            "fail-msg": "Sie haben einen ungültigen Code angegeben."
         },
         "end-of-list": "Ende der Liste",
         "submit": "Versenden",
         "return": "Zurück",
         "contact-us": {
-            "sent-successful": "Erfolgreich versendet",
-            "message-sent": "Ihre Nachricht wurde versendet. Danke für Ihre Nachricht!",
+            "sent-successful": "Erfolgreich versand!",
+            "message-sent": "Ihre Nachricht wurde erfolgreich versand. Danke für Ihre Nachricht!",
             "form-email": "Email Adresse",
             "form-name": "vollst. Name",
-            "form-phone-number": "Telefonnummer",
-            "form-message": "Botschaft"
+            "form-phone-number": "Mobiltelefonnummer",
+            "form-message": "Nachricht"
         },
         "delete-account": {
             "header": "Warnung",
@@ -155,7 +161,7 @@
         "offer-restriction": {
             "title": "Unvollständiges Profil",
             "message": "Bitte laden Sie Ihre gültige MemberCard in Ihrem Profil hoch um die Angebote der ClubPartner nutzen zu können. \n\nSollten Sie (noch) keine (gültige) MemberCard besitzen, so rufen Sie bitte die GEC Hotline: 00971.56 20 500 66 an, um Ihre MemberCard zu bestellen!",
-            "order-now": "MemberCard bestellen",
+            "order-now": "Jetzt bestellen",
             "upload-card": "Karte hochladen"
         }, 
         "card-upload": {
@@ -191,6 +197,12 @@
             "heading": "Ihr Konto wurde erstellt!",
             "text": "Before you can login, please activate your account by clicking the verification link we have sent to your email.",
             "button": "Back to login"
+        },
+        "email-verification": {
+            "text": "Ihre E-Mail-Adresse ist noch nicht verifiziert. Bitte überprüfen Sie den Verifizierungslink, den wir an Ihre E-Mail geschickt haben.",
+            "button": "Zurück zum Login",
+            "link": "Link nicht erhalten? Jetzt erneut senden!",
+            "link-pressed": "Ein neuer Verifizierungslink wurde gesendet!"
         }
     }
 }   

@@ -66,7 +66,7 @@
         "see-all": "See all",
         "search-all": "Search All",
         "redeem-offer": {
-            "instruction": "Please present this Offer Code onsite to %{location.name}'s cashier to avail the offer.",
+            "instruction": "Please present this Offer Code onsite to %{locationName}'s cashier to avail the offer.",
             "use-code": "Use Code",
             "call-now": "Call Now",
             "redeem": "Redeem",
@@ -99,14 +99,17 @@
             "title": "Upcoming Events",
             "include-guests": "include guests",
             "attend": "Attend",
-            "unattend": "Unattend",
-            "attend-w-guests": "Attend with Guest(s)",
+            "unattend": "Dont Attend",
+            "attend-w-guests": "Participate with Guest(s)",
             "confirm-attendance": "Confirm Attendance",
             "confirm-attendance-msg": "Are you sure you want to attend this event?",
             "confirm-attendance-w-msg": "Are you sure you want to attend this event with Guests?",
+            "participation-msg": "Attendance Confirmed!",
+            "cancellation-msg": "Attendance Cancelled!",
             "event-detail": "Event Details",
             "cancel-attendance": "Cancel Attendance",
             "cancel-attendance-msg": "Are you sure you want to cancel your attendance?",
+            "action-button": "Yes, cancel",
             "guest-list": {
                 "header": "Guest List",
                 "subheader": "You can register up to ${guests} Guest(s) ",
@@ -116,21 +119,24 @@
                 "firstname": "First Name",
                 "lastname": "Last Name",
                 "registration-success": "Registration Success",
-                "registration-success-msg": "We have added your attendance along with your guest(s)."
+                "registration-success-msg": "We have added your entry along with your guest(s)."
             }
         },
         "read-more": "Read More",
-        "proceed": "Proceed",
+        "proceed": "Next",
         "auth": {
             "account-verification": "Account Verification",
             "message": "Please enter the %{codeLength}-digit code sent to %{mobileNumber}",
             "verify-code": "Verify Code",
             "resend-code": "Resend Code",
-            "code-sent": "Code has been resent"
+            "code-sent": "Code has been sent",
+            "code-sent2": "Code has been resent",
+            "fail-header": "Invalid Code",
+            "fail-msg": "You have entered an invalid code."
         },
         "end-of-list": "End of List",
         "submit": "Submit",
-        "return": "Return",
+        "return": "Back",
         "contact-us": {
             "sent-successful": "Sent Successfully",
             "message-sent": "Your message has been sent. Thank you for your message!",
@@ -189,6 +195,12 @@
             "heading": "Your account has been created!",
             "text": "Before you can login, please activate your account by clicking the verification link we have sent to your email.",
             "button": "Back to login"
+        },
+        "email-verification": {
+            "text": "Your email address is not yet verified. Please check the verification link we have sent to your email.",
+            "button": "Back to Login",
+            "link": "Linked not received? Resend Now!",
+            "link-pressed": "New verification link has been sent!"
         }
     }
 }   
