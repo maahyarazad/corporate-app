@@ -1,6 +1,6 @@
 import "react-native-gesture-handler";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
-import { StyleSheet } from "react-native";
+import { StyleSheet, Text, TextInput } from "react-native";
 import { ThemeProvider } from "styled-components";
 import { theme } from "./src/infrastructure/theme";
 import { SectionContextProvider } from "./src/services/section/section.context";
@@ -10,23 +10,31 @@ import { AppNavigation } from "./navigation";
 import { UploadContextProvider } from "./src/services/upload/upload.context";
 import { UserContextProvider } from "./src/services/user/user.context";
 import { TranslationContextProvider } from "./src/services/translation/translation.context";
+import { AppContextProvider } from "./src/services/app/app.context";
 
 export default function App() {
+  Text.defaultProps = Text.defaultProps || {};
+  Text.defaultProps.allowFontScaling = false;
+  TextInput.defaultProps = TextInput.defaultProps || {};
+  TextInput.defaultProps.allowFontScaling = false;
+
   return (
     <>
       <ThemeProvider theme={theme}>
         <TranslationContextProvider>
-          <AuthContextProvider>
-            <UserContextProvider>
-              <UploadContextProvider>
-                <LocationContextProvider>
-                  <SectionContextProvider>
-                    <AppNavigation />
-                  </SectionContextProvider>
-                </LocationContextProvider>
-              </UploadContextProvider>
-            </UserContextProvider>
-          </AuthContextProvider>
+          <AppContextProvider>
+            <AuthContextProvider>
+              <UserContextProvider>
+                <UploadContextProvider>
+                  <LocationContextProvider>
+                    <SectionContextProvider>
+                      <AppNavigation />
+                    </SectionContextProvider>
+                  </LocationContextProvider>
+                </UploadContextProvider>
+              </UserContextProvider>
+            </AuthContextProvider>
+          </AppContextProvider>
         </TranslationContextProvider>
       </ThemeProvider>
       <ExpoStatusBar style="dark" />
