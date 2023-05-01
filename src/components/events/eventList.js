@@ -10,21 +10,25 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Button, Card, Checkbox } from "react-native-paper";
+import { Button, Card, Checkbox, Modal } from "react-native-paper";
 import { theme } from "../../infrastructure/theme";
 import { navigate } from "../../navigation/navigate";
 import { AuthContext } from "../../services/auth/auth.context";
 import { EventService } from "../../services/event/event.service";
 import { LocationContext } from "../../services/location/location.context";
 import { TranslationContext } from "../../services/translation/translation.context";
+import { CustomModal } from "../modal/customModal.component";
 import { Spacer } from "../spacer/spacer.component";
 import { Label } from "../typography/label.component";
 
 export const EventList = () => {
   const { eventList, getEventsList, setEventList } =
     useContext(LocationContext);
+  const [isLoading, setIsLoading] = useState(false);
   const { user } = useContext(AuthContext);
   const { i18n } = useContext(TranslationContext);
+  const [showModal, setShowModal] = useState(false);
+  const [confirmationMSG, setConfirmationMSG] = useState("");
 
   const handleSelectEvent = (eventId, registered) => {
     navigate("Event Detail", {
@@ -43,7 +47,7 @@ export const EventList = () => {
       i18n.t("events.confirm-attendance-msg"),
       [
         {
-          text: i18n.t("cancel"),
+          text: i18n.t("return"),
           onPress: () => {},
         },
         {
@@ -62,7 +66,7 @@ export const EventList = () => {
       i18n.t("events.confirm-attendance-w-msg"),
       [
         {
-          text: i18n.t("cancel"),
+          text: i18n.t("return"),
           onPress: () => {},
         },
         {
@@ -85,11 +89,11 @@ export const EventList = () => {
       i18n.t("events.cancel-attendance-msg"),
       [
         {
-          text: i18n.t("cancel"),
+          text: i18n.t("return"),
           onPress: () => {},
         },
         {
-          text: i18n.t("proceed"),
+          text: i18n.t("events.action-button"),
           onPress: () => {
             handleCancel(eventId);
           },
@@ -100,6 +104,7 @@ export const EventList = () => {
 
   const handleCancel = async (eventId) => {
     try {
+      setIsLoading(true);
       const data = {
         user_id: user.user_id,
         eventId: eventId,
@@ -107,17 +112,27 @@ export const EventList = () => {
 
       const response = await EventService.cancelAttend(data);
       getEventsList();
+      if (response.success) {
+        setConfirmationMSG(i18n.t("events.cancellation-msg"));
+        setShowModal(true);
+        setTimeout(() => {
+          setShowModal(false);
+        }, 1500);
+      }
     } catch (err) {
       console.log(err);
       Alert.alert(
         "Error Occurred",
         "Something went wrong while processing your request."
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleAttend = async (eventId) => {
     try {
+      setIsLoading(true);
       const data = {
         user_id: user.user_id,
         eventId: eventId,
@@ -126,12 +141,22 @@ export const EventList = () => {
 
       const response = await EventService.attendEvent(data);
       getEventsList();
+
+      if (response.success) {
+        setConfirmationMSG(i18n.t("events.participation-msg"));
+        setShowModal(true);
+        setTimeout(() => {
+          setShowModal(false);
+        }, 1500);
+      }
     } catch (err) {
       console.log(err);
       Alert.alert(
         "Error Occurred",
         "Something went wrong while processing your request."
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -178,7 +203,7 @@ export const EventList = () => {
                   color: theme.colors.ui.lightGray,
                 }}
               >
-                {moment(item.eventTime).format("LLL")}
+                {moment(item.eventTime).format("DD.MMMM YYYY h:mm A")}
               </Label>
             </View>
 
@@ -209,16 +234,11 @@ export const EventList = () => {
               <Checkbox.Android
                 status={item.includeGuests ? "checked" : "unchecked"}
                 onPress={() => {
-                  // item.includeGuests = !item.includeGuests;
-                  // eventList[index].includeGuests = !item.includeGuests;
-                  // const testing = [...eventList];
-                  // testing[index].includeGuests = !item.includeGuests;
-
                   setEventList(
                     eventList.map((element, index1) =>
                       index1 === index
                         ? { ...element, includeGuests: !item.includeGuests }
-                        : t
+                        : element
                     )
                   );
                   // console.log(eventList[index]);
@@ -261,6 +281,8 @@ export const EventList = () => {
             </Button>
             <Spacer position={"left"} size={"small"} />
             <Button
+              loading={isLoading}
+              disabled={isLoading}
               onPress={() => {
                 if (item.registered) {
                   confirmCancel(item.id);
@@ -298,9 +320,29 @@ export const EventList = () => {
 
   return (
     <>
-      <View style={styles.container}>
+      <CustomModal type="fade" showModal={showModal}>
+        <View style={styles.modalContainer}>
+          <View
+            style={{
+              backgroundColor: "white",
+              width: "80%",
+              height: "15%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              padding: 25,
+              borderRadius: 15,
+            }}
+          >
+            <Label weight={"bold"} size="heading">
+              {confirmationMSG}
+            </Label>
+          </View>
+        </View>
+      </CustomModal>
+      <View style={styles.container} removeClippedSubviews={true}>
         {/* <Label>Events</Label> */}
-        <View></View>
+
         {eventList && eventList.length > 0 && (
           <FlatList
             data={eventList}
@@ -343,5 +385,11 @@ const styles = StyleSheet.create({
   },
   cardActionButton: {
     paddingVertical: 5,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: "#00000044",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
