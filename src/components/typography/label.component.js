@@ -20,7 +20,9 @@ const StyledText = styled(Text)`
 const getVariant = (size, weight, theme) => {
   return `
         font-weight: ${theme.fontWeights[weight]};
-        font-size: ${theme.fontSizes[size]};
+        font-size: ${
+          typeof size === "string" ? theme.fontSizes[size] : `${size}px`
+        };
     `;
 };
 
@@ -38,6 +40,7 @@ export const Label = ({
   const variant = getVariant(size, weight, theme);
   return (
     <StyledText
+      // allowFontScaling={false}
       onPress={onPress}
       shadow={shadow}
       numberOfLines={numberOfLines}
