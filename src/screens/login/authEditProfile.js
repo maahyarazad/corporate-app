@@ -45,7 +45,8 @@ import { TranslationContext } from "../../services/translation/translation.conte
 
 export const AuthEditProfileScreen = () => {
   const { user } = useContext(AuthContext);
-  const { userInfo, getUserInfo } = useContext(UserContext);
+  const { userInfo, getUserInfo, setUserInfo, setUserInfoAsync } =
+    useContext(UserContext);
   const [showCountries, setShowCountries] = useState(false);
   const [isOpenGender, setIsOpenGender] = useState(false);
   const [isOpenHonorifics, setIsOpenHonorifics] = useState(false);
@@ -72,17 +73,19 @@ export const AuthEditProfileScreen = () => {
   const isMounted = useRef(true);
   const navigation = useNavigation();
   const [partnerList, setPartnerList] = useState([]);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const { i18n, lang } = useContext(TranslationContext);
 
   useLayoutEffect(() => {
     isMounted.current = true;
-
+    console.log("USERINFO", userInfo);
     if (userInfo != undefined) {
       const data = {
         ...state,
         user_id: user.user_id,
         username: userInfo.username,
         email: userInfo.email,
+        // mobile: `+${userInfo.mobile}`,
         mobile: `+${userInfo.area_code}${userInfo.phone_number}`,
         firstname: userInfo.first_name,
         middlename: userInfo.middle_name,
@@ -93,6 +96,9 @@ export const AuthEditProfileScreen = () => {
         honorifics: userInfo.honorifics,
         partner_id: userInfo.partner_id,
         partner_name: "---",
+        card_valid_date: moment(userInfo.card_valid_date)
+          .format("MM/YY")
+          .toString(),
       };
 
       const getPartners = async () => {
@@ -117,10 +123,12 @@ export const AuthEditProfileScreen = () => {
           console.log(error);
         }
       };
-
-      getPartners();
+      if (!user.member) {
+        getPartners();
+      } else {
+        setState(data);
+      }
       console.log("get partner");
-
       setState(data);
       setStateCopy(data);
     }
@@ -147,28 +155,40 @@ export const AuthEditProfileScreen = () => {
 
   const handleSubmit = async () => {
     try {
-      const data = { ...state };
+      const data = {
+        ...state,
+        cardValidity: expiryToDate(state.card_valid_date),
+      };
+      console.log("LOG", data);
 
-      console.log(state);
+      setIsSubmitted(true);
 
       setIsLoading(true);
       const response = await UserService.updateUser(data);
       if (response) {
         if (isMounted.current) {
           setIsLoading(false);
+
           getUserInfo(state.user_id);
           Alert.alert(
-            "Successfully Updated",
-            "Your profile information has been saved."
+            i18n.t("profile-tabs.profile.update.heading"),
+            i18n.t("profile-tabs.profile.update.text")
           );
           navigation.reset({ routes: [{ name: "RequestApproval" }] });
         }
       }
     } catch (error) {
-      console.log(error.data.error);
+      console.log(error);
       alert(error.data.message);
       setIsLoading(false);
     }
+  };
+
+  const handleValidityChange = (prev) => {
+    setState({
+      ...state,
+      card_valid_date: validateCardExpiryDate(state.card_valid_date, prev),
+    });
   };
 
   const toggleDropDownGender = useCallback(() => {
@@ -371,7 +391,7 @@ export const AuthEditProfileScreen = () => {
 
             <View style={{ height: 55, flex: 1 }}>
               <CustomTextInput
-                value={moment(state.birthdate).format("LL")}
+                value={moment(state.birthdate).format("DD.MMM YYYY")}
                 // onChangeText={setBirthdate}
                 label={i18n.t("profile-tabs.profile.birthdate")}
                 style={{
@@ -457,11 +477,24 @@ export const AuthEditProfileScreen = () => {
             </View>
             <Spacer position={"top"} size="medium" />
             {!user.member && (
-              <PartnerPicker
-                data={partnerList}
-                selectedPartnerName={state.partner_name}
-                setPartner={handlePartnerChange}
-              />
+              <>
+                <PartnerPicker
+                  data={partnerList}
+                  selectedPartnerName={state.partner_name}
+                  setPartner={handlePartnerChange}
+                />
+                <Spacer position={"top"} size="medium" />
+                <CustomTextInput
+                  maxLength={5}
+                  label={"GEC Card Expiry Date *"}
+                  value={state.card_valid_date}
+                  returnKeyType={"done"}
+                  keyboardType="numeric"
+                  placeholder={"mm/yy"}
+                  onChangeText={handleValidityChange}
+                  error={isSubmitted && state.card_valid_date.trim() === ""}
+                />
+              </>
             )}
             <Spacer position={"top"} size="medium" />
             <AnimatedButton

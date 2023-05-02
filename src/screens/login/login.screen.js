@@ -75,10 +75,10 @@ export const LoginScreen = ({ navigation }) => {
         ...user,
       };
 
-      const response = await login(credentials);
+      const response = await login(credentials, setLoading);
 
       setLoading(false);
-      console.log(response);
+      console.log("LOGIN:", response);
       if (response.status) {
         setUser((prev) => ({
           ...prev,
@@ -316,11 +316,11 @@ export const LoginScreen = ({ navigation }) => {
                         }}
                       >
                         <Label
-                          style={{ color: "white" }}
+                          style={{ color: "white", textAlign: "center" }}
                           size={"body"}
                           weight={"bold"}
                         >
-                          Create an Account
+                          {`Create an Account \n(Corporate Cardholders Only)`}
                         </Label>
                       </TouchableOpacity>
                     </View>
