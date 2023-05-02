@@ -62,22 +62,24 @@ export const TopPartners = () => {
   return (
     <>
       {/* {topPartners ? ( */}
-      {topPartners ? (
-        Object.keys(topPartners).map((key) => {
-          {
-            /* console.log(topPartners[key]); */
-          }
-          return (
-            <LocationCards
-              key={key}
-              locationList={topPartners[key]}
-              label={key}
-            />
-          );
-        })
-      ) : (
-        <RenderSkeleton />
-      )}
+      <View removeClippedSubviews={true}>
+        {topPartners ? (
+          Object.keys(topPartners).map((key) => {
+            {
+              /* console.log(topPartners[key]); */
+            }
+            return (
+              <LocationCards
+                key={key}
+                locationList={topPartners[key]}
+                label={key}
+              />
+            );
+          })
+        ) : (
+          <RenderSkeleton />
+        )}
+      </View>
     </>
   );
 };
