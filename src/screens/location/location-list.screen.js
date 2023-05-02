@@ -242,7 +242,7 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
             }}
             value={filters}
             enablesReturnKeyAutomatically
-            onLayout={focusSearchbar}
+            onLayout={route.params.focus ? focusSearchbar : ""}
             onFocus={onSearchFocus}
             onBlur={onSearchBlur}
             onSubmitEditing={handleSubmitSearch}
