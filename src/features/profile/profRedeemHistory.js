@@ -167,7 +167,9 @@ export const ProfRedeemHistory = () => {
           }}
         >
           <Label size="subtitle">{i18n.t("profile-tabs.savings-text")}</Label>
-          <Label size="subtitle">({moment(new Date()).format("LL")})</Label>
+          <Label size="subtitle">
+            ({moment(new Date()).format("DD.MMM YYYY")})
+          </Label>
           <View style={{ paddingVertical: 16 }}>
             {overall != undefined ? (
               <>
