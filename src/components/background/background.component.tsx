@@ -3,11 +3,12 @@ import { Dimensions, ImageBackground, StatusBar, View } from 'react-native'
 import { loginBGImage } from '../../utils/constants'
 
 interface Props {
-    children: React.ReactNode
+    children: React.ReactNode;
+    style: {};
 }
 
 //Functional Component
-const Background: React.FC<Props> = ({children}) => {
+const Background: React.FC<Props> = ({children, style}) => {
     return (
         <ImageBackground
         style={{
@@ -21,7 +22,7 @@ const Background: React.FC<Props> = ({children}) => {
         resizeMode="cover"
         source={loginBGImage}
       >
-            <View style={{backgroundColor: "#00000099", flex: 1}}>
+            <View style={[{backgroundColor: "#00000099", flex: 1}, style]}>
                 {children}
             </View>
         </ImageBackground>
