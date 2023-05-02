@@ -40,6 +40,7 @@ export const RegistrationScreen = () => {
     mobileCountry: "AE",
     partner_id: null,
     app_id: config.APP_ID,
+    card_valid_date: "",
   });
 
   const dateLimit = new Date();
@@ -83,7 +84,8 @@ export const RegistrationScreen = () => {
       state.cpassword.trim() === "" ||
       state.email.trim() === "" ||
       state.mobile.trim() === "" ||
-      state.partner_id == undefined
+      state.partner_id == undefined ||
+      state.card_valid_date === ""
     ) {
       shake();
       Alert.alert("Empty Fields", "Some fields are empty.");
@@ -152,6 +154,12 @@ export const RegistrationScreen = () => {
       ...state,
       mobileCountry: country.cca2,
       mobileCode: country.callingCode,
+    });
+  };
+  const handleValidityChange = (prev) => {
+    setState({
+      ...state,
+      card_valid_date: validateCardExpiryDate(state.card_valid_date, prev),
     });
   };
 
@@ -321,22 +329,22 @@ export const RegistrationScreen = () => {
                 onChangeText={handleCardNumberChange}
                 error={isSubmitted && state.card_number.trim() === ""}
               />
+              <Spacer position={"top"} size={"small"} /> */}
+              <PartnerPicker
+                data={partnerList}
+                setPartner={handlePartnerChange}
+                error={!state.partner_id && isSubmitted}
+              />
               <Spacer position={"top"} size={"small"} />
               <CustomTextInput
                 maxLength={5}
-                label={"Card Validity Date *"}
+                label={"GEC Card Expiry Date *"}
                 value={state.card_valid_date}
                 returnKeyType={"done"}
                 keyboardType="numeric"
                 placeholder={"mm/yy"}
                 onChangeText={handleValidityChange}
                 error={isSubmitted && state.card_valid_date.trim() === ""}
-              /> */}
-
-              <PartnerPicker
-                data={partnerList}
-                setPartner={handlePartnerChange}
-                error={!state.partner_id && isSubmitted}
               />
               <Spacer position={"top"} size={"small"} />
               <PhoneInput

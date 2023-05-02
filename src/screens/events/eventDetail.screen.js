@@ -119,7 +119,7 @@ export const EventDetailScreen = () => {
           onPress: () => {},
         },
         {
-          text: i18n.t("proceed"),
+          text: i18n.t("events.action-button"),
           onPress: () => {
             handleCancel(id);
           },
@@ -249,7 +249,10 @@ export const EventDetailScreen = () => {
                     size={18}
                     name="calendar-clock-outline"
                   />
-                  {` ` + moment(eventDetails.eventTime).format("LLL")}
+                  {` ` +
+                    moment(eventDetails.eventTime).format(
+                      "DD.MMMM YYYY h:mm A"
+                    )}
                 </Label>
                 <Label>
                   <MaterialCommunityIcons
