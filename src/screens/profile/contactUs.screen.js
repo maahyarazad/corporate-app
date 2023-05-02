@@ -23,6 +23,7 @@ export const ContactUsScreen = () => {
   const { userInfo } = useContext(UserContext);
   const { i18n } = useContext(TranslationContext);
   const [disableButton, setDisableButton] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [state, setState] = useState({
     name: ".",
     email: ".",
@@ -38,7 +39,7 @@ export const ContactUsScreen = () => {
         ...state,
         name: `${userInfo.first_name} ${userInfo.last_name}`,
         email: userInfo.email,
-        mobile: `${userInfo.area_code}${userInfo.phone_number}`,
+        mobile: `+${userInfo.area_code} ${userInfo.phone_number}`,
       });
     }
 
@@ -78,16 +79,33 @@ export const ContactUsScreen = () => {
   };
 
   const handleSubmit = async () => {
-    const data = { ...state, app: config.APP_ID };
-    const response = await SupportService.sendFeedbackMsg(data);
-    if (response.success) {
+    try {
+      setIsLoading(true);
+      const data = { ...state, app: config.APP_ID };
+
+      const response = await SupportService.sendFeedbackMsg(data);
+      if (response.success) {
+        Alert.alert(
+          "Sent Successfully",
+          "Your message has been sent. Thank you for contacting us!"
+        );
+        goback();
+      } else {
+        Alert.alert("Sending Failed", response.message);
+      }
+
       Alert.alert(
-        "Sent Successfully",
-        "Your message has been sent. Thank you for contacting us!"
+        i18n.t("contact-us.sent-successful"),
+        i18n.t("contact-us.message-sent")
       );
-      goback();
-    } else {
-      Alert.alert("Sending Failed", response.message);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 3000);
+    } catch (error) {
+      setIsLoading(false);
+      Alert.alert("Sending Failed", "Your inquiry was not sent");
+    } finally {
+      setIsLoading(true);
     }
   };
 
@@ -142,6 +160,7 @@ export const ContactUsScreen = () => {
         >
           <View>
             <CustomTextInput
+              disable={true}
               value={state.name}
               style={{
                 shadowOpacity: 0.3,
@@ -156,6 +175,7 @@ export const ContactUsScreen = () => {
             />
             <Spacer position={"top"} size="medium" />
             <CustomTextInput
+              disable={true}
               value={state.email}
               style={{
                 shadowOpacity: 0.3,
@@ -170,6 +190,7 @@ export const ContactUsScreen = () => {
             />
             <Spacer position={"top"} size="medium" />
             <CustomTextInput
+              disable={true}
               value={state.mobile}
               style={{
                 shadowOpacity: 0.3,
@@ -203,7 +224,8 @@ export const ContactUsScreen = () => {
             />
             <Spacer position={"top"} size="medium" />
             <Button
-              disabled={disableButton}
+              loading={isLoading}
+              disabled={disableButton || isLoading}
               onPress={handleSubmit}
               contentStyle={{ paddingVertical: 8 }}
               color={"orange"}
