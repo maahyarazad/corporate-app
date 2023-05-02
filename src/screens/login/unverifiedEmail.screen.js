@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { Button } from "react-native-paper";
 import Background from "../../components/background/background.component";
@@ -8,11 +8,13 @@ import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";
 import { theme } from "../../infrastructure/theme";
 import { goback } from "../../navigation/navigate";
+import { TranslationContext } from "../../services/translation/translation.context";
 import { UserService } from "../../services/user/user.service";
 
 export const UnverifiedEmailScreen = ({ route }) => {
   const { userId } = route.params;
   const [resendStatus, setResendStatus] = useState(false);
+  const { i18n } = useContext(TranslationContext);
 
   const handleResend = async () => {
     console.log(userId);
@@ -41,8 +43,7 @@ export const UnverifiedEmailScreen = ({ route }) => {
               size={"title"}
               weight={"medium"}
             >
-              Your email address is not yet verified. Please click the
-              verification link we have sent to your email.
+              {i18n.t("email-verification.text")}
             </Label>
           </View>
           <Spacer position={"top"} size="large" />
@@ -53,7 +54,7 @@ export const UnverifiedEmailScreen = ({ route }) => {
             mode="contained"
           >
             <Label size={"body"} weight={"bold"}>
-              Back to Login
+              {i18n.t("email-verification.button")}
             </Label>
           </Button>
           <Spacer position={"top"} size="medium" />
@@ -64,7 +65,7 @@ export const UnverifiedEmailScreen = ({ route }) => {
                 size={"subtitle"}
                 weight={"regular"}
               >
-                Did not receive the link? Resend Now
+                {i18n.t("email-verification.link")}
               </Label>
             </TouchableOpacity>
           ) : (
@@ -73,7 +74,7 @@ export const UnverifiedEmailScreen = ({ route }) => {
               size={"subtitle"}
               weight={"regular"}
             >
-              Verification Link has been resent
+              {i18n.t("email-verification.link-pressed")}
             </Label>
           )}
         </View>
