@@ -121,7 +121,7 @@ export const checkAuthorization = async () => {
       axiosInstance
         .post(`user/check-authorization/`)
         .then((response) => {
-          console.log("response:", response);
+          // console.log("response:", response);
           resolve(response.data.result);
         })
         .catch((err) => {
