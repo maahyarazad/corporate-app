@@ -8,4 +8,9 @@ export const AppServices = {
   getBanners(data) {
     return axiosInstance.post(`${API_URL}/get-banners`, data).then(resData);
   },
+  getLatestVersion(data) {
+    return axiosInstance
+      .get(`${API_URL}/version?app_id=${data.app_id}&platform=${data.platform}`)
+      .then(resData);
+  },
 };
