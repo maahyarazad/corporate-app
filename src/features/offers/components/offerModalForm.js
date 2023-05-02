@@ -1,12 +1,14 @@
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useContext, useState } from "react";
 import {
   Alert,
   Linking,
   StyleSheet,
+  Text,
   TouchableHighlight,
   View,
 } from "react-native";
-import { Button } from "react-native-paper";
+import { Button, IconButton } from "react-native-paper";
 import WebView from "react-native-webview";
 import { LoadingOverlay } from "../../../components/loading/loading.component";
 import { LocationInfo } from "../../../components/location/LocationInfo.component";
@@ -103,6 +105,21 @@ export const OfferModalInfo = ({
               padding: 16,
             }}
           >
+            <View style={{ position: "absolute", right: 12, top: 12 }}>
+              <IconButton
+                icon={() => (
+                  <MaterialCommunityIcons
+                    name="close"
+                    style={{ fontSize: 25 }}
+                  />
+                )}
+                onPress={() => {
+                  setShowModal(false);
+                }}
+                style={{ margin: 0, padding: 0 }}
+                rippleColor="#ccc"
+              ></IconButton>
+            </View>
             <Label size={"heading"} weight={"bold"}>
               {i18n.t("offer-restriction.title")}
             </Label>
@@ -239,7 +256,9 @@ export const OfferModalInfo = ({
           }}
           mode="contained"
         >
-          {i18n.t("redeem-offer.avail-offer")}
+          <Text allowFontScaling={false}>
+            {i18n.t("redeem-offer.avail-offer")}
+          </Text>
         </Button>
         <Spacer position={"left"} size={"medium"} />
         <Button
