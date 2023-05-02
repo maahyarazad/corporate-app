@@ -255,12 +255,26 @@ export const RequestApprovalScreen = () => {
                     <Label size={"subtitle"} weight={"bold"}>
                       {`Rejected Previous Request `}
                     </Label>
-                    ({moment(user.requestDate).format("l")}){"\n"}
+                    ({moment(user.requestDate).format("DD.MMMM YYYY H:mm A")})
+                    {"\n"}
                     <Label size={"subtitle"} weight={"bold"}>
                       Reason
                     </Label>
                     : {user.remarks}
                   </Label>
+
+                  <TouchableOpacity onPress={handleEdit}>
+                    {/* <Text style={{textDecorationLine}}></Text> */}
+                    <Label
+                      style={{
+                        textDecorationLine: "underline",
+                        color: "white",
+                      }}
+                      size="title"
+                    >
+                      {i18n.t("card-upload.edit-profile")}
+                    </Label>
+                  </TouchableOpacity>
                 </View>
               )}
             {user.submitCard ? (
@@ -327,11 +341,20 @@ export const RequestApprovalScreen = () => {
                           <View style={styles.cardOverlay}></View>
                         </View>
                         {!isCameraOpen ? (
-                          <MaterialCommunityIcons
-                            color={"#00000088"}
-                            name="camera"
-                            size={50}
-                          />
+                          <>
+                            <MaterialCommunityIcons
+                              color={"#00000088"}
+                              name="camera"
+                              size={50}
+                            />
+                            <Label
+                              size={"title"}
+                              weight={"bold"}
+                              style={{ color: "#00000088" }}
+                            >
+                              {i18n.t("card-upload.click-here").toUpperCase()}
+                            </Label>
+                          </>
                         ) : (
                           <>
                             <View
@@ -554,7 +577,7 @@ export const RequestApprovalScreen = () => {
                       textColor={"#fff"}
                       textSize={"title"}
                       textWeight={"regular"}
-                      label={i18n.t("card-upload.upload")}
+                      label={i18n.t("submit")}
                     ></AnimatedButton>
                   </View>
                 </View>
