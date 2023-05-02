@@ -4,6 +4,7 @@ import {
   Image,
   Pressable,
   StyleSheet,
+  Text,
   TouchableHighlight,
   View,
 } from "react-native";
