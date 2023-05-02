@@ -34,11 +34,14 @@ export const OtpVerification = ({ route, navigation }) => {
   const [pinReady, setPinReady] = useState(false);
   const { colors } = useTheme();
   const { user_id, device_id } = user;
-  const [resendStatus, setResendStatus] = useState(false);
+  const [resendStatus, setResendStatus] = useState(true);
+  const [resendMsg, setResendMsg] = useState(i18n.t("auth.code-sent"));
 
   const handleVerify = async () => {
-    const otp_details = { otp: code, user_id, app_id: config.APP_ID };
-    await verify(otp_details);
+    try {
+      const otp_details = { otp: code, user_id, app_id: config.APP_ID };
+      const response = await verify(otp_details);
+    } catch (error) {}
   };
 
   useEffect(() => {
@@ -73,6 +76,7 @@ export const OtpVerification = ({ route, navigation }) => {
 
   const handleResend = () => {
     resendOTP(user_id).then((response) => {
+      setResendMsg(i18n.t("auth.code-sent2"));
       setResendStatus(true);
     });
   };
@@ -89,20 +93,19 @@ export const OtpVerification = ({ route, navigation }) => {
         >
           <View
             style={{
-              height: height,
+              height: "100%",
               alignItems: "center",
             }}
           >
-            <TopHalf>
-              <IconBg>
-                <StatusBar style="dark" />
-                <MaterialCommunityIcons
-                  color={colors.ui.secondary}
-                  size={width * 0.4}
-                  name="lock-open"
-                />
-              </IconBg>
-            </TopHalf>
+            <Spacer position={"top"} size={"large"} />
+            <IconBg>
+              <StatusBar style="dark" />
+              <MaterialCommunityIcons
+                color={colors.ui.secondary}
+                size={width * 0.4}
+                name="lock-open"
+              />
+            </IconBg>
             <BottomHalf>
               <View style={{ alignItems: "center" }}>
                 <Label
@@ -168,7 +171,7 @@ export const OtpVerification = ({ route, navigation }) => {
               <Spacer position={"top"} size={"medium"} />
               {resendStatus ? (
                 <Label style={{ color: "#aaa" }} size={"title"}>
-                  {`${i18n.t("auth.code-sent")} (${otpCooldown}s)`}
+                  {`${resendMsg} (${otpCooldown}s)`}
                 </Label>
               ) : (
                 <TouchableOpacity onPress={handleResend}>

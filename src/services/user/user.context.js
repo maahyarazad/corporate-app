@@ -14,23 +14,22 @@ export const UserContextProvider = ({ children }) => {
     let isMounted = true;
     (async () => {
       console.log("test");
-      if (!!user.token) {
-        const info = await SecureStorage.getItemAsync("user_details");
-        console.log("info: ", info);
-        if (info != undefined) {
-          // console.log("test1");
-          // // console.log(info);
-          console.log("------- retrieve (user_details) -------");
-          console.log(user.user_id);
+      console.log("RETRIEVE AGAIN", user.token);
+      const info = await SecureStorage.getItemAsync("user_details");
+      console.log("info: ", info);
+      if (info != undefined) {
+        console.log("test1");
+        // // console.log(info);
+        console.log("------- retrieve (user_details) -------");
+        console.log(user.user_id);
 
-          if (isMounted) setUserInfo(JSON.parse(info));
-        } else {
-          // console.log("test2");
+        if (isMounted) setUserInfo(JSON.parse(info));
+      } else {
+        console.log("test2");
 
-          console.log("------- retrieve (server)-------");
-          console.log(user.user_id);
-          if (isMounted) getUserInfo(user.user_id);
-        }
+        console.log("------- retrieve (server)-------");
+        console.log(user.user_id);
+        if (isMounted) getUserInfo(user.user_id);
       }
     })();
 
@@ -44,6 +43,7 @@ export const UserContextProvider = ({ children }) => {
       UserService.getUserInfo(id)
         .then(async (user) => {
           setUserInfo(user);
+          console.log("SERVER INFO:", user);
           await SecureStorage.setItemAsync(
             "user_details",
             JSON.stringify(user)
@@ -56,6 +56,14 @@ export const UserContextProvider = ({ children }) => {
     }
   };
 
+  const setUserInfoAsync = async (change) => {
+    try {
+      await SecureStorage.setItemAsync("user_details", JSON.stringify(change));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <UserContext.Provider
       value={{
@@ -64,6 +72,7 @@ export const UserContextProvider = ({ children }) => {
         setUserInfo,
         isHomeInit,
         setIsHomeInit,
+        setUserInfoAsync,
       }}
     >
       {children}

@@ -48,7 +48,7 @@ export const CacheImage = ({
       }
     };
     //www.reaconverter.com/howto/wp-content/uploads/2017/02/animation-1.gif
-    https: cache();
+    cache();
 
     return () => {
       isMounted = false;

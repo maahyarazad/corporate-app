@@ -13,6 +13,7 @@ import { AuthContext } from "../services/auth/auth.context";
 import { LocationContext } from "../services/location/location.context";
 import { TranslationContext } from "../services/translation/translation.context";
 import { adminFileBaseURL } from "../utils/constants";
+import { getPreciseDistance, earthRadius } from "geolib";
 
 export const StyledMap = styled(MapView)`
   flex: 1;
@@ -42,6 +43,7 @@ export const MapScreen = ({ navigation }) => {
   const [myLocation, setMyLocation] = useState(null);
   const [partnerLocations, setPartnerLocations] = useState();
   const [showImageload, setShowImageload] = useState(false);
+  const [distance, setDistance] = useState(0);
   const [locationState, setLocationState] = useState({
     locationName: "",
     locationImage: "",
@@ -89,7 +91,26 @@ export const MapScreen = ({ navigation }) => {
       );
   };
 
+  const degToRad = (degrees) => {
+    return degrees * (Math.PI / 180);
+  };
+
   const handlePartnerCentre = (lat, lng) => {
+    if (!!myLocation && !!myLocation.latitude && !!myLocation.longitude) {
+      const dLat = degToRad(Math.abs(lat - myLocation?.latitude));
+      const dLong = degToRad(Math.abs(lng - myLocation?.longitude));
+      const eRadius = 6378137;
+      const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(degToRad(lat)) *
+          Math.cos(degToRad(myLocation?.latitude)) *
+          Math.sin(dLong / 2) ** 2;
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const d = eRadius * c;
+
+      setDistance((d / 1000).toFixed(2));
+    }
+
     mapRef != undefined &&
       mapRef.current.animateCamera(
         {
@@ -374,7 +395,15 @@ export const MapScreen = ({ navigation }) => {
                   <Label size={"title"} weight={"bold"}>
                     {locationState.locationName}
                   </Label>
+                  <Label
+                    size={"subtitle"}
+                    weight={"medium"}
+                    style={{ color: "#aaa" }}
+                  >
+                    {distance} KM
+                  </Label>
                   <Spacer size={"medium"} position={"top"}></Spacer>
+
                   <View
                     style={{
                       flexDirection: "row",
@@ -384,7 +413,19 @@ export const MapScreen = ({ navigation }) => {
                     <Button
                       style={{
                         borderRadius: 20,
-                        // flex: 1,
+                        flex: 1,
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                      contentStyle={{
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                      labelStyle={{
+                        justifyContent: "center",
+                        alignItems: "center",
+                        padding: 0,
+                        margin: 0,
                       }}
                       color={"#0082FF"}
                       mode="contained"
@@ -396,13 +437,36 @@ export const MapScreen = ({ navigation }) => {
                         )
                       }
                     >
-                      {i18n.t("offer-details.get-directions")}
+                      <View
+                        style={{
+                          justifyContent: "center",
+                          width: "100%",
+                          margin: 0,
+                          padding: 0,
+                          paddingTop: 6,
+                        }}
+                      >
+                        <Label
+                          size={12}
+                          weight={"medium"}
+                          style={{
+                            textAlign: "center",
+                            color: "white",
+                            width: "100%",
+                            alignSelf: "center",
+                          }}
+                        >
+                          {i18n.t("offer-details.get-directions").toUpperCase()}{" "}
+                        </Label>
+                      </View>
                     </Button>
                     <Spacer size={"small"} position={"left"}></Spacer>
                     <Button
                       style={{
                         borderRadius: 20,
-                        // flex: 1,
+                        flex: 1,
+                        justifyContent: "center",
+                        alignItems: "center",
                       }}
                       color={"#0082FF"}
                       mode="contained"
@@ -410,7 +474,26 @@ export const MapScreen = ({ navigation }) => {
                         goLocation(locationState.locationId);
                       }}
                     >
-                      {i18n.t("redeem-offer.view-offer")}
+                      <View
+                        style={{
+                          justifyContent: "center",
+                          alignItems: "center",
+                          width: "100%",
+                          paddingTop: 6,
+                        }}
+                      >
+                        <Label
+                          size={12}
+                          weight={"medium"}
+                          style={{
+                            textAlign: "center",
+                            color: "white",
+                            width: "100%",
+                          }}
+                        >
+                          {i18n.t("redeem-offer.view-offer").toUpperCase()}
+                        </Label>
+                      </View>
                     </Button>
                   </View>
                 </View>

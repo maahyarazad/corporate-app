@@ -19,6 +19,7 @@ import { AppServices } from "../../../services/app/app.services";
 import { AuthContext } from "../../../services/auth/auth.context";
 import Carousel from "react-native-reanimated-carousel";
 import { CacheImage } from "../../../components/cacheImage";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const SIZE_RATIO = 9 / 16;
 // const SIZE_RATIO = 9 / 16;
@@ -61,6 +62,7 @@ const Pressable = styled(TouchableOpacity)`
 
 const BannerContainer = styled(View)`
   overflow: hidden;
+  /* padding-right: 30px; */
   border-radius: 10px;
   flex: 1;
   background-color: grey;
@@ -99,10 +101,13 @@ const renderBanner = ({ item, screenWidth, setLoading, loading }) => {
       >
         <BannerContainer>
           <LoadingOverlay display={loading} />
-
           <CacheImage
             onLoad={bannerLoaded}
-            style={{ width: screenWidth, height: "100%", resizeMode: "cover" }}
+            style={{
+              width: "100%",
+              height: "100%",
+              // resizeMode: "cover",
+            }}
             uri={`${config.SERVER_HOST}/banners/${item.banner_image}`}
           />
         </BannerContainer>

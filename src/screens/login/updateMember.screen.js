@@ -17,7 +17,7 @@ import { CustomTextInput } from "../../components/customTextInput";
 import { SafeArea } from "../../components/safearea.component";
 import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";
-import { goback } from "../../navigation/navigate";
+import { goback, navigate } from "../../navigation/navigate";
 import { useTheme } from "styled-components";
 import PhoneInput from "react-native-phone-number-input";
 import { useEffect } from "react";
@@ -144,9 +144,10 @@ export const UpdateMemberScreen = ({ navigation }) => {
         getUserInfo(response.user_id);
         setLoading(false);
 
-        navigation.navigate("VerifyOTP", {
-          hiddenNumber: response.phone_number,
-        });
+        navigate("RegisterSuccess");
+        // navigation.navigate("VerifyOTP", {
+        //   hiddenNumber: response.phone_number,
+        // });
       } else {
         navigation.navigate("Unverified Email", {
           userId: response.user_id,
@@ -316,7 +317,7 @@ export const UpdateMemberScreen = ({ navigation }) => {
                       size={"body"}
                       weight={"bold"}
                     >
-                      Update
+                      aktualisieren
                     </Label>
                   </TouchableOpacity>
                 </View>

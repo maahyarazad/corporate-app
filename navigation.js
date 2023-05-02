@@ -39,6 +39,8 @@ import { TranslationContext } from "./src/services/translation/translation.conte
 import { UpdateMemberScreen } from "./src/screens/login/updateMember.screen";
 import * as SecureStore from "expo-secure-store";
 import { NoConnectionScreen } from "./src/screens/noConnection.screen";
+import { AppContext } from "./src/services/app/app.context";
+import { VersionMismatchScreen } from "./src/screens/versionMismatch.screen";
 
 const AuthStack = createStackNavigator();
 const MainStack = createStackNavigator();
@@ -409,6 +411,7 @@ const ExceedTimeout = () => {
 
 export const AppNavigation = () => {
   const { isRetrieving, user, noConnection, skip } = useContext(AuthContext);
+  const { isOutdated } = useContext(AppContext);
   // const [skip, setSkip] = useState(0);
   // useEffect(() => {
   //   let isMounted = true;
@@ -525,6 +528,8 @@ export const AppNavigation = () => {
       <NavigationContainer ref={navigationRef}>
         {noConnection ? (
           <TimeoutStackScreen />
+        ) : isOutdated ? (
+          <VersionMismatchScreen />
         ) : user.token ? (
           (user.isAuthorized && user.submitCard) || skip ? (
             <MainScreen />

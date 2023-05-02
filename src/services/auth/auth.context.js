@@ -26,6 +26,7 @@ import { Alert } from "react-native";
 export const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
+  const { i18n } = useContext(TranslationContext);
   const [isLoading, setIsLoading] = useState(false);
   const [isRetrieving, setIsRetrieving] = useState(false);
   const [user, setUser] = useState({});
@@ -102,6 +103,7 @@ export const AuthContextProvider = ({ children }) => {
         }
 
         if (result && result.expired) {
+          console.log(result);
           Alert.alert(
             "Card Expired",
             "Your membership card has expired. Please contact your administrator."
@@ -164,31 +166,34 @@ export const AuthContextProvider = ({ children }) => {
         return true;
       })
       .catch((err) => {
+        if (err === -1) {
+          Alert.alert(i18n.t("auth.fail-header"), i18n.t("auth.fail-msg"));
+        }
         setIsLoading(false);
         // alert(err);
         return false;
       });
   };
 
-  const login = (credentials) => {
+  const login = (credentials, setLoading) => {
     return new Promise((resolve, reject) => {
       axiosInstance
         .post(`user/login`, credentials)
         .then(async (response) => {
           try {
             const res = response.data;
+            setLang(res.member ? "de" : "en");
+            console.log("MEMBER", res);
             if (res.member) {
               // alert(res.member_id);
-              setLang("de");
               if (res.member_id) {
                 navigate("UpdateMember", {
                   member_id: res.member_id,
                   credentials,
                 });
+                setLoading(false);
                 return;
               }
-            } else {
-              setLang("en");
             }
             await SecureStore.setItemAsync("user_id", res.user_id.toString());
             resolve(res);

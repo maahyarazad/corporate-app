@@ -34,7 +34,7 @@ export const AvailOfferScreen = ({ route }) => {
   const [merchantCode, setCode] = useState("");
   const [pinReady, setPinReady] = useState(false);
   const [paidAmount, setPaidAmount] = useState(
-    !!offerInfo.min_value ? offerInfo.minValue : "0.00"
+    !!offerInfo.min_value ? offerInfo.min_value.toFixed(2) : "0.00"
   );
   const [discAmount, setDiscAmount] = useState(offerInfo.freebie_value);
   const [totalAmount, setTotalAmount] = useState(
@@ -77,8 +77,8 @@ export const AvailOfferScreen = ({ route }) => {
     setShowModal(true);
   };
 
-  const calculate = () => {
-    const correctedPaid = paidAmount.toString().split(/,|٫/gm).join(".");
+  const calculate = (actualAmount = paidAmount) => {
+    const correctedPaid = actualAmount.toString().split(/,|٫/gm).join(".");
     const total =
       offerInfo.freebie_value > 0
         ? parseFloat(correctedPaid) + offerInfo.freebie_value
@@ -97,6 +97,11 @@ export const AvailOfferScreen = ({ route }) => {
       ? totalAmount.toString().split(/,|٫/gm).join(".")
       : 0;
     const paid = parseFloat(correctedTotal) / offerInfo.percentage;
+    if (paid < offerInfo.min_value) {
+      calculate(offerInfo.min_value);
+      return;
+    }
+
     const disc = parseFloat(correctedTotal) - paid;
 
     setDiscAmount(disc.toFixed(2));
@@ -119,15 +124,14 @@ export const AvailOfferScreen = ({ route }) => {
     setTotalAmount("");
   };
 
-  const onBlurPaidAmount = () => {
-    setPaidAmount(
-      paidAmount
-        ? paidAmount < offerInfo.min_value
-          ? offerInfo.min_value
-          : parseFloat(paidAmount.toString().split(/,|٫/gm).join("."))
-        : "0.00"
-    );
-    calculate();
+  const onBlurPaidAmount = async () => {
+    const _paidAmount = paidAmount
+      ? paidAmount < offerInfo.min_value
+        ? offerInfo.min_value.toFixed(2)
+        : parseFloat(paidAmount.toString().split(/,|٫/gm).join(".")).toFixed(2)
+      : offerInfo.min_value.toFixed(2);
+    setPaidAmount(_paidAmount);
+    calculate(_paidAmount);
   };
 
   const onBlurTotalBill = () => {
@@ -136,7 +140,7 @@ export const AvailOfferScreen = ({ route }) => {
     // );
     setTotalAmount(
       totalAmount
-        ? parseFloat(totalAmount.toString().split(/,|٫/gm).join("."))
+        ? parseFloat(totalAmount.toString().split(/,|٫/gm).join(".")).toFixed(2)
         : "0.00"
     );
     // setPaidAmount(
@@ -402,10 +406,14 @@ export const AvailOfferScreen = ({ route }) => {
                   }}
                 >
                   <Button
+                    disabled={!pinReady}
                     onPress={handleConfirm}
                     contentStyle={{ padding: 10 }}
                     labelStyle={{ fontSize: 12 }}
-                    style={{ flex: 1, backgroundColor: "#1282FF" }}
+                    style={{
+                      flex: 1,
+                      backgroundColor: pinReady ? "#1282FF" : "gray",
+                    }}
                     mode="contained"
                   >
                     {i18n.t("redeem-offer.redeem")}

@@ -392,7 +392,7 @@ export const RegistrationDetailsScreen = ({ route }) => {
                     <CustomTextInput
                       value={
                         state.birthdate
-                          ? moment(state.birthdate).format("L")
+                          ? moment(state.birthdate).format("DD.MMM YYYY")
                           : ""
                       }
                       // onChangeText={setBirthdate}
@@ -414,7 +414,7 @@ export const RegistrationDetailsScreen = ({ route }) => {
                     <CustomTextInput
                       value={
                         state.birthdate
-                          ? moment(state.birthdate).format("L")
+                          ? moment(state.birthdate).format("DD.MMM YYYY")
                           : ""
                       }
                       // onChangeText={setBirthdate}

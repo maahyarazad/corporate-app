@@ -59,6 +59,7 @@ export const CodeInputField = ({
         <View style={{ flexDirection: "row" }}>
           <HiddenTextInput
             ref={textInputRef}
+            allowFontScaling={false}
             maxLength={maxLength}
             onChangeText={setCode}
             keyboardType="number-pad"

@@ -1,7 +1,7 @@
 import React from "react";
 import { Modal, StyleSheet, View } from "react-native";
 
-export const CustomModal = ({ children, showModal }) => {
+export const CustomModal = ({ children, showModal, type = "fade" }) => {
   return (
     <View
       style={{
@@ -19,7 +19,7 @@ export const CustomModal = ({ children, showModal }) => {
           justifyContent: "center",
           alignItems: "center",
         }}
-        animationType={"fade"}
+        animationType={type}
         transparent={true}
         visible={showModal}
       >
