@@ -18,6 +18,7 @@ import { Skeleton } from "./skeleton";
 import { Spacer } from "./spacer/spacer.component";
 import { itemSeparatorHM } from "./styles";
 import { Label } from "./typography/label.component";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export const LocationCards = ({ label, locationList }) => {
   const { width } = Dimensions.get("window");
@@ -209,14 +210,21 @@ export const LocationCards = ({ label, locationList }) => {
           onPress={() => {
             handleSeeAll(locationList[0].catid);
           }}
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+          }}
         >
           <Label
-            style={{ textDecorationLine: "underline", color: "#006EFF" }}
+            // style={{ textDecorationLine: "underline", color: "#006EFF" }}
             size={"body"}
-            weight={"medium"}
+            weight={"bold"}
+            style={{ marginRight: 4 }}
           >
             {i18n.t("see-all")}
           </Label>
+          <MaterialCommunityIcons size={25} name="arrow-right" />
         </TouchableOpacity>
       </View>
       <View
