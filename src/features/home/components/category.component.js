@@ -140,13 +140,14 @@ export const HomeCategory = ({ size }) => {
       <View
         style={{
           flex: 1,
-          justifyContent: "flex-start",
-          marginTop: 12,
+          // justifyContent: "flex-start",
+          // backgroundColor: "green",
+          // marginTop: 12,
         }}
       >
         <CategoryHeaderView>
           <Spacer position="left" size="medium">
-            <Label style={{ marginTop: 8 }} size="heading" weight="bold">
+            <Label size="heading" weight="bold">
               {i18n.t("categories")}
             </Label>
           </Spacer>
