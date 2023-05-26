@@ -16,6 +16,7 @@ export const CustomTextInput = ({
   style,
   returnKeyType,
   autoFillPassword = false,
+  textContentType,
   disable = false,
   placeholder,
   inputStyle,
@@ -114,7 +115,8 @@ export const CustomTextInput = ({
           keyboardType={keyboardType}
           // autoComplete={false}
           autoCorrect={false}
-          textContentType={autoFillPassword ? "username" : "oneTimeCode"}
+          textContentType={textContentType}
+          fill
           secureTextEntry={!showText && secureTextEntry}
           style={[
             styles.input,
