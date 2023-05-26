@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Card, TouchableRipple } from "react-native-paper";
+import { Card, Chip, TouchableRipple } from "react-native-paper";
 import { TranslationContext } from "../../services/translation/translation.context";
 import { MyCard } from "../myCard.component";
 import { Spacer } from "../spacer/spacer.component";
@@ -30,6 +30,7 @@ import {
   offerStamps,
 } from "../../utils/constants";
 import { navigate } from "../../navigation/navigate";
+import { width } from "../styles";
 
 const test_data = [
   { outlet_name: "Merchant A" },
@@ -44,6 +45,7 @@ export const Hotpicks = () => {
   const [hotpickList, setHotpickList] = useState([]);
   const { lang } = useContext(TranslationContext);
   const [reverse, setReverse] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
@@ -56,8 +58,9 @@ export const Hotpicks = () => {
       };
       const response = await OfferService.getHotpicks(data);
       if (isMounted) {
+        // setHotpickList(response.data.slice(0, 5));
         setHotpickList(response.data);
-        console.log(response.data);
+        // console.log(response.data);
       }
     };
 
@@ -157,9 +160,9 @@ export const Hotpicks = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <>
       {!!hotpickList && hotpickList.length > 0 && (
-        <>
+        <View style={styles.container}>
           <View style={styles.header}>
             <Label style={{ marginTop: 16 }} size="heading" weight="bold">
               {/* {i18n.t("categories")} */}
@@ -175,7 +178,10 @@ export const Hotpicks = () => {
                   justifyContent: "center",
                   alignItems: "center",
                   flexDirection: "column",
+                  margin: -10,
+                  padding: -10,
                 }}
+                windowSize={3}
                 data={hotpickList}
                 renderItem={renderItem}
                 autoPlay={true}
@@ -187,6 +193,16 @@ export const Hotpicks = () => {
                 pagingEnabled={true}
                 onProgressChange={(_, absoluteProgress) => {
                   progressValue.value = absoluteProgress;
+                  if (
+                    Math.floor(absoluteProgress + 1) /
+                      (absoluteProgress + 1) ===
+                    1
+                  ) {
+                    setCurrentIndex(absoluteProgress + 1);
+                  }
+                }}
+                panGestureHandlerProps={{
+                  activeOffsetX: [-10, 10],
                 }}
                 withAnimation={{
                   type: "timing",
@@ -266,7 +282,7 @@ export const Hotpicks = () => {
             {hotpickList && hotpickList.length > 1 && !!progressValue && (
               <View
                 style={[
-                  { marginBottom: 12 },
+                  { marginBottom: 2 },
                   isVertical
                     ? {
                         flexDirection: "column",
@@ -285,7 +301,22 @@ export const Hotpicks = () => {
                       },
                 ]}
               >
-                {hotpickList &&
+                {hotpickList && (
+                  <Chip
+                    style={
+                      {
+                        // width: 130,
+                      }
+                    }
+                    textStyle={{ width: 105, textAlign: "center" }}
+                  >
+                    <Label
+                      weight={"bold"}
+                    >{`${currentIndex} out of ${hotpickList.length}`}</Label>
+                  </Chip>
+                )}
+
+                {/* {hotpickList &&
                   hotpickList.map((_, index) => {
                     return (
                       <PaginationItem
@@ -297,13 +328,13 @@ export const Hotpicks = () => {
                         length={hotpickList.length}
                       />
                     );
-                  })}
+                  })} */}
               </View>
             )}
           </View>
-        </>
+        </View>
       )}
-    </View>
+    </>
   );
 };
 
