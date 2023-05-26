@@ -1,9 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { Alert, StyleSheet, View } from "react-native";
 import * as Linking from "expo-linking";
 import { navigate } from "../navigation/navigate";
+import { LocationContext } from "../services/location/location.context";
 
 export const UrlListener = () => {
+  const { eventList } = useContext(LocationContext);
   useEffect(() => {
     let isMounted = true;
 
@@ -15,11 +17,21 @@ export const UrlListener = () => {
       switch (path) {
         case "map":
           navigate("Map");
-          Alert.alert("DEEP LINKING WORKS!", params.location);
+          // Alert.alert("DEEP LINKING WORKS!", params.location);
           break;
         case "partner":
           navigate("Location View", {
             locId: params.id,
+          });
+          break;
+        case "event":
+          const eventFound = eventList.find((event) => {
+            event.id === params.id;
+          });
+
+          console.log(eventFound);
+          navigate("Event Detail", {
+            id: params.id,
           });
           break;
       }

@@ -152,7 +152,7 @@ export const LocationViewScreen = ({ route, navigation }) => {
                 <OfferList
                   location={location}
                   distance={distance}
-                  minItems={2}
+                  minItems={3}
                   offers={location.offers}
                 />
               )}

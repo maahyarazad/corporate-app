@@ -32,6 +32,9 @@ import { NotificationsService } from "../services/notifications/notifications.se
 import { TranslationContext } from "../services/translation/translation.context";
 import { Hotpicks } from "../components/hotpick/hotpicks.component";
 import { UrlListener } from "../utils/urlRouter";
+import { addNotificationResponseReceivedListener } from "expo-notifications";
+import { LocationContext } from "../services/location/location.context";
+import { StatusBar } from "expo-status-bar";
 
 const HomeContainer = styled(FlatList)`
   flex: 1;
@@ -53,11 +56,17 @@ export const HomeScreen = ({ ...props }) => {
   const { getUserInfo, userInfo, setIsHomeInit } = useContext(UserContext);
   const { user } = useContext(AuthContext);
   const { i18n } = useContext(TranslationContext);
+  const { eventList } = useContext(LocationContext);
   // const { setSectionTitle } = useContext(SectionContext);
   const testing = useRef(false);
 
   useEffect(() => {
     let isMounted = true;
+
+    //Handle Push Notification Listener
+    const subscription = addNotificationResponseReceivedListener(
+      handleNotificationResponse
+    );
 
     if (userInfo == undefined) {
       if (isMounted) {
@@ -67,6 +76,7 @@ export const HomeScreen = ({ ...props }) => {
 
     const getPushToken = async () => {
       try {
+        console.log("HEHEHEHE");
         const pToken = await SecureStorage.getItemAsync("pushtoken");
         if (pToken != undefined) {
           console.log("push token is available");
@@ -84,8 +94,29 @@ export const HomeScreen = ({ ...props }) => {
 
     return () => {
       isMounted = false;
+      subscription.remove();
     };
   }, []);
+
+  const handleNotificationResponse = (response) => {
+    const notificationData = response.notification.request.content.data;
+
+    console.log("NOTIFICATION", notificationData);
+    switch (notificationData.path) {
+      case "partner":
+        navigate("Location View", {
+          locId: notificationData.id,
+        });
+        break;
+      case "event":
+        navigate("Event Detail", {
+          id: notificationData.id,
+        });
+        break;
+    }
+
+    console.log(notificationData.path);
+  };
 
   const registerForPushNotificationsAsync = async () => {
     if (isDevice) {
@@ -110,9 +141,9 @@ export const HomeScreen = ({ ...props }) => {
       if (!response.success) {
         Alert.alert(response.title, response.message);
       }
-      console.log("whattt");
-      console.log(user);
-      // await SecureStorage.setItemAsync("pushtoken", token);
+      // console.log("whattt");
+      // console.log(user);
+      await SecureStorage.setItemAsync("pushtoken", token);
     } else {
       alert("Must use physical device for Push Notifications");
     }
@@ -155,6 +186,7 @@ export const HomeScreen = ({ ...props }) => {
       return (
         <>
           <UrlListener />
+          <StatusBar style="dark" />
           <ScrollView nestedScrollEnabled={true} removeClippedSubviews={true}>
             <Spacer position={"top"} size={"medium"}>
               <Spacer position={"left"} size={"medium"}>

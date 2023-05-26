@@ -15,6 +15,7 @@ import {
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Button, Checkbox } from "react-native-paper";
 import { Map } from "../../components/map/map.component";
+import { CustomModal } from "../../components/modal/customModal.component";
 import { SafeArea } from "../../components/safearea.component";
 import { Label } from "../../components/typography/label.component";
 import { theme } from "../../infrastructure/theme";
@@ -34,7 +35,9 @@ export const EventDetailScreen = () => {
   const { user } = useContext(AuthContext);
   const { getEventsList } = useContext(LocationContext);
   const { i18n, lang } = useContext(TranslationContext);
+  const [showModal, setShowModal] = useState(false);
   const [actions, setActions] = useState(false);
+  const [confirmationMSG, setConfirmationMSG] = useState("");
 
   useEffect(() => {
     let isMounted = true;
@@ -139,6 +142,11 @@ export const EventDetailScreen = () => {
 
       const response = await EventService.cancelAttend(data);
       //Refresh Page
+      setConfirmationMSG(i18n.t("events.cancellation-msg"));
+      setShowModal(true);
+      setTimeout(() => {
+        setShowModal(false);
+      }, 1500);
       getEventsList();
       setActions(!actions);
     } catch (err) {
@@ -163,6 +171,11 @@ export const EventDetailScreen = () => {
 
       const response = await EventService.attendEvent(data);
       //Refresh Page
+      setConfirmationMSG(i18n.t("events.participation-msg"));
+      setShowModal(true);
+      setTimeout(() => {
+        setShowModal(false);
+      }, 1500);
       getEventsList();
       setActions(!actions);
     } catch (err) {
@@ -194,6 +207,26 @@ export const EventDetailScreen = () => {
     <View style={styles.container}>
       <SafeArea>
         <KeyboardAwareScrollView>
+          <CustomModal type="fade" showModal={showModal}>
+            <View style={styles.modalContainer}>
+              <View
+                style={{
+                  backgroundColor: "white",
+                  width: "80%",
+                  height: "15%",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  padding: 25,
+                  borderRadius: 15,
+                }}
+              >
+                <Label weight={"bold"} size="heading">
+                  {confirmationMSG}
+                </Label>
+              </View>
+            </View>
+          </CustomModal>
           {eventDetails && (
             <View>
               <View
@@ -418,5 +451,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#ddd",
     borderBottomRightRadius: 0,
     borderTopRightRadius: 0,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: "#00000044",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

@@ -469,19 +469,32 @@ export const RequestApprovalScreen = () => {
                                       justifyContent: "space-evenly",
                                     }}
                                   >
-                                    <TouchableHighlight onPress={closeCamera}>
-                                      <View style={styles.cameraButtons}>
-                                        <Label style={{ textAlign: "center" }}>
-                                          {i18n.t("card-upload.use-image")}
-                                        </Label>
-                                      </View>
-                                    </TouchableHighlight>
                                     <TouchableHighlight
                                       onPress={handleUseImage}
                                     >
                                       <View style={styles.cameraButtons}>
                                         <Label style={{ textAlign: "center" }}>
                                           {i18n.t("card-upload.retake")}
+                                        </Label>
+                                      </View>
+                                    </TouchableHighlight>
+                                    <TouchableHighlight onPress={closeCamera}>
+                                      <View
+                                        style={[
+                                          styles.cameraButtons,
+                                          {
+                                            backgroundColor:
+                                              "rgba(230,135,0,1)",
+                                          },
+                                        ]}
+                                      >
+                                        <Label
+                                          style={{
+                                            textAlign: "center",
+                                            color: "white",
+                                          }}
+                                        >
+                                          {i18n.t("card-upload.use-image")}
                                         </Label>
                                       </View>
                                     </TouchableHighlight>

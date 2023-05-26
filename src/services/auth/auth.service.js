@@ -96,6 +96,7 @@ export const removeStorage = async () => {
     await SecureStore.deleteItemAsync("user_id");
     await SecureStore.deleteItemAsync("user_details");
     await SecureStore.deleteItemAsync("skip");
+    await SecureStore.deleteItemAsync("pushtoken");
   } catch (err) {
     console.log(err);
   }
