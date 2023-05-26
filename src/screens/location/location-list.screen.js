@@ -223,6 +223,10 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
     searchRef.current.focus();
   };
 
+  const blueSearchbar = () => {
+    searchRef.current.blur();
+  };
+
   const handleSubmitSearch = () => {
     if (filters.trim().length > 0) {
       setIsLoading(true);
@@ -242,7 +246,7 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
             }}
             value={filters}
             enablesReturnKeyAutomatically
-            onLayout={route.params.focus ? focusSearchbar : ""}
+            onLayout={route.params.focus ? focusSearchbar : blueSearchbar}
             onFocus={onSearchFocus}
             onBlur={onSearchBlur}
             onSubmitEditing={handleSubmitSearch}
