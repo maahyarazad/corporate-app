@@ -172,6 +172,7 @@ export const AvailOfferScreen = ({ route }) => {
         i18n.t("redemption.error-header"),
         i18n.t("redemption.error-merchant-pin")
       );
+      setCode("");
     }
   };
 

@@ -131,7 +131,6 @@ export const OfferModalInfo = ({
                 labelStyle={{ fontSize: 12 }}
                 contentStyle={{
                   width: "100%",
-                  flexWrap: 1,
                 }}
                 style={{
                   flex: 1,

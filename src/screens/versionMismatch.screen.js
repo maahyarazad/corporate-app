@@ -14,7 +14,6 @@ export const VersionMismatchScreen = () => {
   const URL_PLAYSTORE = `https://play.google.com/store/apps/details?id=${appState.package_name}`;
   const URL_APPSTORE = `https://apps.apple.com/app/id${appState.apple_id}`;
 
-  console.log("YAWA", appState);
   const onPressPublisher = async () => {
     try {
       const supported = await Linking.canOpenURL(URL_APPSTORE);

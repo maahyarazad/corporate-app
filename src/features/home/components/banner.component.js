@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Platform,
   Linking,
+  Alert,
 } from "react-native";
 import styled from "styled-components/native";
 import { LoadingOverlay } from "../../../components/loading/loading.component";
@@ -37,7 +38,7 @@ const ListContainerHeight = () => {
 
 const ListContainer = styled(View)`
   height: ${ListContainerHeight}px;
-  margin-top: 8px;
+  /* margin-top: 8px; */
 `;
 
 const BannerImage = styled(Image)`
@@ -87,6 +88,7 @@ const renderBanner = ({ item, screenWidth, setLoading, loading }) => {
         }
       }
     } catch (error) {
+      console.log("ERROR", error);
       Alert.alert("Banner Error", "Can't open the link");
     }
   };
@@ -120,7 +122,7 @@ export const FeaturedBanner = ({ bannerData }) => {
   const [loading, setLoading] = useState(true);
   const screenWidth = Math.floor(Dimensions.get("window").width);
   const [bannerList, setBannerList] = useState();
-  const { isLogout } = useContext(AuthContext);
+  const { isLogout, user } = useContext(AuthContext);
 
   useEffect(() => {
     let isMounted = true;
@@ -129,6 +131,7 @@ export const FeaturedBanner = ({ bannerData }) => {
       const banners = await AppServices.getBanners({
         id: config.APP_ID,
         status: 1,
+        user_id: user.user_id,
       });
 
       if (isMounted && banners.success) {
@@ -148,13 +151,16 @@ export const FeaturedBanner = ({ bannerData }) => {
     <>
       {bannerList && bannerList.length > 0 ? (
         <>
-          <Spacer position={"top"} size={"small"} />
+          <Spacer position={"top"} size={"medium"} />
           <ListContainer>
             <Carousel
               width={Dimensions.get("screen").width}
               height={Dimensions.get("screen").width * (9 / 16)}
               data={bannerList}
               autoPlay={true}
+              panGestureHandlerProps={{
+                activeOffsetX: [-10, 10],
+              }}
               autoPlayInterval={5000}
               renderItem={({ item }) =>
                 renderBanner({ item, screenWidth, setLoading, loading })

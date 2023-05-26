@@ -75,7 +75,7 @@ export const CodeInputBox = styled(View)`
   border-color: ${colors.ui.secondary};
   align-items: center;
   justify-content: center;
-  background-color: white;
+  background-color: #888;
 `;
 
 export const CodeInputBoxText = styled(Text)`

@@ -13,6 +13,7 @@ import { TranslationContext } from "../services/translation/translation.context"
 import { CustomModal } from "./modal/customModal.component";
 import { itemSeparatorVS } from "./styles";
 import { Label } from "./typography/label.component";
+import { LinearGradient } from "expo-linear-gradient";
 
 const OFFER_COMPONENT_HEIGHT = 122;
 
@@ -47,7 +48,7 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
   };
   const collapse = () => {
     Animated.timing(animatedValue, {
-      toValue: OFFER_COMPONENT_HEIGHT * minItems,
+      toValue: OFFER_COMPONENT_HEIGHT * minItems - 60,
       useNativeDriver: false,
       duration: 300,
     }).start(() => {
@@ -117,6 +118,25 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
               );
             }}
           />
+          {/* <View style={{ backgroundColor: "red", flex: 1, height: 300 }}></View>
+          <LinearGradient
+            colors={["red", "green"]}
+            styles={{ flex: 1, height: 300 }}
+          ></LinearGradient> */}
+          {!showAll && (
+            <LinearGradient
+              colors={["#efefef00", "#efefef"]}
+              style={{
+                flex: 1,
+                position: "absolute",
+                width: "100%",
+                height: 50,
+                bottom: 0,
+              }}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0, y: 1.1 }}
+            ></LinearGradient>
+          )}
         </Animated.View>
       )}
       {offers.length > 2 && (
@@ -125,7 +145,7 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
             onPress={toggleShowAll}
             style={{
               margin: 16,
-              marginTop: 0,
+              marginTop: -0,
               borderRadius: 4,
               justifyContent: "flex-start",
               alignItems: "flex-end",

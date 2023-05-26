@@ -41,6 +41,9 @@ export const OtpVerification = ({ route, navigation }) => {
     try {
       const otp_details = { otp: code, user_id, app_id: config.APP_ID };
       const response = await verify(otp_details);
+      if (!response) {
+        handleCodeChange("");
+      }
     } catch (error) {}
   };
 
@@ -79,6 +82,10 @@ export const OtpVerification = ({ route, navigation }) => {
       setResendMsg(i18n.t("auth.code-sent2"));
       setResendStatus(true);
     });
+  };
+
+  const handleCodeChange = (value) => {
+    setCode(value);
   };
 
   return (
@@ -139,7 +146,7 @@ export const OtpVerification = ({ route, navigation }) => {
 
               <CodeInputField
                 setPinReady={setPinReady}
-                setCode={setCode}
+                setCode={handleCodeChange}
                 code={code}
                 pinReady={pinReady}
                 maxLength={MAX_CODE_LENGTH}

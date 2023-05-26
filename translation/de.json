@@ -64,7 +64,7 @@
             "visit-website": "zur Website",
             "valid-until": "gültig bis"
         },
-        "see-all": "alles anzeigen",
+        "see-all": "Mehr",
         "search-all": "alles durchsuchen",
         "redeem-offer": {
             "instruction": "Zeigen Sie den Code an der Kasse vor %{locationName} um das Angebot zu nutzen",
@@ -170,8 +170,8 @@
             "text": "",
             "notice": "Achtung:\nBitte stellen Sie sicher, dass Ihr Name und das Ablaufdatum deutlich sichtbar sind.",
             "edit-profile": "Profil bearbeiten",
-            "upload": "Hochladen",
-            "skip": "Hochladen überspringen",
+            "upload": "Einreichen",
+            "skip": "überspringen",
             "use-image": "Foto benutzen",
             "retake": "Erneut aufnehmen",
             "uploaded": {

@@ -103,7 +103,7 @@ export const ProfInfo = () => {
 
         <RenderRow
           label={i18n.t("profile-tabs.profile.name")}
-          value={`${userInfo.honorifics}${userInfo.first_name}${
+          value={`${userInfo.honorifics} ${userInfo.first_name}${
             !!userInfo.middlename ? ` ${userInfo.middle_name} ` : " "
           }${userInfo.last_name}`}
         />

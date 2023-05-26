@@ -31,7 +31,16 @@ export const CodeInputField = ({
   const renderCodeInputBox = (value, index) => {
     const rand = Math.random();
     return (
-      <CodeInputBox style={inputBoxStyle} key={`otp1_${index}`}>
+      <CodeInputBox
+        style={[
+          code.length < index + 1 && {
+            backgroundColor: "white",
+            borderColor: "white",
+          },
+          inputBoxStyle,
+        ]}
+        key={`otp1_${index}`}
+      >
         <CodeInputBoxText key={`otp2_${index}`}>
           {code[index] != undefined ? (!hidden ? code[index] : "•") : ""}
         </CodeInputBoxText>
@@ -60,7 +69,9 @@ export const CodeInputField = ({
           <HiddenTextInput
             ref={textInputRef}
             allowFontScaling={false}
+            textContentType="oneTimeCode"
             maxLength={maxLength}
+            value={code}
             onChangeText={setCode}
             keyboardType="number-pad"
             returnKeyType="done"

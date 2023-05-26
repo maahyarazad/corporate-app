@@ -44,15 +44,23 @@ export const AuthContextProvider = ({ children }) => {
       setSkip(getSkip);
       const deviceInfo = await getDeviceInfo();
       const token = await retrieveToken();
-      console.log("TOKEN: ", token);
       setUser((prev) => ({
         ...prev,
         ...deviceInfo,
         token,
       }));
-
-      if (!!token) await retrieve();
+      if (!!token) {
+        await retrieve();
+      }
     })();
+
+    return () => {
+      let isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
 
     const saveSkip = async () => {
       if (isMounted) await SecureStore.setItemAsync("skip", skip.toString());
@@ -63,9 +71,9 @@ export const AuthContextProvider = ({ children }) => {
     }
 
     return () => {
-      let isMounted = false;
+      isMounted = false;
     };
-  }, []);
+  }, [skip]);
 
   const retrieve = async () => {
     try {
@@ -90,6 +98,7 @@ export const AuthContextProvider = ({ children }) => {
 
         console.log("-------------");
         if (result) {
+          console.log(result);
           console.log("Authorized: ", result.isAuthorized);
           setUser((prev) => ({
             ...prev,
@@ -103,12 +112,11 @@ export const AuthContextProvider = ({ children }) => {
         }
 
         if (result && result.expired) {
-          console.log(result);
           Alert.alert(
             "Card Expired",
             "Your membership card has expired. Please contact your administrator."
           );
-          setUser({ ...user, token: "" });
+          setUser((prev) => ({ ...prev, token: "" }));
           removeStorage();
         }
         setNoConnection(false);
@@ -157,28 +165,31 @@ export const AuthContextProvider = ({ children }) => {
   };
 
   const verify = async (otp_details) => {
-    setIsLoading(true);
-    verifyOTP(otp_details)
-      .then((response) => {
-        isLogout.current = false;
-        setUser((prev) => ({ ...prev, status: 1, token: response.token }));
-        setIsLoading(false);
-        return true;
-      })
-      .catch((err) => {
-        if (err === -1) {
-          Alert.alert(i18n.t("auth.fail-header"), i18n.t("auth.fail-msg"));
-        }
-        setIsLoading(false);
-        // alert(err);
-        return false;
-      });
+    return new Promise((resolve, reject) => {
+      setIsLoading(true);
+      verifyOTP(otp_details)
+        .then((response) => {
+          isLogout.current = false;
+          setUser((prev) => ({ ...prev, status: 1, token: response.token }));
+          setIsLoading(false);
+          resolve(1);
+        })
+        .catch((err) => {
+          if (err === -1) {
+            Alert.alert(i18n.t("auth.fail-header"), i18n.t("auth.fail-msg"));
+          }
+          setIsLoading(false);
+          // alert(err);
+          resolve(0);
+        });
+    });
   };
 
   const login = (credentials, setLoading) => {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      const deviceInfo = await getDeviceInfo();
       axiosInstance
-        .post(`user/login`, credentials)
+        .post(`user/login`, { ...credentials, ...deviceInfo })
         .then(async (response) => {
           try {
             const res = response.data;

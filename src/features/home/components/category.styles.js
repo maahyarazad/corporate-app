@@ -10,7 +10,7 @@ import { Label } from "../../../components/typography/label.component";
 import { LinearGradient } from "expo-linear-gradient";
 
 export const CategoryHeaderView = styled(View)`
-  ${Platform.OS === "ios" && `margin-top: -20px`};
+  /* ${Platform.OS === "ios" && `margin-top: -20px`}; */
   flex-direction: row;
 `;
 

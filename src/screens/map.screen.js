@@ -9,11 +9,9 @@ import { LoadingOverlay } from "../components/loading/loading.component";
 import { SafeArea } from "../components/safearea.component";
 import { Spacer } from "../components/spacer/spacer.component";
 import { Label } from "../components/typography/label.component";
-import { AuthContext } from "../services/auth/auth.context";
 import { LocationContext } from "../services/location/location.context";
 import { TranslationContext } from "../services/translation/translation.context";
 import { adminFileBaseURL } from "../utils/constants";
-import { getPreciseDistance, earthRadius } from "geolib";
 
 export const StyledMap = styled(MapView)`
   flex: 1;

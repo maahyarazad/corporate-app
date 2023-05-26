@@ -196,6 +196,10 @@ export const EntertainerScreen = () => {
 
               options={{
                 tabBarLabel: tab.name,
+                tabBarLabelStyle: {
+                  fontSize: 10,
+                  fontWeight: "bold",
+                },
                 tabBarStyle: {
                   // marginBottom: 10,
                   // backgroundColor: "red",

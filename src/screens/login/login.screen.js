@@ -185,6 +185,7 @@ export const LoginScreen = ({ navigation }) => {
                     label={"Username or Email"}
                     value={username}
                     autoFillPassword={true}
+                    textContentType={"username"}
                     // label={"Nutzername"}
                   />
                   <Spacer position={"top"} size={"small"} />
@@ -192,6 +193,7 @@ export const LoginScreen = ({ navigation }) => {
                     onChangeText={setPassword}
                     secureTextEntry={true}
                     showEye={true}
+                    textContentType={"password"}
                     value={password}
                     autoFillPassword={true}
                     label={"Password"}
