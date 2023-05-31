@@ -25,6 +25,8 @@ import { isValidEmail } from "../../utils/isEmailValid";
 import { PartnerPicker } from "../../components/partnerPicker";
 import { PartnerService } from "../../services/location/location.service";
 import { companyLogo, config } from "../../utils/constants";
+// import Recaptcha from "react-native-recaptcha-that-works";
+// import { Button } from "react-native-paper";
 
 export const RegistrationScreen = () => {
   const theme = useTheme();
@@ -168,22 +170,41 @@ export const RegistrationScreen = () => {
   };
 
   const nextPage = () => {
-    setIsSubmitted(true);
+    alert("hello");
 
-    if (validateInfo()) {
-      const data = {
-        ...state,
-      };
+    // setIsSubmitted(true);
 
-      UserService.validateDetails(data).then((response) => {
-        if (response.success) {
-          navigate("RegisterDetails", { login: data });
-        } else {
-          shake();
-          alert(response.message);
-        }
-      });
-    }
+    // if (validateInfo()) {
+    //   const data = {
+    //     ...state,
+    //   };
+
+    //   UserService.validateDetails(data).then((response) => {
+    //     if (response.success) {
+    //       navigate("RegisterDetails", { login: data });
+    //     } else {
+    //       shake();
+    //       alert(response.message);
+    //     }
+    //   });
+    // }
+  };
+
+  const recaptcha = useRef();
+
+  const sendCaptcha = () => {
+    console.log("send!");
+    recaptcha.current.open();
+  };
+
+  const onVerify = (token) => {
+    console.log("success!", token);
+    nextPage();
+  };
+
+  const onExpire = () => {
+    console.warn("expired!");
+    alert("NOT NICE");
   };
 
   const [partnerList, setPartnerList] = useState([]);
@@ -369,9 +390,20 @@ export const RegistrationScreen = () => {
                 }}
               />
               <Spacer size={"medium"} position={"top"} />
+              <Recaptcha
+                ref={recaptcha}
+                siteKey="6LfkGVAmAAAAALcsQxnK2wntbm2ccMfBCz0V81M9"
+                baseUrl="http://www.german-emirates-club.com"
+                onVerify={onVerify}
+                onError={(e) => {
+                  console.log("ERROR:", e);
+                }}
+                onExpire={onExpire}
+                size="normal"
+              />
               <TouchableOpacity
                 activeOpacity={0.8}
-                onPress={nextPage}
+                onPress={sendCaptcha}
                 style={{
                   height: 60,
                   backgroundColor: theme.colors.ui.button,

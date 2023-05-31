@@ -21,6 +21,7 @@ import { AuthContext } from "../../../services/auth/auth.context";
 import Carousel from "react-native-reanimated-carousel";
 import { CacheImage } from "../../../components/cacheImage";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import * as Linking2 from "expo-linking";
 
 const SIZE_RATIO = 9 / 16;
 // const SIZE_RATIO = 9 / 16;
@@ -74,6 +75,7 @@ const renderBanner = ({ item, screenWidth, setLoading, loading }) => {
 
   const handleClick = async () => {
     try {
+      console.log(__DEV__);
       if (item.withLink != undefined) {
         switch (item.withLink) {
           //Website Link

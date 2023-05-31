@@ -116,7 +116,6 @@ export const CustomTextInput = ({
           // autoComplete={false}
           autoCorrect={false}
           textContentType={textContentType}
-          fill
           secureTextEntry={!showText && secureTextEntry}
           style={[
             styles.input,

@@ -197,40 +197,7 @@ export const OfferModalInfo = ({
             marginVertical: 16,
             width: "100%",
           }}
-        >
-          <WebView
-            setBuiltInZoomControls={false}
-            originWhitelist={["*"]}
-            minimumFontSize={20}
-            source={{
-              html: `
-              <div style="font-size: 40px; font-family: helvetica;">
-              
-                ${
-                  offerInfo.highlights_en != "" &&
-                  offerInfo.highlights_en != undefined
-                    ? `<div style="margin-bottom: 90px"><strong>${i18n.t(
-                        "redeem-offer.highlights"
-                      )}</strong>
-                ${offerInfo.highlights_en}</div>`
-                    : ""
-                }
-                ${
-                  offerInfo.fineprints_en != "" &&
-                  offerInfo.fineprints_en != undefined
-                    ? `<div style="margin-bottom: 90px"><strong>${i18n.t(
-                        "redeem-offer.fine-prints"
-                      )}</strong>
-                ${offerInfo.fineprints_en}</div>`
-                    : ""
-                }
-               
-                
-              </div>
-            `,
-            }}
-          />
-        </View>
+        ></View>
       </View>
       <View
         style={{
