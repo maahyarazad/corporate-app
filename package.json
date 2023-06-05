@@ -1,5 +1,5 @@
 {
-  "name": "gec-appw",
+  "name": "gec-app",
   "version": "1.0.0",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
@@ -51,7 +51,7 @@
     "moment": "^2.29.4",
     "react": "18.1.0",
     "react-dom": "18.1.0",
-    "react-native": "0.70.8",
+    "react-native": "0.70.5",
     "react-native-country-picker-modal": "^2.0.0",
     "react-native-device-info": "^10.0.1",
     "react-native-dropdown-picker": "^5.4.2",
@@ -75,7 +75,7 @@
     "react-native-tab-view": "^3.1.1",
     "react-native-vector-icons": "^9.1.0",
     "react-native-web": "~0.18.7",
-    "react-native-webview": "12.1.0",
+    "react-native-webview": "11.23.1",
     "react-native-woodpicker": "^0.3.17",
     "rn-pdf-reader-js": "^4.1.1",
     "shorthash": "^0.0.2",

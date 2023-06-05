@@ -28,10 +28,7 @@ export default function App() {
                 <UploadContextProvider>
                   <LocationContextProvider>
                     <SectionContextProvider>
-                      {/* <AppNavigation /> */}
-                      <View>
-                        <Text>Test</Text>
-                      </View>
+                      <AppNavigation />
                     </SectionContextProvider>
                   </LocationContextProvider>
                 </UploadContextProvider>
