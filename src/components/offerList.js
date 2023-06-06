@@ -15,7 +15,7 @@ import { itemSeparatorVS } from "./styles";
 import { Label } from "./typography/label.component";
 import { LinearGradient } from "expo-linear-gradient";
 
-const OFFER_COMPONENT_HEIGHT = 122;
+const OFFER_COMPONENT_HEIGHT = 120;
 
 export const OfferList = ({ offers, location, distance, minItems }) => {
   const [showAll, setShowAll] = useState(false);
@@ -131,8 +131,9 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
                 flex: 1,
                 position: "absolute",
                 width: "100%",
-                height: 180,
+                height: 140,
                 bottom: 0,
+                // backgroundColor: "red",
               }}
               start={{ x: 0, y: 0 }}
               end={{ x: 0, y: 0.7 }}
@@ -141,12 +142,17 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
         </Animated.View>
       )}
       {offers.length > 2 && (
-        <View style={{ padding: 16, paddingTop: 0 }}>
+        <Animated.View
+          style={{
+            padding: 16,
+            paddingTop: 0,
+          }}
+        >
           <TouchableOpacity
             onPress={toggleShowAll}
             style={{
               margin: 16,
-              marginTop: -30,
+              marginTop: 0,
               borderRadius: 4,
               justifyContent: "flex-start",
               alignItems: "flex-end",
@@ -162,7 +168,7 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
               {showAll ? "Show less" : "Show all"}
             </Label>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
       )}
     </View>
   );

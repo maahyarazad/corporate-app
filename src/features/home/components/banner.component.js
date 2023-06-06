@@ -75,7 +75,6 @@ const renderBanner = ({ item, screenWidth, setLoading, loading }) => {
 
   const handleClick = async () => {
     try {
-      console.log(__DEV__);
       if (item.withLink != undefined) {
         switch (item.withLink) {
           //Website Link
