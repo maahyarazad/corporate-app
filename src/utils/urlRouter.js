@@ -13,9 +13,9 @@ export const UrlListener = () => {
     //Event Listener for Deep linking
     const handleOpenURL = async (event) => {
       const { url } = event;
-      const { path, hostname, queryParams: params } = Linking.parse(url);
+      const { path, queryParams: params } = Linking.parse(url);
 
-      switch (__DEV__ ? path : hostname) {
+      switch (path) {
         case "map":
           navigate("Map");
           // Alert.alert("DEEP LINKING WORKS!", params.location);
