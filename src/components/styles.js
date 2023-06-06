@@ -71,16 +71,18 @@ export const CodeInputBox = styled(View)`
   width: ${width * 0.17}px;
   height: ${width * 0.17}px;
   border-radius: ${width * 0.17}px;
-  border-width: 2px;
+  border-width: 3px;
   border-color: ${colors.ui.secondary};
   align-items: center;
   justify-content: center;
-  background-color: #888;
+  background-color: #eee;
 `;
 
 export const CodeInputBoxText = styled(Text)`
   font-size: ${width * 0.08}px;
   font-weight: bold;
+  /* flex: 1; */
+  /* background-color: green; */
 `;
 
 export const VerifyButton = styled(TouchableOpacity)`
