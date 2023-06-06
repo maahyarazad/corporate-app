@@ -67,9 +67,9 @@
         "see-all": "Mehr",
         "search-all": "alles durchsuchen",
         "redeem-offer": {
-            "instruction": "Zeigen Sie den Code an der Kasse vor %{locationName} um das Angebot zu nutzen",
+            "instruction": "Please present this Offer Code onsite to %{locationName}'s cashier to avail the offer.",
             "use-code": "Code nutzen",
-            "call-now": "Jetzt anrufen",
+            "call-now": "Call now",
             "redeem": "Redeem",
             "total-bill": "Total Bill (before Discount)",
             "discount": "Discount Amount",
