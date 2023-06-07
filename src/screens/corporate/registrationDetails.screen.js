@@ -32,6 +32,7 @@ import { CustomTextInput } from "../../components/customTextInput";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import moment from "moment";
 import { CustomModal } from "../../components/modal/customModal.component";
+import Recaptcha from "react-native-recaptcha-that-works";
 
 export const RegistrationDetailsScreen = ({ route }) => {
   const theme = useTheme();
@@ -82,6 +83,28 @@ export const RegistrationDetailsScreen = ({ route }) => {
     ],
   };
 
+  const recaptcha = useRef();
+
+  const sendCaptcha = () => {
+    setIsSubmitted(true);
+    if (validateInfo()) {
+      const misc = route.params.login.miscellaneous;
+      if (misc === undefined) recaptcha.current.open();
+      return;
+    }
+  };
+
+  const onVerify = (token) => {
+    console.log("success!", token);
+    submit(token);
+    // nextPage();
+  };
+
+  const onExpire = () => {
+    console.warn("expired!");
+    alert("NOT NICE");
+  };
+
   const validateInfo = () => {
     if (
       state.firstname.trim() === "" ||
@@ -98,28 +121,26 @@ export const RegistrationDetailsScreen = ({ route }) => {
     return true;
   };
 
-  const submit = () => {
-    setIsSubmitted(true);
-    if (validateInfo()) {
-      const register1 = route.params.login;
+  const submit = (token) => {
+    const register1 = route.params.login;
 
-      const user = {
-        ...register1,
-        ...state,
-        birthdate: state.birthdate.toDateString(),
-        gender: state.gender.charAt(0),
-      };
+    const user = {
+      ...register1,
+      ...state,
+      birthdate: state.birthdate.toDateString(),
+      gender: state.gender.charAt(0),
+      token,
+    };
 
-      console.log(user);
+    console.log(user);
 
-      UserService.createUser(user)
-        .then((result) => {
-          if (result) navigate("RegisterSuccess");
-        })
-        .catch((err) => {
-          alert(err.message);
-        });
-    }
+    UserService.createUser(user)
+      .then((result) => {
+        if (result) navigate("RegisterSuccess");
+      })
+      .catch((err) => {
+        alert(err.message);
+      });
   };
 
   const openBdayModal = () => {
@@ -480,9 +501,20 @@ export const RegistrationDetailsScreen = ({ route }) => {
                 </View>
               </View>
               <Spacer size={"medium"} position={"top"} />
+              <Recaptcha
+                ref={recaptcha}
+                siteKey="6LfkGVAmAAAAALcsQxnK2wntbm2ccMfBCz0V81M9"
+                baseUrl="http://www.german-emirates-club.com"
+                onVerify={onVerify}
+                onError={(e) => {
+                  console.log("ERROR:", e);
+                }}
+                onExpire={onExpire}
+                size="normal"
+              />
               <TouchableOpacity
                 activeOpacity={0.8}
-                onPress={submit}
+                onPress={sendCaptcha}
                 style={{
                   height: 60,
                   backgroundColor: theme.colors.ui.button,

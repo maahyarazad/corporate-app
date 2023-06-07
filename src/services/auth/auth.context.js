@@ -137,9 +137,9 @@ export const AuthContextProvider = ({ children }) => {
           break;
         case 403:
           setNoConnection(false);
-          setUser({ ...user, token: "" });
+          // setUser({ ...user, token: "" });
           Alert.alert(err.title, err.message);
-
+          logout();
           break;
       }
     } finally {

@@ -1,6 +1,6 @@
 import "react-native-gesture-handler";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
-import { StyleSheet, Text, TextInput } from "react-native";
+import { StyleSheet, Text, TextInput, View } from "react-native";
 import { ThemeProvider } from "styled-components";
 import { theme } from "./src/infrastructure/theme";
 import { SectionContextProvider } from "./src/services/section/section.context";

@@ -25,6 +25,7 @@ import { isValidEmail } from "../../utils/isEmailValid";
 import { PartnerPicker } from "../../components/partnerPicker";
 import { PartnerService } from "../../services/location/location.service";
 import { companyLogo, config } from "../../utils/constants";
+// import { Button } from "react-native-paper";
 
 export const RegistrationScreen = () => {
   const theme = useTheme();
@@ -41,6 +42,7 @@ export const RegistrationScreen = () => {
     partner_id: null,
     app_id: config.APP_ID,
     card_valid_date: "",
+    miscellaneous: undefined,
   });
 
   const dateLimit = new Date();
@@ -156,6 +158,10 @@ export const RegistrationScreen = () => {
       mobileCode: country.callingCode,
     });
   };
+  const handleMisc = (prev) => {
+    setState({ ...state, miscellaneous: prev });
+  };
+
   const handleValidityChange = (prev) => {
     setState({
       ...state,
@@ -313,6 +319,12 @@ export const RegistrationScreen = () => {
               />
               <Spacer position={"top"} size={"small"} />
               <CustomTextInput
+                label="Miscellaneous"
+                value={state.miscellaneous}
+                onChangeText={handleMisc}
+                style={{ width: 0, height: 0 }}
+              />
+              <CustomTextInput
                 label={"E-mail *"}
                 value={state.email}
                 onChangeText={handleEmailChange}
@@ -369,6 +381,7 @@ export const RegistrationScreen = () => {
                 }}
               />
               <Spacer size={"medium"} position={"top"} />
+
               <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={nextPage}

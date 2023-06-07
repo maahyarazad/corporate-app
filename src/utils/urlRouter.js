@@ -3,6 +3,7 @@ import { Alert, StyleSheet, View } from "react-native";
 import * as Linking from "expo-linking";
 import { navigate } from "../navigation/navigate";
 import { LocationContext } from "../services/location/location.context";
+import { config } from "./constants";
 
 export const UrlListener = () => {
   const { eventList } = useContext(LocationContext);

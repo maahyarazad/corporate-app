@@ -46,9 +46,10 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
       duration: 300,
     }).start(() => {});
   };
+
   const collapse = () => {
     Animated.timing(animatedValue, {
-      toValue: OFFER_COMPONENT_HEIGHT * minItems - 60,
+      toValue: OFFER_COMPONENT_HEIGHT * minItems,
       useNativeDriver: false,
       duration: 300,
     }).start(() => {
@@ -123,18 +124,18 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
             colors={["red", "green"]}
             styles={{ flex: 1, height: 300 }}
           ></LinearGradient> */}
-          {!showAll && (
+          {!showAll && offers.length > 2 && (
             <LinearGradient
               colors={["#efefef00", "#efefef"]}
               style={{
                 flex: 1,
                 position: "absolute",
                 width: "100%",
-                height: 50,
+                height: 180,
                 bottom: 0,
               }}
               start={{ x: 0, y: 0 }}
-              end={{ x: 0, y: 1.1 }}
+              end={{ x: 0, y: 0.7 }}
             ></LinearGradient>
           )}
         </Animated.View>
@@ -145,7 +146,7 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
             onPress={toggleShowAll}
             style={{
               margin: 16,
-              marginTop: -0,
+              marginTop: -30,
               borderRadius: 4,
               justifyContent: "flex-start",
               alignItems: "flex-end",

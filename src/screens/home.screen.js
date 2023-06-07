@@ -62,7 +62,7 @@ export const HomeScreen = ({ ...props }) => {
 
   useEffect(() => {
     let isMounted = true;
-
+    console.log("giatay");
     //Handle Push Notification Listener
     const subscription = addNotificationResponseReceivedListener(
       handleNotificationResponse
