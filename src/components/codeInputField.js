@@ -15,6 +15,7 @@ import {
   CodeInputPressLayer,
   HiddenTextInput,
 } from "./styles";
+import { theme } from "../infrastructure/theme";
 
 export const CodeInputField = ({
   maxLength,
@@ -27,6 +28,7 @@ export const CodeInputField = ({
 }) => {
   const codeDigitArray = new Array(maxLength).fill(0);
   const textInputRef = useRef();
+  const [focused, setFocused] = useState(false);
 
   const renderCodeInputBox = (value, index) => {
     const rand = Math.random();
@@ -35,14 +37,35 @@ export const CodeInputField = ({
         style={[
           code.length < index + 1 && {
             backgroundColor: "white",
-            borderColor: "white",
+            borderColor: "#ccc",
           },
+          focused &&
+            index <= code.length && {
+              borderColor: theme.colors.ui.secondary,
+            },
           inputBoxStyle,
         ]}
         key={`otp1_${index}`}
       >
         <CodeInputBoxText key={`otp2_${index}`}>
-          {code[index] != undefined ? (!hidden ? code[index] : "•") : ""}
+          {code[index] != undefined ? (
+            !hidden ? (
+              code[index]
+            ) : (
+              <View
+                style={{
+                  backgroundColor: "black",
+                  width: 12,
+                  height: 12,
+                  borderRadius: 20,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              ></View>
+            )
+          ) : (
+            ""
+          )}
         </CodeInputBoxText>
       </CodeInputBox>
     );
@@ -57,6 +80,14 @@ export const CodeInputField = ({
 
   const handlePress = () => {
     textInputRef.current.focus();
+  };
+
+  const handleFocus = () => {
+    setFocused(true);
+  };
+
+  const handleBlur = () => {
+    setFocused(false);
   };
 
   return (
@@ -75,6 +106,8 @@ export const CodeInputField = ({
             onChangeText={setCode}
             keyboardType="number-pad"
             returnKeyType="done"
+            onFocus={handleFocus}
+            onBlur={handleBlur}
           ></HiddenTextInput>
         </View>
       </CodeInputContainer>

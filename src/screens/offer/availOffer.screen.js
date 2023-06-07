@@ -384,7 +384,6 @@ export const AvailOfferScreen = ({ route }) => {
                         borderRadius: 6,
                         width: 40,
                         height: 40,
-                        borderColor: "#aaa",
                       }}
                       containerStyle={{
                         marginTop: 4,

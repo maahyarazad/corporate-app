@@ -151,6 +151,7 @@ export const OtpVerification = ({ route, navigation }) => {
                 pinReady={pinReady}
                 maxLength={MAX_CODE_LENGTH}
                 containerStyle={{ width: width - 64 }}
+                inputBoxStyle={{ borderWidth: 4 }}
               />
               {/* <TouchableOpacity activeOpacity={} */}
               <VerifyButton
