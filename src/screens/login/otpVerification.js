@@ -22,6 +22,8 @@ import { Label } from "../../components/typography/label.component";
 import { AuthContext } from "../../services/auth/auth.context";
 import { TranslationContext } from "../../services/translation/translation.context";
 import { config } from "../../utils/constants";
+import useRequest from "../../../hooks/useRequest";
+import useAuth from "../../../hooks/useAuth";
 
 export const OtpVerification = ({ route, navigation }) => {
   const MAX_CODE_LENGTH = 4;
@@ -36,11 +38,24 @@ export const OtpVerification = ({ route, navigation }) => {
   const { user_id, device_id } = user;
   const [resendStatus, setResendStatus] = useState(true);
   const [resendMsg, setResendMsg] = useState(i18n.t("auth.code-sent"));
+  const request = useRequest();
+  const { verifyOTP } = useAuth();
 
   const handleVerify = async () => {
     try {
-      const otp_details = { otp: code, user_id, app_id: config.APP_ID };
-      const response = await verify(otp_details);
+      const otp_details = { otp: code, app_id: config.APP_ID };
+
+      const response = await request(
+        "/api/v2/auth/verify",
+        "post",
+        otp_details
+      );
+
+      if (response.success) {
+        verifyOTP();
+      }
+      console.log("OTP RESPONSE", response);
+
       if (!response) {
         handleCodeChange("");
       }
@@ -49,7 +64,6 @@ export const OtpVerification = ({ route, navigation }) => {
 
   useEffect(() => {
     let isMounted = true;
-
     let subInterval = setInterval(() => {
       cooldownTimer(subInterval);
     }, 1000);

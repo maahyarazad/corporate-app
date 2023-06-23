@@ -17,6 +17,8 @@ import { UserContext } from "../../services/user/user.context";
 import * as WebBrowser from "expo-web-browser";
 import { isValidURL } from "../../utils/isValidURL";
 import { companyLogo, config, EULAPrivacyLink } from "../../utils/constants";
+import useRequest from "../../../hooks/useRequest";
+import useAuth from "../../../hooks/useAuth";
 
 export const TextInputForm = styled(TextInput)`
   border-radius: 10px;
@@ -42,6 +44,8 @@ export const LoginScreen = ({ navigation }) => {
   const [canRegister, setCanRegister] = useState(true);
   const { login, setUser, user } = useContext(AuthContext);
   const { getUserInfo } = useContext(UserContext);
+  const request = useRequest();
+  const { signin } = useAuth();
 
   const theme = useTheme();
 
@@ -75,29 +79,43 @@ export const LoginScreen = ({ navigation }) => {
         ...user,
       };
 
-      const response = await login(credentials, setLoading);
+      // const response = await login(credentials, setLoading);
+
+      const response = await request("/api/v2/auth/login", "post", credentials);
+      if (response.success) {
+        if (response.status) {
+          signin(response.refreshToken, response.accessToken);
+          navigation.navigate("VerifyOTP", {
+            hiddenNumber: response.phone_number,
+          });
+        } else {
+          navigation.navigate("Unverified Email", {
+            userId: response.user_id,
+          });
+        }
+      }
 
       setLoading(false);
-      console.log("LOGIN:", response);
-      if (response.status) {
-        setUser((prev) => ({
-          ...prev,
-          user_id: response.user_id,
-          isAuthorized: response.isAuthorized,
-          submitCard: response.hasSubmit,
-          member: response.member,
-        }));
+      //   console.log("LOGIN:", response);
+      //   if (response.status) {
+      //     setUser((prev) => ({
+      //       ...prev,
+      //       user_id: response.user_id,
+      //       isAuthorized: response.isAuthorized,
+      //       submitCard: response.hasSubmit,
+      //       member: response.member,
+      //     }));
 
-        getUserInfo(response.user_id);
+      //     getUserInfo(response.user_id);
 
-        navigation.navigate("VerifyOTP", {
-          hiddenNumber: response.phone_number,
-        });
-      } else {
-        navigation.navigate("Unverified Email", {
-          userId: response.user_id,
-        });
-      }
+      //     navigation.navigate("VerifyOTP", {
+      //       hiddenNumber: response.phone_number,
+      //     });
+      //   } else {
+      //     navigation.navigate("Unverified Email", {
+      //       userId: response.user_id,
+      //     });
+      //   }
     } catch (err) {
       setLoading(false);
     }

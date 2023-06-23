@@ -41,6 +41,7 @@ import * as SecureStore from "expo-secure-store";
 import { NoConnectionScreen } from "./src/screens/noConnection.screen";
 import { AppContext } from "./src/services/app/app.context";
 import { VersionMismatchScreen } from "./src/screens/versionMismatch.screen";
+import useAuth from "./hooks/useAuth";
 
 const AuthStack = createStackNavigator();
 const MainStack = createStackNavigator();
@@ -413,6 +414,7 @@ const ExceedTimeout = () => {
 export const AppNavigation = () => {
   const { isRetrieving, user, noConnection, skip } = useContext(AuthContext);
   const { isOutdated } = useContext(AppContext);
+  const { phoneVerified } = useAuth();
   // const [skip, setSkip] = useState(0);
   // useEffect(() => {
   //   let isMounted = true;
@@ -531,7 +533,7 @@ export const AppNavigation = () => {
           <TimeoutStackScreen />
         ) : isOutdated ? (
           <VersionMismatchScreen />
-        ) : user.token ? (
+        ) : phoneVerified ? (
           (user.isAuthorized && user.submitCard) || skip ? (
             <MainScreen />
           ) : (

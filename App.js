@@ -11,6 +11,7 @@ import { UploadContextProvider } from "./src/services/upload/upload.context";
 import { UserContextProvider } from "./src/services/user/user.context";
 import { TranslationContextProvider } from "./src/services/translation/translation.context";
 import { AppContextProvider } from "./src/services/app/app.context";
+import AuthProvider from "./src/services/auth_v2/auth.context";
 
 export default function App() {
   Text.defaultProps = Text.defaultProps || {};
@@ -24,15 +25,17 @@ export default function App() {
         <TranslationContextProvider>
           <AppContextProvider>
             <AuthContextProvider>
-              <UserContextProvider>
-                <UploadContextProvider>
-                  <LocationContextProvider>
-                    <SectionContextProvider>
-                      <AppNavigation />
-                    </SectionContextProvider>
-                  </LocationContextProvider>
-                </UploadContextProvider>
-              </UserContextProvider>
+              <AuthProvider>
+                <UserContextProvider>
+                  <UploadContextProvider>
+                    <LocationContextProvider>
+                      <SectionContextProvider>
+                        <AppNavigation />
+                      </SectionContextProvider>
+                    </LocationContextProvider>
+                  </UploadContextProvider>
+                </UserContextProvider>
+              </AuthProvider>
             </AuthContextProvider>
           </AppContextProvider>
         </TranslationContextProvider>
