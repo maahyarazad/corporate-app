@@ -80,6 +80,7 @@ export const AnimatedButton = ({
           <View
             style={{
               position: "absolute",
+              flex: 1,
               top: 0,
               left: 0,
               width: "100%",

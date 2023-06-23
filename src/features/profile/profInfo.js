@@ -83,7 +83,7 @@ export const ProfInfo = () => {
                 .trim()}
             />
           )}
-        {!!userInfo.card_number && (
+        {
           <>
             {/* <Label>{userInfo.card_valid_date}</Label> */}
             <RenderRow
@@ -91,7 +91,7 @@ export const ProfInfo = () => {
               value={moment(userInfo.card_valid_date).format("MM/YY")}
             />
           </>
-        )}
+        }
 
         {userInfo.partner_name != undefined &&
           userInfo.partner_name.trim() != "" && (

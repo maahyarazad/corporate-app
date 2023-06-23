@@ -128,7 +128,7 @@ export const checkAuthorization = async () => {
         .catch((err) => {
           console.log("eehhh", err);
           navigate("Logout");
-          reject(false);
+          reject(err);
         });
     } catch (err) {
       console.log(err);

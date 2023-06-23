@@ -174,7 +174,7 @@ export const AuthEditProfileScreen = () => {
             i18n.t("profile-tabs.profile.update.heading"),
             i18n.t("profile-tabs.profile.update.text")
           );
-          navigation.reset({ routes: [{ name: "RequestApproval" }] });
+          goback();
         }
       }
     } catch (error) {
@@ -238,13 +238,20 @@ export const AuthEditProfileScreen = () => {
                 {i18n.t("return")}
               </Label>
             </TouchableOpacity>
-            <Label
-              size={"title"}
-              weight="bold"
-              style={{ color: "#dfdfdf", justifyContent: "center" }}
-            >
-              {i18n.t("card-upload.edit-profile")}
-            </Label>
+            <View style={{ width: 200 }}>
+              <AnimatedButton
+                onPress={handleSubmit}
+                buttonColorFrom={disableButton ? "#999" : "rgba(230,135,0,1)"}
+                buttonColorTo={"rgba(210,115,0,1)"}
+                iconName={"content-save-edit-outline"}
+                iconSize={10}
+                textColor={"black"}
+                textSize={"caption"}
+                textWeight={"medium"}
+                label={"update"}
+                disabled={disableButton}
+              ></AnimatedButton>
+            </View>
           </View>
           <KeyboardAwareScrollView
             contentContainerStyle={{
@@ -497,18 +504,6 @@ export const AuthEditProfileScreen = () => {
               </>
             )}
             <Spacer position={"top"} size="medium" />
-            <AnimatedButton
-              onPress={handleSubmit}
-              buttonColorFrom={disableButton ? "#999" : "rgba(230,135,0,1)"}
-              buttonColorTo={"rgba(210,115,0,1)"}
-              iconName={"content-save-edit-outline"}
-              iconSize={30}
-              textColor={"#fff"}
-              textSize={"title"}
-              textWeight={"medium"}
-              label={i18n.t("update")}
-              disabled={disableButton}
-            ></AnimatedButton>
           </KeyboardAwareScrollView>
         </View>
       </SafeArea>

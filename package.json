@@ -16,7 +16,6 @@
     "@mdi/font": "^6.7.96",
     "@mdi/js": "^6.7.96",
     "@mdi/react": "^1.6.0",
-    "@react-native-community/datetimepicker": "6.5.2",
     "@react-native-masked-view/masked-view": "0.2.8",
     "@react-native-picker/picker": "2.4.8",
     "@react-navigation/bottom-tabs": "^6.3.1",

@@ -45,6 +45,7 @@ import { VersionMismatchScreen } from "./src/screens/versionMismatch.screen";
 const AuthStack = createStackNavigator();
 const MainStack = createStackNavigator();
 const ApprovalStack = createStackNavigator();
+const TimeoutStack = createStackNavigator();
 
 const config = {
   animation: "spring",
