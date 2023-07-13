@@ -22,10 +22,11 @@ export const CustomTextInput = ({
   inputStyle,
   multiline,
   numberOfLines,
+  areaHeight = 137,
 }) => {
   const [focused, setFocused] = useState(false);
   const [showText, setShowText] = useState(false);
-  const [textAreaHeight, setTextAreaHeight] = useState(137);
+  const [textAreaHeight, setTextAreaHeight] = useState(areaHeight);
 
   const animatedValue = useRef(new Animated.Value(0)).current;
 
@@ -96,6 +97,7 @@ export const CustomTextInput = ({
           },
         multiline && {
           height: textAreaHeight,
+          maxHeight: 100,
         },
       ]}
     >
@@ -127,7 +129,7 @@ export const CustomTextInput = ({
           onChangeText={onChangeText}
           value={value}
           editable={!disable}
-          placeholder={focused ? placeholder : ""}
+          placeholder={placeholder}
           onFocus={floatUp}
           onBlur={floatDown}
           selectionColor="black"
@@ -136,8 +138,13 @@ export const CustomTextInput = ({
               contentSize: { width, height },
             },
           }) => {
-            const _height = height + 35.67;
-            if (_height > 137) setTextAreaHeight(_height);
+            const _height = height + 40 - areaHeight;
+            if (_height > areaHeight && _height < 100) {
+              setTextAreaHeight(_height);
+            } else if (_height > 100) {
+              console.log("CAP");
+              setTextAreaHeight(100);
+            }
           }}
         />
         {showEye && (
@@ -203,9 +210,10 @@ const styles = StyleSheet.create({
     // overflow: "hidden",
   },
   input: {
-    fontSize: 18,
+    fontSize: 15,
     flex: 1,
     paddingHorizontal: 14,
+    paddingVertical: 6,
     height: "100%",
   },
   label: {

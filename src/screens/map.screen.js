@@ -12,6 +12,7 @@ import { Label } from "../components/typography/label.component";
 import { LocationContext } from "../services/location/location.context";
 import { TranslationContext } from "../services/translation/translation.context";
 import { adminFileBaseURL } from "../utils/constants";
+import useRequest from "../../hooks/useRequest";
 
 export const StyledMap = styled(MapView)`
   flex: 1;
@@ -52,15 +53,38 @@ export const MapScreen = ({ navigation }) => {
   const [showPartnerDetails, setShowPartnerDetails] = useState(false);
   const { i18n } = useContext(TranslationContext);
   const mapRef = useRef();
+  const request = useRequest();
 
   useEffect(() => {
     let isMounted = true;
-    getCoords(100).then((response) => {
-      if (isMounted) setPartnerLocations(response);
-    });
+
+    // getCoords(100).then((response) => {
+    // if (isMounted) setPartnerLocations(response);
+    // });
+
+    const getCoordinates = async (count) => {
+      try {
+        const response = await request(
+          `/api/v2/partner/coordinates/${count}`,
+          "get"
+        );
+
+        if (response) {
+          console.log(getCoordinates);
+          if (isMounted) setPartnerLocations(response);
+        }
+      } catch (error) {
+        console.error("Failed to get coordinates:", error);
+      }
+    };
+
+    getCoordinates(100);
+
+    console.log("userLocation:", userLocation);
 
     getUserLocation()
       .then((response) => {
+        console.log("getuserlocation response: ", response);
         if (isMounted) setMyLocation(response.coords);
       })
       .catch((err) => {

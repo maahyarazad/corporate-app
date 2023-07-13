@@ -20,6 +20,9 @@ import { AuthContext } from "../../../services/auth/auth.context";
 import { OfferService } from "../../../services/offer/offer.service";
 import { TranslationContext } from "../../../services/translation/translation.context";
 import { Offer } from "./offer.component";
+import useRequest from "../../../../hooks/useRequest";
+import useUser from "../../../../hooks/useUser";
+import useAuth from "../../../../hooks/useAuth";
 
 export const OfferModalInfo = ({
   onCloseModal,
@@ -31,25 +34,31 @@ export const OfferModalInfo = ({
   const { user, skip, setSkip } = useContext(AuthContext);
   const { i18n } = useContext(TranslationContext);
   const [showModal, setShowModal] = useState(false);
+  const request = useRequest();
+  const { userData } = useUser();
+  const { isSkip, goToVerification } = useAuth();
 
-  const onAvailOffer = () => {
-    if (skip) {
-      setShowModal(true);
-      return;
-    }
-    setLoading(true);
-    const data = {
-      user_id: user.user_id,
-      offer_id: offerInfo.id,
-      category: offerInfo.category,
-    };
-    OfferService.generateOfferCode(data)
-      .then((response) => {
+  const onAvailOffer = async () => {
+    try {
+      if (isSkip) {
+        setShowModal(true);
+        return;
+      }
+      setLoading(true);
+      const data = {
+        user_id: userData.user_id,
+        offer_id: offerInfo.id,
+        category: offerInfo.category,
+      };
+
+      const response = await request(`/api/v2/offer/generate`, "post", data);
+
+      if (response && response.result) {
         setLoading(false);
-        const _initials = response.initials;
-        const _series = response.series;
+        const _initials = response.result.initials;
+        const _series = response.result.series;
         let _leadZeroes = "";
-        for (let i = response.series.toString().length; i <= 6; i++) {
+        for (let i = response.result.series.toString().length; i <= 6; i++) {
           _leadZeroes += "0";
         }
         const offerCode = `${_initials}${_leadZeroes}${_series}`;
@@ -58,12 +67,11 @@ export const OfferModalInfo = ({
         navigate("AvailOffer", {
           state: { location, distance, offerInfo, offerCode },
         });
-      })
-      .catch((err) => {
-        setLoading(false);
-        console.log(err);
-        alert("Could not generate offer code");
-      });
+      }
+    } catch (error) {
+      setLoading(false);
+      console.log("Failed to generate offer:", error);
+    }
   };
 
   const handleCall = () => {
@@ -73,7 +81,7 @@ export const OfferModalInfo = ({
   };
 
   const handleUpload = () => {
-    setSkip(0);
+    goToVerification();
   };
 
   return (

@@ -8,6 +8,7 @@ import {
   getOneLocation,
   getCoords,
 } from "./location.service";
+import useUser from "../../../hooks/useUser";
 
 export const LocationContext = createContext();
 
@@ -15,31 +16,34 @@ export const LocationContextProvider = ({ children }) => {
   const [currentMerchant, setCurrentMerchant] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   const [eventList, setEventList] = useState([]);
-  const { user } = useContext(AuthContext);
+  // const { user } = useContext(AuthContext);
+  const { userData } = useUser();
   const { lang } = useContext(TranslationContext);
 
   useEffect(() => {
     let isMounted = true;
     (async () => {
+      console.log("LOCATION");
       getUserLocation()
         .then((response) => {
           if (isMounted) setUserLocation(response);
+          console.log("CORRECT"), response;
         })
         .catch((err) => {
-          console.log(err);
+          console.error("Location Context Error: ", err);
         });
 
-      if (user.user_id !== undefined) getEventsList();
+      if (userData.user_id !== undefined) getEventsList();
     })();
 
     return () => {
       isMounted = false;
     };
-  }, [user]);
+  }, [userData]);
 
   const getEventsList = async () => {
     const data = {
-      user_id: user.user_id,
+      user_id: userData.user_id,
       lang,
     };
     console.log("CHECKING EVENTS LIST");

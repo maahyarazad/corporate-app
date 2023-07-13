@@ -31,6 +31,7 @@ import {
 } from "../../utils/constants";
 import { navigate } from "../../navigation/navigate";
 import { width } from "../styles";
+import useRequest from "../../../hooks/useRequest";
 
 const test_data = [
   { outlet_name: "Merchant A" },
@@ -46,6 +47,7 @@ export const Hotpicks = () => {
   const { lang } = useContext(TranslationContext);
   const [reverse, setReverse] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const request = useRequest();
 
   useEffect(() => {
     let isMounted = true;
@@ -56,11 +58,14 @@ export const Hotpicks = () => {
         lang: lang,
         limit: 10,
       };
-      const response = await OfferService.getHotpicks(data);
+      const response = await request(
+        `/api/v2/offer/hotpicks?app_id=${config.APP_ID}&lang=${lang}&limit=10`,
+        "get"
+      );
+
       if (isMounted) {
         // setHotpickList(response.data.slice(0, 5));
         setHotpickList(response.data);
-        // console.log(response.data);
       }
     };
 

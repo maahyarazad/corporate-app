@@ -17,10 +17,12 @@ import * as Constants from "expo-constants";
 import { AuthContext } from "../../services/auth/auth.context";
 import { TranslationContext } from "../../services/translation/translation.context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import useAuth from "../../../hooks/useAuth";
 
 export const ProfSettings = () => {
-  const { user } = useContext(AuthContext);
+  const { signout } = useAuth();
   const { i18n } = useContext(TranslationContext);
+
   const settingsList = [
     {
       label: i18n.t("profile-tabs.settings-menu.settings-permission"),
@@ -107,7 +109,8 @@ export const ProfSettings = () => {
       {
         text: i18n.t("yes"),
         onPress: () => {
-          navigate("Logout");
+          signout();
+          // navigate("Logout");
         },
       },
     ]);

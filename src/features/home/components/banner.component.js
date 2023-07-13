@@ -22,6 +22,7 @@ import Carousel from "react-native-reanimated-carousel";
 import { CacheImage } from "../../../components/cacheImage";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import * as Linking2 from "expo-linking";
+import useRequest from "../../../../hooks/useRequest";
 
 const SIZE_RATIO = 9 / 16;
 // const SIZE_RATIO = 9 / 16;
@@ -124,16 +125,18 @@ export const FeaturedBanner = ({ bannerData }) => {
   const screenWidth = Math.floor(Dimensions.get("window").width);
   const [bannerList, setBannerList] = useState();
   const { isLogout, user } = useContext(AuthContext);
+  const request = useRequest();
 
   useEffect(() => {
     let isMounted = true;
 
     const getBanners = async (count) => {
-      const banners = await AppServices.getBanners({
+      const data = {
         id: config.APP_ID,
         status: 1,
         user_id: user.user_id,
-      });
+      };
+      const banners = await request(`/api/v2/app/get-banners`, "post", data);
 
       if (isMounted && banners.success) {
         setBannerList(banners.data);

@@ -27,6 +27,7 @@ import { TextInputCurrency } from "../../components/textInputCurrency/textInputC
 import { CodeInputField } from "../../components/codeInputField";
 import { useNavigation } from "@react-navigation/native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import useRequest from "../../../hooks/useRequest";
 
 export const AvailOfferScreen = ({ route }) => {
   const { location, offerInfo, distance, offerCode } = route.params.state;
@@ -44,6 +45,7 @@ export const AvailOfferScreen = ({ route }) => {
   const navigation = useNavigation();
   const { height, width } = Dimensions.get("window");
   const { i18n } = useContext(TranslationContext);
+  const request = useRequest();
 
   useEffect(() => {
     let isMounted = true;
@@ -68,8 +70,7 @@ export const AvailOfferScreen = ({ route }) => {
       paid: paid,
     };
 
-    const response = await OfferService.consumeOfferCode(data);
-    console.log(response);
+    const response = await request(`/api/v2/offer/consume`, "post", data);
     return response;
   };
 

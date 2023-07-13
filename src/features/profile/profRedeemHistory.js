@@ -21,6 +21,9 @@ import {
 } from "../../services/translation/translation.context";
 import { UserService } from "../../services/user/user.service";
 import { config } from "../../utils/constants";
+import useRequest from "../../../hooks/useRequest";
+import useUser from "../../../hooks/useUser";
+import { useTranslation } from "../../../hooks/useTranslation";
 
 const TOGGLE_BUTTON_BREAKDOWN_HEIGHT = 40;
 
@@ -29,21 +32,28 @@ export const ProfRedeemHistory = () => {
   const [headerList, setHeaderList] = useState();
   const [data, setData] = useState();
   const [overall, setOverall] = useState(null);
+  const request = useRequest();
+  const { userData } = useUser();
+  const { lang } = useContext(TranslationContext);
 
   useEffect(() => {
     let isMounted = true;
-    UserService.getRedemptionHistory(user.user_id)
-      .then((response) => {
-        if (isMounted) {
-          setData(response.rows);
-          setHeaderList(response.headers);
-          setOverall(response.overall);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
 
+    const getUserTransactions = async () => {
+      const response = await request(
+        `/api/v2/user/history?lang=${lang}`,
+        "get"
+      );
+
+      if (response.success) {
+        setData(response.data.rows);
+        setHeaderList(response.data.headers);
+        setOverall(response.data.overall);
+      }
+      console.log("transaction response:", response);
+    };
+
+    getUserTransactions();
     return () => {
       isMounted = false;
     };

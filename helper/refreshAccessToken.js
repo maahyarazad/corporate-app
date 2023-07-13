@@ -1,9 +1,10 @@
 import axios from "axios";
+import { config } from "../src/utils/constants";
 
 const refreshAccessToken = async (user) => {
   try {
-    const response = await axios.get("/api/v1/auth/refresh_token", {
-      baseURL: "http://172.20.10.4:3011",
+    const response = await axios.get("/api/v2/auth/refresh_token", {
+      baseURL: config.SERVER_HOST,
       headers: {
         Authorization: `Bearer ${user}`,
       },

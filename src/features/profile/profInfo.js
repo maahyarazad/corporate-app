@@ -8,13 +8,15 @@ import { genderEnum } from "../../utils/constants";
 import { Button } from "react-native-paper";
 import { AuthContext } from "../../services/auth/auth.context";
 import { TranslationContext } from "../../services/translation/translation.context";
+import useUser from "../../../hooks/useUser";
+import useAuth from "../../../hooks/useAuth";
 
 const { width } = Dimensions.get("window");
 const labelWidth = width * (1 / 3);
 
 export const ProfInfo = () => {
-  const { userInfo } = useContext(UserContext);
-  const { skip } = useContext(AuthContext);
+  const { userData } = useUser();
+  const { isSkip } = useAuth();
   const { i18n } = useContext(TranslationContext);
   // console.log(userInfo);
 
@@ -44,7 +46,7 @@ export const ProfInfo = () => {
           paddingVertical: 16,
         }}
       >
-        {!!skip && (
+        {!!isSkip && (
           <View
             style={{
               alignItems: "center",
@@ -61,23 +63,23 @@ export const ProfInfo = () => {
         )}
         <RenderRow
           label={i18n.t("profile-tabs.profile.username")}
-          value={`${userInfo.username}`}
+          value={`${userData.username}`}
         />
         <RenderRow
           label={i18n.t("profile-tabs.profile.email")}
-          value={userInfo.email}
+          value={userData.email}
         />
         <RenderRow
           label={i18n.t("profile-tabs.profile.mobile")}
-          value={`+${userInfo.area_code} ${userInfo.phone_number}`}
+          value={`+${userData.area_code} ${userData.phone_number}`}
         />
         {/* {console.log("CARD NUMBER:", userInfo.card_number)} */}
-        {!!userInfo.card_number &&
-          userInfo.card_number.trim() != "" &&
-          userInfo.card_number != "" && (
+        {!!userData.card_number &&
+          userData.card_number.trim() != "" &&
+          userData.card_number != "" && (
             <RenderRow
               label={"Card Number"}
-              value={userInfo.card_number
+              value={userData.card_number
                 .toString()
                 .replace(/.{4}/g, `$& `)
                 .trim()}
@@ -88,33 +90,33 @@ export const ProfInfo = () => {
             {/* <Label>{userInfo.card_valid_date}</Label> */}
             <RenderRow
               label={"Validity Date"}
-              value={moment(userInfo.card_valid_date).format("MM/YY")}
+              value={moment(userData.card_valid_date).format("MM/YY")}
             />
           </>
         }
 
-        {userInfo.partner_name != undefined &&
-          userInfo.partner_name.trim() != "" && (
+        {userData.partner_name != undefined &&
+          userData.partner_name.trim() != "" && (
             <RenderRow
               label={i18n.t("profile-tabs.profile.partner")}
-              value={userInfo.partner_name}
+              value={userData.partner_name}
             />
           )}
 
         <RenderRow
           label={i18n.t("profile-tabs.profile.name")}
-          value={`${userInfo.honorifics} ${userInfo.first_name}${
-            !!userInfo.middlename ? ` ${userInfo.middle_name} ` : " "
-          }${userInfo.last_name}`}
+          value={`${userData.honorifics} ${userData.first_name}${
+            !!userData.middlename ? ` ${userData.middle_name} ` : " "
+          }${userData.last_name}`}
         />
         <RenderRow
           label={i18n.t("profile-tabs.profile.birthdate")}
-          value={moment(userInfo.birthdate).format("LL")}
+          value={moment(userData.birthdate).format("LL")}
         />
         <RenderRow
           label={i18n.t("profile-tabs.profile.gender")}
           value={
-            userInfo.gender.toLowerCase() === "m"
+            userData.gender.toLowerCase() === "m"
               ? i18n.t("gender.male")
               : i18n.t("gender.female")
           }
