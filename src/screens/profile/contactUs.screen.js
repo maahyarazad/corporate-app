@@ -18,9 +18,11 @@ import { SupportService } from "../../services/support/support.service";
 import { TranslationContext } from "../../services/translation/translation.context";
 import { UserContext } from "../../services/user/user.context";
 import { config } from "../../utils/constants";
+import useUser from "../../../hooks/useUser";
+import useRequest from "../../../hooks/useRequest";
 
 export const ContactUsScreen = () => {
-  const { userInfo } = useContext(UserContext);
+  const { userData } = useUser();
   const { i18n } = useContext(TranslationContext);
   const [disableButton, setDisableButton] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,16 +32,17 @@ export const ContactUsScreen = () => {
     mobile: ".",
     message: "",
   });
+  const request = useRequest();
 
   useLayoutEffect(() => {
     let isMounted = true;
 
-    if (userInfo != undefined && isMounted) {
+    if (userData != undefined && isMounted) {
       setState({
         ...state,
-        name: `${userInfo.first_name} ${userInfo.last_name}`,
-        email: userInfo.email,
-        mobile: `+${userInfo.area_code} ${userInfo.phone_number}`,
+        name: `${userData.first_name} ${userData.last_name}`,
+        email: userData.email,
+        mobile: `+${userData.area_code} ${userData.phone_number}`,
       });
     }
 
@@ -83,7 +86,8 @@ export const ContactUsScreen = () => {
       setIsLoading(true);
       const data = { ...state, app: config.APP_ID };
 
-      const response = await SupportService.sendFeedbackMsg(data);
+      const response = await request(`/api/v2/support/message`, "post", data);
+      // const response = await SupportService.sendFeedbackMsg(data);
       if (response.success) {
         Alert.alert(
           "Sent Successfully",

@@ -42,6 +42,7 @@ import { NoConnectionScreen } from "./src/screens/noConnection.screen";
 import { AppContext } from "./src/services/app/app.context";
 import { VersionMismatchScreen } from "./src/screens/versionMismatch.screen";
 import useAuth from "./hooks/useAuth";
+import useUser from "./hooks/useUser";
 
 const AuthStack = createStackNavigator();
 const MainStack = createStackNavigator();
@@ -193,7 +194,7 @@ const AuthStackScreen = () => {
 };
 
 const MainScreen = () => {
-  const { userInfo } = useContext(UserContext);
+  const { userData } = useUser();
   const { i18n, hello } = useContext(TranslationContext);
 
   console.log(i18n.t("welcome"));
@@ -226,8 +227,8 @@ const MainScreen = () => {
                       }!`} */}
                       {i18n.t("user_greeting", {
                         name:
-                          userInfo != undefined
-                            ? userInfo.first_name.split(" ")[0]
+                          userData != undefined
+                            ? userData.first_name.split(" ")[0]
                             : "",
                       })}
                     </Label>
@@ -414,7 +415,8 @@ const ExceedTimeout = () => {
 export const AppNavigation = () => {
   const { isRetrieving, user, noConnection, skip } = useContext(AuthContext);
   const { isOutdated } = useContext(AppContext);
-  const { phoneVerified } = useAuth();
+  const { phoneVerified, refreshToken, isSkip } = useAuth();
+  const { userData } = useUser();
   // const [skip, setSkip] = useState(0);
   // useEffect(() => {
   //   let isMounted = true;
@@ -528,13 +530,19 @@ export const AppNavigation = () => {
   return (
     <>
       {/* user.isAuthorized && user.submitCard ? ( */}
+      {userData
+        ? console.log(
+            `Auth/Submit: ${userData.isAuthorized}/${userData.hasSubmit}`
+          )
+        : console.log("Empty")}
       <NavigationContainer ref={navigationRef}>
         {noConnection ? (
           <TimeoutStackScreen />
         ) : isOutdated ? (
           <VersionMismatchScreen />
-        ) : phoneVerified ? (
-          (user.isAuthorized && user.submitCard) || skip ? (
+        ) : phoneVerified && refreshToken ? (
+          (userData && userData.isAuthorized && userData.hasSubmit) ||
+          isSkip ? (
             <MainScreen />
           ) : (
             <ApprovalScreen />

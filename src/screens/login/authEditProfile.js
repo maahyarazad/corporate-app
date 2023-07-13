@@ -42,11 +42,10 @@ import { validateCardExpiryDate } from "../../utils/validateCardExpiryDate";
 import { PartnerPicker } from "../../components/partnerPicker";
 import { PartnerService } from "../../services/location/location.service";
 import { TranslationContext } from "../../services/translation/translation.context";
+import useRequest from "../../../hooks/useRequest";
+import useUser from "../../../hooks/useUser";
 
 export const AuthEditProfileScreen = () => {
-  const { user } = useContext(AuthContext);
-  const { userInfo, getUserInfo, setUserInfo, setUserInfoAsync } =
-    useContext(UserContext);
   const [showCountries, setShowCountries] = useState(false);
   const [isOpenGender, setIsOpenGender] = useState(false);
   const [isOpenHonorifics, setIsOpenHonorifics] = useState(false);
@@ -66,79 +65,144 @@ export const AuthEditProfileScreen = () => {
     nationality: "---",
     partner_id: "---",
     partner_name: "---",
+    card_valid_date: "---",
   });
   const dateLimit = new Date();
   dateLimit.setFullYear(dateLimit.getFullYear() - 18);
   const honorificLabelList = honorificList.map((x) => ({ label: x, value: x }));
   const isMounted = useRef(true);
   const navigation = useNavigation();
-  const [partnerList, setPartnerList] = useState([]);
+  const [partnerList, setPartnerList] = useState();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { i18n, lang } = useContext(TranslationContext);
+  const { getUserInfo } = useUser();
+  const request = useRequest();
+  const [userData, setUserData] = useState(null);
 
-  useLayoutEffect(() => {
-    isMounted.current = true;
-    console.log("USERINFO", userInfo);
-    if (userInfo != undefined) {
-      const data = {
-        ...state,
-        user_id: user.user_id,
-        username: userInfo.username,
-        email: userInfo.email,
-        // mobile: `+${userInfo.mobile}`,
-        mobile: `+${userInfo.area_code}${userInfo.phone_number}`,
-        firstname: userInfo.first_name,
-        middlename: userInfo.middle_name,
-        lastname: userInfo.last_name,
-        birthdate: new Date(userInfo.birthdate),
-        nationality: userInfo.nationality,
-        gender: userInfo.gender.toLowerCase(),
-        honorifics: userInfo.honorifics,
-        partner_id: userInfo.partner_id,
-        partner_name: "---",
-        card_valid_date: moment(userInfo.card_valid_date)
-          .format("MM/YY")
-          .toString(),
-      };
+  // useLayoutEffect(() => {
+  //   isMounted.current = true;
 
-      const getPartners = async () => {
-        try {
-          const response = await PartnerService.getPartners();
-          if (response.success && isMounted) {
+  //   const getUserData = async () => {
+  //     try {
+  //       return await getUserInfo();
+  //     } catch (error) {
+  //       console.error("Failed to get user data: ", error);
+  //     }
+  //   };
+
+  //   const userData = getUserData();
+  //   console.log(userData);
+
+  //   const data = {
+  //     ...state,
+  //     user_id: userData.user_id,
+  //     username: userData.username,
+  //   };
+
+  //   const getPartners = async () => {
+  //     try {
+  //       const response = await PartnerService.getPartners();
+  //       if (response.success && isMounted.current) {
+  //         setPartnerList(response.data);
+
+  //         setState({
+  //           ...data,
+  //           partner_name: response.data.filter(
+  //             (partner) => partner.value == userInfo.partner_id
+  //           )[0].label,
+  //         });
+  //       } else {
+  //         Alert.alert(
+  //           "Error Occured",
+  //           "There's a problem loading the partners"
+  //         );
+  //       }
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
+  //   if (!user.member) {
+  //     getPartners();
+  //   } else {
+  //     setState(data);
+  //   }
+  //   console.log("get partner");
+  //   setState(data);
+  //   setStateCopy(data);
+
+  //   console.log(state.partner_name);
+
+  //   return () => {
+  //     isMounted.current = false;
+  //   };
+  // }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    const initialize = async () => {
+      try {
+        //Get partners
+        const response = await request("/api/v2/partner/active", "get");
+        const response_userInfo = await getUserInfo();
+
+        if (isMounted) {
+          if (response_userInfo) {
+            setUserData(response_userInfo);
+          }
+
+          if (response.success) {
             setPartnerList(response.data);
-
-            setState({
-              ...data,
-              partner_name: response.data.filter(
-                (partner) => partner.value == userInfo.partner_id
-              )[0].label,
-            });
           } else {
             Alert.alert(
               "Error Occured",
               "There's a problem loading the partners"
             );
           }
-        } catch (error) {
-          console.log(error);
         }
-      };
-      if (!user.member) {
-        getPartners();
-      } else {
-        setState(data);
+      } catch (err) {
+        console.err(err);
       }
-      console.log("get partner");
-      setState(data);
-      setStateCopy(data);
-    }
+    };
 
-    console.log(state.partner_name);
+    initialize();
 
     return () => {
-      isMounted.current = false;
+      isMounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    if (userData && partnerList && isMounted) {
+      setState({
+        ...state,
+        username: userData.username,
+        firstname: userData.first_name,
+        middlename: userData.middle_name,
+        lastname: userData.last_name,
+        honorifics: userData.honorifics,
+        birthdate: new Date(userData.birthdate),
+        gender: userData.gender,
+        email: userData.email,
+        mobile: `+` + userData.area_code + ` ` + userData.phone_number,
+        nationality: userData.nationality,
+        partner_id: userData.partner_id,
+        partner_name:
+          !userData.member &&
+          partnerList.filter(
+            (partner) => partner.value === userData.partner_id
+          )[0].label,
+        card_valid_date: moment(userData.card_valid_date)
+          .format("MM/YY")
+          .toString(),
+      });
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [userData, partnerList]);
 
   useEffect(() => {
     if (JSON.stringify(state) === JSON.stringify(stateCopy)) {
@@ -164,12 +228,14 @@ export const AuthEditProfileScreen = () => {
       setIsSubmitted(true);
 
       setIsLoading(true);
-      const response = await UserService.updateUser(data);
+
+      const response = await request("/api/v2/user/update", "post", data);
+      // const response = await UserService.updateUser(data);
+
       if (response) {
         if (isMounted.current) {
           setIsLoading(false);
 
-          getUserInfo(state.user_id);
           Alert.alert(
             i18n.t("profile-tabs.profile.update.heading"),
             i18n.t("profile-tabs.profile.update.text")
@@ -238,19 +304,38 @@ export const AuthEditProfileScreen = () => {
                 {i18n.t("return")}
               </Label>
             </TouchableOpacity>
-            <View style={{ width: 200 }}>
-              <AnimatedButton
+            <View
+              style={{
+                width: 150,
+              }}
+            >
+              {/* <AnimatedButton
                 onPress={handleSubmit}
                 buttonColorFrom={disableButton ? "#999" : "rgba(230,135,0,1)"}
                 buttonColorTo={"rgba(210,115,0,1)"}
                 iconName={"content-save-edit-outline"}
-                iconSize={10}
+                iconSize={20}
                 textColor={"black"}
-                textSize={"caption"}
+                textSize={"title"}
                 textWeight={"medium"}
                 label={"update"}
                 disabled={disableButton}
-              ></AnimatedButton>
+              ></AnimatedButton> */}
+              <Button
+                mode="contained"
+                onPress={handleSubmit}
+                color="rgb(230,135,0)"
+                icon={() => {
+                  return (
+                    <MaterialCommunityIcons
+                      name="content-save-outline"
+                      size={20}
+                    ></MaterialCommunityIcons>
+                  );
+                }}
+              >
+                Update
+              </Button>
             </View>
           </View>
           <KeyboardAwareScrollView
@@ -483,7 +568,7 @@ export const AuthEditProfileScreen = () => {
               </View>
             </View>
             <Spacer position={"top"} size="medium" />
-            {!user.member && (
+            {userData && !userData.member && (
               <>
                 <PartnerPicker
                   data={partnerList}

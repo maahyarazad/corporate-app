@@ -5,6 +5,7 @@
             "home": "Home",
             "offers": "Angebote",
             "events": "Events",
+            "feed": "Feed",
             "profile": "Profil"
         },
         "profile-tabs": {
@@ -89,12 +90,12 @@
         "close": "Schließen",
         "cancel": "Absagen",
         "redemption-success": {
-            "transaction-summary": "Transaktionsüberblick",
-            "success": "Einlösung erfolgreich",
-            "text1": "Sie haben gesparrt",
-            "text2": "Sie haben insgesamt %{amount} %{currency} an %{partner} gezahlt",
-            "text3": "Bitte zeigen Sie den Referenzcode an der Kasse bei %{partner}",
-            "done": "Fertig"
+            "transaction-summary": "Transaction Summary",
+            "success": "Redemption Successful",
+            "text1": "You saved",
+            "text2": "You paid a total of %{amount} %{currency} to %{partner}",
+            "text3": "Please present this reference code to %{partner}'s Cashier",
+            "done": "Done"
         },
         "events": {
             "title": "Nächste Veranstaltungen",

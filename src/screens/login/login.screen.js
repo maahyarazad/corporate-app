@@ -1,6 +1,6 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { Alert, Image, TouchableOpacity, View } from "react-native";
-import { Checkbox, TextInput } from "react-native-paper";
+import { ActivityIndicator, Checkbox, TextInput } from "react-native-paper";
 import { SafeArea } from "../../components/safearea.component";
 import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";
@@ -19,6 +19,7 @@ import { isValidURL } from "../../utils/isValidURL";
 import { companyLogo, config, EULAPrivacyLink } from "../../utils/constants";
 import useRequest from "../../../hooks/useRequest";
 import useAuth from "../../../hooks/useAuth";
+import { TranslationContext } from "../../services/translation/translation.context";
 
 export const TextInputForm = styled(TextInput)`
   border-radius: 10px;
@@ -40,12 +41,11 @@ export const LoginScreen = ({ navigation }) => {
   const [checked, setChecked] = useState(false);
   const [username, setUsername] = useState(null);
   const [password, setPassword] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loginLoading, setLoginLoading] = useState(false);
   const [canRegister, setCanRegister] = useState(true);
-  const { login, setUser, user } = useContext(AuthContext);
-  const { getUserInfo } = useContext(UserContext);
   const request = useRequest();
-  const { signin } = useAuth();
+  const { signin, loading } = useAuth();
+  const { setLang } = useContext(TranslationContext);
 
   const theme = useTheme();
 
@@ -71,12 +71,11 @@ export const LoginScreen = ({ navigation }) => {
         return;
       }
 
-      setLoading(true);
+      setLoginLoading(true);
       const credentials = {
         app_id: config.APP_ID,
         username,
         password,
-        ...user,
       };
 
       // const response = await login(credentials, setLoading);
@@ -85,6 +84,7 @@ export const LoginScreen = ({ navigation }) => {
       if (response.success) {
         if (response.status) {
           signin(response.refreshToken, response.accessToken);
+          setLang(response.member ? "de" : "en");
           navigation.navigate("VerifyOTP", {
             hiddenNumber: response.phone_number,
           });
@@ -95,7 +95,6 @@ export const LoginScreen = ({ navigation }) => {
         }
       }
 
-      setLoading(false);
       //   console.log("LOGIN:", response);
       //   if (response.status) {
       //     setUser((prev) => ({
@@ -131,9 +130,59 @@ export const LoginScreen = ({ navigation }) => {
     }
   };
 
+  if (loading) {
+    return (
+      <>
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "white",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <View
+            style={{
+              alignItems: "center",
+              height: 400,
+              justifyContent: "center",
+            }}
+          >
+            <Image
+              style={{
+                width: 170,
+                resizeMode: "contain",
+                top: 0,
+              }}
+              source={companyLogo}
+            />
+
+            <View
+              style={[
+                {
+                  position: "absolute",
+                  alignContent: "center",
+                  alignItems: "center",
+                  bottom: 0,
+                  right: 0,
+                  left: 0,
+                },
+              ]}
+            >
+              <ActivityIndicator
+                size={"large"}
+                color="#FFB400"
+              ></ActivityIndicator>
+            </View>
+          </View>
+        </View>
+      </>
+    );
+  }
+
   return (
     <>
-      <LoadingOverlay display={loading} />
+      {/* <LoadingOverlay display={loginLoading} /> */}
       <StatusBar style="light" />
       <View style={{ flex: 1, backgroundColor: "black" }}>
         <Background>

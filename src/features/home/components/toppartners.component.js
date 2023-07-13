@@ -6,22 +6,29 @@ import { Spacer } from "../../../components/spacer/spacer.component";
 import { AuthContext } from "../../../services/auth/auth.context";
 import { PartnerService } from "../../../services/location/location.service";
 import { TranslationContext } from "../../../services/translation/translation.context";
+import useRequest from "../../../../hooks/useRequest";
+import { config } from "../../../utils/constants";
 
 export const TopPartners = () => {
   const [topPartners, setTopPartners] = useState();
   const { isLogout } = useContext(AuthContext);
   const { lang } = useContext(TranslationContext);
+  const request = useRequest();
 
   useEffect(() => {
     let isMounted = true;
 
     const getTopPartners = async () => {
-      const result = await PartnerService.getTopPerCategories({
-        count: 5,
-        lang,
-      });
-      if (isMounted && result) {
-        setTopPartners(result);
+      const topPartners = await request(
+        `/api/v2/partner/top-per-category?app_id=${config.APP_ID}&lang=${lang}&count=5`,
+        "get"
+      );
+      // const result = await PartnerService.getTopPerCategories({
+      //   count: 5,
+      //   lang,
+      // });
+      if (isMounted && topPartners) {
+        setTopPartners(topPartners.result);
       }
     };
     if (!isLogout.current) {

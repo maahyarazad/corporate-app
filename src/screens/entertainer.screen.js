@@ -12,6 +12,7 @@ import { SpecialsScreen } from "./specials.screen";
 import { EventsScreen } from "./events/events.screen";
 import { ProfileScreen } from "./profile/profile.screen";
 import { TranslationContext } from "../services/translation/translation.context";
+import { PostStackNavigationScreen } from "./posts/postNavigation.screen";
 
 const Tab = createMaterialTopTabNavigator();
 // const Tab = createBottomTabNavigator();
@@ -81,6 +82,44 @@ export const EntertainerScreen = () => {
                 source={require("../../assets/GE-LOGO-GOLD.png")}
               />
             </View>
+          );
+        },
+      },
+    },
+    {
+      route: "Feed",
+      component: PostStackNavigationScreen,
+      activeIcon: " ",
+      inactiveIcon: "post",
+      name: i18n.t("bottom-tabs.feed"),
+      options: {
+        headerShown: true,
+        headerTitle: "",
+        headerLeftContainerStyle: { paddingLeft: 16 },
+        headerRightContainerStyle: { paddingRight: 4 },
+
+        headerLeft: () => {
+          return (
+            <View style={{}}>
+              <Image
+                style={{
+                  height: 50,
+                  width: 100,
+                  resizeMode: "contain",
+                }}
+                source={require("../../assets/GE-LOGO-GOLD.png")}
+              />
+            </View>
+          );
+        },
+        headerRight: () => {
+          return (
+            <HomeHeaderIconView>
+              <Icon icon="headphones" />
+              <Icon icon="emoticon-outline" />
+              <Icon icon="heart-outline" />
+              <Icon icon="bell-outline" />
+            </HomeHeaderIconView>
           );
         },
       },
@@ -168,6 +207,7 @@ export const EntertainerScreen = () => {
         tabBarPosition="bottom"
         showPageIndicator={true}
         screenOptions={{
+          lazy: true,
           tabBarItemStyle: {
             paddingTop: 6,
             margin: 0,

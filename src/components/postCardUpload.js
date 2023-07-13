@@ -6,10 +6,11 @@ import { AuthContext } from "../services/auth/auth.context";
 import { TranslationContext } from "../services/translation/translation.context";
 import { Spacer } from "./spacer/spacer.component";
 import { Label } from "./typography/label.component";
+import useUser from "../../hooks/useUser";
 
 export const PostCardUpload = () => {
   const animatedValue = useRef(new Animated.Value(0)).current;
-  const { retrieve } = useContext(AuthContext);
+  const { getUserInfo } = useUser();
   const { i18n } = useContext(TranslationContext);
 
   useEffect(() => {
@@ -33,7 +34,7 @@ export const PostCardUpload = () => {
   };
 
   const handleRefresh = () => {
-    retrieve();
+    getUserInfo();
   };
 
   return (

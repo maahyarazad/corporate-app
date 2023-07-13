@@ -14,12 +14,13 @@ import {
 } from "./category.styles";
 import { NavigationContext } from "@react-navigation/native";
 import { SectionContext } from "../../../services/section/section.context";
-import { categorylogo, typeEnum } from "../../../utils/constants";
+import { categorylogo, config, typeEnum } from "../../../utils/constants";
 import { Skeleton } from "../../../components/skeleton";
 import { itemSeparatorHM } from "../../../components/styles";
 import { PartnerService } from "../../../services/location/location.service";
 import { AuthContext } from "../../../services/auth/auth.context";
 import { TranslationContext } from "../../../services/translation/translation.context";
+import useRequest from "../../../../hooks/useRequest";
 
 const renderCategory = ({ item, navigation }) => {
   const handleOnPress = () => {
@@ -115,15 +116,19 @@ export const HomeCategory = ({ size }) => {
   const { setSectionTitle } = useContext(SectionContext);
   const [categoryList, setCategoryList] = useState();
   const { isLogout } = useContext(AuthContext);
+  const request = useRequest();
 
   useEffect(() => {
     let isMounted = true;
 
     const getCategories = async () => {
-      console.log("category");
-      const categories = await PartnerService.getAvailableCategories({ lang });
-      if (isMounted && categories) {
-        setCategoryList(categories);
+      const categories = await request(
+        `/api/v2/partner/category-available2?app_id=${config.APP_ID}&lang=${lang}`,
+        "get"
+      );
+      // console.log("categories", categories);
+      if (isMounted && categories.result) {
+        setCategoryList(categories.result);
       }
     };
     if (!isLogout.current) {
