@@ -29,7 +29,7 @@ export const UploadContextProvider = ({ children }) => {
     };
 
     const response = await request(
-      "/api/v2/auth/request_access",
+      "/v2//auth/request_access",
       "post",
       formData,
       headers,

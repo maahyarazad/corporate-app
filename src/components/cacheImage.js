@@ -12,6 +12,7 @@ export const CacheImage = ({
   onLoadStart,
   pointerEvents,
   resizeMode,
+  defaultImage = "https://www.german-emirates-club.com/user/member_images/non_img_men_s1.jpg",
 }) => {
   const [state, setState] = useState({ source: null });
 
@@ -66,6 +67,14 @@ export const CacheImage = ({
       resizeMode={resizeMode}
       onLoadStart={onLoadStart}
       source={state.source}
+      onError={() => {
+        console.log("ERROR LOADING IMAGE");
+        setState({
+          source: {
+            uri: defaultImage,
+          },
+        });
+      }}
       style={style}
     />
   );

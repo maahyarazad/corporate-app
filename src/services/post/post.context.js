@@ -1,0 +1,475 @@
+import { StyleSheet, Text, View } from "react-native";
+import React, { createContext, useEffect, useRef, useState } from "react";
+import useLog from "../../../hooks/useLog";
+import useRequest from "../../../hooks/useRequest";
+import useAuth from "../../../hooks/useAuth";
+
+export const PostContext = createContext(null);
+
+export default function PostProvider({ children }) {
+  // const isMounted = useRef(true);
+
+  // const [rootPosts, setRootPosts] = useState(null);
+  // const [replyTo, setReplyTo] = useState(null);
+  // const request = useRequest();
+
+  // useEffect(() => {
+  //   isMounted.current = true;
+  //   // if (accessToken) fetchData();
+  //   return () => {
+  //     isMounted.current = false;
+  //     setReplyTo(null);
+  //     setRootPosts(null);
+  //     clearRootPosts(null);
+  //   };
+  // }, []);
+
+  // const fetchPosts = async (page = 0) => {
+  //   try {
+  //     console.log(page);
+  //     if (isMounted.current) {
+  //       const response = await request(
+  //         `/v2//post/latest?page=${page}`,
+  //         "get"
+  //       );
+
+  //       if (page !== 0 || rootPosts != undefined) {
+  //         setRootPosts([...rootPosts, ...response.data]);
+  //       } else {
+  //         setRootPosts(response.data);
+  //       }
+
+  //       return response.data;
+  //     }
+  //     return null;
+  //   } catch (error) {
+  //     console.error("Failed to get posts:", error);
+  //   }
+  // };
+
+  // const clearRootPosts = () => {
+  //   setRootPosts(null);
+  // };
+
+  // const fetchComments = async (postId, mode = 0, prev = 0) => {
+  //   try {
+  //     const response = await request(
+  //       `/v2//post/comments?id=${postId}&prev=${prev}&mode=${mode}`,
+  //       "get"
+  //     );
+
+  //     // const _comments = posts.filter((comment) => comment.orderId === postId);
+  //     // setTestComment(response.data);
+  //     return response;
+  //   } catch (error) {
+  //     console.error("Failed to get comments:", error);
+  //   }
+  // };
+
+  // const fetchPost = async (postId) => {
+  //   try {
+  //     const response = await request(`/v2//post/${postId}`, "get");
+  //     // const _comments = posts.filter((comment) => comment.orderId === postId);
+  //     return response;
+  //   } catch (error) {
+  //     console.error("Failed to get post:", error);
+  //   }
+  // };
+
+  // const addPost = async (data) => {
+  //   try {
+  //     const response = await request(`/v2//post/new`, "post", data);
+
+  //     if (response.success) {
+  //       setRootPosts([data, ...rootPosts]);
+  //     }
+
+  //     return response;
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+
+  // const addComment = async (postId, newComment) => {
+  //   try {
+  //     //Add Comment API
+  //     // setPosts([...posts, newComment]);
+
+  //     const response = await request(
+  //       `/v2//post/comment`,
+  //       "post",
+  //       newComment
+  //     );
+
+  //     if (response.success) {
+  //       const postIndex = rootPosts.findIndex((post) => post.id === postId);
+
+  //       console.log("POST INDEX FOUND", postIndex);
+  //       //Abort when post cant be found
+
+  //       if (postIndex === -1) return;
+
+  //       const updatedPost = {
+  //         ...rootPosts[postIndex],
+  //         commentCount: rootPosts[postIndex].commentCount + 1,
+  //         likeCount: 20,
+  //       };
+
+  //       setRootPosts([
+  //         ...rootPosts.slice(0, postIndex),
+  //         updatedPost,
+  //         ...rootPosts.slice(postIndex + 1),
+  //       ]);
+  //       return response;
+  //     }
+  //     return response;
+  //   } catch (error) {
+  // //     console.error("Failed to add comment:", error);
+  // //   }
+  // };
+
+  // /**
+  //  *
+  //  * @param {number} postId
+  //  *
+  //  * @description Unliking a post
+  //  *
+  //  *
+  //  */
+  // const unlike = async (post_id) => {
+  //   // const _posts = posts.map((post) =>
+  //   //   post.id === postId
+  //   //     ? { ...post, like: false, likeCount: post.likeCount - 1 }
+  //   //     : post
+  //   // );
+  //   // setPosts(_posts);
+  //   console.log("UNLIKE");
+  //   const postIndex = rootPosts.findIndex((post) => post.post_id === post_id);
+
+  //   //Abort when post cant be found
+  //   if (postIndex === -1) return;
+
+  //   const updatedPost = {
+  //     ...rootPosts[postIndex],
+  //     liked: false,
+  //     likeCount: rootPosts[postIndex].likeCount - 1,
+  //   };
+
+  //   //Unike API Call to Server
+  //   const response = await request(`/v2//post/unlike`, "post", {
+  //     post_id,
+  //   });
+
+  //   console.log(response);
+
+  //   //if like is success, return true
+  //   setRootPosts([
+  //     ...rootPosts.slice(0, postIndex),
+  //     updatedPost,
+  //     ...rootPosts.slice(postIndex + 1),
+  //   ]);
+
+  //   return true;
+
+  //   //else, return false
+  //   return false;
+  // };
+
+  // const reply = (post, isTopLevel) => {
+  //   setReplyTo({
+  //     id: isTopLevel ? post.id : post.order_id,
+  //     name: `${post.first_name} ${post.last_name}`,
+  //   });
+  // };
+
+  // const resetReply = () => {
+  //   setReplyTo(null);
+  // };
+
+  // const values = {
+  //   rootPosts,
+  //   like,
+  //   unlike,
+  //   fetchComments,
+  //   fetchPosts,
+  //   fetchPost,
+  //   addComment,
+  //   reply,
+  //   replyTo,
+  //   resetReply,
+  //   clearRootPosts,
+  //   addPost,
+  // };
+
+  const [rootPosts, setRootPosts] = useState([]);
+  const [updateCount, setUpdateCount] = useState(0);
+
+  const [replyTo, setReplyTo] = useState(null);
+  const request = useRequest();
+
+  const fetchPosts = async (page) => {
+    try {
+      // alert(`Page ${page}`);
+      const _page = page ?? 0;
+      const response = await request(`/v2//post/latest?page=${_page}`, "get");
+      if (response.success) {
+        if (page === null) {
+          return response.data;
+        } else {
+          setRootPosts([...rootPosts, ...response.data]);
+        }
+      }
+      // return response.data;
+      // setTestPosts([...response.data]);
+
+      //Updates List
+      setUpdateCount(updateCount + 1);
+    } catch (error) {
+      console.error("Failed to get posts:", error);
+    }
+  };
+
+  const clearRootPosts = () => {
+    setRootPosts([]);
+  };
+
+  const fetchComments = async (postId, mode = 0, prev = 0) => {
+    try {
+      const response = await request(
+        `/v2//post/comments?id=${postId}&prev=${prev}&mode=${mode}`,
+        "get"
+      );
+
+      // const _comments = posts.filter((comment) => comment.orderId === postId);
+      // setTestComment(response.data);
+      return response;
+    } catch (error) {
+      console.error("Failed to get comments:", error);
+    }
+  };
+
+  const testFunction = (post_id) => {
+    try {
+      // const postIndex = testPosts.findIndex((post) => post.post_id === post_id);
+
+      // //Abort when post cant be found
+      // if (postIndex === -1) return;
+
+      // const updatedPost = {
+      //   ...testPosts[postIndex],
+      //   liked: true,
+      //   likeCount: testPosts[postIndex].likeCount + 1,
+      // };
+
+      // console.log("updated post", updatedPost);
+
+      // //if like is success, return true
+      // setTestPosts([
+      //   ...testPosts.slice(0, postIndex),
+      //   updatedPost,
+      //   ...testPosts.slice(postIndex + 1),
+      // ]);
+
+      setRootPosts((prevPosts) => {
+        return prevPosts.map((post) =>
+          post.post_id === post_id
+            ? { ...post, liked: !post.liked, likeCount: post.likeCount + 1 }
+            : post
+        );
+      });
+
+      setUpdateCount(updateCount + 1);
+    } catch (error) {
+      console.log("Failed to like post:", error);
+    }
+  };
+
+  /**
+   *
+   * @param {number} postId
+   *
+   * @description Liking a post
+   *
+   *
+   */
+  const likePost = async (post_id) => {
+    try {
+      //Like API Call to Server
+      const response = await request(`/v2//post/like`, "post", {
+        post_id,
+      });
+
+      if (response.success) {
+        const postIndex = rootPosts.findIndex(
+          (post) => post.post_id === post_id
+        );
+
+        //Abort when post cant be found
+        if (postIndex === -1) return;
+
+        const updatedPost = {
+          ...rootPosts[postIndex],
+          liked: 1,
+          likeCount: rootPosts[postIndex].likeCount + 1,
+        };
+
+        //if like is success, return true
+        setRootPosts((prevState) => [
+          ...prevState.slice(0, postIndex),
+          updatedPost,
+          ...prevState.slice(postIndex + 1),
+        ]);
+      }
+
+      //else, return false
+      // return response;
+    } catch (error) {
+      console.log("Failed to like post:", error);
+    }
+  };
+
+  const unlikePost = async (post_id) => {
+    try {
+      //Like API Call to Server
+      const response = await request(`/v2//post/unlike`, "post", {
+        post_id,
+      });
+
+      if (response.success) {
+        const postIndex = rootPosts.findIndex(
+          (post) => post.post_id === post_id
+        );
+
+        //Abort when post cant be found
+        if (postIndex === -1) return;
+
+        const updatedPost = {
+          ...rootPosts[postIndex],
+          liked: 0,
+          likeCount: rootPosts[postIndex].likeCount - 1,
+        };
+
+        //if like is success, return true
+        setRootPosts((prevState) => [
+          ...prevState.slice(0, postIndex),
+          updatedPost,
+          ...prevState.slice(postIndex + 1),
+        ]);
+      }
+
+      //else, return false
+      // return response;
+    } catch (error) {
+      console.log("Failed to like post:", error);
+    }
+  };
+
+  const likeComment = async (post_id) => {
+    try {
+      const response = await request(`/v2//post/like`, "post", {
+        post_id,
+      });
+    } catch (error) {
+      console.log("Failed to like comment:", error);
+    }
+  };
+
+  const unlikeComment = async (post_id) => {
+    try {
+      const response = await request(`/v2//post/unlike`, "post", {
+        post_id,
+      });
+    } catch (error) {
+      console.log("Failed to unlike comment:", error);
+    }
+  };
+
+  const resetUpdateCount = () => {
+    setUpdateCount(0);
+  };
+
+  const addPost = async (data) => {
+    try {
+      const response = await request(`/v2//post/new`, "post", data);
+
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const addComment = async (postId, newComment) => {
+    try {
+      //Add Comment API
+      // setPosts([...posts, newComment]);
+
+      const response = await request(`/v2//post/comment`, "post", newComment);
+
+      if (response.success) {
+        const postIndex = rootPosts.findIndex((post) => post.id === postId);
+
+        console.log("POST INDEX FOUND", postIndex);
+        //Abort when post cant be found
+
+        if (postIndex === -1) return;
+
+        const updatedPost = {
+          ...rootPosts[postIndex],
+          // commentCount: rootPosts[postIndex].commentCount + 1,
+        };
+
+        setRootPosts((prevState) => [
+          ...prevState.slice(0, postIndex),
+          updatedPost,
+          ...prevState.slice(postIndex + 1),
+        ]);
+        return response;
+      }
+      return response;
+    } catch (error) {
+      console.error("Failed to add comment:", error);
+    }
+  };
+
+  const refreshPosts = async () => {
+    try {
+      const response = await fetchPosts(null);
+      setRootPosts(response);
+    } catch (error) {
+      console.log("Failed to refresh posts:", error);
+    }
+  };
+
+  const reply = (post, isTopLevel) => {
+    setReplyTo({
+      id: isTopLevel ? post.id : post.order_id,
+      name: `${post.first_name} ${post.last_name}`,
+    });
+  };
+
+  const resetReply = () => {
+    setReplyTo(null);
+  };
+
+  const values = {
+    rootPosts,
+    fetchPosts,
+    clearRootPosts,
+    fetchComments,
+    testFunction,
+    updateCount,
+    resetUpdateCount,
+    likeComment,
+    likePost,
+    unlikePost,
+    unlikeComment,
+    addPost,
+    addComment,
+    refreshPosts,
+    reply,
+    resetReply,
+    replyTo,
+  };
+
+  return <PostContext.Provider value={values}>{children}</PostContext.Provider>;
+}

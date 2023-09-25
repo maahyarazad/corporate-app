@@ -5,7 +5,7 @@ import { IconButton } from "react-native-paper";
 import { useTheme } from "styled-components";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { Image, Platform, View } from "react-native";
+import { Dimensions, Image, Platform, View } from "react-native";
 import { LocationContext } from "../services/location/location.context";
 import { HomeNavigation } from "./homenavigation";
 import { SpecialsScreen } from "./specials.screen";
@@ -13,6 +13,11 @@ import { EventsScreen } from "./events/events.screen";
 import { ProfileScreen } from "./profile/profile.screen";
 import { TranslationContext } from "../services/translation/translation.context";
 import { PostStackNavigationScreen } from "./posts/postNavigation.screen";
+import useUser from "../../hooks/useUser";
+import { Label } from "../components/typography/label.component";
+import BottomSheet from "../components/bottomSheet.component";
+import useBottomDrawer from "../../hooks/useBottomDrawer";
+import { TouchableWithoutFeedback } from "@gorhom/bottom-sheet";
 
 const Tab = createMaterialTopTabNavigator();
 // const Tab = createBottomTabNavigator();
@@ -20,6 +25,44 @@ const Tab = createMaterialTopTabNavigator();
 export const EntertainerScreen = () => {
   const { i18n } = useContext(TranslationContext);
   const TabItems = [
+    {
+      route: "Feed",
+      component: PostStackNavigationScreen,
+      activeIcon: " ",
+      inactiveIcon: "post",
+      name: i18n.t("bottom-tabs.feed"),
+      options: {
+        headerShown: true,
+        headerTitle: "",
+        headerLeftContainerStyle: { paddingLeft: 16 },
+        headerRightContainerStyle: { paddingRight: 4 },
+
+        headerLeft: () => {
+          return (
+            <View style={{}}>
+              <Image
+                style={{
+                  height: 50,
+                  width: 100,
+                  resizeMode: "contain",
+                }}
+                source={require("../../assets/GE-LOGO-GOLD.png")}
+              />
+            </View>
+          );
+        },
+        headerRight: () => {
+          return (
+            <HomeHeaderIconView>
+              <Icon icon="headphones" />
+              <Icon icon="emoticon-outline" />
+              <Icon icon="heart-outline" />
+              <Icon icon="bell-outline" />
+            </HomeHeaderIconView>
+          );
+        },
+      },
+    },
     {
       route: "Home",
       // component: TransactionSummaryScreen,
@@ -86,86 +129,49 @@ export const EntertainerScreen = () => {
         },
       },
     },
-    {
-      route: "Feed",
-      component: PostStackNavigationScreen,
-      activeIcon: " ",
-      inactiveIcon: "post",
-      name: i18n.t("bottom-tabs.feed"),
-      options: {
-        headerShown: true,
-        headerTitle: "",
-        headerLeftContainerStyle: { paddingLeft: 16 },
-        headerRightContainerStyle: { paddingRight: 4 },
-
-        headerLeft: () => {
-          return (
-            <View style={{}}>
-              <Image
-                style={{
-                  height: 50,
-                  width: 100,
-                  resizeMode: "contain",
-                }}
-                source={require("../../assets/GE-LOGO-GOLD.png")}
-              />
-            </View>
-          );
-        },
-        headerRight: () => {
-          return (
-            <HomeHeaderIconView>
-              <Icon icon="headphones" />
-              <Icon icon="emoticon-outline" />
-              <Icon icon="heart-outline" />
-              <Icon icon="bell-outline" />
-            </HomeHeaderIconView>
-          );
-        },
-      },
-    },
-    {
-      route: "Profile",
-      component: ProfileScreen,
-      activeIcon: " ",
-      inactiveIcon: "account-circle",
-      name: i18n.t("bottom-tabs.profile"),
-      options: {
-        headerShown: true,
-        headerTitle: "",
-        headerLeftContainerStyle: { paddingLeft: 16 },
-        headerRightContainerStyle: { paddingRight: 4 },
-
-        headerLeft: () => {
-          return (
-            <View style={{}}>
-              <Image
-                style={{
-                  height: 50,
-                  width: 100,
-                  resizeMode: "contain",
-                }}
-                source={require("../../assets/GE-LOGO-GOLD.png")}
-              />
-            </View>
-          );
-        },
-        headerRight: () => {
-          return (
-            <HomeHeaderIconView>
-              <Icon icon="headphones" />
-              <Icon icon="emoticon-outline" />
-              <Icon icon="heart-outline" />
-              <Icon icon="bell-outline" />
-            </HomeHeaderIconView>
-          );
-        },
-      },
-    },
+    // {
+    //   route: "Profile",
+    //   component: ProfileScreen,
+    //   activeIcon: " ",
+    //   inactiveIcon: "account-circle",
+    //   name: i18n.t("bottom-tabs.profile"),
+    //   options: {
+    //     headerShown: true,
+    //     headerTitle: "",
+    //     headerLeftContainerStyle: { paddingLeft: 16 },
+    //     headerRightContainerStyle: { paddingRight: 4 },
+    //     headerLeft: () => {
+    //       return (
+    //         <View style={{}}>
+    //           <Image
+    //             style={{
+    //               height: 50,
+    //               width: 100,
+    //               resizeMode: "contain",
+    //             }}
+    //             source={require("../../assets/GE-LOGO-GOLD.png")}
+    //           />
+    //         </View>
+    //       );
+    //     },
+    //     headerRight: () => {
+    //       return (
+    //         <HomeHeaderIconView>
+    //           <Icon icon="headphones" />
+    //           <Icon icon="emoticon-outline" />
+    //           <Icon icon="heart-outline" />
+    //           <Icon icon="bell-outline" />
+    //         </HomeHeaderIconView>
+    //       );
+    //     },
+    //   },
+    // },
   ];
 
   const theme = useTheme();
   const { eventList } = useContext(LocationContext);
+  const { userData } = useUser();
+  const { showBottomDrawer } = useBottomDrawer();
   return (
     <>
       {/* <View
@@ -226,7 +232,10 @@ export const EntertainerScreen = () => {
         }}
       >
         {TabItems.map((tab, index) => {
+          //Hide Specific Tabs
           if (tab.route === "Events" && !eventList.length) return;
+          if (tab.route === "Feed" && userData && !userData.member) return;
+
           return (
             <Tab.Screen
               key={index}
@@ -268,6 +277,16 @@ export const EntertainerScreen = () => {
           );
         })}
       </Tab.Navigator>
+      <View
+        style={{
+          position: "absolute",
+          width: Dimensions.get("window").width,
+          height: Dimensions.get("window").height,
+        }}
+        pointerEvents="box-none"
+      >
+        <BottomSheet display={showBottomDrawer}></BottomSheet>
+      </View>
     </>
   );
 };

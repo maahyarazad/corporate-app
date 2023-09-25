@@ -62,7 +62,7 @@ axiosInstance.interceptors.response.use(
 
     if (error.response.status === 403) {
       return new Promise((resolve, reject) => {
-        navigate("Logout");
+        // navigate("Logout");
         alert(error.response.data.message);
         reject(error.response.data.message);
       });

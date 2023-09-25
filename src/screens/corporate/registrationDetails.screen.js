@@ -16,7 +16,7 @@ import { companyLogo, config, honorificList } from "../../utils/constants";
 import { useTheme } from "styled-components";
 import { Button, TextInput } from "react-native-paper";
 import { DatePicker } from "react-native-woodpicker";
-import DateTimePicker from "@react-native-community/datetimepicker";
+// import DateTimePicker from "@react-native-community/datetimepicker";
 import { SafeArea } from "../../components/safearea.component";
 import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";

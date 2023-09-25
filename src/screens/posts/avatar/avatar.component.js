@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { CacheImage } from "../../../components/cacheImage";
 
-export default function Avatar({ image, size = 50 }) {
+export default function Avatar({ onError, image, size = 50 }) {
   return (
     <View style={styles.avatarContainer}>
       <View
@@ -23,6 +23,7 @@ export default function Avatar({ image, size = 50 }) {
             height: "100%",
           }}
           uri={image}
+          onError={onError}
         ></CacheImage>
       </View>
     </View>

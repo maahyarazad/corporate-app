@@ -11,11 +11,13 @@ const AuthProvider = ({ children }) => {
   const [isSkip, setIsSkip] = useState(null);
   const [loading, setLoading] = useState(false);
   const [noConnection, setNoConnection] = useState(false);
+  const [noConnectionRetry, setNoConnectionRetry] = useState({});
 
   useEffect(() => {
     let isMounted = true;
 
     const initialize = async () => {
+      console.log("boboha");
       try {
         setLoading(true);
         const flags = await retrieveInfo();
@@ -28,7 +30,7 @@ const AuthProvider = ({ children }) => {
             setHasSubmit(flags._hasSubmit);
             setIsSkip(flags._isSkip);
             setLoading(false);
-          }, 1000);
+          }, 0);
         }
       } catch (error) {
       } finally {
@@ -173,6 +175,8 @@ const AuthProvider = ({ children }) => {
     goToVerification,
     noConnection,
     setNoConnection,
+    noConnectionRetry,
+    setNoConnectionRetry,
   };
 
   return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>;

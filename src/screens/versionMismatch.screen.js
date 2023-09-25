@@ -55,7 +55,7 @@ export const VersionMismatchScreen = () => {
         }}
       >
         <Label style={{ color: "white" }}>
-          v{Constants.default.manifest.version}
+          v{Constants.default.expoConfig.version}
         </Label>
       </View>
     </Background>

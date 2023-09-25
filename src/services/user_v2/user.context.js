@@ -1,4 +1,4 @@
-import { View, Text } from "react-native";
+import { View, Text, Alert } from "react-native";
 import React, { Children, createContext, useEffect, useState } from "react";
 import useRequest from "../../../hooks/useRequest";
 import * as SecureStorage from "expo-secure-store";
@@ -32,10 +32,9 @@ const UserProvider = ({ children }) => {
 
   const getUserInfo = async () => {
     try {
-      const response = await request("/api/v2/auth/me", "get");
+      const response = await request("/v2//auth/me", "get");
       //Fetch user data from database and store in device
       if (response && response.success) {
-        console.log("Test", response.data);
         setUserData(response.data);
         SecureStorage.setItemAsync("userData", JSON.stringify(response.data));
         return response.data;

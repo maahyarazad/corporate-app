@@ -65,7 +65,7 @@ export const MapScreen = ({ navigation }) => {
     const getCoordinates = async (count) => {
       try {
         const response = await request(
-          `/api/v2/partner/coordinates/${count}`,
+          `/v2//partner/coordinates/${count}`,
           "get"
         );
 

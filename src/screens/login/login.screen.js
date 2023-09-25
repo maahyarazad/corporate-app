@@ -80,7 +80,7 @@ export const LoginScreen = ({ navigation }) => {
 
       // const response = await login(credentials, setLoading);
 
-      const response = await request("/api/v2/auth/login", "post", credentials);
+      const response = await request("/v2//auth/login", "post", credentials);
       if (response.success) {
         if (response.status) {
           signin(response.refreshToken, response.accessToken);

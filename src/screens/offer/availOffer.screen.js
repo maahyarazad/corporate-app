@@ -70,7 +70,7 @@ export const AvailOfferScreen = ({ route }) => {
       paid: paid,
     };
 
-    const response = await request(`/api/v2/offer/consume`, "post", data);
+    const response = await request(`/v2//offer/consume`, "post", data);
     return response;
   };
 

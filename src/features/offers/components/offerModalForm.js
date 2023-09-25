@@ -51,7 +51,7 @@ export const OfferModalInfo = ({
         category: offerInfo.category,
       };
 
-      const response = await request(`/api/v2/offer/generate`, "post", data);
+      const response = await request(`/v2//offer/generate`, "post", data);
 
       if (response && response.result) {
         setLoading(false);

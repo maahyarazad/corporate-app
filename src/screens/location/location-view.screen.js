@@ -70,7 +70,7 @@ export const LocationViewScreen = ({ route, navigation }) => {
   const getLocation = async (signal) => {
     try {
       const response = await request(
-        `/api/v2/partner/${locationId}?app=${config.APP_ID}&lang=${lang}`,
+        `/v2//partner/${locationId}?app=${config.APP_ID}&lang=${lang}`,
         "get",
         undefined,
         undefined,
@@ -134,7 +134,7 @@ export const LocationViewScreen = ({ route, navigation }) => {
       <>
         <View style={{ backgroundColor: "#efefef" }}>
           <View>
-            <View style={{ height: 300 }}>
+            <View style={{ height: width * (9 / 16) }}>
               {width != undefined && location != undefined && (
                 <>
                   <Slideshow images={location.images} />

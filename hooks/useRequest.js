@@ -3,9 +3,20 @@ import { Alert } from "react-native";
 import { config } from "../src/utils/constants";
 import useAuth from "./useAuth";
 import refreshAccessToken from "../helper/refreshAccessToken";
+import { navigate } from "../src/navigation/navigate";
+
+const MAX_RETRY = 3;
 
 export default function useRequest() {
-  const { refreshToken, accessToken, setAccessToken, signout } = useAuth();
+  const {
+    refreshToken,
+    accessToken,
+    setAccessToken,
+    signout,
+    setNoConnection,
+    setNoConnectionRetry,
+    initialize,
+  } = useAuth();
 
   const httpRequest = async (
     url,
@@ -17,7 +28,7 @@ export default function useRequest() {
     retry = 0
   ) => {
     try {
-      if (retry > 3) {
+      if (retry > MAX_RETRY) {
         return;
       }
       console.log(`URL Called: (${method.toUpperCase()})`, url);
@@ -40,9 +51,23 @@ export default function useRequest() {
 
       return Promise.resolve(response.data);
     } catch (error) {
-      if (error && error.response && error.response.status)
+      // Alert.alert(
+      //   "Error",
+      //   `${error}, ${error.response}, ${error.response.status}`
+      // );
+      if (error && error.response && error.response.status >= 0) {
         switch (error.response.status) {
           case 0:
+            if (retry >= MAX_RETRY) {
+              alert("NO CONNECTION");
+              setNoConnection(true);
+              setNoConnectionRetry({
+                fn: () => {
+                  initialize();
+                },
+              });
+            }
+
             //retry
             return await httpRequest(
               url,
@@ -92,6 +117,7 @@ export default function useRequest() {
             console.error(error.response);
             throw error.response;
         }
+      }
     }
   };
 

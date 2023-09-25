@@ -62,7 +62,6 @@ export const HomeScreen = ({ ...props }) => {
 
   useEffect(() => {
     let isMounted = true;
-    console.log("giatay");
     //Handle Push Notification Listener
     const subscription = addNotificationResponseReceivedListener(
       handleNotificationResponse
@@ -76,7 +75,6 @@ export const HomeScreen = ({ ...props }) => {
 
     const getPushToken = async () => {
       try {
-        console.log("HEHEHEHE");
         const pToken = await SecureStorage.getItemAsync("pushtoken");
         if (pToken != undefined) {
           console.log("push token is available");

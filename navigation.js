@@ -12,7 +12,7 @@ import { OtpVerification } from "./src/screens/login/otpVerification";
 import { MapScreen } from "./src/screens/map.screen";
 import { AuthContext } from "./src/services/auth/auth.context";
 import { SplashScreen } from "./src/screens/splash.screen";
-import { navigationRef } from "./src/navigation/navigate";
+import { navigate, navigationRef } from "./src/navigation/navigate";
 import { LogoutScreen } from "./src/screens/logout.screen";
 import { RequestApprovalScreen } from "./src/screens/login/requestapproval.screen";
 import { CameraScreen } from "./src/screens/camera.screen";
@@ -24,7 +24,7 @@ import { LocationListScreen } from "./src/screens/location/location-list.screen"
 import { SectionContext } from "./src/services/section/section.context";
 import { AvailOfferScreen } from "./src/screens/offer/availOffer.screen";
 import { LocationViewScreen } from "./src/screens/location/location-view.screen";
-import { Image, View } from "react-native";
+import { Dimensions, Image, TouchableOpacity, View } from "react-native";
 import { UserContext } from "./src/services/user/user.context";
 import { TransactionSummaryScreen } from "./src/screens/offer/transactionSummary.screen";
 import { ForgotPasswordScreen } from "./src/screens/reset-password/forgotPassword";
@@ -43,6 +43,10 @@ import { AppContext } from "./src/services/app/app.context";
 import { VersionMismatchScreen } from "./src/screens/versionMismatch.screen";
 import useAuth from "./hooks/useAuth";
 import useUser from "./hooks/useUser";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { CacheImage } from "./src/components/cacheImage";
+import { ProfileScreen } from "./src/screens/profile/profile.screen";
+import BottomSheet from "./src/components/bottomSheet.component";
 
 const AuthStack = createStackNavigator();
 const MainStack = createStackNavigator();
@@ -213,9 +217,21 @@ const MainScreen = () => {
             headerRight: () => {
               return (
                 <>
-                  <View style={{ width: "100%" }}>
+                  <View
+                    style={{
+                      width: "100%",
+                      flexDirection: "row",
+                      alignContent: "center",
+                      justifyContent: "flex-end",
+                      paddingRight: 4,
+                    }}
+                  >
                     <Label
-                      style={{ paddingRight: 8, textAlign: "right" }}
+                      style={{
+                        paddingRight: 8,
+                        textAlign: "right",
+                        alignSelf: "center",
+                      }}
                       numberOfLines={1}
                       size={"subtitle"}
                       weight={"bold"}
@@ -232,6 +248,25 @@ const MainScreen = () => {
                             : "",
                       })}
                     </Label>
+                    <TouchableOpacity
+                      onPress={() => {
+                        navigate("Profile");
+                      }}
+                    >
+                      {userData && userData.member_image ? (
+                        <View style={{ borderRadius: 25, overflow: "hidden" }}>
+                          <CacheImage
+                            style={{ width: 35, height: 35 }}
+                            uri={userData.member_image}
+                          />
+                        </View>
+                      ) : (
+                        <MaterialCommunityIcons
+                          name="account-circle"
+                          size={25}
+                        />
+                      )}
+                    </TouchableOpacity>
                   </View>
                 </>
               );
@@ -257,6 +292,9 @@ const MainScreen = () => {
             },
           }}
         />
+
+        <MainStack.Screen name="Profile" component={ProfileScreen} />
+
         <MainStack.Screen
           name="Logout"
           component={LogoutScreen}
@@ -413,9 +451,9 @@ const ExceedTimeout = () => {
 };
 
 export const AppNavigation = () => {
-  const { isRetrieving, user, noConnection, skip } = useContext(AuthContext);
+  const { isRetrieving, user, skip } = useContext(AuthContext);
   const { isOutdated } = useContext(AppContext);
-  const { phoneVerified, refreshToken, isSkip } = useAuth();
+  const { phoneVerified, refreshToken, isSkip, noConnection } = useAuth();
   const { userData } = useUser();
   // const [skip, setSkip] = useState(0);
   // useEffect(() => {
@@ -541,8 +579,7 @@ export const AppNavigation = () => {
         ) : isOutdated ? (
           <VersionMismatchScreen />
         ) : phoneVerified && refreshToken ? (
-          (userData && userData.isAuthorized && userData.hasSubmit) ||
-          isSkip ? (
+          (userData && userData.isAuthorized) || isSkip ? (
             <MainScreen />
           ) : (
             <ApprovalScreen />

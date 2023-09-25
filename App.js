@@ -13,6 +13,8 @@ import { TranslationContextProvider } from "./src/services/translation/translati
 import { AppContextProvider } from "./src/services/app/app.context";
 import AuthProvider from "./src/services/auth_v2/auth.context";
 import UserProvider from "./src/services/user_v2/user.context";
+import PostProvider from "./src/services/post/post.context";
+import BottomDrawerProvider from "./src/services/bottomDrawer/bottomDrawer.context";
 
 export default function App() {
   Text.defaultProps = Text.defaultProps || {};
@@ -29,16 +31,20 @@ export default function App() {
               {/* ^ to be removed*/}
               <AuthProvider>
                 <UserProvider>
-                  <UserContextProvider>
-                    {/* ^ to be removed*/}
-                    <UploadContextProvider>
-                      <LocationContextProvider>
-                        <SectionContextProvider>
-                          <AppNavigation />
-                        </SectionContextProvider>
-                      </LocationContextProvider>
-                    </UploadContextProvider>
-                  </UserContextProvider>
+                  <BottomDrawerProvider>
+                    <PostProvider>
+                      <UserContextProvider>
+                        {/* ^ to be removed*/}
+                        <UploadContextProvider>
+                          <LocationContextProvider>
+                            <SectionContextProvider>
+                              <AppNavigation />
+                            </SectionContextProvider>
+                          </LocationContextProvider>
+                        </UploadContextProvider>
+                      </UserContextProvider>
+                    </PostProvider>
+                  </BottomDrawerProvider>
                 </UserProvider>
               </AuthProvider>
             </AuthContextProvider>

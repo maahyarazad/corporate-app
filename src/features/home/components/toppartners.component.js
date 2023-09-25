@@ -20,7 +20,7 @@ export const TopPartners = () => {
 
     const getTopPartners = async () => {
       const topPartners = await request(
-        `/api/v2/partner/top-per-category?app_id=${config.APP_ID}&lang=${lang}&count=5`,
+        `/v2//partner/top-per-category?app_id=${config.APP_ID}&lang=${lang}&count=5`,
         "get"
       );
       // const result = await PartnerService.getTopPerCategories({

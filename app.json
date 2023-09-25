@@ -20,7 +20,8 @@
           "savePhotosPermission": "The app needs to save a photo of your GEC Membership card.",
           "isAccessMediaLocationEnabled": "true"
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "updates": {
       "fallbackToCacheTimeout": 0

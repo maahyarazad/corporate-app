@@ -45,11 +45,7 @@ export const OtpVerification = ({ route, navigation }) => {
     try {
       const otp_details = { otp: code, app_id: config.APP_ID };
 
-      const response = await request(
-        "/api/v2/auth/verify",
-        "post",
-        otp_details
-      );
+      const response = await request("/v2//auth/verify", "post", otp_details);
 
       if (response.success) {
         verifyOTP();

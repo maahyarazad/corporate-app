@@ -24,6 +24,7 @@ import { config } from "../../utils/constants";
 import useRequest from "../../../hooks/useRequest";
 import useUser from "../../../hooks/useUser";
 import { useTranslation } from "../../../hooks/useTranslation";
+import useMath from "../../../hooks/useMath";
 
 const TOGGLE_BUTTON_BREAKDOWN_HEIGHT = 40;
 
@@ -40,10 +41,7 @@ export const ProfRedeemHistory = () => {
     let isMounted = true;
 
     const getUserTransactions = async () => {
-      const response = await request(
-        `/api/v2/user/history?lang=${lang}`,
-        "get"
-      );
+      const response = await request(`/v2//user/history?lang=${lang}`, "get");
 
       if (response.success) {
         setData(response.data.rows);
@@ -132,6 +130,7 @@ export const ProfRedeemHistory = () => {
   const animatedValue = useRef(new Animated.Value(viewHeight)).current;
 
   const [displayBreakdown, setDisplayBreakdown] = useState(false);
+  const { limitToTwoDecimalPlaces } = useMath();
 
   const showBreakdown = () => {
     Animated.timing(animatedValue, {
@@ -191,7 +190,7 @@ export const ProfRedeemHistory = () => {
                     color: theme.colors.icons.active,
                   }}
                 >
-                  {overall}
+                  {limitToTwoDecimalPlaces(overall)}
                 </Label>
                 <Label
                   weight={"bold"}

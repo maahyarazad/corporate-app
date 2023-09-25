@@ -27,7 +27,7 @@ export const SpecialsScreen = ({ navigation }) => {
     const getAvailableTags = async () => {
       try {
         const response = await request(
-          `/api/v2/partner/tags-available?app_id=${config.APP_ID}&lang=${lang}`,
+          `/v2//partner/tags-available?app_id=${config.APP_ID}&lang=${lang}`,
           "get"
         );
         if (response && isMounted) {

@@ -136,7 +136,7 @@ export const FeaturedBanner = ({ bannerData }) => {
         status: 1,
         user_id: user.user_id,
       };
-      const banners = await request(`/api/v2/app/get-banners`, "post", data);
+      const banners = await request(`/v2//app/get-banners`, "post", data);
 
       if (isMounted && banners.success) {
         setBannerList(banners.data);

@@ -18,7 +18,7 @@ export const Slideshow = ({ images }) => {
     <CacheImage
       imgKey={index}
       onLoad={imageLoaded}
-      style={{ width: width, height: "100%", resizeMode: "cover" }}
+      style={{ width: width, height: width * (4 / 5), resizeMode: "cover" }}
       uri={`${adminFileBaseURL}${item.image}`}
     />
   );
