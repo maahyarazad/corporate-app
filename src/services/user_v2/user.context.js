@@ -32,7 +32,7 @@ const UserProvider = ({ children }) => {
 
   const getUserInfo = async () => {
     try {
-      const response = await request("/v2//auth/me", "get");
+      const response = await request("/v2/auth/me", "get");
       //Fetch user data from database and store in device
       if (response && response.success) {
         setUserData(response.data);

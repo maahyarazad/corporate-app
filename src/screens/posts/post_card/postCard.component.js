@@ -1,4 +1,5 @@
 import {
+  Alert,
   Image,
   StyleSheet,
   Text,
@@ -21,7 +22,9 @@ import useLike from "../../../../hooks/useLike";
 import useTime from "../../../../hooks/useTime";
 import moment from "moment";
 import { Skeleton } from "../../../components/skeleton";
-import useBottomDrawer from "../../../../hooks/useBottomDrawer";
+import useUser from "../../../../hooks/useUser";
+import BottomSheetSelector from "../../../components/bottomSheetSelector.component";
+import { goback, navigate } from "../../../navigation/navigate";
 
 export default function PostCard({
   data,
@@ -39,14 +42,77 @@ export default function PostCard({
   const [likeCount, setLikeCount] = useState(data.likeCount);
   const [commentCount, setCommentCount] = useState(data.commentCount);
 
-  const { likePost, unlikePost } = usePosts();
-  const { drawerOpen } = useBottomDrawer();
+  const { likePost, unlikePost, removePost } = usePosts();
+  const { userData } = useUser();
+
+  const [showDrawer, setShowDrawer] = useState(false);
+
+  const options = [
+    {
+      title: "Remove Post",
+      description: "Remove this post from the feed",
+      logo: "trash-can-outline",
+      onPress: () => {
+        Alert.alert(
+          "Remove Post",
+          "Are you sure you want to remove this post?",
+          [
+            { text: "Cancel", onPress: () => {}, isPreferred: true },
+            {
+              text: "Delete",
+              style: "destructive",
+              onPress: () => {
+                //Call Remove Comment API
+                removePost(data.post_id);
+                onDrawerClose();
+                if (comment) {
+                  goback();
+                }
+              },
+            },
+          ]
+        );
+      },
+    },
+    {
+      title: "Edit Post",
+      description: "Edit your post",
+      logo: "pencil",
+      onPress: () => {
+        //Call Remove Comment API
+        navigate("post-edit", { post: data, editMode: true });
+        onDrawerClose();
+      },
+    },
+  ];
+
+  const [optionsTest, setOptionsTest] = useState([{}]);
 
   useEffect(() => {
     setLike(data.liked);
     setLikeCount(data.likeCount);
     setCommentCount(data.commentCount);
   }, [data.liked, data.likeCount, data.commentCount]);
+  useEffect(() => {
+    if (commentCount > 0 && userData.old_user_id === data.user_id) {
+      const index = options.findIndex((item) => item.title === "Edit Post");
+      // console.log("index", index, data.title);
+      options.splice(index, 1);
+
+      // console.log("options", options);
+    }
+
+    setOptionsTest(options);
+
+    return () => {};
+  }, []);
+
+  const onDrawerClose = () => {
+    setShowDrawer(false);
+  };
+  const onDrawerOpen = () => {
+    setShowDrawer(true);
+  };
 
   const PostContent = ({ content }) => {
     //cut content to 150 characters
@@ -105,7 +171,7 @@ export default function PostCard({
   };
 
   const handleOptionPress = () => {
-    drawerOpen();
+    onDrawerOpen();
   };
 
   const SkeletonComment = () => {
@@ -209,14 +275,24 @@ export default function PostCard({
                       </Label>
                     </View>
                   </View>
-                  <Spacer position={"left"} size={"small"} />
-                  <TouchableOpacity onPress={handleOptionPress}>
-                    <MaterialCommunityIcons
-                      name="dots-horizontal"
-                      size={22}
-                      color={"#aaa"}
-                    />
-                  </TouchableOpacity>
+                  <Spacer position={"right"} size={"large"} />
+                  {userData.old_user_id === data.user_id && (
+                    <View
+                      style={{
+                        position: "absolute",
+                        right: 0,
+                        top: -4,
+                      }}
+                    >
+                      <TouchableOpacity onPress={handleOptionPress}>
+                        <MaterialCommunityIcons
+                          name="dots-horizontal"
+                          size={25}
+                          color={"#aaa"}
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  )}
                 </View>
               </View>
               {/* <Label size={"caption"} weight={"regular"}>
@@ -316,6 +392,13 @@ export default function PostCard({
       ) : (
         <></>
       )}
+
+      <BottomSheetSelector
+        data={optionsTest}
+        onClose={onDrawerClose}
+        windowSize="25%"
+        display={showDrawer}
+      />
     </View>
   );
 }
@@ -367,14 +450,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   post: {
-    elevation: 12,
-    shadowOpacity: 0.1,
-    shadowColor: "black",
-    shadowRadius: 4,
-    shadowOffset: {
-      height: 5,
-      width: 0,
-    },
+    // elevation: 12,
+    // shadowOpacity: 0.1,
+    // shadowColor: "black",
+    // shadowRadius: 4,
+    // shadowOffset: {
+    //   height: 5,
+    //   width: 0,
+    // },
   },
   optionsContainer: {
     flexDirection: "row",

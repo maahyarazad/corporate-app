@@ -3,6 +3,7 @@ import React, { createContext, useEffect, useRef, useState } from "react";
 import useLog from "../../../hooks/useLog";
 import useRequest from "../../../hooks/useRequest";
 import useAuth from "../../../hooks/useAuth";
+import { debounce } from "lodash";
 
 export const PostContext = createContext(null);
 
@@ -29,7 +30,7 @@ export default function PostProvider({ children }) {
   //     console.log(page);
   //     if (isMounted.current) {
   //       const response = await request(
-  //         `/v2//post/latest?page=${page}`,
+  //         `/v2/post/latest?page=${page}`,
   //         "get"
   //       );
 
@@ -54,7 +55,7 @@ export default function PostProvider({ children }) {
   // const fetchComments = async (postId, mode = 0, prev = 0) => {
   //   try {
   //     const response = await request(
-  //       `/v2//post/comments?id=${postId}&prev=${prev}&mode=${mode}`,
+  //       `/v2/post/comments?id=${postId}&prev=${prev}&mode=${mode}`,
   //       "get"
   //     );
 
@@ -68,7 +69,7 @@ export default function PostProvider({ children }) {
 
   // const fetchPost = async (postId) => {
   //   try {
-  //     const response = await request(`/v2//post/${postId}`, "get");
+  //     const response = await request(`/v2/post/${postId}`, "get");
   //     // const _comments = posts.filter((comment) => comment.orderId === postId);
   //     return response;
   //   } catch (error) {
@@ -78,7 +79,7 @@ export default function PostProvider({ children }) {
 
   // const addPost = async (data) => {
   //   try {
-  //     const response = await request(`/v2//post/new`, "post", data);
+  //     const response = await request(`/v2/post/new`, "post", data);
 
   //     if (response.success) {
   //       setRootPosts([data, ...rootPosts]);
@@ -96,7 +97,7 @@ export default function PostProvider({ children }) {
   //     // setPosts([...posts, newComment]);
 
   //     const response = await request(
-  //       `/v2//post/comment`,
+  //       `/v2/post/comment`,
   //       "post",
   //       newComment
   //     );
@@ -156,7 +157,7 @@ export default function PostProvider({ children }) {
   //   };
 
   //   //Unike API Call to Server
-  //   const response = await request(`/v2//post/unlike`, "post", {
+  //   const response = await request(`/v2/post/unlike`, "post", {
   //     post_id,
   //   });
 
@@ -207,23 +208,44 @@ export default function PostProvider({ children }) {
   const [replyTo, setReplyTo] = useState(null);
   const request = useRequest();
 
-  const fetchPosts = async (page) => {
+  const loadOldPosts = async (post_id) => {
     try {
       // alert(`Page ${page}`);
-      const _page = page ?? 0;
-      const response = await request(`/v2//post/latest?page=${_page}`, "get");
-      if (response.success) {
-        if (page === null) {
-          return response.data;
-        } else {
-          setRootPosts([...rootPosts, ...response.data]);
-        }
-      }
-      // return response.data;
-      // setTestPosts([...response.data]);
+      // alert("load old");
+      const last_post_id = post_id ?? rootPosts[rootPosts.length - 1].post_id;
+      const limit = 50;
+      const status = 1;
+      const start = performance.now();
 
-      //Updates List
-      setUpdateCount(updateCount + 1);
+      const testing = debounce(async () => {
+        const response = await request(
+          `/v2/post/old?post_id=${last_post_id}&limit=${limit}&status=${status}`,
+          "get"
+        );
+
+        // const response = await request(`/v2/post/latest?page=${_page}`, "get");
+        // if (response.success) {
+        //   setRootPosts((prev) => {
+        //     return [...prev, ...response.data];
+        //   });
+
+        //   if (rootPosts.length > 20) {
+        //     setRootPosts((prev) => {
+        //       return [...prev.slice(10)];
+        //     });
+        //   }
+
+        const end = performance.now();
+        setRootPosts([...rootPosts, ...response.data]);
+        console.log("PERFORMANCE", end - start);
+        // }
+        // return response.data;
+        // setTestPosts([...response.data]);
+
+        //Updates List
+        setUpdateCount(updateCount + 1);
+      }, 1000);
+      testing();
     } catch (error) {
       console.error("Failed to get posts:", error);
     }
@@ -236,7 +258,7 @@ export default function PostProvider({ children }) {
   const fetchComments = async (postId, mode = 0, prev = 0) => {
     try {
       const response = await request(
-        `/v2//post/comments?id=${postId}&prev=${prev}&mode=${mode}`,
+        `/v2/post/comments?id=${postId}&prev=${prev}&mode=${mode}`,
         "get"
       );
 
@@ -250,33 +272,7 @@ export default function PostProvider({ children }) {
 
   const testFunction = (post_id) => {
     try {
-      // const postIndex = testPosts.findIndex((post) => post.post_id === post_id);
-
-      // //Abort when post cant be found
-      // if (postIndex === -1) return;
-
-      // const updatedPost = {
-      //   ...testPosts[postIndex],
-      //   liked: true,
-      //   likeCount: testPosts[postIndex].likeCount + 1,
-      // };
-
-      // console.log("updated post", updatedPost);
-
-      // //if like is success, return true
-      // setTestPosts([
-      //   ...testPosts.slice(0, postIndex),
-      //   updatedPost,
-      //   ...testPosts.slice(postIndex + 1),
-      // ]);
-
-      setRootPosts((prevPosts) => {
-        return prevPosts.map((post) =>
-          post.post_id === post_id
-            ? { ...post, liked: !post.liked, likeCount: post.likeCount + 1 }
-            : post
-        );
-      });
+      setRootPosts((prev) => prev.slice(3));
 
       setUpdateCount(updateCount + 1);
     } catch (error) {
@@ -295,7 +291,7 @@ export default function PostProvider({ children }) {
   const likePost = async (post_id) => {
     try {
       //Like API Call to Server
-      const response = await request(`/v2//post/like`, "post", {
+      const response = await request(`/v2/post/like`, "post", {
         post_id,
       });
 
@@ -331,7 +327,7 @@ export default function PostProvider({ children }) {
   const unlikePost = async (post_id) => {
     try {
       //Like API Call to Server
-      const response = await request(`/v2//post/unlike`, "post", {
+      const response = await request(`/v2/post/unlike`, "post", {
         post_id,
       });
 
@@ -366,7 +362,7 @@ export default function PostProvider({ children }) {
 
   const likeComment = async (post_id) => {
     try {
-      const response = await request(`/v2//post/like`, "post", {
+      const response = await request(`/v2/post/like`, "post", {
         post_id,
       });
     } catch (error) {
@@ -374,9 +370,90 @@ export default function PostProvider({ children }) {
     }
   };
 
+  const removeComment = async (post_id) => {
+    try {
+      const response = await request(`/v2/post/comment/remove`, "delete", {
+        post_id,
+      });
+
+      //Adjust comment count
+      if (response.success) {
+        const postIndex = rootPosts.findIndex(
+          (post) => post.post_id === post_id
+        );
+
+        console.log("POST INDEX FOUND", postIndex);
+        //Abort when post cant be found
+
+        if (postIndex === -1) return;
+
+        const updatedPost = {
+          ...rootPosts[postIndex],
+          commentCount: rootPosts[postIndex].commentCount - 1,
+        };
+
+        setRootPosts((prevState) => [
+          ...prevState.slice(0, postIndex),
+          updatedPost,
+          ...prevState.slice(postIndex + 1),
+        ]);
+        return response;
+      }
+    } catch (error) {
+      console.log("Failed to remove comment:", error);
+    }
+  };
+
+  const removePost = async (post_id) => {
+    try {
+      const response = await request(`/v2/post/remove`, "delete", {
+        post_id,
+      });
+
+      if (response.success) {
+        const _rootPosts = rootPosts.filter((post) => post.post_id !== post_id);
+        setRootPosts(_rootPosts);
+      }
+    } catch (error) {
+      console.log("Failed to remove post: ", error);
+    }
+  };
+
+  const editPost = async (data) => {
+    try {
+      const response = await request(`/v2/post/edit`, "put", {
+        data,
+      });
+      if (response.success) {
+        const postIndex = rootPosts.findIndex(
+          (post) => post.post_id === data.post_id
+        );
+
+        //if like is success, return true
+        setRootPosts((prevState) => [
+          ...prevState.slice(0, postIndex),
+          data,
+          ...prevState.slice(postIndex + 1),
+        ]);
+      }
+    } catch (error) {
+      console.log("Failed to edit post: ", error);
+    }
+  };
+
+  const editComment = async (data) => {
+    try {
+      const response = await request(`/v2/post/comment/edit`, "put", {
+        data,
+      });
+    } catch (error) {
+      console.log("Failed to edit comment:", error);
+    }
+  };
+
   const unlikeComment = async (post_id) => {
     try {
-      const response = await request(`/v2//post/unlike`, "post", {
+      const response = await request(`/v2/post/unlike`, "post", {
         post_id,
       });
     } catch (error) {
@@ -390,7 +467,7 @@ export default function PostProvider({ children }) {
 
   const addPost = async (data) => {
     try {
-      const response = await request(`/v2//post/new`, "post", data);
+      const response = await request(`/v2/post/new`, "post", data);
 
       return response;
     } catch (error) {
@@ -403,7 +480,7 @@ export default function PostProvider({ children }) {
       //Add Comment API
       // setPosts([...posts, newComment]);
 
-      const response = await request(`/v2//post/comment`, "post", newComment);
+      const response = await request(`/v2/post/comment`, "post", newComment);
 
       if (response.success) {
         const postIndex = rootPosts.findIndex((post) => post.id === postId);
@@ -451,9 +528,34 @@ export default function PostProvider({ children }) {
     setReplyTo(null);
   };
 
+  const getMoreRecentPosts = async (post_id) => {
+    try {
+      const limit = 50;
+      const status = 1;
+      const response = await request(
+        `/v2/post/latest/more?limit=${limit}&status=${status}&post_id=${post_id}`,
+        "get"
+      );
+
+      if (response.success) {
+        setRootPosts((prev) => {
+          // if (prev.length > 20) {
+          //   return [...response.data, ...prev.slice(0, 10)];
+          // } else {
+          return [...response.data, ...prev];
+          // }
+        });
+      }
+
+      return false;
+    } catch (error) {
+      console.log("Failed to get more recent posts: ", error);
+    }
+  };
+
   const values = {
     rootPosts,
-    fetchPosts,
+    loadOldPosts,
     clearRootPosts,
     fetchComments,
     testFunction,
@@ -469,6 +571,11 @@ export default function PostProvider({ children }) {
     reply,
     resetReply,
     replyTo,
+    removeComment,
+    editComment,
+    removePost,
+    editPost,
+    getMoreRecentPosts,
   };
 
   return <PostContext.Provider value={values}>{children}</PostContext.Provider>;

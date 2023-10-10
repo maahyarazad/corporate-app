@@ -14,7 +14,10 @@ import { AppContextProvider } from "./src/services/app/app.context";
 import AuthProvider from "./src/services/auth_v2/auth.context";
 import UserProvider from "./src/services/user_v2/user.context";
 import PostProvider from "./src/services/post/post.context";
-import BottomDrawerProvider from "./src/services/bottomDrawer/bottomDrawer.context";
+import { Provider } from "react-redux";
+import configureStore from "./redux/store/postStore";
+
+const store = configureStore();
 
 export default function App() {
   Text.defaultProps = Text.defaultProps || {};
@@ -31,7 +34,7 @@ export default function App() {
               {/* ^ to be removed*/}
               <AuthProvider>
                 <UserProvider>
-                  <BottomDrawerProvider>
+                  <Provider store={store}>
                     <PostProvider>
                       <UserContextProvider>
                         {/* ^ to be removed*/}
@@ -44,7 +47,7 @@ export default function App() {
                         </UploadContextProvider>
                       </UserContextProvider>
                     </PostProvider>
-                  </BottomDrawerProvider>
+                  </Provider>
                 </UserProvider>
               </AuthProvider>
             </AuthContextProvider>

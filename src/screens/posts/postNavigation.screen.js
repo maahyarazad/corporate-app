@@ -6,6 +6,8 @@ import { createStackNavigator } from "@react-navigation/stack";
 import PostDetailScreen from "./postDetail.screen";
 import { theme } from "../../infrastructure/theme";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import PostEntryScreen from "./post_entry/postEntry.screen";
+import PostEntrySelect from "./post_entry/postEntrySelect.screen";
 
 const PostTabsScreen = createMaterialTopTabNavigator();
 const PostStackScreen = createStackNavigator();
@@ -33,6 +35,24 @@ export const PostStackNavigationScreen = () => {
             color: "black",
           },
           headerLeftLabelVisible: false,
+        }}
+      />
+      <PostStackScreen.Screen
+        name="post-edit"
+        component={PostEntryScreen}
+        options={{
+          headerTintColor: theme.colors.icons.active,
+          headerTitleStyle: {
+            color: "black",
+          },
+          headerLeftLabelVisible: false,
+        }}
+      />
+      <PostStackScreen.Screen
+        name="post-select-category"
+        component={PostEntrySelect}
+        options={{
+          headerShown: false,
         }}
       />
     </PostStackScreen.Navigator>

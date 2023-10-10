@@ -142,7 +142,7 @@ export const AuthEditProfileScreen = () => {
     const initialize = async () => {
       try {
         //Get partners
-        const response = await request("/v2//partner/active", "get");
+        const response = await request("/v2/partner/active", "get");
         const response_userInfo = await getUserInfo();
 
         if (isMounted) {
@@ -229,7 +229,7 @@ export const AuthEditProfileScreen = () => {
 
       setIsLoading(true);
 
-      const response = await request("/v2//user/update", "post", data);
+      const response = await request("/v2/user/update", "post", data);
       // const response = await UserService.updateUser(data);
 
       if (response) {

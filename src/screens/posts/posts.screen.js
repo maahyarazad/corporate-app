@@ -1,24 +1,29 @@
 import {
   Alert,
   Modal,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import usePosts from "./post_card/usePosts";
 import PostCard from "./post_card/postCard.component";
 import { KeyboardAwareFlatList } from "react-native-keyboard-aware-scroll-view";
 import { useNavigation } from "@react-navigation/native";
 import { theme } from "../../infrastructure/theme";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import PostEntryForm from "./post_entry/postEntry.component";
+import PostEntryForm from "./post_entry/postEntryForm.component";
 import { Label } from "../../components/typography/label.component";
 import useUser from "../../../hooks/useUser";
 import { Post } from "./postDetail.screen";
-import useRequest from "../../../hooks/useRequest";
 import { Button } from "react-native-paper";
+import { debounce } from "lodash";
+import { FlatList } from "react-native-bidirectional-infinite-scroll";
+import { navigate } from "../../navigation/navigate";
+import * as SecureStore from "expo-secure-store";
+import { Spacer } from "../../components/spacer/spacer.component";
 
 export default function PostsScreen() {
   const navigation = useNavigation();
@@ -33,9 +38,10 @@ export default function PostsScreen() {
     addPost,
     clearRootPosts,
     rootPosts,
-    fetchPosts,
+    loadOldPosts,
     updateCount,
-    refreshPosts,
+    getMoreRecentPosts,
+    testFunction,
   } = usePosts();
   const [page, setPage] = useState(0);
   const [showNewPostModal, setShowNewPostModal] = useState(false);
@@ -44,12 +50,35 @@ export default function PostsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [changeCount, setChangeCount] = useState(0);
+  const [lastViewed, setLastViewed] = useState(null);
+
+  const flatListRef = useRef();
 
   useEffect(() => {
+    const retrieveLastViewed = async () => {
+      try {
+        const last_post_viewed = await SecureStore.getItemAsync(
+          "last_post_viewed"
+        );
+        if (last_post_viewed) {
+          setLastViewed(parseInt(last_post_viewed));
+          loadOldPosts(parseInt(last_post_viewed));
+        } else {
+          console.log("test2");
+          setLastViewed(parseInt(11650));
+          loadOldPosts(11650);
+        }
+      } catch (error) {
+        alert("Failed to retrieve last viewed post");
+        console.log(error);
+      }
+    };
+
+    retrieveLastViewed();
+
     return () => {
       setShowNewPostModal(false);
       clearRootPosts();
-      setPage(0);
     };
   }, []);
 
@@ -69,6 +98,7 @@ export default function PostsScreen() {
     navigation.navigate("post-detail", {
       author: `${post.first_name} ${post.last_name}`,
       post,
+      editMode: false,
     });
   };
 
@@ -76,37 +106,145 @@ export default function PostsScreen() {
     alert("???");
   };
 
+  const MemoizedPostComponent = React.memo(PostCard);
+
   const renderRowPost = ({ item, index }) => {
     return (
-      <PostCard
-        key={item.id}
-        data={item}
-        onCommentPress={() => handleCommentPress(item)}
-        onSharePress={handleSharePress}
-        onTitlePress={handleTitlePress}
-      />
+      <View key={item.id}>
+        {lastViewed === item.post_id && (
+          <>
+            <View
+              style={{
+                width: "100%",
+                justifyContent: "center",
+                alignItems: "center",
+                alignSelf: "center",
+                backgroundColor: "#d1ccc0",
+                padding: 12,
+                flexDirection: "row",
+                gap: 20,
+              }}
+            >
+              <MaterialCommunityIcons name="arrow-up" size={24} color="black" />
+              <Label>21 UNREAD POSTS</Label>
+              <MaterialCommunityIcons name="arrow-up" size={24} color="black" />
+            </View>
+            <Spacer size={"medium"} position={"top"} />
+          </>
+        )}
+        <MemoizedPostComponent
+          data={item}
+          onCommentPress={() => handleCommentPress(item)}
+          onSharePress={handleSharePress}
+          onTitlePress={handleTitlePress}
+        />
+      </View>
     );
   };
 
+  const onViewableItemsChanged = useCallback(
+    async ({ viewableItems, changed }) => {
+      // console.log(`User: ${viewableItems[0]?.item?.post_id} is visible`);
+      try {
+        await SecureStore.setItemAsync(
+          "last_post_viewed",
+          viewableItems[0]?.item?.post_id.toString()
+        );
+      } catch (error) {
+        console.log("Failed to save last viewed post");
+      }
+    }
+  );
+
+  const viewabilityConfig = useRef({
+    itemVisiblePercentThreshold: 100,
+    waitForInteraction: true,
+    minimumViewTime: 5,
+  });
+
+  const viewabilityConfigCallbackPairs = useRef([
+    {
+      viewabilityConfig: viewabilityConfig.current,
+      onViewableItemsChanged,
+    },
+  ]);
+
+  // const loadInitialPosts = async () => {
+  //   try {
+  //     const last_post_id = 11650;
+  //     const limit = 50;
+  //     const status = 1;
+
+  //     const response = await request(
+  //       `/v2/post/old?post_id=${last_post_id}&limit=${limit}&status=${status}`,
+  //       "get"
+  //     );
+
+  //     if (response.success) {
+  //       dispatch(loadOldPosts(response.data));
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to get initial posts:", error);
+  //   }
+  // };
+
+  // const fetchOldPosts = async (post_id) => {
+  //   try {
+  //     // alert(`Page ${page}`);
+  //     // alert("load old");
+  //     const last_post_id = post_id ?? 16444;
+  //     const limit = 50;
+  //     const status = 1;
+
+  //     const response = await request(
+  //       `/v2/post/old?post_id=${last_post_id}&limit=${limit}&status=${status}`,
+  //       "get"
+  //     );
+
+  //     if (response.success) {
+  //       dispatch(loadOldPosts(response.data));
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to get posts:", error);
+  //   }
+  // };
+
+  // const fetchNewPosts = async (post_id) => {
+  //   try {
+  //     // alert(`Page ${page}`);
+  //     // alert("load old");
+  //     const last_post_id = post_id ?? 16444;
+  //     const limit = 50;
+  //     const status = 1;
+  //     const response = await request(
+  //       `/v2/post/latest/more?post_id=${last_post_id}&limit=${limit}&status=${status}`,
+  //       "get"
+  //     );
+
+  //     if (response.success) {
+  //       dispatch(loadNewPosts(response.data));
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to get posts:", error);
+  //   }
+  // };
+
   const loadNextPage = async () => {
     try {
-      setRefreshing(true);
       setIsLoading(true);
-      console.log(`[${page}] Fetching additional posts...`);
-      await fetchPosts(page);
-      setRefreshing(false);
+      await loadOldPosts();
       setIsLoading(false);
-      setPage(page + 1);
+      // }
     } catch (error) {
       console.log(error);
     } finally {
       setIsLoading(false);
-      setRefreshing(false);
     }
   };
 
   const handleNewPost = () => {
-    setShowNewPostModal(true);
+    // setShowNewPostModal(true);
+    navigate("post-select");
   };
 
   const handleCloseModal = () => {
@@ -150,20 +288,25 @@ export default function PostsScreen() {
 
   const refreshPage = async () => {
     try {
-      setRefreshing(true);
-      setIsLoading(true);
-      await refreshPosts();
-      // alert("Test");
-      setIsLoading(false);
-      setRefreshing(false);
-      setPage(1);
+      await getMoreRecentPosts(rootPosts[0].post_id);
+      // alert("damn");
+      // fetchNewPosts(posts[0].post_id);
     } catch (error) {
       console.log("Failed to refresh the page: ", error);
     } finally {
-      setIsLoading(false);
-      setRefreshing(false);
     }
   };
+  // const refreshPage = useCallback(
+  //   debounce(async () => {
+  //     try {
+  //       await getMoreRecentPosts(rootPosts[0].post_id);
+  //     } catch (error) {
+  //       console.log("Failed to refresh the page: ", error);
+  //     } finally {
+  //     }
+  //   }, 3000),
+  //   [rootPosts]
+  // );
 
   const handleAddPost = async () => {
     const newPost = new Post();
@@ -182,25 +325,79 @@ export default function PostsScreen() {
     const response = await addPost(newPost);
     setShowNewPostModal(false);
     setNewPostState(newPostDefault);
-    Alert.alert("Post Pending", "Your post will be reviewed by an admin.");
+    Alert.alert("Post Pending", "Your post will be reviewed by an admin. ");
+  };
+
+  const insertSeparator = () => {
+    return <View style={styles.separator}></View>;
   };
 
   return (
     <>
       <View style={styles.container}>
-        {rootPosts || !isLoading ? (
-          <KeyboardAwareFlatList
+        {rootPosts?.length > 0 && (
+          /* <KeyboardAwareFlatList
+            ref={flatListRef}
             ItemSeparatorComponent={() => (
               <View style={styles.separator}></View>
             )}
             style={styles.container}
-            refreshing={refreshing}
+            // refreshing={refreshing}
             keyExtractor={(item) => item?.post_id?.toString()}
-            onRefresh={refreshPage}
+            // onRefresh={refreshPage}
             data={rootPosts}
             extraData={updateCount}
             onEndReached={loadNextPage}
             onEndReachedThreshold={0.5}
+            // onStartReachedThreshold={0.5}
+            onStartReached={() => {
+              refreshPage();
+            }}
+            maintainVisibleContentPosition={{
+              minIndexForVisible: 0,
+            }}
+            ListFooterComponent={() => (
+              <View
+                style={{
+                  alignItems: "center",
+                  paddingVertical: 12,
+                }}
+              >
+              </View>
+            )}
+            renderItem={renderRowPost}
+          ></KeyboardAwareFlatList> */
+
+          <FlatList
+            ref={flatListRef}
+            // scrollEnabled={false}
+            ItemSeparatorComponent={insertSeparator}
+            style={styles.container}
+            // refreshing={refreshing}
+            keyExtractor={(item) => item?.post_id?.toString()}
+            // onRefresh={refreshPage}
+            data={rootPosts}
+            extraData={updateCount}
+            onEndReached={loadNextPage}
+            onEndReachedThreshold={10}
+            // onStartReachedThreshold={1}
+            onStartReached={refreshPage}
+            maintainVisibleContentPosition={{
+              minIndexForVisible: 0,
+            }}
+            viewabilityConfigCallbackPairs={
+              viewabilityConfigCallbackPairs.current
+            }
+            viewabilityConfig={{
+              viewareaCoveragePercentThreshold: 30,
+            }}
+            initialNumToRender={4}
+            maxToRenderPerBatch={5}
+            removeClippedSubviews={true}
+            updateCellsBatchingPeriod={200}
+            scrollEventThrottle={1000}
+            windowSize={11}
+            showsVerticalScrollIndicator={false}
             ListFooterComponent={() => (
               <View
                 style={{
@@ -212,11 +409,7 @@ export default function PostsScreen() {
               </View>
             )}
             renderItem={renderRowPost}
-          ></KeyboardAwareFlatList>
-        ) : (
-          <>
-            <Label>Test</Label>
-          </>
+          ></FlatList>
         )}
         <View style={styles.floatButton}>
           <TouchableOpacity onPress={handleNewPost}>

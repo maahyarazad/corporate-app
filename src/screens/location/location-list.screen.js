@@ -130,7 +130,7 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
 
   const loadLocations = async (data) => {
     try {
-      const response = await request("/v2//partner/", "post", {
+      const response = await request("/v2/partner/", "post", {
         ...data,
         app_id: config.APP_ID,
         lang,

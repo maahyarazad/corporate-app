@@ -17,10 +17,9 @@ import { CustomTextInput } from "../../components/customTextInput";
 import { theme } from "../../infrastructure/theme";
 import { Button } from "react-native-paper";
 import { Spacer } from "../../components/spacer/spacer.component";
-import useLog from "../../../hooks/useLog";
 import useUser from "../../../hooks/useUser";
-import useLike from "../../../hooks/useLike";
-import BottomSheet from "../../components/bottomSheet.component";
+
+const COMMENT_MAXLENGTH = 500;
 
 export default function PostDetailScreen() {
   const navigation = useNavigation();
@@ -40,7 +39,7 @@ export default function PostDetailScreen() {
     addComment,
   } = usePosts();
   const { userData } = useUser();
-  const [comment, setComment] = useState(null);
+  const [comment, setComment] = useState("");
   const [postComments, setPostComments] = useState(null);
   const isMounted = useRef(true);
   const keyboardRef = useRef(null);
@@ -85,16 +84,16 @@ export default function PostDetailScreen() {
   const [elapsedTime, setElapsedTime] = useState(0);
 
   //Refreshes the rendered components every minute
-  useEffect(() => {
-    const timer = setInterval(() => {
-      console.log(elapsedTime);
-      setElapsedTime(elapsedTime + 1);
-    }, 60000);
+  // useEffect(() => {
+  //   const timer = setInterval(() => {
+  //     console.log(elapsedTime);
+  //     setElapsedTime(elapsedTime + 1);
+  //   }, 60000);
 
-    return () => {
-      clearInterval(timer);
-    };
-  }, [elapsedTime]);
+  //   return () => {
+  //     clearInterval(timer);
+  //   };
+  // }, [elapsedTime]);
 
   useEffect(() => {
     isMounted.current = true;
@@ -141,12 +140,12 @@ export default function PostDetailScreen() {
 
       setPostComments([...postComments, newComment]);
       const localComments = [...postComments, newComment];
-      setComment(null);
+      setComment("");
       post.commentCount += 1;
       //Wait for the comment to be added in the array before scrolling to end
       setTimeout(() => {
         if (newComment.order_id === router.params.post.id) {
-          scrollRef.current.scrollToEnd();
+          // scrollRef.current.scrollToEnd();
         }
         Keyboard.dismiss();
       }, 0);
@@ -265,19 +264,8 @@ export default function PostDetailScreen() {
         keyboardVerticalOffset={135}
       >
         <ScrollView
-          keyboardDismissMode="on-drag"
+          keyboardDismissMode="none"
           keyboardShouldPersistTaps="handled"
-          // refreshControl={
-          //   <RefreshControl
-          //     refreshing={() => {
-          //       alert("refresh");
-          //     }}
-          //     onRefresh={() => {
-          //       alert("refresh 2");
-          //     }}
-          //   />
-          // }
-          ref={scrollRef}
         >
           {post && (
             <PostCard
@@ -315,24 +303,42 @@ export default function PostDetailScreen() {
               flexDirection: "row",
             }}
           >
-            <CustomTextInput
-              ref={keyboardRef}
-              inputStyle={{
-                borderRadius: 20,
-                backgroundColor: "white",
-                paddingTop: 10,
-              }}
-              style={{
-                backgroundColor: null,
-                flex: 1,
-              }}
-              onBlur={fieldOnBlur}
-              multiline={true}
-              areaHeight={20}
-              placeholder={"Add a comment"}
-              onChangeText={handleCommentChange}
-              value={comment}
-            />
+            <View style={{ flex: 1, gap: 5 }}>
+              <View style={{ flexDirection: "row" }}>
+                <CustomTextInput
+                  ref={keyboardRef}
+                  inputStyle={{
+                    borderRadius: 8,
+                    backgroundColor: "white",
+                    paddingTop: 10,
+                  }}
+                  style={{
+                    backgroundColor: null,
+                    flex: 1,
+                  }}
+                  onBlur={fieldOnBlur}
+                  multiline={true}
+                  areaHeight={20}
+                  placeholder={"Add a comment"}
+                  onChangeText={handleCommentChange}
+                  value={comment}
+                  maxLength={COMMENT_MAXLENGTH}
+                />
+              </View>
+              {
+                <View
+                  style={{
+                    height: 2,
+                    width: `${(comment.length / COMMENT_MAXLENGTH) * 100}%`,
+                    backgroundColor:
+                      (comment.length / COMMENT_MAXLENGTH) * 100 > 90
+                        ? "red"
+                        : "#88CC00",
+                    borderRadius: 50,
+                  }}
+                ></View>
+              }
+            </View>
             <Spacer position={"right"} size={"small"} />
             <Button
               mode="contained"

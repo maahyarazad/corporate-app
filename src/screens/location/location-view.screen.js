@@ -70,7 +70,7 @@ export const LocationViewScreen = ({ route, navigation }) => {
   const getLocation = async (signal) => {
     try {
       const response = await request(
-        `/v2//partner/${locationId}?app=${config.APP_ID}&lang=${lang}`,
+        `/v2/partner/${locationId}?app=${config.APP_ID}&lang=${lang}`,
         "get",
         undefined,
         undefined,

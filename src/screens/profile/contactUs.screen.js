@@ -86,7 +86,7 @@ export const ContactUsScreen = () => {
       setIsLoading(true);
       const data = { ...state, app: config.APP_ID };
 
-      const response = await request(`/v2//support/message`, "post", data);
+      const response = await request(`/v2/support/message`, "post", data);
       // const response = await SupportService.sendFeedbackMsg(data);
       if (response.success) {
         Alert.alert(

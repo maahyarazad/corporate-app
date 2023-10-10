@@ -12,9 +12,9 @@ export default function CommentSection({
   replies = 0,
 }) {
   const MAX_REPLY = 1;
-  const { reply } = usePosts();
+  const { reply, removeComment } = usePosts();
 
-  const [_comments, set_comments] = useState(null);
+  const [_comments, setComments] = useState(null);
 
   const pressReply = (comment_id) => {
     const _comment = comments.find((post) => post.id === comment_id);
@@ -23,7 +23,7 @@ export default function CommentSection({
 
   useEffect(() => {
     if (comments) {
-      set_comments([...comments]);
+      setComments([...comments]);
       // set_comments(JSON.parse(JSON.stringify(comments)));
     }
     return () => {};
@@ -31,6 +31,13 @@ export default function CommentSection({
 
   const _handleViewReplies = (commentId) => {
     handleViewReplies(commentId);
+  };
+
+  const handleRemoveComment = (post_id) => {
+    setComments(_comments.filter((post) => post.post_id !== post_id));
+
+    removeComment(post_id);
+    return;
   };
 
   return (
@@ -61,6 +68,7 @@ export default function CommentSection({
                   degree={degree}
                   replies={replies}
                   handleViewReplies={_handleViewReplies}
+                  onRemoveComment={handleRemoveComment}
                   // disableReply={degree > MAX_REPLY}
                 />
               </View>

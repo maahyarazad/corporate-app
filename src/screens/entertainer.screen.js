@@ -12,11 +12,13 @@ import { SpecialsScreen } from "./specials.screen";
 import { EventsScreen } from "./events/events.screen";
 import { ProfileScreen } from "./profile/profile.screen";
 import { TranslationContext } from "../services/translation/translation.context";
-import { PostStackNavigationScreen } from "./posts/postNavigation.screen";
+import {
+  PostStackNavigationScreen,
+  PostTabsNavigationScreen,
+} from "./posts/postNavigation.screen";
 import useUser from "../../hooks/useUser";
 import { Label } from "../components/typography/label.component";
-import BottomSheet from "../components/bottomSheet.component";
-import useBottomDrawer from "../../hooks/useBottomDrawer";
+import BottomSheetSelector from "../components/bottomSheetSelector.component";
 import { TouchableWithoutFeedback } from "@gorhom/bottom-sheet";
 
 const Tab = createMaterialTopTabNavigator();
@@ -27,7 +29,7 @@ export const EntertainerScreen = () => {
   const TabItems = [
     {
       route: "Feed",
-      component: PostStackNavigationScreen,
+      component: PostTabsNavigationScreen,
       activeIcon: " ",
       inactiveIcon: "post",
       name: i18n.t("bottom-tabs.feed"),
@@ -171,7 +173,6 @@ export const EntertainerScreen = () => {
   const theme = useTheme();
   const { eventList } = useContext(LocationContext);
   const { userData } = useUser();
-  const { showBottomDrawer } = useBottomDrawer();
   return (
     <>
       {/* <View
@@ -277,16 +278,6 @@ export const EntertainerScreen = () => {
           );
         })}
       </Tab.Navigator>
-      <View
-        style={{
-          position: "absolute",
-          width: Dimensions.get("window").width,
-          height: Dimensions.get("window").height,
-        }}
-        pointerEvents="box-none"
-      >
-        <BottomSheet display={showBottomDrawer}></BottomSheet>
-      </View>
     </>
   );
 };

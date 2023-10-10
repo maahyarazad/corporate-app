@@ -17,7 +17,7 @@ export default function useLike() {
   const likePost = async (post_id) => {
     try {
       //Like API Call to Server
-      const response = await request(`/v2//post/like`, "post", {
+      const response = await request(`/v2/post/like`, "post", {
         post_id,
       });
 
@@ -38,7 +38,7 @@ export default function useLike() {
   const unlikePost = async (post_id) => {
     try {
       //Like API Call to Server
-      const response = await request(`/v2//post/unlike`, "post", {
+      const response = await request(`/v2/post/unlike`, "post", {
         post_id,
       });
 

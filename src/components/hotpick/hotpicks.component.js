@@ -59,7 +59,7 @@ export const Hotpicks = () => {
         limit: 10,
       };
       const response = await request(
-        `/v2//offer/hotpicks?app_id=${config.APP_ID}&lang=${lang}&limit=10`,
+        `/v2/offer/hotpicks?app_id=${config.APP_ID}&lang=${lang}&limit=10`,
         "get"
       );
 

@@ -41,7 +41,7 @@ export const ProfRedeemHistory = () => {
     let isMounted = true;
 
     const getUserTransactions = async () => {
-      const response = await request(`/v2//user/history?lang=${lang}`, "get");
+      const response = await request(`/v2/user/history?lang=${lang}`, "get");
 
       if (response.success) {
         setData(response.data.rows);

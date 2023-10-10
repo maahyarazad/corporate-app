@@ -123,7 +123,7 @@ export const HomeCategory = ({ size }) => {
 
     const getCategories = async () => {
       const categories = await request(
-        `/v2//partner/category-available2?app_id=${config.APP_ID}&lang=${lang}`,
+        `/v2/partner/category-available2?app_id=${config.APP_ID}&lang=${lang}`,
         "get"
       );
       // console.log("categories", categories);

@@ -12,7 +12,7 @@ import { OtpVerification } from "./src/screens/login/otpVerification";
 import { MapScreen } from "./src/screens/map.screen";
 import { AuthContext } from "./src/services/auth/auth.context";
 import { SplashScreen } from "./src/screens/splash.screen";
-import { navigate, navigationRef } from "./src/navigation/navigate";
+import { goback, navigate, navigationRef } from "./src/navigation/navigate";
 import { LogoutScreen } from "./src/screens/logout.screen";
 import { RequestApprovalScreen } from "./src/screens/login/requestapproval.screen";
 import { CameraScreen } from "./src/screens/camera.screen";
@@ -46,7 +46,17 @@ import useUser from "./hooks/useUser";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { CacheImage } from "./src/components/cacheImage";
 import { ProfileScreen } from "./src/screens/profile/profile.screen";
-import BottomSheet from "./src/components/bottomSheet.component";
+import BottomSheetSelector from "./src/components/bottomSheetSelector.component";
+import PostEntrySelect from "./src/screens/posts/post_entry/postEntrySelect.screen";
+import {
+  PostStackNavigationScreen,
+  PostTabsNavigationScreen,
+} from "./src/screens/posts/postNavigation.screen";
+import PostDetailScreen from "./src/screens/posts/postDetail.screen";
+import PostEntryScreen from "./src/screens/posts/post_entry/postEntry.screen";
+import { theme } from "./src/infrastructure/theme";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import PostEntryCategorySelect from "./src/screens/posts/post_entry/postEntryCategorySelect.screen";
 
 const AuthStack = createStackNavigator();
 const MainStack = createStackNavigator();
@@ -197,16 +207,15 @@ const AuthStackScreen = () => {
   );
 };
 
-const MainScreen = () => {
+const OverlappingStack = createStackNavigator();
+
+const OverlappingNavigator = () => {
   const { userData } = useUser();
   const { i18n, hello } = useContext(TranslationContext);
-
-  console.log(i18n.t("welcome"));
-
   return (
-    <>
-      <MainStack.Navigator option>
-        <MainStack.Screen
+    <BottomSheetModalProvider>
+      <OverlappingStack.Navigator>
+        <OverlappingStack.Screen
           name="Entertainer"
           component={EntertainerScreen}
           options={{
@@ -291,6 +300,86 @@ const MainScreen = () => {
               );
             },
           }}
+        />
+
+        <OverlappingStack.Screen
+          name="post-tabs"
+          component={PostTabsNavigationScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <OverlappingStack.Screen
+          name="post-detail"
+          component={PostDetailScreen}
+          options={{
+            headerTintColor: theme.colors.icons.active,
+            headerTitleStyle: {
+              color: "black",
+            },
+            headerLeftLabelVisible: false,
+          }}
+        />
+        <OverlappingStack.Screen
+          name="post-entry"
+          component={PostEntryScreen}
+          options={{
+            presentation: "modal",
+            headerShown: false,
+            headerTintColor: theme.colors.icons.active,
+            headerTitleStyle: {
+              color: "black",
+            },
+            headerLeftLabelVisible: false,
+          }}
+        />
+        <OverlappingStack.Screen
+          name="post-select-category"
+          component={PostEntryCategorySelect}
+          options={{
+            presentation: "modal",
+            headerShown: false,
+          }}
+        />
+        <OverlappingStack.Screen
+          name="post-select"
+          component={PostEntrySelect}
+          options={{
+            presentation: "modal",
+            headerShown: false,
+            title: "",
+            headerLeft: () => (
+              <TouchableOpacity onPress={goback}>
+                <View>
+                  <MaterialCommunityIcons
+                    name="arrow-left"
+                    size={24}
+                    color="black"
+                  />
+                  <Label>Back to Feed</Label>
+                </View>
+              </TouchableOpacity>
+            ),
+          }}
+        />
+      </OverlappingStack.Navigator>
+    </BottomSheetModalProvider>
+  );
+};
+
+const MainScreen = () => {
+  const { userData } = useUser();
+  const { i18n, hello } = useContext(TranslationContext);
+
+  console.log(i18n.t("welcome"));
+
+  return (
+    <>
+      <MainStack.Navigator option>
+        <MainStack.Screen
+          name="Main"
+          component={OverlappingNavigator}
+          options={{ headerShown: false }}
         />
 
         <MainStack.Screen name="Profile" component={ProfileScreen} />

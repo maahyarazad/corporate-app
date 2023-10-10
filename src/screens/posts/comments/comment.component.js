@@ -1,8 +1,10 @@
 import {
+  Alert,
   FlatList,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
@@ -25,7 +27,16 @@ import CommentSection from "./commentSection.component";
 import useTime from "../../../../hooks/useTime";
 import usePosts from "../post_card/usePosts";
 import useUser from "../../../../hooks/useUser";
-import useBottomDrawer from "../../../../hooks/useBottomDrawer";
+import {
+  BottomSheetBackdrop,
+  BottomSheetModal,
+  BottomSheetModalProvider,
+} from "@gorhom/bottom-sheet";
+import BottomSheetSelector from "../../../components/bottomSheetSelector.component";
+import useDialog from "../../../../hooks/useDialog";
+import { Button } from "react-native-paper";
+
+const COMMENT_MAXLENGTH = 110;
 
 export default function Comment({
   data,
@@ -33,7 +44,9 @@ export default function Comment({
   degree,
   disableReply,
   replies = 0,
+  onRemoveComment,
   handleViewReplies,
+  handleEditSave,
 }) {
   const { logTime } = useLog();
   const [like, setLike] = useState(data.liked);
@@ -42,8 +55,61 @@ export default function Comment({
   const [isViewed, setIsViewed] = useState(false);
 
   const { userData } = useUser();
-  const { likeComment, unlikeComment } = usePosts();
-  const { drawerOpen, drawerClose, setDrawerContent } = useBottomDrawer();
+  const { likeComment, unlikeComment, editComment } = usePosts();
+
+  const [openBottomDrawer, setOpenBottomDrawer] = useState(false);
+  const [options, setOptions] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [commentContent, setCommentContent] = useState(data.content);
+
+  const { confirmDialog } = useDialog();
+
+  useEffect(() => {
+    checkOptions();
+    return () => {};
+  }, []);
+
+  const checkOptions = () => {
+    let options = [];
+
+    if (userData.old_user_id === data.user_id) {
+      options.push({
+        title: "Remove",
+        description: "Remove this comment",
+        logo: "trash-can",
+        onPress: () => {
+          Alert.alert(
+            "Remove Comment",
+            "Are you sure you want to remove this comment?",
+            [
+              { text: "Cancel", onPress: () => {}, isPreferred: true },
+              {
+                text: "Delete",
+                style: "destructive",
+                onPress: () => {
+                  //Call Remove Comment API
+                  onRemoveComment(data.post_id);
+                  onCloseDrawer();
+                },
+              },
+            ]
+          );
+        },
+      });
+
+      options.push({
+        title: "Edit",
+        description: "Edit this comment",
+        logo: "pencil",
+        onPress: () => {
+          setEditMode(true);
+          onCloseDrawer();
+        },
+      });
+      setOptions(options);
+    }
+  };
+
   const toggleLike = () => {
     setLike(!like);
     setLikeCount(like ? likeCount - 1 : likeCount + 1);
@@ -62,96 +128,106 @@ export default function Comment({
     handleViewReplies(data.order_id);
   };
 
-  const onOptionsPress = () => {
-    let options = [];
+  const onOpenDrawer = () => {
+    setOpenBottomDrawer(true);
+  };
 
-    if (userData.old_user_id === data.user_id) {
-      options.push({
-        title: "Remove",
-        description: "Remove this comment",
-        logo: "trash-can",
-        onPress: () => {
-          drawerClose();
-        },
-      });
+  const onCloseDrawer = () => {
+    setOpenBottomDrawer(false);
+  };
 
-      options.push({
-        title: "Edit",
-        description: "Edit this comment",
-        logo: "pencil",
-        onPress: () => {
-          drawerClose();
-        },
-      });
-    }
+  const EditForm = () => {
+    const [editedText, setEditedText] = useState(commentContent);
 
-    setDrawerContent(
-      options.length > 0 ? (
-        <>
-          <ScrollView style={{ marginHorizontal: 12 }}>
-            <View
-              style={{
-                borderRadius: 8,
-                backgroundColor: "#eee",
-              }}
-            >
-              {options.map((option, index) => {
-                if (!option) {
-                  return null;
-                }
+    const cancelEdit = () => {
+      setEditedText(data.content);
+      setTimeout(() => {
+        setEditMode(false);
+      }, 0);
+    };
 
-                return (
-                  <View key={index}>
-                    <TouchableOpacity
-                      onPress={() => {
-                        option.onPress();
-                      }}
-                    >
-                      <View
-                        style={{
-                          padding: 10,
-                          flexDirection: "row",
-                          gap: 12,
-                          alignItems: "center",
-                          borderColor: "#ddd",
-                        }}
-                      >
-                        <View
-                          style={{
-                            backgroundColor: theme.colors.ui.gray,
-                            width: 50,
-                            height: 50,
-                            borderRadius: 50,
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
-                        >
-                          <MaterialCommunityIcons
-                            name={option.logo}
-                            size={22}
-                            color={"#fff"}
-                          />
-                        </View>
-                        <View>
-                          <Label weight={"bold"}>{option.title}</Label>
-                          <Label>{option.description}</Label>
-                        </View>
-                      </View>
-                    </TouchableOpacity>
-                    {index < options.length - 1 && (
-                      <View
-                        style={{ flex: 1, height: 2, backgroundColor: "#ddd" }}
-                      ></View>
-                    )}
-                  </View>
-                );
-              })}
-            </View>
-          </ScrollView>
-        </>
-      ) : null
+    const handleEditTextChange = (prev) => [setEditedText(prev)];
+
+    const onEditSave = () => {
+      const editedData = data;
+      editedData.content = editedText;
+      setCommentContent(editedText);
+      setEditMode(false);
+
+      editComment(editedData);
+      // handleEditSave(editedData);
+    };
+
+    return (
+      <View
+        style={{
+          flexDirection: "column",
+          alignItems: "center",
+          paddingHorizontal: 0,
+        }}
+      >
+        <TextInput
+          style={{
+            flex: 1,
+            width: "100%",
+            backgroundColor: "#f6f6f6",
+            borderRadius: 8,
+            marginTop: 8,
+            padding: 4,
+            height: 80,
+            borderWidth: 1,
+            borderColor: "#ccc",
+          }}
+          multiline={true}
+          numberOfLines={4}
+          placeholder={"Write a comment..."}
+          value={editedText}
+          onChangeText={handleEditTextChange}
+          maxLength={COMMENT_MAXLENGTH}
+        />
+        <View
+          style={{
+            height: 2,
+            marginTop: 4,
+            marginBottom: 8,
+            alignSelf: "flex-start",
+            width: `${(editedText.length / COMMENT_MAXLENGTH) * 100}%`,
+            backgroundColor:
+              (editedText.length / COMMENT_MAXLENGTH) * 100 > 90
+                ? "red"
+                : "#88CC00",
+            borderRadius: 50,
+          }}
+        ></View>
+        <View
+          style={{
+            alignSelf: "flex-end",
+            flexDirection: "row",
+            gap: 8,
+          }}
+        >
+          <Button
+            mode="contained"
+            labelStyle={{ fontSize: 10 }}
+            contentStyle={{ backgroundColor: "#aaa", minWidth: 80 }}
+            onPress={cancelEdit}
+          >
+            Cancel
+          </Button>
+          <Button
+            mode="contained"
+            labelStyle={{ fontSize: 10 }}
+            contentStyle={{
+              backgroundColor: theme.colors.icons.active,
+              minWidth: 80,
+            }}
+            onPress={onEditSave}
+          >
+            Save
+          </Button>
+        </View>
+      </View>
     );
-    drawerOpen();
   };
 
   return (
@@ -199,10 +275,10 @@ export default function Comment({
             {/* Show only if user is the one created it */}
             {userData.old_user_id === data.user_id && (
               <View style={{ position: "absolute", right: 0, top: -4 }}>
-                <TouchableOpacity onPress={onOptionsPress}>
+                <TouchableOpacity onPress={onOpenDrawer}>
                   <MaterialCommunityIcons
                     name="dots-horizontal"
-                    size={22}
+                    size={25}
                     color={"#aaa"}
                   />
                 </TouchableOpacity>
@@ -210,59 +286,65 @@ export default function Comment({
             )}
           </View>
 
-          <Label size={14} style={styles.content}>
-            {data.content}
-          </Label>
+          {/* Content */}
+          {editMode ? (
+            <EditForm />
+          ) : (
+            <Label size={14} style={styles.content}>
+              {commentContent}
+            </Label>
+          )}
 
-          {(data.hideActions === undefined || !data.hideActions) && (
-            <View styles={styles.actionContainer}>
-              <View style={styles.actions}>
-                <View style={[styles.inline]}>
-                  <TouchableWithoutFeedback onPress={toggleLike}>
-                    <View style={[styles.inline]}>
-                      {likeCount > 0 && (
+          {(data.hideActions === undefined || !data.hideActions) &&
+            !editMode && (
+              <View styles={styles.actionContainer}>
+                <View style={styles.actions}>
+                  <View style={[styles.inline]}>
+                    <TouchableWithoutFeedback onPress={toggleLike}>
+                      <View style={[styles.inline]}>
+                        {likeCount > 0 && (
+                          <Label
+                            style={{
+                              color: like ? theme.colors.icons.active : "black",
+                            }}
+                            weight={"bold"}
+                            size={12}
+                          >{`${likeCount} `}</Label>
+                        )}
+                        <MaterialCommunityIcons
+                          size={12}
+                          name={like ? "thumb-up" : "thumb-up-outline"}
+                          color={like ? theme.colors.icons.active : "black"}
+                        />
                         <Label
+                          size={12}
                           style={{
                             color: like ? theme.colors.icons.active : "black",
                           }}
                           weight={"bold"}
-                          size={12}
-                        >{`${likeCount} `}</Label>
-                      )}
-                      <MaterialCommunityIcons
-                        size={12}
-                        name={like ? "thumb-up" : "thumb-up-outline"}
-                        color={like ? theme.colors.icons.active : "black"}
-                      />
-                      <Label
-                        size={12}
-                        style={{
-                          color: like ? theme.colors.icons.active : "black",
-                        }}
-                        weight={"bold"}
-                      >
-                        {` Like`}
-                      </Label>
-                    </View>
-                  </TouchableWithoutFeedback>
-                  <Spacer size={"medium"} position={"right"} />
-                  {!disableReply && (
-                    <TouchableOpacity onPress={() => onReply(data.id)}>
-                      <View style={styles.inline}>
-                        <MaterialCommunityIcons
-                          size={12}
-                          name="message-reply-text-outline"
-                        />
-                        <Label size={12} weight={"bold"}>
-                          {` Reply`}
+                        >
+                          {` Like`}
                         </Label>
                       </View>
-                    </TouchableOpacity>
-                  )}
+                    </TouchableWithoutFeedback>
+                    <Spacer size={"medium"} position={"right"} />
+                    {!disableReply && (
+                      <TouchableOpacity onPress={() => onReply(data.id)}>
+                        <View style={styles.inline}>
+                          <MaterialCommunityIcons
+                            size={12}
+                            name="message-reply-text-outline"
+                          />
+                          <Label size={12} weight={"bold"}>
+                            {` Reply`}
+                          </Label>
+                        </View>
+                      </TouchableOpacity>
+                    )}
+                  </View>
                 </View>
               </View>
-            </View>
-          )}
+            )}
         </View>
       </View>
 
@@ -294,6 +376,12 @@ export default function Comment({
           </TouchableOpacity>
         </View>
       )}
+
+      <BottomSheetSelector
+        data={options}
+        onClose={onCloseDrawer}
+        display={openBottomDrawer}
+      />
     </View>
   );
 }
