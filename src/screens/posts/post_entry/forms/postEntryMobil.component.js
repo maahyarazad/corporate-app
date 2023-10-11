@@ -20,7 +20,7 @@ import {
 import { Label } from "../../../../components/typography/label.component";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { width } from "../../../../components/styles";
-import { Checkbox } from "react-native-paper";
+import { Checkbox, SegmentedButtons } from "react-native-paper";
 import { theme } from "../../../../infrastructure/theme";
 import { Spacer } from "../../../../components/spacer/spacer.component";
 import { Touchable } from "react-native";
@@ -120,22 +120,12 @@ const PostEntryMobil = () => {
     })
   );
 
-  const MOBIL_TYPES = [
-    {
-      label: "Auto",
-      value: false,
-    },
-    {
-      label: "Motorrad",
-      value: true,
-    },
-  ];
-
   const [colorOpen, setColorOpen] = useState(false);
   const [monthOpen, setMonthOpen] = useState(false);
   const [yearOpen, setYearOpen] = useState(false);
   const [makerOpen, setMakerOpen] = useState(false);
   const [state, setState] = useState({
+    type: "auto",
     maker: null,
     model: null,
     title: "",
@@ -207,32 +197,35 @@ const PostEntryMobil = () => {
   };
 
   const handleSelectorChange = (_value) => {
-    setIsMotorcycle(_value);
-    if (_value) {
-      setInclusions(
-        motorcycleInclusions.map((item) => {
-          return {
-            label: item.label,
-            value: item.value,
-          };
-        })
-      );
-    } else {
-      setInclusions(
-        carInclusions.map((item) => {
-          return {
-            label: item.label,
-            value: item.value,
-          };
-        })
-      );
+    setState({ ...state, type: _value });
+
+    switch (_value) {
+      case "auto":
+        setInclusions(
+          carInclusions.map((item) => {
+            return {
+              label: item.label,
+              value: item.value,
+            };
+          })
+        );
+        break;
+      case "bike":
+        setInclusions(
+          motorcycleInclusions.map((item) => {
+            return {
+              label: item.label,
+              value: item.value,
+            };
+          })
+        );
+        break;
     }
   };
 
   return (
     <>
-      <View style={styles.typeSelector}>
-        {/* Type Selector */}
+      {/* <View style={styles.typeSelector}>
         {MOBIL_TYPES.map((type) => {
           return (
             <TouchableWithoutFeedback
@@ -263,7 +256,40 @@ const PostEntryMobil = () => {
             </TouchableWithoutFeedback>
           );
         })}
-      </View>
+      </View> */}
+      <SegmentedButtons
+        buttons={[
+          {
+            label: "Auto",
+            value: "auto",
+            icon: "car",
+            checkedColor: "white",
+            labelStyle: { fontWeight: "bold" },
+            style: {
+              backgroundColor:
+                state.type === "auto"
+                  ? theme.colors.icons.active
+                  : "transparent",
+            },
+          },
+          {
+            label: "Motorrad",
+            value: "bike",
+            icon: "motorbike",
+            labelStyle: { fontWeight: "bold" },
+            checkedColor: "white",
+            style: {
+              backgroundColor:
+                state.type === "bike"
+                  ? theme.colors.icons.active
+                  : "transparent",
+            },
+          },
+        ]}
+        onValueChange={handleSelectorChange}
+        value={state.type}
+        theme={{ colors: { primary: "green" } }}
+      />
       <DropDownPicker
         open={makerOpen}
         setOpen={() => {

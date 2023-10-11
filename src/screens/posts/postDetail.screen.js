@@ -261,7 +261,7 @@ export default function PostDetailScreen() {
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={135}
+        keyboardVerticalOffset={85}
       >
         <ScrollView
           keyboardDismissMode="none"

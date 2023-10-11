@@ -213,7 +213,7 @@ export default function PostProvider({ children }) {
       // alert(`Page ${page}`);
       // alert("load old");
       const last_post_id = post_id ?? rootPosts[rootPosts.length - 1].post_id;
-      const limit = 50;
+      const limit = 20;
       const status = 1;
       const start = performance.now();
 
@@ -235,8 +235,8 @@ export default function PostProvider({ children }) {
         //     });
         //   }
 
-        const end = performance.now();
         setRootPosts([...rootPosts, ...response.data]);
+        const end = performance.now();
         console.log("PERFORMANCE", end - start);
         // }
         // return response.data;
@@ -530,7 +530,7 @@ export default function PostProvider({ children }) {
 
   const getMoreRecentPosts = async (post_id) => {
     try {
-      const limit = 50;
+      const limit = 20;
       const status = 1;
       const response = await request(
         `/v2/post/latest/more?limit=${limit}&status=${status}&post_id=${post_id}`,

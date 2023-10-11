@@ -6,7 +6,7 @@ import {
   View,
 } from "react-native";
 import React, { memo, useState } from "react";
-import { Button } from "react-native-paper";
+import { Button, SegmentedButtons } from "react-native-paper";
 import { Label } from "../../../../components/typography/label.component";
 import DropDownPicker from "react-native-dropdown-picker";
 import {
@@ -123,13 +123,13 @@ const PostEntryRealEstate = () => {
         searchTextInputStyle={styles.searchTextInput}
       />
       <TextInput
-        placeholder="Place"
+        placeholder="Ort, Region, Land"
         onChangeText={handleChangePlace}
         value={state.place}
         style={styles.formField}
       />
       <TextInput
-        placeholder="Street"
+        placeholder="Stadtteil, Straße"
         onChangeText={handleChangeStreet}
         value={state.street}
         style={styles.formField}
@@ -146,7 +146,7 @@ const PostEntryRealEstate = () => {
         textStyle={{ fontSize: 18 }}
         style={styles.formField}
         listMode="SCROLLVIEW"
-        placeholder="Bitte Wahlen Art"
+        placeholder="Art der Immobilie"
         zIndex={10}
         placeholderStyle={styles.dropdownPlaceholder}
         dropDownContainerStyle={styles.dropdownContainer}
@@ -163,7 +163,7 @@ const PostEntryRealEstate = () => {
         keyboardType="numeric"
       />
       <View style={[styles.formField, { gap: 10, paddingBottom: 30 }]}>
-        <Label size={"title"}>Number of Bedrooms</Label>
+        <Label size={"title"}>Schlafräume</Label>
         <View>
           <Slider
             value={state.bedrooms}
@@ -192,7 +192,9 @@ const PostEntryRealEstate = () => {
                     //   marginTop: -10,
                   }}
                 >
-                  <Label size={16}>{state.bedrooms}</Label>
+                  <Label size={16} weight={"bold"}>
+                    {state.bedrooms}
+                  </Label>
                 </View>
               );
             }}

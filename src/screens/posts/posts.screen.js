@@ -25,6 +25,41 @@ import { navigate } from "../../navigation/navigate";
 import * as SecureStore from "expo-secure-store";
 import { Spacer } from "../../components/spacer/spacer.component";
 
+const PostCardModified = ({ item, ...props }) => {
+  useEffect(() => {
+    return () => {};
+  }, []);
+
+  return (
+    <View>
+      {/* {lastViewed === item.post_id && (
+        <>
+          <View
+            style={{
+              width: "100%",
+              justifyContent: "center",
+              alignItems: "center",
+              alignSelf: "center",
+              backgroundColor: "#d1ccc0",
+              padding: 12,
+              flexDirection: "row",
+              gap: 20,
+            }}
+          >
+            <MaterialCommunityIcons name="arrow-up" size={24} color="black" />
+            <Label>21 UNREAD POSTS</Label>
+            <MaterialCommunityIcons name="arrow-up" size={24} color="black" />
+          </View>
+          <Spacer size={"medium"} position={"top"} />
+        </>
+      )} */}
+      <PostCard data={item} {...props} />
+    </View>
+  );
+};
+
+const MemoizedPostComponent = React.memo(PostCardModified);
+
 export default function PostsScreen() {
   const navigation = useNavigation();
   const newPostDefault = {
@@ -106,50 +141,14 @@ export default function PostsScreen() {
     alert("???");
   };
 
-  const MemoizedPostComponent = React.memo(PostCard);
-
-  const renderRowPost = ({ item, index }) => {
-    return (
-      <View key={item.id}>
-        {lastViewed === item.post_id && (
-          <>
-            <View
-              style={{
-                width: "100%",
-                justifyContent: "center",
-                alignItems: "center",
-                alignSelf: "center",
-                backgroundColor: "#d1ccc0",
-                padding: 12,
-                flexDirection: "row",
-                gap: 20,
-              }}
-            >
-              <MaterialCommunityIcons name="arrow-up" size={24} color="black" />
-              <Label>21 UNREAD POSTS</Label>
-              <MaterialCommunityIcons name="arrow-up" size={24} color="black" />
-            </View>
-            <Spacer size={"medium"} position={"top"} />
-          </>
-        )}
-        <MemoizedPostComponent
-          data={item}
-          onCommentPress={() => handleCommentPress(item)}
-          onSharePress={handleSharePress}
-          onTitlePress={handleTitlePress}
-        />
-      </View>
-    );
-  };
-
   const onViewableItemsChanged = useCallback(
     async ({ viewableItems, changed }) => {
       // console.log(`User: ${viewableItems[0]?.item?.post_id} is visible`);
       try {
-        await SecureStore.setItemAsync(
-          "last_post_viewed",
-          viewableItems[0]?.item?.post_id.toString()
-        );
+        // await SecureStore.setItemAsync(
+        //   "last_post_viewed",
+        //   viewableItems[0]?.item?.post_id.toString()
+        // );
       } catch (error) {
         console.log("Failed to save last viewed post");
       }
@@ -332,6 +331,22 @@ export default function PostsScreen() {
     return <View style={styles.separator}></View>;
   };
 
+  const renderRowPostCard = ({ item }) => {
+    const handlePress = () => {
+      handleCommentPress(item);
+    };
+
+    return (
+      <MemoizedPostComponent
+        key={item.id}
+        item={item}
+        onCommentPress={handlePress}
+        onSharePress={handleSharePress}
+        onTitlePress={handleTitlePress}
+      />
+    );
+  };
+
   return (
     <>
       <View style={styles.container}>
@@ -377,7 +392,7 @@ export default function PostsScreen() {
             keyExtractor={(item) => item?.post_id?.toString()}
             // onRefresh={refreshPage}
             data={rootPosts}
-            extraData={updateCount}
+            // extraData={updateCount}
             onEndReached={loadNextPage}
             onEndReachedThreshold={10}
             // onStartReachedThreshold={1}
@@ -392,11 +407,11 @@ export default function PostsScreen() {
               viewareaCoveragePercentThreshold: 30,
             }}
             initialNumToRender={4}
-            maxToRenderPerBatch={5}
+            maxToRenderPerBatch={15}
             removeClippedSubviews={true}
             updateCellsBatchingPeriod={200}
             scrollEventThrottle={1000}
-            windowSize={11}
+            windowSize={15}
             showsVerticalScrollIndicator={false}
             ListFooterComponent={() => (
               <View
@@ -408,7 +423,7 @@ export default function PostsScreen() {
                 {/* <Text style={{ color: "#aaa" }}>-- End of Feed --</Text> */}
               </View>
             )}
-            renderItem={renderRowPost}
+            renderItem={renderRowPostCard}
           ></FlatList>
         )}
         <View style={styles.floatButton}>

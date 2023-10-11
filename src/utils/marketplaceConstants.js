@@ -290,3 +290,11 @@ export const realEstateTypes = [
   "Grundstück",
   "Wohnanlage u. Projekt",
 ];
+
+export const employmentTypes = [
+  "Festanstellung",
+  "Praktikum",
+  "Studentenjob-Befristet",
+  "Ausbildung",
+  "Diplomarbeit-Freie Mitarbeit/Dienstvertrag/Projekt",
+];
