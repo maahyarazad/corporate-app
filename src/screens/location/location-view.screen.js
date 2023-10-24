@@ -6,6 +6,7 @@ import {
   RefreshControl,
   StyleSheet,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { SafeArea } from "../../components/safearea.component";
@@ -185,7 +186,7 @@ export const LocationViewScreen = ({ route, navigation }) => {
                     <Label size={"heading"} weight={"bold"}>
                       {i18n.t("offer-details.location")}
                     </Label>
-                    <View style={{ marginBottom: 8 }}>
+                    <View style={{ marginVertical: 8 }}>
                       <Label weight={"medium"}>
                         {location != undefined &&
                         location?.contact_addition != undefined
@@ -221,7 +222,10 @@ export const LocationViewScreen = ({ route, navigation }) => {
                           fontWeight: "bold",
                         }}
                         contentStyle={{ height: 50 }}
-                        style={style.mapButtons}
+                        style={[
+                          style.mapButtons,
+                          { borderBottomLeftRadius: 12 },
+                        ]}
                         onPress={getDirections}
                       >
                         {`${i18n.t("offer-details.get-directions")}`}
@@ -235,7 +239,14 @@ export const LocationViewScreen = ({ route, navigation }) => {
                             fontWeight: "bold",
                           }}
                           contentStyle={{ height: 50 }}
-                          style={style.mapButtons}
+                          style={[
+                            style.mapButtons,
+                            {
+                              borderBottomRightRadius: 12,
+                              borderLeftWidth: 1,
+                              borderColor: "#bbb",
+                            },
+                          ]}
                           onPress={() => openWebsite(location.web)}
                         >
                           {`${i18n.t("offer-details.visit-website")}`}
@@ -249,6 +260,7 @@ export const LocationViewScreen = ({ route, navigation }) => {
                   style={{
                     paddingHorizontal: 16,
                     paddingVertical: 16,
+                    gap: 8,
                   }}
                 >
                   <Label size={"heading"} weight={"bold"}>
@@ -416,7 +428,6 @@ const style = StyleSheet.create({
   mapButtons: {
     flex: 1,
     backgroundColor: "#ddd",
-    borderBottomRightRadius: 0,
-    borderTopRightRadius: 0,
+    borderRadius: 0,
   },
 });

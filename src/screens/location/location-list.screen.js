@@ -22,6 +22,8 @@ import useRequest from "../../../hooks/useRequest";
 const Search = styled(Searchbar)`
   margin: 0 12px;
   border: 1px solid rgba(0, 0, 0, 0.2);
+  background-color: white;
+  border-radius: 12px;
 `;
 
 export const LocationListScreen = ({ navigation, route, ...props }) => {
