@@ -25,6 +25,10 @@ export const TopPartners = () => {
         `/v2/partner/top-per-category?app_id=${config.APP_ID}&lang=${lang}&count=5`,
         "get"
       );
+      // const result = await PartnerService.getTopPerCategories({
+      //   count: 5,
+      //   lang,
+      // });
       if (isMounted && topPartners) {
         setTopPartners(topPartners.result);
         console.log("Partners", topPartners.result);
@@ -67,19 +71,24 @@ export const TopPartners = () => {
 
   return (
     <>
-      {topPartners && (
-        <FlatList
-          scrollEnabled={false}
-          data={Object.values(topPartners)}
-          renderItem={({ item, index }) => (
-            <LocationCards
-              key={item.id}
-              locationList={topPartners[Object.keys(topPartners)[index]]}
-              label={Object.keys(topPartners)[index]}
-            />
-          )}
-        />
-      )}
+      {/* {topPartners ? ( */}
+      <View removeClippedSubviews={true}>
+        {topPartners ? (
+          <FlatList
+            scrollEnabled={false}
+            data={Object.values(topPartners)}
+            renderItem={({ item, index }) => (
+              <LocationCards
+                key={item.id}
+                locationList={topPartners[Object.keys(topPartners)[index]]}
+                label={Object.keys(topPartners)[index]}
+              />
+            )}
+          />
+        ) : (
+          <RenderSkeleton />
+        )}
+      </View>
     </>
   );
 };
