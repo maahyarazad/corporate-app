@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { FlatList, StyleSheet, View } from "react-native";
 import { LocationCards } from "../../../components/locationcards";
 import { Skeleton } from "../../../components/skeleton";
 import { Spacer } from "../../../components/spacer/spacer.component";
@@ -8,6 +8,8 @@ import { PartnerService } from "../../../services/location/location.service";
 import { TranslationContext } from "../../../services/translation/translation.context";
 import useRequest from "../../../../hooks/useRequest";
 import { config } from "../../../utils/constants";
+
+const MemoizedLocationCard = React.memo(LocationCards);
 
 export const TopPartners = () => {
   const [topPartners, setTopPartners] = useState();
@@ -23,12 +25,9 @@ export const TopPartners = () => {
         `/v2/partner/top-per-category?app_id=${config.APP_ID}&lang=${lang}&count=5`,
         "get"
       );
-      // const result = await PartnerService.getTopPerCategories({
-      //   count: 5,
-      //   lang,
-      // });
       if (isMounted && topPartners) {
         setTopPartners(topPartners.result);
+        console.log("Partners", topPartners.result);
       }
     };
     if (!isLogout.current) {
@@ -68,25 +67,19 @@ export const TopPartners = () => {
 
   return (
     <>
-      {/* {topPartners ? ( */}
-      <View removeClippedSubviews={true}>
-        {topPartners ? (
-          Object.keys(topPartners).map((key) => {
-            {
-              /* console.log(topPartners[key]); */
-            }
-            return (
-              <LocationCards
-                key={key}
-                locationList={topPartners[key]}
-                label={key}
-              />
-            );
-          })
-        ) : (
-          <RenderSkeleton />
-        )}
-      </View>
+      {topPartners && (
+        <FlatList
+          scrollEnabled={false}
+          data={Object.values(topPartners)}
+          renderItem={({ item, index }) => (
+            <LocationCards
+              key={item.id}
+              locationList={topPartners[Object.keys(topPartners)[index]]}
+              label={Object.keys(topPartners)[index]}
+            />
+          )}
+        />
+      )}
     </>
   );
 };
