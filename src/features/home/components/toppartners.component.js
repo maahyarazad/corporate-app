@@ -25,10 +25,6 @@ export const TopPartners = () => {
         `/v2/partner/top-per-category?app_id=${config.APP_ID}&lang=${lang}&count=5`,
         "get"
       );
-      // const result = await PartnerService.getTopPerCategories({
-      //   count: 5,
-      //   lang,
-      // });
       if (isMounted && topPartners) {
         setTopPartners(topPartners.result);
         console.log("Partners", topPartners.result);
@@ -71,7 +67,6 @@ export const TopPartners = () => {
 
   return (
     <>
-      {/* {topPartners ? ( */}
       <View removeClippedSubviews={true}>
         {topPartners ? (
           <FlatList
