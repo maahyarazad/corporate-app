@@ -17,7 +17,6 @@ const OffersStack = createStackNavigator();
 
 export const SpecialsScreen = ({ navigation }) => {
   const [specialTagList, setSpecialTagList] = useState([]);
-  const { userInfo } = useContext(UserContext);
   const { i18n, lang } = useContext(TranslationContext);
   const request = useRequest();
 
@@ -78,12 +77,6 @@ export const SpecialsScreen = ({ navigation }) => {
           height: 80,
         }}
       >
-        {/* <Searchbar
-          style={{ flexDirection: "row" }}
-          onPressIn={handleSearch}
-          editable={false}
-          placeholder="Search"
-        /> */}
         <SearchButton onPress={handleSearch} />
       </View>
       {/* {false ? ( */}
