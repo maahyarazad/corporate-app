@@ -23,7 +23,10 @@ import { UserContext } from "../services/user/user.context";
 import { AuthContext } from "../services/auth/auth.context";
 import { navigate } from "../navigation/navigate";
 import { SearchButton } from "../components/searchbutton";
-import { TopPartners } from "../features/home/components/toppartners.component";
+import {
+  MemoizedTopPartner,
+  TopPartners,
+} from "../features/home/components/toppartners.component";
 import { config, typeEnum } from "../utils/constants";
 import { isDevice } from "expo-device";
 import * as SecureStorage from "expo-secure-store";
@@ -35,6 +38,15 @@ import { UrlListener } from "../utils/urlRouter";
 import { addNotificationResponseReceivedListener } from "expo-notifications";
 import { LocationContext } from "../services/location/location.context";
 import { StatusBar } from "expo-status-bar";
+import { Label } from "../components/typography/label.component";
+import useAuth from "../../hooks/useAuth";
+import CustomButton from "../components/customButton.component";
+import { theme } from "../infrastructure/theme";
+import useUser from "../../hooks/useUser";
+import moment from "moment";
+import { CustomModal } from "../components/modal/customModal.component";
+import { OrderCardModal } from "../features/offers/components/offerModalForm";
+import { useNavigation } from "@react-navigation/native";
 
 const HomeContainer = styled(FlatList)`
   flex: 1;
@@ -49,16 +61,72 @@ const NearMeButton = styled(TouchableHighlight)`
   box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.4);
 `;
 
+const RenderHome = ({ handleSearch }) => {
+  const handleNavigateMap = () => {
+    navigate("Map");
+  };
+
+  return (
+    <>
+      <UrlListener />
+      <StatusBar style="dark" />
+
+      <ScrollView nestedScrollEnabled={true} removeClippedSubviews={true}>
+        <Spacer position={"top"} size={"medium"}>
+          <Spacer position={"left"} size={"medium"}>
+            <Spacer position={"right"} size={"medium"}>
+              <View style={{ flexDirection: "row" }}>
+                <SearchButton onPress={handleSearch} />
+                <Spacer position={"left"} size={"small"} />
+                <NearMeButton
+                  underlayColor={"#EEE"}
+                  onPress={handleNavigateMap}
+                >
+                  <MaterialCommunityIcons
+                    name="map-search"
+                    size={25}
+                    color={"#555"}
+                  />
+                </NearMeButton>
+              </View>
+            </Spacer>
+          </Spacer>
+        </Spacer>
+        <FeaturedBanner />
+        <Hotpicks />
+        <HomeCategory />
+        <TopPartners />
+      </ScrollView>
+    </>
+  );
+};
+
+const MemoeizedHome = React.memo(RenderHome);
+
+const TestComp = () => {
+  useEffect(() => {
+    alert("test");
+
+    return () => {};
+  }, []);
+
+  return (
+    <View>
+      <Text>Test</Text>
+    </View>
+  );
+};
+
 export const HomeScreen = ({ ...props }) => {
   const { navigation } = props;
   const [refreshing, setRefreshing] = useState(0);
   const [refreshCount, setRefreshCount] = useState(0);
-  const { getUserInfo, userInfo, setIsHomeInit } = useContext(UserContext);
-  const { user } = useContext(AuthContext);
   const { i18n } = useContext(TranslationContext);
   const { eventList } = useContext(LocationContext);
-  // const { setSectionTitle } = useContext(SectionContext);
   const testing = useRef(false);
+  const { isSkip, goToVerification } = useAuth();
+  const { userData } = useUser();
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -66,12 +134,6 @@ export const HomeScreen = ({ ...props }) => {
     const subscription = addNotificationResponseReceivedListener(
       handleNotificationResponse
     );
-
-    if (userInfo == undefined) {
-      if (isMounted) {
-        getUserInfo(user.user_id);
-      }
-    }
 
     const getPushToken = async () => {
       try {
@@ -175,62 +237,89 @@ export const HomeScreen = ({ ...props }) => {
     });
   };
 
-  class RenderHome extends PureComponent {
-    render() {
-      const handleNavigateMap = () => {
-        navigation.navigate("Map");
-      };
-
-      return (
-        <>
-          <UrlListener />
-          <StatusBar style="dark" />
-          <ScrollView nestedScrollEnabled={true} removeClippedSubviews={true}>
-            <Spacer position={"top"} size={"medium"}>
-              <Spacer position={"left"} size={"medium"}>
-                <Spacer position={"right"} size={"medium"}>
-                  <View style={{ flexDirection: "row" }}>
-                    <SearchButton onPress={handleSearch} />
-                    <Spacer position={"left"} size={"small"} />
-                    <NearMeButton
-                      underlayColor={"#EEE"}
-                      onPress={handleNavigateMap}
-                    >
-                      <MaterialCommunityIcons
-                        name="map-search"
-                        size={25}
-                        color={"#555"}
-                      />
-                    </NearMeButton>
-                  </View>
-                </Spacer>
-              </Spacer>
-            </Spacer>
-            <FeaturedBanner />
-            <Hotpicks />
-            <HomeCategory />
-            <TopPartners />
-          </ScrollView>
-        </>
-      );
-    }
-  }
-
-  const renderFooter = () => {
+  const closeModal = () => {
+    setShowModal(false);
+  };
+  const handleOrderCard = () => {
+    setShowModal(true);
+  };
+  const WarningBar = ({ msg }) => {
     return (
-      <>
-        <RenderHome />
-      </>
+      <View
+        style={{
+          backgroundColor: "red",
+          padding: 12,
+          flexDirection: "row",
+          justifyContent: "space-between",
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 5 },
+          shadowOpacity: 0.4,
+          shadowRadius: 5,
+          zIndex: 1,
+        }}
+      >
+        <View
+          style={{
+            flex: 1,
+          }}
+        >
+          <Label color={"white"}>{msg}</Label>
+        </View>
+        <CustomButton
+          onPress={handleOrderCard}
+          style={{
+            backgroundColor: theme.colors.icons.active,
+            borderWidth: 0,
+            shadowOpacity: 0.5,
+            shadowColor: "black",
+            shadowOffset: {
+              width: 2,
+              height: 2,
+            },
+            shadowRadius: 5,
+          }}
+          label={"Order Card"}
+          labelStyle={{ color: "white" }}
+        />
+      </View>
     );
   };
 
   return (
-    <HomeContainer
-      refreshControl={
-        <RefreshControl refreshing={testing.current} onRefresh={onRefresh} />
-      }
-      showsVerticalScrollIndicator={false}
-      ListFooterComponent={renderFooter}
-    ></HomeContainer>
+    <>
+      {isSkip ? (
+        <WarningBar
+          msg={
+            "You have not uploaded a card yet. To avail offers, please upload a card."
+          }
+        />
+      ) : userData.expired > 0 ? (
+        <WarningBar
+          msg={`Your card has already expired on ${moment(
+            userData.expiry
+          ).format("MMM YYYY")}. Please upload your new card.`}
+        />
+      ) : (
+        moment(userData.expiry).diff(moment(), "days") >= 5 && (
+          <WarningBar
+            msg={`Your card will expire in ${moment(userData.expiry).diff(
+              moment(),
+              "days"
+            )} Days. Please order a new card and upload it.`}
+          />
+        )
+      )}
+      <CustomModal showModal={showModal}>
+        <OrderCardModal onClose={closeModal} />
+      </CustomModal>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={testing.current} onRefresh={onRefresh} />
+        }
+        showsVerticalScrollIndicator={false}
+      >
+        <MemoeizedHome handleSearch={handleSearch} />
+      </ScrollView>
+    </>
   );
 };
