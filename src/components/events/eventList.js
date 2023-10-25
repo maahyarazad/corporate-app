@@ -178,16 +178,33 @@ export const EventList = () => {
         onPress={() => handleSelectEvent(item.id, item.registered)}
         style={styles.cardButton}
       >
-        <Card>
+        <Card style={{ backgroundColor: "white", padding: 0 }}>
           <Card.Cover
             resizeMethod={"resize"}
             resizeMode={"cover"}
-            style={{ height: 130 }}
+            style={{
+              height: 130,
+              borderBottomEndRadius: 0,
+              borderBottomStartRadius: 0,
+            }}
             source={{
               uri: `https://www.german-emirates-club.com/uploads/sys/${item.eventImage}`,
             }}
           />
-          <Card.Title title={item.eventName}></Card.Title>
+          <Card.Title
+            style={{
+              marginTop: -15,
+              borderRadius: 15,
+              backgroundColor: "white",
+            }}
+            titleNumberOfLines={2}
+            titleStyle={{
+              fontWeight: "bold",
+              paddingVertical: 15,
+              fontSize: 20,
+            }}
+            title={item.eventName}
+          ></Card.Title>
           <Card.Content>
             <Label>{item.eventDescription}</Label>
 
@@ -229,6 +246,7 @@ export const EventList = () => {
                 flexDirection: "row",
                 alignItems: "center",
                 marginTop: 8,
+                paddingHorizontal: 8,
               }}
             >
               <Checkbox.Android
@@ -244,7 +262,7 @@ export const EventList = () => {
                   // console.log(eventList[index]);
                 }}
                 uncheckedColor="black"
-                color="black"
+                color={theme.colors.icons.active}
               />
               <Label
                 onPress={() => {
@@ -261,13 +279,20 @@ export const EventList = () => {
               </Label>
             </View>
           )}
-          <Card.Actions style={{ flex: 1, justifyContent: "space-around" }}>
+          <Card.Actions
+            style={{
+              justifyContent: "space-around",
+              paddingBottom: 15,
+              marginLeft: -8,
+            }}
+          >
             <Button
               mode="outlined"
               style={{
                 flex: 1,
                 borderWidth: 2,
                 borderColor: theme.colors.icons.active,
+                borderRadius: 12,
               }}
               onPress={() => handleSelectEvent(item.id)}
               contentStyle={styles.cardActionButton}
@@ -275,11 +300,9 @@ export const EventList = () => {
                 color: theme.colors.icons.active,
                 fontWeight: "bold",
               }}
-              color={theme.colors.icons.active}
             >
               {i18n.t("read-more")}
             </Button>
-            <Spacer position={"left"} size={"small"} />
             <Button
               loading={isLoading}
               disabled={isLoading}
@@ -293,7 +316,14 @@ export const EventList = () => {
                 }
               }}
               mode="contained"
-              style={{ flex: 1 }}
+              style={{
+                flex: 1,
+                borderRadius: 12,
+                borderColor: item.registered
+                  ? "#842323"
+                  : theme.colors.icons.active,
+                borderWidth: 2,
+              }}
               icon={
                 item.registered
                   ? null
@@ -306,7 +336,9 @@ export const EventList = () => {
                 fontWeight: "bold",
                 color: "white",
               }}
-              color={item.registered ? "#842323" : theme.colors.icons.active}
+              buttonColor={
+                item.registered ? "#842323" : theme.colors.icons.active
+              }
             >
               {item.registered
                 ? i18n.t("events.unattend")
@@ -384,7 +416,7 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   cardActionButton: {
-    paddingVertical: 5,
+    paddingVertical: 2,
   },
   modalContainer: {
     flex: 1,
