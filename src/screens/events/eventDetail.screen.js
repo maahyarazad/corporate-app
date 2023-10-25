@@ -189,18 +189,94 @@ export const EventDetailScreen = () => {
     }
   };
 
-  const getDirections = () => {
-    const scheme = Platform.select({
-      ios: "maps:0,0?q=",
-      android: "geo:0,0?q=",
-    });
-    const latLng = `${eventDetails?.lat},${eventDetails?.lng}`;
-    const label = eventDetails?.eventPlace;
-    const url = Platform.select({
-      ios: `${scheme}${label}@${latLng}`,
-      android: `${scheme}${latLng}(${label})`,
-    });
-    Linking.openURL(url);
+  const getDirections = async () => {
+    try {
+      const scheme = Platform.select({
+        ios: `maps:0,0?q=`,
+        android: "geo:0,0?q=",
+      });
+      const latLng = `${eventDetails?.lat},${eventDetails?.lng}`;
+      const label = eventDetails?.eventPlace;
+      const url = Platform.select({
+        ios: `${scheme}${encodeURIComponent(label)}@${latLng}`,
+        android: `${scheme}${latLng}(${encodeURIComponent(label)})`,
+      });
+      await Linking.openURL(url);
+    } catch (error) {
+      console.error("Failed to get directions:", error);
+    }
+  };
+
+  const GuestCheckbox = () => {
+    return (
+      <>
+        {eventDetails &&
+          eventDetails.guests === 1 &&
+          !eventDetails.registered && (
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginTop: 8,
+                marginHorizontal: -8,
+              }}
+            >
+              <Checkbox.Android
+                status={includeGuests ? "checked" : "unchecked"}
+                onPress={() => {
+                  setIncludeGuests(!includeGuests);
+                }}
+                uncheckedColor="black"
+                color="black"
+              />
+              <Label
+                onPress={() => {
+                  setIncludeGuests(!includeGuests);
+                }}
+              >
+                {i18n.t("events.include-guests")}
+              </Label>
+            </View>
+          )}
+      </>
+    );
+  };
+
+  const RegisterButton = () => {
+    return (
+      <Button
+        mode="contained"
+        style={{
+          marginVertical: 8,
+          borderRadius: 10,
+          shadowOffset: { width: 0, height: 4 },
+          shadowColor: "#000",
+          shadowOpacity: 0.2,
+          shadowRadius: 4,
+          elevation: 12,
+        }}
+        buttonColor={
+          eventDetails.registered ? "#842323" : theme.colors.icons.active
+        }
+        loading={attendLoading}
+        disabled={attendLoading}
+        contentStyle={{ paddingVertical: 8 }}
+        labelStyle={{ fontWeight: "bold", fontSize: 16 }}
+        onPress={
+          eventDetails.registered
+            ? confirmCancel
+            : includeGuests
+            ? confirmAttendanceGuests
+            : confirmAttendance
+        }
+      >
+        {eventDetails.registered
+          ? i18n.t("events.unattend")
+          : includeGuests
+          ? i18n.t("events.attend-w-guests")
+          : i18n.t("events.attend")}
+      </Button>
+    );
   };
 
   return (
@@ -295,59 +371,8 @@ export const EventDetailScreen = () => {
                   />
                   {` ` + eventDetails.eventPlace}
                 </Label>
-                {eventDetails &&
-                  eventDetails.guests === 1 &&
-                  !eventDetails.registered && (
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        marginTop: 8,
-                      }}
-                    >
-                      <Checkbox.Android
-                        status={includeGuests ? "checked" : "unchecked"}
-                        onPress={() => {
-                          setIncludeGuests(!includeGuests);
-                        }}
-                        uncheckedColor="black"
-                        color="black"
-                      />
-                      <Label
-                        onPress={() => {
-                          setIncludeGuests(!includeGuests);
-                        }}
-                      >
-                        {i18n.t("events.include-guests")}
-                      </Label>
-                    </View>
-                  )}
-                <Button
-                  mode="contained"
-                  style={{ marginVertical: 8 }}
-                  color={
-                    eventDetails.registered
-                      ? "#842323"
-                      : theme.colors.icons.active
-                  }
-                  loading={attendLoading}
-                  disabled={attendLoading}
-                  contentStyle={{ paddingVertical: 8 }}
-                  labelStyle={{ fontWeight: "bold", fontSize: 16 }}
-                  onPress={
-                    eventDetails.registered
-                      ? confirmCancel
-                      : includeGuests
-                      ? confirmAttendanceGuests
-                      : confirmAttendance
-                  }
-                >
-                  {eventDetails.registered
-                    ? i18n.t("events.unattend")
-                    : includeGuests
-                    ? i18n.t("events.attend-w-guests")
-                    : i18n.t("events.attend")}
-                </Button>
+                <GuestCheckbox />
+                <RegisterButton />
 
                 <View style={{ marginVertical: 16 }}>
                   <Map
@@ -377,59 +402,8 @@ export const EventDetailScreen = () => {
                 </View>
 
                 <Label>{eventDetails.eventDescription}</Label>
-                {eventDetails &&
-                  eventDetails.guests === 1 &&
-                  !eventDetails.registered && (
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        marginTop: 16,
-                      }}
-                    >
-                      <Checkbox.Android
-                        status={includeGuests ? "checked" : "unchecked"}
-                        onPress={() => {
-                          setIncludeGuests(!includeGuests);
-                        }}
-                        uncheckedColor="black"
-                        color="black"
-                      />
-                      <Label
-                        onPress={() => {
-                          setIncludeGuests(!includeGuests);
-                        }}
-                      >
-                        {i18n.t("events.include-guests")}
-                      </Label>
-                    </View>
-                  )}
-                <Button
-                  mode="contained"
-                  style={{ marginVertical: 8 }}
-                  color={
-                    eventDetails.registered
-                      ? "#842323"
-                      : theme.colors.icons.active
-                  }
-                  loading={attendLoading}
-                  disabled={attendLoading}
-                  contentStyle={{ paddingVertical: 8 }}
-                  labelStyle={{ fontWeight: "bold", fontSize: 16 }}
-                  onPress={
-                    eventDetails.registered
-                      ? confirmCancel
-                      : includeGuests
-                      ? confirmAttendanceGuests
-                      : confirmAttendance
-                  }
-                >
-                  {eventDetails.registered
-                    ? i18n.t("events.unattend")
-                    : includeGuests
-                    ? i18n.t("events.attend-w-guests")
-                    : i18n.t("events.attend")}
-                </Button>
+                <GuestCheckbox />
+                <RegisterButton />
               </View>
             </View>
           )}
@@ -449,7 +423,7 @@ const styles = StyleSheet.create({
   mapButtons: {
     flex: 1,
     backgroundColor: "#ddd",
-    borderBottomRightRadius: 0,
+    borderTopLeftRadius: 0,
     borderTopRightRadius: 0,
   },
   modalContainer: {
