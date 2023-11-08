@@ -194,7 +194,7 @@ export const carInclusions = [
   },
   {
     label: "Boardcomputer",
-    value: "board_conputer",
+    value: "board_computer",
   },
   {
     label: "Unfallrei",

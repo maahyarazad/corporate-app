@@ -56,7 +56,7 @@ export const RequestApprovalScreen = () => {
   const { uploadCard, loading, setLoading, abortUpload } =
     useContext(UploadContext);
 
-  const { user, setUser, setSkip } = useContext(AuthContext);
+  // const { user, setUser, setSkip } = useContext(AuthContext);
   const { i18n } = useContext(TranslationContext);
   const { hasSubmit } = useAuth();
 
@@ -67,6 +67,12 @@ export const RequestApprovalScreen = () => {
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.flashScrollIndicators();
   }, []);
+
+  useEffect(() => {
+    console.log("hasSubmit Changed", hasSubmit);
+
+    return () => {};
+  }, [hasSubmit]);
 
   const handleEdit = () => {
     navigate("AuthEditProfile");
@@ -102,9 +108,11 @@ export const RequestApprovalScreen = () => {
         {
           text: i18n.t("skip-auth-msg.button-order"),
           onPress: () => {
-            Linking.openURL(`tel:+971562050066`).catch((err) => {
-              alert("Unable to call this number");
-            });
+            Linking.openURL(`tel:${encodeURIComponent("+971562050066")}`).catch(
+              (err) => {
+                alert("Unable to call this number");
+              }
+            );
           },
         },
         {
@@ -115,8 +123,6 @@ export const RequestApprovalScreen = () => {
         },
       ]
     );
-
-    console.log(user);
   };
 
   const handleUpload = async () => {
@@ -240,8 +246,8 @@ export const RequestApprovalScreen = () => {
                 />
               </TouchableHighlight>
             </View>
-            {user.remarks != undefined &&
-              user.remarks.trim() !== "" &&
+            {userData?.remarks != undefined &&
+              userData?.remarks.trim() !== "" &&
               !hasSubmit && (
                 <View style={{ padding: 20 }}>
                   <Label
@@ -252,12 +258,13 @@ export const RequestApprovalScreen = () => {
                     <Label size={"subtitle"} weight={"bold"}>
                       {`Rejected Previous Request `}
                     </Label>
-                    ({moment(user.requestDate).format("DD.MMMM YYYY H:mm A")})
-                    {"\n"}
+                    (
+                    {moment(userData.requestDate).format("DD.MMMM YYYY H:mm A")}
+                    ){"\n"}
                     <Label size={"subtitle"} weight={"bold"}>
                       Reason
                     </Label>
-                    : {user.remarks}
+                    : {userData.remarks}
                   </Label>
 
                   <TouchableOpacity onPress={handleEdit}>

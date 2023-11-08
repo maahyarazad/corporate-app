@@ -49,11 +49,12 @@ export const UnverifiedEmailScreen = ({ route }) => {
           <Spacer position={"top"} size="large" />
           <Button
             onPress={goback}
-            color={theme.colors.icons.active}
+            style={{ borderRadius: 10 }}
+            buttonColor={theme.colors.icons.active}
             contentStyle={{ paddingVertical: 8, paddingHorizontal: 16 }}
             mode="contained"
           >
-            <Label size={"body"} weight={"bold"}>
+            <Label size={"body"} weight={"bold"} color={"white"}>
               {i18n.t("email-verification.button")}
             </Label>
           </Button>

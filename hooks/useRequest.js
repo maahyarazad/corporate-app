@@ -4,6 +4,7 @@ import { config } from "../src/utils/constants";
 import useAuth from "./useAuth";
 import refreshAccessToken from "../helper/refreshAccessToken";
 import { navigate } from "../src/navigation/navigate";
+import useUser from "./useUser";
 
 const MAX_RETRY = 3;
 
@@ -11,12 +12,18 @@ export default function useRequest() {
   const {
     refreshToken,
     accessToken,
-    setAccessToken,
+    renewAccessToken,
     signout,
     setNoConnection,
     setNoConnectionRetry,
     initialize,
+    unauthorize,
+    goToVerification,
+    isAuthorized,
+    hasSubmit,
   } = useAuth();
+
+  const user = useUser();
 
   const httpRequest = async (
     url,
@@ -32,6 +39,7 @@ export default function useRequest() {
         return;
       }
       console.log(`URL Called: (${method.toUpperCase()})`, url);
+
       const options = {
         method,
         url,
@@ -47,19 +55,54 @@ export default function useRequest() {
       if (!url || !method) {
         return;
       }
-      const response = await axios.request(options);
+
+      //Check if user is expired
+      if (
+        user &&
+        user?.userData?.member === 0 &&
+        user?.userData?.expired === 1 &&
+        user?.userData?.isAuthorized === 1 &&
+        isAuthorized === 1 &&
+        hasSubmit === 1
+      ) {
+        //Update user status to unauthorized in Server
+        const unauth = await httpRequest("/v2/auth/unauthorize", "put");
+        if (unauth.success) {
+          await SecureStorage.setItemAsync("isAuthorized", "0");
+          await SecureStorage.setItemAsync("hasSubmit", "0");
+        }
+        Alert.alert(
+          "Card Expired",
+          "Your card has expired. Please contact your HR Department to renew your card."
+        );
+        return goToVerification();
+      }
+
+      const response = await axios.request({
+        timeoutErrorMessage: "Request Timeout",
+        ...options,
+      });
+      // console.log("REQUEST Response: ", response);
 
       return Promise.resolve(response.data);
     } catch (error) {
+      if (error.code === "ECONNABORTED") {
+        Alert.alert(
+          "Request Timeout Error",
+          "The request took too long to complete. Please check your network connection and try again."
+        );
+        return;
+      }
       // Alert.alert(
       //   "Error",
       //   `${error}, ${error.response}, ${error.response.status}`
       // );
       if (error && error.response && error.response.status >= 0) {
+        // Alert.alert("Error Code", error.response.status);
+
         switch (error.response.status) {
           case 0:
             if (retry >= MAX_RETRY) {
-              alert("NO CONNECTION");
               setNoConnection(true);
               setNoConnectionRetry({
                 fn: () => {
@@ -80,21 +123,34 @@ export default function useRequest() {
             );
 
           case 401:
+            console.log("401 ERROR", error.response.data);
+            if (error.response.data.expired) {
+              alert(
+                "Your card has expired, please upload a new one and change your card details in the profile page."
+              );
+              return unauthorize();
+            }
+
+            if (error.response.data.signout) {
+              Alert.alert(
+                "Notice",
+                "You have already logged in from another device!"
+              );
+              return signout();
+            }
+
             //refresh token
             const response = await refreshAccessToken(refreshToken).catch(
-              (_signout) => {
-                console.log("MESSAGE:", _signout);
-                if (_signout) {
-                  Alert.alert(
-                    "Notice",
-                    "You have already logged in from another device!"
-                  );
+              (logout) => {
+                if (logout) {
+                  Alert.alert("Token Invalid", "Please login again.");
                   return signout();
                 }
               }
             );
+
             if (response) {
-              setAccessToken(response);
+              renewAccessToken(response);
               //retry
               return await httpRequest(
                 url,
@@ -116,6 +172,8 @@ export default function useRequest() {
           case 500:
             console.error(error.response);
             throw error.response;
+          default:
+            return error.response.data;
         }
       }
     }

@@ -46,12 +46,12 @@ const PostEntryCategorySelect = () => {
 
   const RenderBody = () => {
     switch (type.id) {
-      case 0:
+      case 1:
         return (
           <View style={styles.bodyContainer}>
             <View style={styles.titleContainer}>
               <Label size={25} weight={"bold"}>
-                Forum Category
+                Forum-Kategorie
               </Label>
               <Label size={"subtitle"} weight={"medium"}>
                 What do you want to talk about?
@@ -78,15 +78,18 @@ const PostEntryCategorySelect = () => {
             />
           </View>
         );
-      case 1:
+      case 2:
+      case 3:
         return (
           <View style={styles.bodyContainer}>
             <View style={styles.titleContainer}>
               <Label size={25} weight={"bold"}>
-                Marketplace Category
+                Marktplatz-Kategorie
               </Label>
               <Label size={"subtitle"} weight={"medium"}>
-                What do you want to sell?
+                {type.id === 2
+                  ? "Was möchten Sie anbieten?"
+                  : "Was möchten Sie suchen??"}
               </Label>
             </View>
             <FlatList
@@ -124,7 +127,7 @@ const PostEntryCategorySelect = () => {
                 size={24}
                 color="black"
               />
-              <Label>Back</Label>
+              <Label>Zurück</Label>
             </View>
           </TouchableOpacity>
         </View>
@@ -146,6 +149,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
+    paddingVertical: 8,
   },
   bodyContainer: {
     flex: 1,

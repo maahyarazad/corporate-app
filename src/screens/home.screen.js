@@ -12,6 +12,7 @@ import {
   ScrollView,
   Text,
   TouchableHighlight,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { FeaturedBanner } from "../features/home/components/banner.component";
@@ -28,14 +29,9 @@ import {
   TopPartners,
 } from "../features/home/components/toppartners.component";
 import { config, typeEnum } from "../utils/constants";
-import { isDevice } from "expo-device";
-import * as SecureStorage from "expo-secure-store";
-import * as Notifications from "expo-notifications";
-import { NotificationsService } from "../services/notifications/notifications.service";
 import { TranslationContext } from "../services/translation/translation.context";
 import { Hotpicks } from "../components/hotpick/hotpicks.component";
 import { UrlListener } from "../utils/urlRouter";
-import { addNotificationResponseReceivedListener } from "expo-notifications";
 import { LocationContext } from "../services/location/location.context";
 import { StatusBar } from "expo-status-bar";
 import { Label } from "../components/typography/label.component";
@@ -46,7 +42,7 @@ import useUser from "../../hooks/useUser";
 import moment from "moment";
 import { CustomModal } from "../components/modal/customModal.component";
 import { OrderCardModal } from "../features/offers/components/offerModalForm";
-import { useNavigation } from "@react-navigation/native";
+import * as SecureStore from "expo-secure-store";
 
 const HomeContainer = styled(FlatList)`
   flex: 1;
@@ -127,94 +123,49 @@ export const HomeScreen = ({ ...props }) => {
   const { isSkip, goToVerification } = useAuth();
   const { userData } = useUser();
   const [showModal, setShowModal] = useState(false);
+  const [closeWarning, setCloseWarning] = useState(false);
+  const [expireWarning, setExpireWarning] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
     //Handle Push Notification Listener
-    const subscription = addNotificationResponseReceivedListener(
-      handleNotificationResponse
-    );
 
-    const getPushToken = async () => {
-      try {
-        const pToken = await SecureStorage.getItemAsync("pushtoken");
-        if (pToken != undefined) {
-          console.log("push token is available");
-          return;
+    const checkExpireWarning = async () => {
+      const remainingDays = moment(userData?.expiry).diff(moment(), "days");
+
+      if (userData?.expiry && remainingDays > 10 && remainingDays <= 40) {
+        const _expireWarning = await getLocalExpireWarning();
+        if (!_expireWarning) {
+          setExpireWarning(1);
         }
-
-        console.log("push token is blank/invalid");
-        registerForPushNotificationsAsync();
-      } catch (error) {
-        console.log(error);
+      } else {
+        //reset expire warning local store
+        setExpireWarning(0);
+        saveWarning(0);
       }
     };
-
-    getPushToken();
+    checkExpireWarning();
 
     return () => {
       isMounted = false;
-      subscription.remove();
     };
   }, []);
 
-  const handleNotificationResponse = (response) => {
-    const notificationData = response.notification.request.content.data;
+  const getLocalExpireWarning = async () => {
+    try {
+      const _expireWarning = await SecureStore.getItemAsync("expireWarning");
 
-    console.log("NOTIFICATION", notificationData);
-    switch (notificationData.path) {
-      case "partner":
-        navigate("Location View", {
-          locId: notificationData.id,
-        });
-        break;
-      case "event":
-        navigate("Event Detail", {
-          id: notificationData.id,
-        });
-        break;
+      return parseInt(_expireWarning ?? 0);
+    } catch (error) {
+      console.error("Failed to get local storage [Home]:", error);
     }
-
-    console.log(notificationData.path);
   };
 
-  const registerForPushNotificationsAsync = async () => {
-    if (isDevice) {
-      const { status: existingStatus } =
-        await Notifications.getPermissionsAsync();
-      let finalStatus = existingStatus;
-      if (existingStatus !== "granted") {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-      }
-      if (finalStatus !== "granted") {
-        alert("Failed to get push token for push notification!");
-        return;
-      }
-      const token = (await Notifications.getExpoPushTokenAsync()).data;
-      console.log(token, user.user_id);
-
-      const response = await NotificationsService.storePushToken(
-        user.user_id,
-        token
-      );
-      if (!response.success) {
-        Alert.alert(response.title, response.message);
-      }
-      // console.log("whattt");
-      // console.log(user);
-      await SecureStorage.setItemAsync("pushtoken", token);
-    } else {
-      alert("Must use physical device for Push Notifications");
-    }
-
-    if (Platform.OS === "android") {
-      Notifications.setNotificationChannelAsync("default", {
-        name: "default",
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: "#FF231F7C",
-      });
+  const saveWarning = async (value) => {
+    try {
+      await SecureStore.setItemAsync("expireWarning", value.toString());
+    } catch (error) {
+      console.error("Failed to save local storage [Home]:", error);
     }
   };
 
@@ -240,10 +191,16 @@ export const HomeScreen = ({ ...props }) => {
   const closeModal = () => {
     setShowModal(false);
   };
+
+  const handleCloseWarning = () => {
+    setCloseWarning(true);
+    saveWarning(1);
+  };
+
   const handleOrderCard = () => {
     setShowModal(true);
   };
-  const WarningBar = ({ msg }) => {
+  const WarningBar = ({ msg, canClose = false }) => {
     return (
       <View
         style={{
@@ -258,54 +215,101 @@ export const HomeScreen = ({ ...props }) => {
           zIndex: 1,
         }}
       >
-        <View
-          style={{
-            flex: 1,
-          }}
-        >
-          <Label color={"white"}>{msg}</Label>
+        <View style={{ flexDirection: "row", gap: 8, flex: 1 }}>
+          <View
+            style={{
+              flex: 1,
+            }}
+          >
+            <Label color={"white"}>{msg}</Label>
+          </View>
+          <CustomButton
+            onPress={handleOrderCard}
+            style={{
+              backgroundColor: theme.colors.icons.active,
+              borderWidth: 0,
+              shadowOpacity: 0.5,
+              shadowColor: "black",
+              shadowOffset: {
+                width: 2,
+                height: 2,
+              },
+              shadowRadius: 5,
+            }}
+            label={"Order Card"}
+            labelStyle={{ color: "white" }}
+          />
+          {canClose && (
+            <View style={{ justifyContent: "center" }}>
+              <TouchableOpacity onPress={handleCloseWarning}>
+                <MaterialCommunityIcons
+                  name="close"
+                  size={25}
+                  color={"white"}
+                />
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
-        <CustomButton
-          onPress={handleOrderCard}
-          style={{
-            backgroundColor: theme.colors.icons.active,
-            borderWidth: 0,
-            shadowOpacity: 0.5,
-            shadowColor: "black",
-            shadowOffset: {
-              width: 2,
-              height: 2,
-            },
-            shadowRadius: 5,
-          }}
-          label={"Order Card"}
-          labelStyle={{ color: "white" }}
-        />
       </View>
     );
   };
 
+  const calculateRemainingTime = () => {
+    const remainingDays = moment(userData?.expiry).diff(moment(), "days");
+
+    if (!(remainingDays > 0)) {
+      const remainingHours = moment(userData?.expiry).diff(moment(), "hours");
+
+      if (!(remainingHours > 0)) {
+        const remainingMinutes = moment(userData?.expiry).diff(
+          moment(),
+          "minutes"
+        );
+
+        if (!(remainingMinutes > 0)) {
+          return `less than a minute`;
+        }
+
+        return remainingMinutes + ` minutes`;
+      }
+
+      return remainingHours + ` hours`;
+    }
+
+    return remainingDays + ` days`;
+  };
+
   return (
     <>
-      {isSkip ? (
+      {userData && userData?.expiry && expireWarning && !closeWarning ? (
+        <WarningBar
+          canClose={true}
+          msg={`Your card will expire in ${moment(userData.expiry).diff(
+            moment(),
+            "days"
+          )} days. Please order a new card and upload it.`}
+        />
+      ) : userData &&
+        moment(userData?.expiry).diff(moment(), "days") <= 10 &&
+        !closeWarning &&
+        !isSkip ? (
+        <WarningBar
+          msg={`Your card will expire in ${calculateRemainingTime()}. Please order a new card and upload it.`}
+        />
+      ) : isSkip ? (
         <WarningBar
           msg={
             "You have not uploaded a card yet. To avail offers, please upload a card."
           }
         />
-      ) : userData.expired > 0 ? (
-        <WarningBar
-          msg={`Your card has already expired on ${moment(
-            userData.expiry
-          ).format("MMM YYYY")}. Please upload your new card.`}
-        />
       ) : (
-        moment(userData.expiry).diff(moment(), "days") >= 5 && (
+        userData &&
+        userData?.expired > 0 && (
           <WarningBar
-            msg={`Your card will expire in ${moment(userData.expiry).diff(
-              moment(),
-              "days"
-            )} Days. Please order a new card and upload it.`}
+            msg={`Your card has already expired on ${moment(
+              userData.expiry
+            ).format("MMM YYYY")}. Please upload your new card.`}
           />
         )
       )}

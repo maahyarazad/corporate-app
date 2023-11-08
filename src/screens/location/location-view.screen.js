@@ -120,8 +120,8 @@ export const LocationViewScreen = ({ route, navigation }) => {
     const latLng = `${location?.lat},${location?.lng}`;
     const label = location?.name;
     const url = Platform.select({
-      ios: `${scheme}${label}@${latLng}`,
-      android: `${scheme}${latLng}(${label})`,
+      ios: `${scheme}${encodeURIComponent(label)}@${latLng}`,
+      android: `${scheme}${latLng}(${encodeURIComponent(labe)})`,
     });
     Linking.openURL(url);
   };
@@ -316,9 +316,11 @@ export const LocationViewScreen = ({ route, navigation }) => {
   });
 
   const callNumber = (phoneNumber) => {
-    Linking.openURL(`tel:${phoneNumber.trim()}`).catch((err) => {
-      alert("Unable to call this number");
-    });
+    Linking.openURL(`tel:${encodeURIComponent(phoneNumber.trim())}`).catch(
+      (err) => {
+        alert("Unable to call this number");
+      }
+    );
   };
 
   useEffect(() => {

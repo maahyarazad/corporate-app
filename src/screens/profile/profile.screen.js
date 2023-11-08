@@ -21,6 +21,7 @@ import { theme } from "../../infrastructure/theme";
 import { goback } from "../../navigation/navigate";
 import { Ionicons } from "@expo/vector-icons";
 import { TranslationContext } from "../../services/translation/translation.context";
+import { CacheImage } from "../../components/cacheImage";
 
 const ProfileStack = createStackNavigator();
 
@@ -28,13 +29,12 @@ const ProfilePrimaryScreen = () => {
   const { userData } = useUser();
   const { isSkip, goToVerification } = useAuth();
   const { width } = Dimensions.get("window");
-  const [height, setHeight] = useState(100);
 
   const { i18n } = useContext(TranslationContext);
 
   return (
     <>
-      {userData != undefined && (
+      {
         <SafeArea style={{ backgroundColor: "#efefef" }}>
           <View style={{ paddingHorizontal: 16 }}>
             <TouchableOpacity
@@ -59,9 +59,6 @@ const ProfilePrimaryScreen = () => {
           {/* Main Container */}
           <View
             style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
-            onLayout={(e) => {
-              setHeight(e.nativeEvent.layout.height);
-            }}
           >
             {/* Image Container */}
             {!isSkip ? (
@@ -69,8 +66,8 @@ const ProfilePrimaryScreen = () => {
                 style={{
                   // height: "40%",
                   // width: width,
-                  height: height,
-                  width: height * (800 / 550),
+                  width: "90%",
+                  aspectRatio: 1.45,
                   padding: 16,
                   justifyContent: "center",
                   alignItems: "center",
@@ -78,17 +75,15 @@ const ProfilePrimaryScreen = () => {
                   // backgroundColor: "#ccc",
                 }}
               >
-                <Image
+                <CacheImage
                   style={{
                     width: "100%",
                     height: "100%",
-                    resizeMode: "cover",
                     borderRadius: 10,
                     backgroundColor: "#ccc",
                   }}
-                  source={{
-                    uri: `${config.SERVER_HOST}/uploads/app/card_images/${userData.card_image}`,
-                  }}
+                  resizeMode={"cover"}
+                  uri={`${config.SERVER_HOST}/uploads/app/card_images/${userData?.card_image}`}
                 />
               </View>
             ) : (
@@ -113,7 +108,7 @@ const ProfilePrimaryScreen = () => {
             <ProfTabs />
           </View>
         </SafeArea>
-      )}
+      }
     </>
   );
 };

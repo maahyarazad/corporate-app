@@ -414,6 +414,7 @@ export const AvailOfferScreen = ({ route }) => {
                     style={{
                       flex: 1,
                       backgroundColor: pinReady ? "#1282FF" : "gray",
+                      borderRadius: 12,
                     }}
                     mode="contained"
                   >
@@ -426,7 +427,11 @@ export const AvailOfferScreen = ({ route }) => {
                     }}
                     labelStyle={{ fontSize: 12 }}
                     contentStyle={{ padding: 10 }}
-                    style={{ flex: 1, backgroundColor: "#1282FF" }}
+                    style={{
+                      flex: 1,
+                      backgroundColor: "#1282FF",
+                      borderRadius: 12,
+                    }}
                     mode="contained"
                     icon={() => {
                       return <Ionicons name="call" color={"white"} size={20} />;

@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -18,12 +19,15 @@ import PostEntryForm from "./post_entry/postEntryForm.component";
 import { Label } from "../../components/typography/label.component";
 import useUser from "../../../hooks/useUser";
 import { Post } from "./postDetail.screen";
-import { Button } from "react-native-paper";
+import { Button, Searchbar } from "react-native-paper";
 import { debounce } from "lodash";
 import { FlatList } from "react-native-bidirectional-infinite-scroll";
 import { navigate } from "../../navigation/navigate";
 import * as SecureStore from "expo-secure-store";
 import { Spacer } from "../../components/spacer/spacer.component";
+import PostCardMarketplace from "./post_card/postCardMarketplace.component";
+import useAuth from "../../../hooks/useAuth";
+import { SearchButton } from "../../components/searchbutton";
 
 const PostCardModified = ({ item, ...props }) => {
   useEffect(() => {
@@ -86,6 +90,7 @@ export default function PostsScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [changeCount, setChangeCount] = useState(0);
   const [lastViewed, setLastViewed] = useState(null);
+  const { signout } = useAuth();
 
   const flatListRef = useRef();
 
@@ -97,11 +102,11 @@ export default function PostsScreen() {
         );
         if (last_post_viewed) {
           setLastViewed(parseInt(last_post_viewed));
-          loadOldPosts(parseInt(last_post_viewed));
+          loadOldPosts(parseInt(99999));
         } else {
           console.log("test2");
-          setLastViewed(parseInt(11650));
-          loadOldPosts(11650);
+          setLastViewed(parseInt(99999));
+          loadOldPosts(99999);
         }
       } catch (error) {
         alert("Failed to retrieve last viewed post");
@@ -167,6 +172,10 @@ export default function PostsScreen() {
       onViewableItemsChanged,
     },
   ]);
+
+  const onSearchFocus = () => {
+    navigate("post-search");
+  };
 
   // const loadInitialPosts = async () => {
   //   try {
@@ -244,6 +253,7 @@ export default function PostsScreen() {
   const handleNewPost = () => {
     // setShowNewPostModal(true);
     navigate("post-select");
+    // signout();
   };
 
   const handleCloseModal = () => {
@@ -295,6 +305,8 @@ export default function PostsScreen() {
     } finally {
     }
   };
+
+  const debounceRefreshPage = debounce(refreshPage, 300);
   // const refreshPage = useCallback(
   //   debounce(async () => {
   //     try {
@@ -331,100 +343,111 @@ export default function PostsScreen() {
     return <View style={styles.separator}></View>;
   };
 
-  const renderRowPostCard = ({ item }) => {
+  const renderRowPostCard = ({ item, index }) => {
     const handlePress = () => {
       handleCommentPress(item);
     };
 
-    return (
-      <MemoizedPostComponent
-        key={item.id}
-        item={item}
-        onCommentPress={handlePress}
-        onSharePress={handleSharePress}
-        onTitlePress={handleTitlePress}
-      />
-    );
+    switch (item.post_type) {
+      case 1:
+        return (
+          <MemoizedPostComponent
+            key={item.id}
+            item={item}
+            onCommentPress={handlePress}
+            onSharePress={handleSharePress}
+            onTitlePress={handleTitlePress}
+          />
+        );
+
+      case 2:
+        return <PostCardMarketplace key={item.id} item={item} />;
+    }
   };
 
   return (
     <>
-      <View style={styles.container}>
+      <View style={[styles.container, { gap: 0 }]}>
         {rootPosts?.length > 0 && (
-          /* <KeyboardAwareFlatList
-            ref={flatListRef}
-            ItemSeparatorComponent={() => (
-              <View style={styles.separator}></View>
-            )}
-            style={styles.container}
-            // refreshing={refreshing}
-            keyExtractor={(item) => item?.post_id?.toString()}
-            // onRefresh={refreshPage}
-            data={rootPosts}
-            extraData={updateCount}
-            onEndReached={loadNextPage}
-            onEndReachedThreshold={0.5}
-            // onStartReachedThreshold={0.5}
-            onStartReached={() => {
-              refreshPage();
-            }}
-            maintainVisibleContentPosition={{
-              minIndexForVisible: 0,
-            }}
-            ListFooterComponent={() => (
-              <View
-                style={{
-                  alignItems: "center",
-                  paddingVertical: 12,
+          <>
+            {true ? (
+              <FlatList
+                ListHeaderComponent={() => (
+                  <View
+                    style={{
+                      flex: 1,
+                      backgroundColor: "white",
+                      alignItems: "center",
+                      paddingHorizontal: 8,
+                    }}
+                  >
+                    <TouchableWithoutFeedback onPress={onSearchFocus}>
+                      <View
+                        style={{
+                          paddingVertical: 10,
+                          paddingHorizontal: 10,
+                          marginVertical: 4,
+                          flexDirection: "row",
+                          gap: 10,
+                          backgroundColor: "#eee",
+                          borderRadius: 50,
+                          width: "100%",
+                        }}
+                      >
+                        <MaterialCommunityIcons
+                          name="magnify"
+                          size={20}
+                          color="black"
+                        />
+                        <Label size={"subtitle"}>Posts durchsuchen</Label>
+                      </View>
+                    </TouchableWithoutFeedback>
+                  </View>
+                )}
+                showDefaultLoadingIndicators={false}
+                ref={flatListRef}
+                // scrollEnabled={false}
+                ItemSeparatorComponent={insertSeparator}
+                style={styles.container}
+                // refreshing={refreshing}
+                keyExtractor={(item) => item?.post_id?.toString()}
+                // onRefresh={refreshPage}
+                data={rootPosts}
+                // extraData={updateCount}
+                onEndReached={loadNextPage}
+                onEndReachedThreshold={0.5}
+                onStartReachedThreshold={0.5}
+                onStartReached={debounceRefreshPage}
+                maintainVisibleContentPosition={{
+                  minIndexForVisible: 0,
                 }}
-              >
-              </View>
-            )}
-            renderItem={renderRowPost}
-          ></KeyboardAwareFlatList> */
-
-          <FlatList
-            ref={flatListRef}
-            // scrollEnabled={false}
-            ItemSeparatorComponent={insertSeparator}
-            style={styles.container}
-            // refreshing={refreshing}
-            keyExtractor={(item) => item?.post_id?.toString()}
-            // onRefresh={refreshPage}
-            data={rootPosts}
-            // extraData={updateCount}
-            onEndReached={loadNextPage}
-            onEndReachedThreshold={10}
-            // onStartReachedThreshold={1}
-            onStartReached={refreshPage}
-            maintainVisibleContentPosition={{
-              minIndexForVisible: 0,
-            }}
-            viewabilityConfigCallbackPairs={
-              viewabilityConfigCallbackPairs.current
-            }
-            viewabilityConfig={{
-              viewareaCoveragePercentThreshold: 30,
-            }}
-            initialNumToRender={4}
-            maxToRenderPerBatch={15}
-            removeClippedSubviews={true}
-            updateCellsBatchingPeriod={200}
-            scrollEventThrottle={1000}
-            windowSize={15}
-            showsVerticalScrollIndicator={false}
-            ListFooterComponent={() => (
-              <View
-                style={{
-                  alignItems: "center",
-                  paddingVertical: 12,
+                viewabilityConfigCallbackPairs={
+                  viewabilityConfigCallbackPairs.current
+                }
+                viewabilityConfig={{
+                  viewareaCoveragePercentThreshold: 30,
                 }}
-              >
-                {/* <Text style={{ color: "#aaa" }}>-- End of Feed --</Text> */}
-              </View>
+                initialNumToRender={4}
+                maxToRenderPerBatch={15}
+                removeClippedSubviews={true}
+                updateCellsBatchingPeriod={200}
+                scrollEventThrottle={1000}
+                windowSize={15}
+                showsVerticalScrollIndicator={false}
+                ListFooterComponent={() => (
+                  <View
+                    style={{
+                      alignItems: "center",
+                      paddingVertical: 12,
+                    }}
+                  ></View>
+                )}
+                renderItem={renderRowPostCard}
+              ></FlatList>
+            ) : (
+              <PostCardMarketplace />
             )}
-            renderItem={renderRowPostCard}
-          ></FlatList>
+          </>
         )}
         <View style={styles.floatButton}>
           <TouchableOpacity onPress={handleNewPost}>
@@ -436,79 +459,17 @@ export default function PostsScreen() {
                 width: 70,
                 borderRadius: 35,
                 backgroundColor: theme.colors.icons.active,
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 5 },
+                shadowOpacity: 0.4,
+                shadowRadius: 4,
+                elevation: 12,
               }}
             >
               <MaterialCommunityIcons name="plus" color={"white"} size={40} />
             </View>
           </TouchableOpacity>
         </View>
-        <Modal
-          visible={showNewPostModal}
-          style={{ marginTop: 100, backgroundColor: "red", height: 200 }}
-          presentationStyle="formSheet"
-          animationType="slide"
-          onRequestClose={handleCloseModal}
-        >
-          {/* Pill */}
-          {/* <View
-            style={{
-              flexGrow: 0,
-              flexDirection: "row",
-              justifyContent: "center",
-              paddingVertical: 16,
-            }}
-          >
-            <View
-              style={{
-                backgroundColor: "#ddd",
-                width: 40,
-                height: 6,
-                borderRadius: 20,
-              }}
-            ></View>
-          </View> */}
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-              paddingHorizontal: 12,
-              paddingTop: 12,
-            }}
-          >
-            <MaterialCommunityIcons
-              suppressHighlighting={true}
-              onPress={handleCloseModal}
-              name="close"
-              size={30}
-            />
-
-            <Label weight={"bold"} size={"title"}>
-              New Post
-            </Label>
-            <TouchableOpacity onPress={handleAddPost}>
-              <View
-                style={{
-                  backgroundColor: theme.colors.icons.active,
-                  paddingHorizontal: 10,
-                  paddingVertical: 4,
-                  borderRadius: 6,
-                }}
-              >
-                <Label
-                  style={{ color: "white" }}
-                  weight={"medium"}
-                  size={"body"}
-                >
-                  Post
-                </Label>
-              </View>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.modalInner}>
-            <PostEntryForm setValue={setNewPostState} value={newPostState} />
-          </View>
-        </Modal>
       </View>
     </>
   );

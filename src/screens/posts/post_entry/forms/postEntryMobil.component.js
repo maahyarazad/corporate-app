@@ -4,6 +4,7 @@ import {
   Switch,
   Text,
   TextInput,
+  Touchable,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
@@ -18,27 +19,28 @@ import {
   motorcycleInclusions,
 } from "../../../../utils/marketplaceConstants";
 import { Label } from "../../../../components/typography/label.component";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { width } from "../../../../components/styles";
-import { Checkbox, SegmentedButtons } from "react-native-paper";
+import { Button, Checkbox, SegmentedButtons } from "react-native-paper";
 import { theme } from "../../../../infrastructure/theme";
 import { Spacer } from "../../../../components/spacer/spacer.component";
-import { Touchable } from "react-native";
+import MediaUploader from "../../../../components/mediaUploader.js/mediaUploader.component";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { PostAgreementCheckbox } from "./postEntryStandard.component";
+import { CommonActions, useNavigation } from "@react-navigation/native";
 
 const MAX_CONTENT = 3000;
 
-const RenderTickView = ({ item, state, setValue }) => {
-  const [checked, setChecked] = useState(state[item.value] ?? false);
+const RenderTickView = ({ item, state, setValue, mode }) => {
+  const [checked, setChecked] = useState(0);
 
   useEffect(() => {
-    setValue((prev) => ({ ...prev, [item.value]: false }));
+    setChecked(state[item.value] ?? 0);
     return () => {};
-  }, []);
+  }, [state[item.value]]);
 
   const toggle = () => {
     setChecked(!checked);
-    setValue((prev) => ({ ...prev, [item.value]: !checked }));
+    setValue((prev) => ({ ...prev, [item.value]: checked ? 0 : 1 }));
   };
 
   return (
@@ -73,7 +75,11 @@ const RenderTickView = ({ item, state, setValue }) => {
 
 const MemoizedRenderTick = React.memo(RenderTickView);
 
-const PostEntryMobil = () => {
+const PostEntryMobil = ({ onSubmit, mode }) => {
+  const [isAgreed, setIsAgreed] = useState(false);
+  const toggleAgreement = () => {
+    setIsAgreed(!isAgreed);
+  };
   const [items, setItems] = useState(
     makerList.map((item) => {
       return {
@@ -122,21 +128,25 @@ const PostEntryMobil = () => {
 
   const [colorOpen, setColorOpen] = useState(false);
   const [monthOpen, setMonthOpen] = useState(false);
-  const [yearOpen, setYearOpen] = useState(false);
+  const [yearFromOpen, setYearFromOpen] = useState(false);
+  const [yearToOpen, setYearToOpen] = useState(false);
   const [makerOpen, setMakerOpen] = useState(false);
   const [state, setState] = useState({
-    type: "auto",
+    vehicleType: "car",
     maker: null,
     model: null,
     title: "",
     content: "",
-    month: null,
-    year: null,
+    month: 1,
+    year_from: null,
+    year_to: null,
     color: null,
-    kilometer: null,
-    price: null,
+    kilometer_from: null,
+    kilometer_to: null,
+    price_from: null,
+    price_to: null,
+    images: null,
   });
-  const [isMotorcycle, setIsMotorcycle] = useState(false);
 
   const onSelectMaker = (_maker) => {
     setState({ ...state, maker: _maker() });
@@ -145,8 +155,11 @@ const PostEntryMobil = () => {
   const onSelectMonth = (_month) => {
     setState({ ...state, month: _month() });
   };
-  const onSelectYear = (_year) => {
-    setState({ ...state, year: _year() });
+  const onSelectYearFrom = (_year) => {
+    setState({ ...state, year_from: _year() });
+  };
+  const onSelectYearTo = (_year) => {
+    setState({ ...state, year_to: _year() });
   };
 
   const onModelChange = (_value) => {
@@ -163,16 +176,28 @@ const PostEntryMobil = () => {
     });
   };
 
-  const onKilometerChange = (_value) => {
+  const onKilometerFromChange = (_value) => {
     setState({
       ...state,
-      kilometer: _value.replace(/[^0-9]/g, ""),
+      kilometer_from: _value.replace(/[^0-9]/g, ""),
     });
   };
-  const onPriceChange = (_value) => {
+  const onKilometerToChange = (_value) => {
     setState({
       ...state,
-      price: _value.replace(/[^0-9]/g, ""),
+      kilometer_to: _value.replace(/[^0-9]/g, ""),
+    });
+  };
+  const onPriceFromChange = (_value) => {
+    setState({
+      ...state,
+      price_from: _value.replace(/[^0-9]/g, ""),
+    });
+  };
+  const onPriceToChange = (_value) => {
+    setState({
+      ...state,
+      price_to: _value.replace(/[^0-9]/g, ""),
     });
   };
 
@@ -190,84 +215,161 @@ const PostEntryMobil = () => {
   };
 
   const closeAllDropdown = () => {
-    setYearOpen(false);
+    setYearFromOpen(false);
+    setYearToOpen(false);
     setMonthOpen(false);
     setColorOpen(false);
     setMakerOpen(false);
   };
 
   const handleSelectorChange = (_value) => {
-    setState({ ...state, type: _value });
+    setState({ ...state, vehicleType: _value });
 
     switch (_value) {
-      case "auto":
-        setInclusions(
-          carInclusions.map((item) => {
-            return {
-              label: item.label,
-              value: item.value,
-            };
-          })
-        );
+      case "car":
+        {
+          setInclusions(
+            carInclusions.map((item) => {
+              return {
+                label: item.label,
+                value: item.value,
+              };
+            })
+          );
+
+          //Reset motor inclusions
+          const _val = motorcycleInclusions.reduce((acc, curval) => {
+            acc[curval.value] = 0;
+            return acc;
+          }, {});
+
+          setState((prev) => ({ ...prev, ..._val }));
+        }
         break;
       case "bike":
-        setInclusions(
-          motorcycleInclusions.map((item) => {
-            return {
-              label: item.label,
-              value: item.value,
-            };
-          })
-        );
+        {
+          setInclusions(
+            motorcycleInclusions.map((item) => {
+              return {
+                label: item.label,
+                value: item.value,
+              };
+            })
+          );
+
+          //Reset car inclusions
+          const _val = carInclusions.reduce((acc, curval) => {
+            acc[curval.value] = 0;
+            return acc;
+          }, {});
+
+          setState((prev) => ({ ...prev, ..._val }));
+        }
         break;
     }
   };
 
+  const clearAllInclusions = () => {
+    //Reset motor inclusions
+
+    const phase1 = motorcycleInclusions.reduce((acc, curval) => {
+      acc[curval.value] = 0;
+      return acc;
+    }, {});
+
+    //Reset car inclusions
+    const phase2 = carInclusions.reduce((acc, curval) => {
+      acc[curval.value] = 0;
+      return acc;
+    }, phase1);
+
+    setState((prev) => ({ ...prev, ...phase2 }));
+    console.log(state);
+  };
+
+  const selectAllInclusions = () => {
+    switch (state.vehicleType) {
+      case "car":
+        {
+          const _select = carInclusions.reduce((acc, curval) => {
+            acc[curval.value] = 1;
+            return acc;
+          }, {});
+          setState((prev) => ({ ...prev, ..._select }));
+          console.log(state);
+        }
+        break;
+      case "bike":
+        {
+          const _select = motorcycleInclusions.reduce((acc, curval) => {
+            acc[curval.value] = 1;
+            return acc;
+          }, {});
+
+          setState((prev) => ({ ...prev, ..._select }));
+          console.log(state);
+        }
+        break;
+    }
+  };
+
+  const setImages = (images) => {
+    setState({ ...state, images: images });
+  };
+
+  const navigation = useNavigation();
+
+  const submitForm = async () => {
+    try {
+      const formData = new FormData();
+
+      // Iterate image append into formData
+      state.images.forEach((image) => {
+        formData.append("images", {
+          name: image.name,
+          type: image.type,
+          uri: image.uri,
+        });
+      });
+
+      Object.keys(state).forEach((key) => {
+        if (key !== "images") formData.append(key, state[key]);
+      });
+
+      onSubmit(formData);
+    } catch (error) {
+      console.log("Failed to create standard post:", error);
+    }
+  };
+
+  const ButtonText = ({ onPress, label, icon, color }) => {
+    return (
+      <TouchableOpacity onPress={onPress}>
+        <View style={styles.buttonText}>
+          {icon && (
+            <MaterialCommunityIcons name={icon} size={16} color={color} />
+          )}
+          <Label size={12} weight={"bold"} style={{ color }}>
+            {label}
+          </Label>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <>
-      {/* <View style={styles.typeSelector}>
-        {MOBIL_TYPES.map((type) => {
-          return (
-            <TouchableWithoutFeedback
-              key={type.value}
-              onPress={() => {
-                handleSelectorChange(type.value);
-              }}
-            >
-              <View
-                style={[
-                  styles.selectorButton,
-                  isMotorcycle === type.value && {
-                    backgroundColor: theme.colors.icons.active,
-                  },
-                ]}
-              >
-                <Label
-                  style={
-                    isMotorcycle === type.value && {
-                      color: "white",
-                    }
-                  }
-                  weight={"bold"}
-                >
-                  {type.label}
-                </Label>
-              </View>
-            </TouchableWithoutFeedback>
-          );
-        })}
-      </View> */}
       <SegmentedButtons
         buttons={[
           {
             label: "Auto",
-            value: "auto",
+            value: "car",
             icon: "car",
             checkedColor: "white",
             labelStyle: { fontWeight: "bold" },
             style: {
               backgroundColor:
-                state.type === "auto"
+                state.vehicleType === "car"
                   ? theme.colors.icons.active
                   : "transparent",
             },
@@ -280,14 +382,14 @@ const PostEntryMobil = () => {
             checkedColor: "white",
             style: {
               backgroundColor:
-                state.type === "bike"
+                state.vehicleType === "bike"
                   ? theme.colors.icons.active
                   : "transparent",
             },
           },
         ]}
         onValueChange={handleSelectorChange}
-        value={state.type}
+        value={state.vehicleType}
         theme={{ colors: { primary: "green" } }}
       />
       <DropDownPicker
@@ -326,60 +428,123 @@ const PostEntryMobil = () => {
         value={state.model}
         style={styles.formField}
       />
-      <View style={{ flex: 1, flexDirection: "row", gap: 8, zIndex: 9 }}>
-        <View style={{ flex: 1 }}>
-          <DropDownPicker
-            open={monthOpen}
-            setOpen={() => {
-              closeAllDropdown();
-              setMonthOpen(monthOpen ? false : true);
-            }}
-            value={state.month}
-            items={months}
-            setValue={onSelectMonth}
-            textStyle={{ fontSize: 18 }}
-            style={[styles.formField]}
-            placeholder="Baumonat"
-            listMode="SCROLLVIEW"
-            placeholderStyle={{ color: "#bbb", fontSize: 18 }}
-            dropDownContainerStyle={{ borderColor: "#bbb" }}
-            zIndex={9}
-            flatListProps={{
-              style: {
-                borderColor: "red",
-              },
 
-              //   scrollEnabled: false,
-            }}
-          />
-        </View>
-        <View style={{ flex: 1 }}>
-          <DropDownPicker
-            open={yearOpen}
-            setOpen={() => {
-              closeAllDropdown();
-              setYearOpen(yearOpen ? false : true);
-            }}
-            value={state.year}
-            items={years}
-            setValue={onSelectYear}
-            textStyle={{ fontSize: 18 }}
-            style={[styles.formField]}
-            placeholder="Baujahr"
-            listMode="SCROLLVIEW"
-            placeholderStyle={{ color: "#bbb", fontSize: 18 }}
-            dropDownContainerStyle={{ borderColor: "#bbb" }}
-            zIndex={9}
-            flatListProps={{
-              style: {
-                borderColor: "red",
-              },
+      {mode === 1 ? (
+        <View style={{ flex: 1, flexDirection: "row", gap: 8, zIndex: 9 }}>
+          <View style={{ flex: 1 }}>
+            <DropDownPicker
+              open={monthOpen}
+              setOpen={() => {
+                closeAllDropdown();
+                setMonthOpen(monthOpen ? false : true);
+              }}
+              value={state.month}
+              items={months}
+              setValue={onSelectMonth}
+              textStyle={{ fontSize: 18 }}
+              style={[styles.formField]}
+              placeholder="Baumonat"
+              listMode="SCROLLVIEW"
+              placeholderStyle={{ color: "#bbb", fontSize: 18 }}
+              dropDownContainerStyle={{ borderColor: "#bbb" }}
+              zIndex={9}
+              flatListProps={{
+                style: {
+                  borderColor: "red",
+                },
 
-              //   scrollEnabled: false,
-            }}
-          />
+                //   scrollEnabled: false,
+              }}
+            />
+          </View>
+          <View style={{ flex: 1 }}>
+            <DropDownPicker
+              open={yearFromOpen}
+              setOpen={() => {
+                closeAllDropdown();
+                setYearFromOpen(yearFromOpen ? false : true);
+              }}
+              value={state.year_from}
+              items={years}
+              setValue={onSelectYearFrom}
+              textStyle={{ fontSize: 18 }}
+              style={[styles.formField]}
+              placeholder="Baujahr"
+              listMode="SCROLLVIEW"
+              placeholderStyle={{ color: "#bbb", fontSize: 18 }}
+              dropDownContainerStyle={{ borderColor: "#bbb" }}
+              zIndex={9}
+              flatListProps={{
+                style: {
+                  borderColor: "red",
+                },
+
+                //   scrollEnabled: false,
+              }}
+            />
+          </View>
         </View>
-      </View>
+      ) : (
+        <>
+          <Label size={"subtitle"} weight={"bold"}>
+            Baujahr
+          </Label>
+          <View style={{ flex: 1, flexDirection: "row", gap: 8, zIndex: 9 }}>
+            <View style={{ flex: 1 }}>
+              <DropDownPicker
+                open={yearFromOpen}
+                setOpen={() => {
+                  closeAllDropdown();
+                  setYearFromOpen(yearFromOpen ? false : true);
+                }}
+                value={state.year_from}
+                items={years}
+                setValue={onSelectYearFrom}
+                textStyle={{ fontSize: 18 }}
+                style={[styles.formField]}
+                placeholder="von"
+                listMode="SCROLLVIEW"
+                placeholderStyle={{ color: "#bbb", fontSize: 18 }}
+                dropDownContainerStyle={{ borderColor: "#bbb" }}
+                zIndex={9}
+                flatListProps={{
+                  style: {
+                    borderColor: "red",
+                  },
+
+                  //   scrollEnabled: false,
+                }}
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <DropDownPicker
+                open={yearToOpen}
+                setOpen={() => {
+                  closeAllDropdown();
+                  setYearToOpen(yearToOpen ? false : true);
+                }}
+                value={state.year_to}
+                items={years}
+                setValue={onSelectYearTo}
+                textStyle={{ fontSize: 18 }}
+                style={[styles.formField]}
+                placeholder="bis"
+                listMode="SCROLLVIEW"
+                placeholderStyle={{ color: "#bbb", fontSize: 18 }}
+                dropDownContainerStyle={{ borderColor: "#bbb" }}
+                zIndex={9}
+                flatListProps={{
+                  style: {
+                    borderColor: "red",
+                  },
+
+                  //   scrollEnabled: false,
+                }}
+              />
+            </View>
+          </View>
+        </>
+      )}
       <DropDownPicker
         open={colorOpen}
         setOpen={setColorOpen}
@@ -401,30 +566,113 @@ const PostEntryMobil = () => {
           //   scrollEnabled: false,
         }}
       />
-      <TextInput
-        placeholder="Kilometer"
-        value={
-          state.kilometer
-            ? Intl.NumberFormat("de-DE").format(state.kilometer)
-            : ""
-        }
-        onChangeText={onKilometerChange}
-        style={styles.formField}
-        keyboardType="numeric"
-      />
-      <TextInput
-        placeholder="Preis"
-        value={
-          state.price ? Intl.NumberFormat("de-DE").format(state.price) : ""
-        }
-        onChangeText={onPriceChange}
-        style={styles.formField}
-        keyboardType="numeric"
-      />
+      {mode === 1 ? (
+        <TextInput
+          placeholder="Kilometer"
+          value={
+            state.kilometer_from
+              ? Intl.NumberFormat("de-DE").format(state.kilometer_from)
+              : ""
+          }
+          onChangeText={onKilometerFromChange}
+          style={styles.formField}
+          keyboardType="numeric"
+        />
+      ) : (
+        <>
+          <Label size={"subtitle"} weight={"bold"}>
+            Kilometer
+          </Label>
+          <View style={{ flexDirection: "row", gap: 8 }}>
+            <TextInput
+              placeholder="von"
+              value={
+                state.kilometer_from
+                  ? Intl.NumberFormat("de-DE").format(state.kilometer_from)
+                  : ""
+              }
+              onChangeText={onKilometerFromChange}
+              style={[styles.formField, { flex: 1 }]}
+              keyboardType="numeric"
+            />
+            <TextInput
+              placeholder="bis"
+              value={
+                state.kilometer_to
+                  ? Intl.NumberFormat("de-DE").format(state.kilometer_to)
+                  : ""
+              }
+              onChangeText={onKilometerToChange}
+              style={[styles.formField, { flex: 1 }]}
+              keyboardType="numeric"
+            />
+          </View>
+        </>
+      )}
+      {mode === 1 ? (
+        <TextInput
+          placeholder="Preis"
+          value={
+            state.price_from
+              ? Intl.NumberFormat("de-DE").format(state.price_from)
+              : ""
+          }
+          onChangeText={onPriceFromChange}
+          style={styles.formField}
+          keyboardType="numeric"
+        />
+      ) : (
+        <>
+          <Label size={"subtitle"} weight={"bold"}>
+            Preis
+          </Label>
+          <View style={{ flexDirection: "row", gap: 8 }}>
+            <TextInput
+              placeholder="von"
+              value={
+                state.price_from
+                  ? Intl.NumberFormat("de-DE").format(state.price_from)
+                  : ""
+              }
+              onChangeText={onPriceFromChange}
+              style={[styles.formField, { flex: 1 }]}
+              keyboardType="numeric"
+            />
+            <TextInput
+              placeholder="bis"
+              value={
+                state.price_to
+                  ? Intl.NumberFormat("de-DE").format(state.price_to)
+                  : ""
+              }
+              onChangeText={onPriceToChange}
+              style={[styles.formField, { flex: 1 }]}
+              keyboardType="numeric"
+            />
+          </View>
+        </>
+      )}
+
       <View style={{ gap: 6, marginTop: 10 }}>
-        <Label size={"subtitle"} weight={"bold"}>
-          Ausstattung
-        </Label>
+        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+          <Label size={"subtitle"} weight={"bold"}>
+            Ausstattung
+          </Label>
+          <View style={{ flexDirection: "row", gap: 8 }}>
+            <ButtonText
+              label={"Select All"}
+              icon={"check-bold"}
+              color={"#009432"}
+              onPress={selectAllInclusions}
+            />
+            <ButtonText
+              label={"Clear"}
+              icon={"close-thick"}
+              color={"#b71540"}
+              onPress={clearAllInclusions}
+            />
+          </View>
+        </View>
         <FlatList
           data={inclusions}
           keyExtractor={(item) => item.value}
@@ -474,30 +722,24 @@ const PostEntryMobil = () => {
       </View>
 
       {/* Browser Media */}
-      <View
-        style={{
-          height: 100,
-          width: 100,
-          borderRadius: 20,
-          borderColor: "#ccc",
-          borderStyle: "dashed",
-          borderWidth: 3,
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <MaterialCommunityIcons name="image-plus" size={30} color={"#ccc"} />
-      </View>
+      <MediaUploader
+        images={state.images}
+        setImages={setImages}
+        header={true}
+        show={mode === 1}
+      />
+
+      {/* Acknowledgement Checkbox */}
+      <PostAgreementCheckbox
+        toggleAgreement={toggleAgreement}
+        isAgreed={isAgreed}
+      />
 
       {/* Submit Button */}
-      <TouchableOpacity
-        onPress={() => {
-          console.log(state);
-        }}
-      >
+      <TouchableOpacity onPress={submitForm} disabled={!isAgreed}>
         <View
           style={{
-            backgroundColor: theme.colors.icons.active,
+            backgroundColor: isAgreed ? theme.colors.icons.active : "#ccc",
             justifyContent: "center",
             alignItems: "center",
             paddingVertical: 16,
@@ -505,11 +747,11 @@ const PostEntryMobil = () => {
           }}
         >
           <Label
-            size={16}
+            size={"subtitle"}
             weight={"bold"}
             style={{ color: "white", letterSpacing: 1 }}
           >
-            Submit
+            Absenden
           </Label>
         </View>
       </TouchableOpacity>
@@ -545,5 +787,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 12,
     flex: 1,
+  },
+  buttonText: {
+    flexDirection: "row",
+    gap: 2,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#eaeaea",
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 20,
   },
 });

@@ -55,9 +55,8 @@ export const ContactUsScreen = () => {
     const empty = Object.keys(state).find((key) => {
       // console.log('There is Empty', key)
       // console.log(state[key])
-      return state[key].trim() === ``;
+      return state[key]?.trim() === ``;
     });
-
     if (empty) {
       setDisableButton(true);
     } else {
@@ -114,36 +113,26 @@ export const ContactUsScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View
+    <View style={[styles.container, { gap: 16 }]}>
+      <TouchableOpacity
+        onPress={goback}
         style={{
           flexDirection: "row",
-          marginVertical: 16,
-          justifyContent: "space-between",
           alignItems: "center",
-          alignSelf: "stretch",
         }}
+        activeOpacity={0.5}
       >
-        <TouchableOpacity
-          onPress={goback}
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-          }}
-          activeOpacity={0.5}
+        <Ionicons name="arrow-back" size={35} color={"#555"} />
+        <Label
+          size={"body"}
+          weight="bold"
+          style={{ color: "#555", justifyContent: "center" }}
         >
-          <Ionicons name="arrow-back" size={35} color={"#555"} />
-          <Label
-            size={"body"}
-            weight="bold"
-            style={{ color: "#555", justifyContent: "center" }}
-          >
-            {i18n.t("return")}
-          </Label>
-        </TouchableOpacity>
-      </View>
+          {i18n.t("return")}
+        </Label>
+      </TouchableOpacity>
       <View style={styles.contactContainer}>
-        <View style={{ marginBottom: 24, paddingHorizontal: 16 }}>
+        <View style={{ marginBottom: 24 }}>
           <Label
             size={"h5"}
             weight="bold"
@@ -159,7 +148,7 @@ export const ContactUsScreen = () => {
           keyboardDismissMode={
             Platform.OS === "ios" ? "interactive" : "on-drag"
           }
-          style={{ paddingHorizontal: 16 }}
+          style={[styles.container, { marginHorizontal: -16 }]}
           contentContainerStyle={{ paddingVertical: 12 }}
         >
           <View>
@@ -249,6 +238,7 @@ export const ContactUsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingHorizontal: 16,
   },
   contactContainer: {
     flex: 1,

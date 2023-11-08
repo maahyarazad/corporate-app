@@ -8,6 +8,7 @@ import { theme } from "../../infrastructure/theme";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import PostEntryScreen from "./post_entry/postEntry.screen";
 import PostEntrySelect from "./post_entry/postEntrySelect.screen";
+import { useNavigation } from "@react-navigation/native";
 
 const PostTabsScreen = createMaterialTopTabNavigator();
 const PostStackScreen = createStackNavigator();
@@ -19,7 +20,7 @@ export const PostStackNavigationScreen = () => {
 
   return (
     <PostStackScreen.Navigator>
-      <PostStackScreen.Screen
+      {/* <PostStackScreen.Screen
         name="post-tabs"
         component={PostTabsNavigationScreen}
         options={{
@@ -54,16 +55,12 @@ export const PostStackNavigationScreen = () => {
         options={{
           headerShown: false,
         }}
-      />
+      /> */}
     </PostStackScreen.Navigator>
   );
 };
 
 export const PostTabsNavigationScreen = () => {
-  useEffect(() => {
-    return () => {};
-  }, []);
-
   return (
     // <PostTabsScreen.Navigator
     //   screenOptions={{

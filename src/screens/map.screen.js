@@ -163,8 +163,8 @@ export const MapScreen = ({ navigation }) => {
     const latLng = `${lat},${lng}`;
     const label = place;
     const url = Platform.select({
-      ios: `${scheme}${label}@${latLng}`,
-      android: `${scheme}${latLng}(${label})`,
+      ios: `${scheme}${encodeURIComponent(label)}@${latLng}`,
+      android: `${scheme}${latLng}(${encodeURIComponent(label)})`,
     });
     Linking.openURL(url);
   };
@@ -434,22 +434,15 @@ export const MapScreen = ({ navigation }) => {
                   >
                     <Button
                       style={{
-                        borderRadius: 20,
+                        borderRadius: 10,
                         flex: 1,
-                        justifyContent: "center",
-                        alignItems: "center",
-                      }}
-                      contentStyle={{
-                        justifyContent: "center",
-                        alignItems: "center",
+                        height: 40,
                       }}
                       labelStyle={{
-                        justifyContent: "center",
-                        alignItems: "center",
-                        padding: 0,
-                        margin: 0,
+                        fontSize: 12,
+                        width: "100%",
                       }}
-                      color={"#0082FF"}
+                      buttonColor="#0082FF"
                       mode="contained"
                       onPress={() =>
                         getDirections(
@@ -459,63 +452,26 @@ export const MapScreen = ({ navigation }) => {
                         )
                       }
                     >
-                      <View
-                        style={{
-                          justifyContent: "center",
-                          width: "100%",
-                          margin: 0,
-                          padding: 0,
-                          paddingTop: 6,
-                        }}
-                      >
-                        <Label
-                          size={12}
-                          weight={"medium"}
-                          style={{
-                            textAlign: "center",
-                            color: "white",
-                            width: "100%",
-                            alignSelf: "center",
-                          }}
-                        >
-                          {i18n.t("offer-details.get-directions").toUpperCase()}{" "}
-                        </Label>
-                      </View>
+                      {i18n.t("offer-details.get-directions").toUpperCase()}
                     </Button>
                     <Spacer size={"small"} position={"left"}></Spacer>
                     <Button
                       style={{
-                        borderRadius: 20,
+                        borderRadius: 10,
                         flex: 1,
-                        justifyContent: "center",
-                        alignItems: "center",
+                        height: 40,
                       }}
-                      color={"#0082FF"}
+                      labelStyle={{
+                        fontSize: 12,
+                        width: "100%",
+                      }}
+                      buttonColor="#0082FF"
                       mode="contained"
                       onPress={() => {
                         goLocation(locationState.locationId);
                       }}
                     >
-                      <View
-                        style={{
-                          justifyContent: "center",
-                          alignItems: "center",
-                          width: "100%",
-                          paddingTop: 6,
-                        }}
-                      >
-                        <Label
-                          size={12}
-                          weight={"medium"}
-                          style={{
-                            textAlign: "center",
-                            color: "white",
-                            width: "100%",
-                          }}
-                        >
-                          {i18n.t("redeem-offer.view-offer").toUpperCase()}
-                        </Label>
-                      </View>
+                      {i18n.t("redeem-offer.view-offer").toUpperCase()}
                     </Button>
                   </View>
                 </View>

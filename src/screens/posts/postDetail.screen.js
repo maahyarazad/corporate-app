@@ -37,6 +37,7 @@ export default function PostDetailScreen() {
     likePost,
     unlikePost,
     addComment,
+    fetchPost,
   } = usePosts();
   const { userData } = useUser();
   const [comment, setComment] = useState("");
@@ -54,12 +55,9 @@ export default function PostDetailScreen() {
 
   useEffect(() => {
     isMounted.current = true;
-    changeHeader(`${author}'s post`);
 
-    setPost(router.params.post);
-
-    const getComments = async () => {
-      const response = await fetchComments(router.params.post.id, 0);
+    const getComments = async (_id) => {
+      const response = await fetchComments(_id, 0);
       if (isMounted && response.success) {
         // const tree = makeTree(response.data);
         setPostComments(response.data);
@@ -74,7 +72,30 @@ export default function PostDetailScreen() {
         // console.log("ver 2", JSON.stringify(makeTree(response.data)));
       }
     };
-    getComments();
+
+    const getPost = async () => {
+      try {
+        const response = await fetchPost(router.params.id);
+
+        if (response.success) {
+          setPost(response.data[0]);
+          changeHeader(`${response.data[0].first_name}'s post`);
+
+          getComments(response.data[0].id);
+        }
+      } catch (error) {
+        console.log("Unable to fetch post: ", error);
+      }
+    };
+
+    if (router.params.id) {
+      getPost();
+    } else {
+      changeHeader(`${author}'s post`);
+      setPost(router.params.post);
+
+      getComments(router.params.post.id);
+    }
 
     return () => {
       isMounted.current = false;
@@ -123,11 +144,11 @@ export default function PostDetailScreen() {
   };
   const handleCommentSend = async () => {
     try {
-      console.log("REPLIED TO ", replyTo ? replyTo.id : router.params.post.id);
+      console.log("REPLIED TO ", replyTo ? replyTo.id : post.id);
 
       const newComment = new Post();
       newComment.id = new Date().getTime();
-      newComment.order_id = replyTo ? replyTo.id : router.params.post.id;
+      newComment.order_id = replyTo ? replyTo.id : post.id;
       newComment.user_id = userData.old_user_id;
       newComment.prof_image = userData.member_image;
       newComment.date_posted = new Date() / 1000;
@@ -141,17 +162,17 @@ export default function PostDetailScreen() {
       setPostComments([...postComments, newComment]);
       const localComments = [...postComments, newComment];
       setComment("");
-      post.commentCount += 1;
+      post.commentCount = parseInt(post.commentCount) + 1;
       //Wait for the comment to be added in the array before scrolling to end
       setTimeout(() => {
-        if (newComment.order_id === router.params.post.id) {
+        if (newComment.order_id === post.id) {
           // scrollRef.current.scrollToEnd();
         }
         Keyboard.dismiss();
       }, 0);
 
       // console.log("update", JSON.stringify(postComments.data));
-      const response = await addComment(router.params.post.id, newComment);
+      const response = await addComment(post.id, newComment);
       if (!response.success) {
         console.log(response.success);
         const revert = localComments.filter(
@@ -224,7 +245,7 @@ export default function PostDetailScreen() {
 
     for (i = 0; i < list.length; i += 1) {
       node = list[i];
-      if (node.order_id !== router.params.post.id) {
+      if (node.order_id !== post.id) {
         // if you have dangling branches check that map[node.parentId] exists
         list[map[node.order_id]].comments.push(node);
       } else {
@@ -238,7 +259,7 @@ export default function PostDetailScreen() {
   const viewPreviousComments = async () => {
     try {
       const _page = page + 1;
-      const response = await fetchComments(router.params.post.id, 0, oldest);
+      const response = await fetchComments(post.id, 0, oldest);
 
       //count how many elements of postComments that have orderId === 11887
 
@@ -258,103 +279,105 @@ export default function PostDetailScreen() {
 
   return (
     <View style={styles.container}>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={85}
-      >
-        <ScrollView
-          keyboardDismissMode="none"
-          keyboardShouldPersistTaps="handled"
+      {post && (
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={85}
         >
-          {post && (
-            <PostCard
-              data={post}
-              comment={true}
-              onLikePress={handleLikePress}
-              onCommentPress={handleCommentPress}
-              commentData={makeTree(postComments)}
-              viewReplies={viewMoreReplies}
-              viewPreviousComments={viewPreviousComments}
-              remainingComments={remainingComments}
-            />
-          )}
-        </ScrollView>
+          <ScrollView
+            keyboardDismissMode="none"
+            keyboardShouldPersistTaps="handled"
+          >
+            {post && (
+              <PostCard
+                data={post}
+                comment={true}
+                onLikePress={handleLikePress}
+                onCommentPress={handleCommentPress}
+                commentData={makeTree(postComments)}
+                viewReplies={viewMoreReplies}
+                viewPreviousComments={viewPreviousComments}
+                remainingComments={remainingComments}
+              />
+            )}
+          </ScrollView>
 
-        {/* Comment Field */}
-        <View
-          style={{
-            paddingHorizontal: 12,
-            paddingVertical: 10,
-            backgroundColor: theme.colors.icons.active + "55",
-          }}
-        >
-          {replyTo && focus && (
-            <>
-              <Label>
-                {`Replying to `}
-                <Label weight={"bold"}>{replyTo.name}</Label>
-              </Label>
-              <Spacer position={"bottom"} size={"small"} />
-            </>
-          )}
+          {/* Comment Field */}
           <View
             style={{
-              flexDirection: "row",
+              paddingHorizontal: 12,
+              paddingVertical: 10,
+              backgroundColor: theme.colors.icons.active + "55",
             }}
           >
-            <View style={{ flex: 1, gap: 5 }}>
-              <View style={{ flexDirection: "row" }}>
-                <CustomTextInput
-                  ref={keyboardRef}
-                  inputStyle={{
-                    borderRadius: 8,
-                    backgroundColor: "white",
-                    paddingTop: 10,
-                  }}
-                  style={{
-                    backgroundColor: null,
-                    flex: 1,
-                  }}
-                  onBlur={fieldOnBlur}
-                  multiline={true}
-                  areaHeight={20}
-                  placeholder={"Add a comment"}
-                  onChangeText={handleCommentChange}
-                  value={comment}
-                  maxLength={COMMENT_MAXLENGTH}
-                />
-              </View>
-              {
-                <View
-                  style={{
-                    height: 2,
-                    width: `${(comment.length / COMMENT_MAXLENGTH) * 100}%`,
-                    backgroundColor:
-                      (comment.length / COMMENT_MAXLENGTH) * 100 > 90
-                        ? "red"
-                        : "#88CC00",
-                    borderRadius: 50,
-                  }}
-                ></View>
-              }
-            </View>
-            <Spacer position={"right"} size={"small"} />
-            <Button
-              mode="contained"
-              labelStyle={{ color: "white" }}
-              contentStyle={{}}
-              style={styles.replyButton}
-              uppercase={false}
-              color={theme.colors.icons.active}
-              disabled={!comment}
-              onPress={handleCommentSend}
+            {replyTo && focus && (
+              <>
+                <Label>
+                  {`Replying to `}
+                  <Label weight={"bold"}>{replyTo.name}</Label>
+                </Label>
+                <Spacer position={"bottom"} size={"small"} />
+              </>
+            )}
+            <View
+              style={{
+                flexDirection: "row",
+              }}
             >
-              <Label>Reply</Label>
-            </Button>
+              <View style={{ flex: 1, gap: 5 }}>
+                <View style={{ flexDirection: "row" }}>
+                  <CustomTextInput
+                    ref={keyboardRef}
+                    inputStyle={{
+                      borderRadius: 8,
+                      backgroundColor: "white",
+                      paddingTop: 10,
+                    }}
+                    style={{
+                      backgroundColor: null,
+                      flex: 1,
+                    }}
+                    onBlur={fieldOnBlur}
+                    multiline={true}
+                    areaHeight={20}
+                    placeholder={"Add a comment"}
+                    onChangeText={handleCommentChange}
+                    value={comment}
+                    maxLength={COMMENT_MAXLENGTH}
+                  />
+                </View>
+                {
+                  <View
+                    style={{
+                      height: 2,
+                      width: `${(comment.length / COMMENT_MAXLENGTH) * 100}%`,
+                      backgroundColor:
+                        (comment.length / COMMENT_MAXLENGTH) * 100 > 90
+                          ? "red"
+                          : "#88CC00",
+                      borderRadius: 50,
+                    }}
+                  ></View>
+                }
+              </View>
+              <Spacer position={"right"} size={"small"} />
+              <Button
+                mode="contained"
+                labelStyle={{ color: "white" }}
+                contentStyle={{}}
+                style={styles.replyButton}
+                uppercase={false}
+                color={theme.colors.icons.active}
+                disabled={!comment}
+                onPress={handleCommentSend}
+              >
+                <Label>Reply</Label>
+              </Button>
+            </View>
           </View>
-        </View>
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      )}
     </View>
   );
 }

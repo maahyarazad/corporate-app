@@ -93,8 +93,13 @@ export default function PostCard({
     setLikeCount(data.likeCount);
     setCommentCount(data.commentCount);
   }, [data.liked, data.likeCount, data.commentCount]);
+
   useEffect(() => {
-    if (commentCount > 0 && userData.old_user_id === data.user_id) {
+    console.log(`rendering list ${data.id}`);
+
+    // if (commentCount > 0 && userData.old_user_id === data.user_id) {
+
+    if (commentCount > 0 && true) {
       const index = options.findIndex((item) => item.title === "Edit Post");
       // console.log("index", index, data.title);
       options.splice(index, 1);
@@ -262,7 +267,7 @@ export default function PostCard({
                   )}
                   <View>
                     <Label size={"caption"}>
-                      {timeDiffString(data.date_posted * 1000)}
+                      {timeDiffString(data.date_posted)}
                     </Label>
                   </View>
                 </View>
@@ -276,7 +281,8 @@ export default function PostCard({
                     </View>
                   </View>
                   <Spacer position={"right"} size={"large"} />
-                  {userData.old_user_id === data.user_id && (
+                  {/* {userData.old_user_id === data.user_id && ( */}
+                  {true && (
                     <View
                       style={{
                         position: "absolute",
@@ -334,7 +340,7 @@ export default function PostCard({
         <View style={styles.actions}>
           <Button
             style={styles.actionButton}
-            color={like ? theme.colors.icons.active : "#444"}
+            textColor={like ? theme.colors.icons.active : "#444"}
             icon={like ? "thumb-up" : "thumb-up-outline"}
             onPress={handleLikePress}
             uppercase={false}
@@ -343,7 +349,7 @@ export default function PostCard({
           </Button>
           <Button
             style={styles.actionButton}
-            color={"#444"}
+            textColor={"#444"}
             icon={"chat-outline"}
             onPress={onCommentPress}
             uppercase={false}
@@ -352,7 +358,7 @@ export default function PostCard({
           </Button>
           <Button
             style={styles.actionButton}
-            color={"#444"}
+            textColor={"#444"}
             icon={"share-outline"}
             onPress={onSharePress}
             uppercase={false}

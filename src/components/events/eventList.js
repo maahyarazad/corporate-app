@@ -20,6 +20,7 @@ import { TranslationContext } from "../../services/translation/translation.conte
 import { CustomModal } from "../modal/customModal.component";
 import { Spacer } from "../spacer/spacer.component";
 import { Label } from "../typography/label.component";
+import useRequest from "../../../hooks/useRequest";
 
 export const EventList = () => {
   const { eventList, getEventsList, setEventList } =
@@ -29,6 +30,7 @@ export const EventList = () => {
   const { i18n } = useContext(TranslationContext);
   const [showModal, setShowModal] = useState(false);
   const [confirmationMSG, setConfirmationMSG] = useState("");
+  const request = useRequest();
 
   const handleSelectEvent = (eventId, registered) => {
     navigate("Event Detail", {
@@ -106,11 +108,11 @@ export const EventList = () => {
     try {
       setIsLoading(true);
       const data = {
-        user_id: user.user_id,
-        eventId: eventId,
+        eventId,
       };
 
-      const response = await EventService.cancelAttend(data);
+      // const response = await EventService.cancelAttend(data);
+      const response = await request("/v1/api/event/cancel", "post", data);
       getEventsList();
       if (response.success) {
         setConfirmationMSG(i18n.t("events.cancellation-msg"));
@@ -139,10 +141,10 @@ export const EventList = () => {
         guest_type: 1,
       };
 
-      const response = await EventService.attendEvent(data);
-      getEventsList();
+      const response = await request("/v1/api/event/attend", "post", data);
 
       if (response.success) {
+        getEventsList();
         setConfirmationMSG(i18n.t("events.participation-msg"));
         setShowModal(true);
         setTimeout(() => {
@@ -184,8 +186,6 @@ export const EventList = () => {
             resizeMode={"cover"}
             style={{
               height: 130,
-              borderBottomEndRadius: 0,
-              borderBottomStartRadius: 0,
             }}
             source={{
               uri: `https://www.german-emirates-club.com/uploads/sys/${item.eventImage}`,

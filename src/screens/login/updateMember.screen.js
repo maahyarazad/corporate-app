@@ -26,11 +26,12 @@ import { UserService } from "../../services/user/user.service";
 import country from "country-list-js";
 import { AuthContext } from "../../services/auth/auth.context";
 import { UserContext } from "../../services/user/user.context";
+import useUser from "../../../hooks/useUser";
 
 export const UpdateMemberScreen = ({ navigation }) => {
   const theme = useTheme();
   const { user, setUser } = useContext(AuthContext);
-  const { getUserInfo } = useContext(UserContext);
+  const { getUserInfo } = useUser();
   const [loading, setLoading] = useState(false);
   const route = useRoute();
   const { member_id, credentials } = route.params;
@@ -141,7 +142,7 @@ export const UpdateMemberScreen = ({ navigation }) => {
           submitCard: response.hasSubmit,
         }));
 
-        getUserInfo(response.user_id);
+        getUserInfo();
         setLoading(false);
 
         navigate("RegisterSuccess");

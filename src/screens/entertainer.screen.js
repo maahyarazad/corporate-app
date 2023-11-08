@@ -1,11 +1,11 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 // import { TabItems } from "../utils/routes";
 import { IconButton } from "react-native-paper";
 import { useTheme } from "styled-components";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { Dimensions, Image, Platform, View } from "react-native";
+import { Alert, Dimensions, Image, Platform, View } from "react-native";
 import { LocationContext } from "../services/location/location.context";
 import { HomeNavigation } from "./homenavigation";
 import { SpecialsScreen } from "./specials.screen";
@@ -20,12 +20,128 @@ import useUser from "../../hooks/useUser";
 import { Label } from "../components/typography/label.component";
 import BottomSheetSelector from "../components/bottomSheetSelector.component";
 import { TouchableWithoutFeedback } from "@gorhom/bottom-sheet";
+import { useRoute } from "@react-navigation/native";
+import {
+  AndroidImportance,
+  addNotificationReceivedListener,
+  addNotificationResponseReceivedListener,
+  getExpoPushTokenAsync,
+  getPermissionsAsync,
+  requestPermissionsAsync,
+  setNotificationChannelAsync,
+} from "expo-notifications";
+import { navigate } from "../navigation/navigate";
+
+import { NotificationsService } from "../services/notifications/notifications.service";
+import * as SecureStorage from "expo-secure-store";
+
+import { isDevice } from "expo-device";
 
 const Tab = createMaterialTopTabNavigator();
 // const Tab = createBottomTabNavigator();
 
 export const EntertainerScreen = () => {
   const { i18n } = useContext(TranslationContext);
+  const { userData } = useUser();
+
+  useEffect(() => {
+    const subscription = addNotificationResponseReceivedListener(
+      handleNotificationResponse
+    );
+
+    const getPushToken = async () => {
+      try {
+        if (userData.userPushToken) {
+          console.log("push token is available", userData.userPushToken);
+          return;
+        }
+
+        console.log("push token is blank/invalid");
+        registerForPushNotificationsAsync();
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    if (userData) getPushToken();
+
+    return () => {
+      subscription.remove();
+    };
+  }, [userData]);
+
+  const registerForPushNotificationsAsync = async () => {
+    try {
+      const token = (await getExpoPushTokenAsync()).data;
+      if (isDevice) {
+        const { status: existingStatus } = await getPermissionsAsync();
+        let finalStatus = existingStatus;
+        console.log("notif a", existingStatus);
+        if (existingStatus !== "granted") {
+          console.log("notif b");
+          const { status } = await requestPermissionsAsync();
+          finalStatus = status;
+        }
+        if (finalStatus !== "granted") {
+          console.log("notif c");
+          // alert("Failed to get push token for push notification!");
+          return;
+        }
+
+        console.log("notif d", token);
+        const response = await NotificationsService.storePushToken(
+          userData.user_id,
+          token
+        );
+        if (!response.success) {
+          Alert.alert(response.title, response.message);
+        }
+        // console.log("whattt");
+        // console.log(user);
+        await SecureStorage.setItemAsync("pushtoken", token);
+      } else {
+        alert("Must use physical device for Push Notifications");
+      }
+
+      if (Platform.OS === "android") {
+        setNotificationChannelAsync("default", {
+          name: "default",
+          importance: AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: "#FF231F7C",
+        });
+      }
+    } catch (error) {
+      console.error("Failed to get push token for push notification!", error);
+    }
+  };
+
+  const handleNotificationResponse = (response) => {
+    console.log("CHECKING NOTIF");
+    const notificationData = response.notification.request.content.data;
+
+    console.log("NOTIFICATION", notificationData);
+    switch (notificationData.path) {
+      case "partner":
+        navigate("Location View", {
+          locId: notificationData.id,
+        });
+        break;
+      case "event":
+        navigate("Event Detail", {
+          id: notificationData.id,
+        });
+        break;
+      case "post":
+        navigate("post-detail", {
+          id: notificationData.id,
+        });
+        break;
+    }
+
+    console.log(notificationData.path);
+  };
+
   const TabItems = [
     {
       route: "Feed",
@@ -172,7 +288,6 @@ export const EntertainerScreen = () => {
 
   const theme = useTheme();
   const { eventList } = useContext(LocationContext);
-  const { userData } = useUser();
   return (
     <>
       {/* <View
@@ -235,7 +350,11 @@ export const EntertainerScreen = () => {
         {TabItems.map((tab, index) => {
           //Hide Specific Tabs
           if (tab.route === "Events" && !eventList.length) return;
-          if (tab.route === "Feed" && userData && !userData.member) return;
+
+          {
+            /* if (tab.route === "Feed" && userData && !userData.member) return; */
+          }
+          if (tab.route === "Feed" && true) return; //Disable Feed
 
           return (
             <Tab.Screen

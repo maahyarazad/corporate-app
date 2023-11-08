@@ -12,7 +12,9 @@ export const CacheImage = ({
   onLoadStart,
   pointerEvents,
   resizeMode,
-  defaultImage = "https://www.german-emirates-club.com/user/member_images/non_img_men_s1.jpg",
+  local = false,
+  defaultImage = "",
+  // defaultImage = "https://www.german-emirates-club.com/user/member_images/non_img_men_s1.jpg",
 }) => {
   const [state, setState] = useState({ source: null });
 
@@ -26,27 +28,38 @@ export const CacheImage = ({
         const path = `${FileSystem.cacheDirectory}${name}${extension}`;
         const image = await FileSystem.getInfoAsync(path);
 
-        if (image.exists) {
+        if (local) {
           if (isMounted) {
-            // console.log("path:", path);
-            // console.log("image from cache");
+            // console.log("downloading image to cache");
             setState({
               source: {
-                uri: image.uri,
+                uri: uri,
               },
             });
           }
-          return;
-        }
-        const newImage = await FileSystem.downloadAsync(uri, path);
+        } else {
+          if (image.exists) {
+            if (isMounted) {
+              // console.log("path:", path);
+              // console.log("image from cache");
+              setState({
+                source: {
+                  uri: image.uri,
+                },
+              });
+            }
+            return;
+          }
+          const newImage = await FileSystem.downloadAsync(uri, path);
 
-        if (isMounted) {
-          // console.log("downloading image to cache");
-          setState({
-            source: {
-              uri: newImage.uri,
-            },
-          });
+          if (isMounted) {
+            // console.log("downloading image to cache");
+            setState({
+              source: {
+                uri: newImage.uri,
+              },
+            });
+          }
         }
       } catch (error) {
         console.log("cache image error: ", error);
@@ -70,9 +83,7 @@ export const CacheImage = ({
       onError={() => {
         console.log("ERROR LOADING IMAGE");
         setState({
-          source: {
-            uri: defaultImage,
-          },
+          source: require("../../assets/icon.png"),
         });
       }}
       style={style}

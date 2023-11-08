@@ -1,0 +1,618 @@
+import {
+  Dimensions,
+  FlatList,
+  Linking,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import React, { useEffect, useState } from "react";
+import { goback } from "../../navigation/navigate";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Label } from "../../components/typography/label.component";
+import { Slideshow } from "../../components/slideshow";
+import Carousel from "react-native-reanimated-carousel";
+import { CacheImage } from "../../components/cacheImage";
+import SlideshowV2 from "../../components/slideshowV2.component";
+import { useRoute } from "@react-navigation/native";
+import { theme } from "../../infrastructure/theme";
+import { Button } from "react-native-paper";
+import moment from "moment";
+import PostCardHeader from "./post_card/postCardHeader.component";
+import Avatar from "./avatar/avatar.component";
+import CustomButton from "../../components/customButton.component";
+import useRequest from "../../../hooks/useRequest";
+import {
+  carInclusions,
+  motorcycleInclusions,
+  realEstateOffers,
+} from "../../utils/marketplaceConstants";
+import { Skeleton } from "../../components/skeleton";
+
+const PostDetailMarketplace = ({ item }) => {
+  const router = useRoute();
+  const { post } = router.params;
+  const [images, setImages] = useState(null);
+  const request = useRequest();
+  const [state, setState] = useState(null);
+
+  useEffect(() => {
+    // reorganize images
+    if (post.images) {
+      console.log(post.images.split(","));
+      setImages(
+        post.images.split(",").map((image) => {
+          return { uri: image + "_s1.jpg" };
+        })
+      );
+    }
+    //fetch marketplace post
+    const fetchPost = async () => {
+      try {
+        const response = await request(
+          `/v2/post/marketplace?category=${post.category_id}&id=${post.post_id}`,
+          "GET"
+        );
+
+        if (response.success) {
+          console.log(response.data);
+          setState(response.data);
+        }
+      } catch (error) {
+        console.error("Failed to get post", error);
+      }
+    };
+
+    fetchPost();
+
+    return () => {};
+  }, []);
+
+  const onReturn = () => {
+    goback();
+  };
+
+  const handlePressSMS = () => {
+    const phoneNumber = "+971543839091";
+    const link = `https://www.german-emirates-club.com/Marketplace/${post.id}`;
+    const message = `Hello, I am interested in your post about the ${post.title}. Is it still available?\n\n${link}`;
+    const url = `sms:+971543839091&body=${encodeURIComponent(message)}`; // The 'sms:' scheme followed by the phone number
+    Linking.canOpenURL(url)
+      .then((supported) => {
+        if (!supported) {
+          console.log("Can't handle url: " + url);
+        } else {
+          return Linking.openURL(url);
+        }
+      })
+      .catch((err) => console.error("An error occurred", err));
+  };
+
+  const handlePressCall = () => {
+    const phoneNumber = "+971543839091";
+    const url = `tel:${phoneNumber}`; // The 'sms:' scheme followed by the phone number
+    Linking.canOpenURL(url)
+      .then((supported) => {
+        if (!supported) {
+          console.log("Can't handle url: " + url);
+        } else {
+          return Linking.openURL(url);
+        }
+      })
+      .catch((err) => console.error("An error occurred", err));
+  };
+
+  const ModeChip = () => {
+    const [mode, setMode] = useState(post.mode);
+
+    switch (mode) {
+      case "offer":
+        return (
+          <View
+            style={[
+              styles.chip,
+              { backgroundColor: "#f0932b", paddingHorizontal: 12 },
+            ]}
+          >
+            <Label color={"white"} weight={"bold"}>
+              Angebote
+            </Label>
+          </View>
+        );
+      case "search":
+        return (
+          <View
+            style={[
+              styles.chip,
+              { backgroundColor: "#436885", paddingHorizontal: 12 },
+            ]}
+          >
+            <Label color={"white"} weight={"bold"}>
+              Gesuche
+            </Label>
+          </View>
+        );
+      default:
+        return <></>;
+    }
+  };
+
+  const Specifications = () => {
+    switch (post.category_id) {
+      case 2:
+        //Car
+        return (
+          <>
+            <View style={styles.container}>
+              <View style={styles.header}>
+                <Label weight={"bold"} size={"title"}>
+                  Spezifikation
+                </Label>
+              </View>
+              <View>
+                {car_fields.map((field, index) => {
+                  return (
+                    <DetailRow
+                      key={index}
+                      label={field.label}
+                      value={
+                        field.value === "month"
+                          ? moment()
+                              .month(state[field.value] - 1)
+                              .format("MMMM")
+                          : field.value === "milage_from"
+                          ? `${Intl.NumberFormat("de-DE").format(
+                              state[field.value]
+                            )} ${
+                              post.mode === "search"
+                                ? "- " +
+                                  Intl.NumberFormat("de-DE").format(
+                                    state["milage_to"]
+                                  )
+                                : ""
+                            }`
+                          : field.value === "year_from" &&
+                            post.mode === "search"
+                          ? `${state["year_from"]} - ${state["year_to"]}`
+                          : state[field.value]
+                      }
+                      count={index}
+                      highlightColor="#eaeaea"
+                      style={{ paddingHorizontal: 10 }}
+                    />
+                  );
+                })}
+              </View>
+            </View>
+            <View style={styles.container}>
+              <View style={styles.header}>
+                <Label weight={"bold"} size={"title"}>
+                  Ausstattung
+                </Label>
+              </View>
+              <FlatList
+                scrollEnabled={false}
+                data={
+                  state.art === "car"
+                    ? carInclusions
+                    : state.art === "bike"
+                    ? motorcycleInclusions
+                    : []
+                }
+                renderItem={RenderInclusions}
+                keyExtractor={(item) => item.value.toString()}
+                numColumns={2}
+                initialNumToRender={40}
+                windowSize={40}
+              />
+            </View>
+          </>
+        );
+
+      case 5:
+        // Property
+        return (
+          <>
+            <View style={styles.container}>
+              <View style={styles.header}>
+                <Label size={"title"} weight={"bold"}>
+                  Spezifikation
+                </Label>
+              </View>
+              <View>
+                {property_fields.map((field, index) => {
+                  return (
+                    <DetailRow
+                      key={index}
+                      label={field.label}
+                      value={
+                        field.value === "offer"
+                          ? realEstateOffers[
+                              realEstateOffers.findIndex(
+                                (offer) => offer.value === state[field.value]
+                              )
+                            ]?.label
+                          : field.value === "living_space_start"
+                          ? Intl.NumberFormat("de-DE").format(
+                              state[field.value]
+                            )
+                          : state[field.value]
+                      }
+                      count={index}
+                      highlightColor="#eaeaea"
+                      style={{ paddingHorizontal: 10 }}
+                    />
+                  );
+                })}
+              </View>
+            </View>
+          </>
+        );
+      case 6:
+        // Jobs
+        return (
+          <>
+            <View style={styles.container}>
+              <View style={styles.header}>
+                <Label size={"title"} weight={"bold"}>
+                  Spezifikation
+                </Label>
+              </View>
+              <View>
+                {job_fields.map((field, index) => {
+                  return (
+                    <DetailRow
+                      key={index}
+                      label={field.label}
+                      value={state[field.value]}
+                      count={index}
+                      highlightColor="#eaeaea"
+                      style={{ paddingHorizontal: 10 }}
+                    />
+                  );
+                })}
+              </View>
+            </View>
+          </>
+        );
+    }
+  };
+
+  const RenderInclusions = ({ item }) => {
+    return (
+      <View style={{ flexDirection: "row", flex: 1, gap: 4 }}>
+        <MaterialCommunityIcons
+          name={state[item.value] > 0 ? "check-bold" : "close-thick"}
+          color={state[item.value] > 0 ? "green" : "red"}
+          size={20}
+        />
+        <Label>{item.label}</Label>
+      </View>
+    );
+  };
+
+  const PostSkeleton = () => {
+    return (
+      <>
+        <View style={[styles.container, { backgroundColor: "#eee" }]}>
+          {Array(5)
+            .fill("")
+            .map((item, index) => {
+              return (
+                <Skeleton
+                  key={index}
+                  width={index === 0 ? "50%" : "100%"}
+                  height={15}
+                  variant={"circle"}
+                  opacityMax={0.4}
+                  opacityMin={0.2}
+                />
+              );
+            })}
+        </View>
+      </>
+    );
+  };
+
+  const DetailRow = ({
+    icon,
+    label,
+    children,
+    value,
+    count = 1,
+    style,
+    highlightColor = "#ccc",
+  }) => {
+    return (
+      <View
+        style={[
+          styles.rows,
+          {
+            justifyContent: "space-between",
+            backgroundColor: count % 2 > 0 ? "white" : highlightColor,
+          },
+          style,
+        ]}
+      >
+        <View style={[styles.rowCenter, { flex: 1 }]}>
+          {icon && (
+            <MaterialCommunityIcons
+              name={icon}
+              size={24}
+              color={theme.colors.icons.active}
+            />
+          )}
+          <Label>{label}</Label>
+        </View>
+        <View
+          style={[
+            styles.rowCenter,
+            {
+              flexWrap: "wrap",
+              width: "50%",
+              paddingVertical: 10,
+              justifyContent: "flex-end",
+            },
+          ]}
+        >
+          {value ? <Label>{value}</Label> : <>{children}</>}
+        </View>
+      </View>
+    );
+  };
+
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: "white" }]}>
+      <ScrollView
+        style={[
+          { gap: 8, backgroundColor: "#eee" },
+          Platform.OS === "android" && { margin: -14 },
+        ]}
+        contentContainerStyle={{ gap: 10 }}
+      >
+        {/* Slideshow Section */}
+        <View>
+          {images && post.mode === "offer" && <SlideshowV2 images={images} />}
+          <View style={[styles.container]}>
+            <View style={styles.rows}>
+              <ModeChip />
+            </View>
+            <Label weight={"bold"} size={"heading"}>
+              {post.title}
+            </Label>
+            {post.price && (
+              <Label
+                weight={"bold"}
+                size={18}
+                color={theme.colors.icons.active}
+              >
+                {Intl.NumberFormat("de-DE").format(post.price)} AED
+              </Label>
+            )}
+          </View>
+        </View>
+
+        {state ? (
+          <>
+            {state && <Specifications />}
+
+            {/* Details Section */}
+            <View style={[styles.container]}>
+              <View style={styles.header}>
+                <Label weight={"bold"} size={"title"}>
+                  Details
+                </Label>
+              </View>
+              <DetailRow
+                icon={"format-list-bulleted-type"}
+                label={"Kategorie"}
+                value={post.category}
+              ></DetailRow>
+              <DetailRow
+                icon={"calendar"}
+                label={"Datum der Veröffentlichung"}
+                value={moment(post.date_posted).format("LL")}
+              ></DetailRow>
+              <DetailRow icon={"account"} label={"Gepostet von"}>
+                {/* Posted By */}
+                <View style={[styles.title]}>
+                  {/* avatar */}
+                  <Avatar size={30} image={post.prof_image} />
+                  <View style={styles.authorContainer}>
+                    <View
+                      style={{
+                        alignSelf: "stretch",
+                        justifyContent: "space-between",
+                        flexDirection: "row",
+                      }}
+                    >
+                      <View>
+                        {/* name */}
+                        <View style={styles.rows}>
+                          <View>
+                            <Label size={"body"} weight={"bold"}>
+                              {`${post.first_name} ${post.last_name}`}
+                            </Label>
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+                    {/* <Label size={"caption"} weight={"regular"}>
+                {data.category}
+              </Label> */}
+                    {/* Category */}
+                  </View>
+                </View>
+              </DetailRow>
+            </View>
+
+            {/* Description Section */}
+            <View style={[styles.container]}>
+              <View style={styles.header}>
+                <Label weight={"bold"} size={"title"}>
+                  Detaillierte Beschreibung
+                </Label>
+              </View>
+              <Label>{post.content}</Label>
+            </View>
+          </>
+        ) : (
+          <>
+            <PostSkeleton />
+            <PostSkeleton />
+          </>
+        )}
+      </ScrollView>
+      <View
+        style={[styles.rows, { padding: 8, backgroundColor: "white", gap: 8 }]}
+      >
+        <CustomButton
+          icon={"message-outline"}
+          onPress={handlePressSMS}
+          iconSize={18}
+          style={{ flex: 1 }}
+          color={theme.colors.icons.active}
+          label={"SMS"}
+        />
+        <CustomButton
+          icon={"phone"}
+          onPress={handlePressCall}
+          iconSize={18}
+          style={{ flex: 1 }}
+          color={theme.colors.icons.active}
+          label={"Call"}
+        />
+      </View>
+    </SafeAreaView>
+  );
+};
+
+export default PostDetailMarketplace;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 18,
+    backgroundColor: "white",
+    gap: 8,
+  },
+  rows: {
+    flexDirection: "row",
+  },
+
+  chip: {
+    backgroundColor: "#ddd",
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 50,
+    // opacity: 0.6,
+  },
+  header: {
+    borderBottomWidth: 2,
+    paddingBottom: 4,
+    borderColor: "#ccc",
+    marginBottom: 4,
+  },
+  optionsContainer: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+  authorContainer: {
+    justifyContent: "center",
+    // flex: 1,
+  },
+  title: {
+    // backgroundColor: "red",
+    flexDirection: "row",
+  },
+  rowCenter: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    // height: 40,
+  },
+});
+
+const car_fields = [
+  {
+    label: "Maker",
+    value: "label",
+  },
+  {
+    label: "Modell",
+    value: "class",
+  },
+  {
+    label: "Kilometer",
+    value: "milage_from",
+  },
+  {
+    label: "Farbe",
+    value: "color",
+  },
+
+  {
+    label: "Baumonat",
+    value: "month",
+  },
+  {
+    label: "Baujahr",
+    value: "year_from",
+  },
+];
+
+const property_fields = [
+  {
+    label: "Angebot",
+    value: "offer",
+  },
+  {
+    label: "Ort/Region/Land",
+    value: "place",
+  },
+  {
+    label: "Stadtteil/Straße",
+    value: "street",
+  },
+  {
+    label: "Art",
+    value: "art",
+  },
+  {
+    label: "Schlafräume",
+    value: "sleep_rooms_start",
+  },
+  {
+    label: "Wohnfläche",
+    value: "living_space_start",
+  },
+];
+
+const job_fields = [
+  {
+    label: "Arbeitszeit",
+    value: "time",
+  },
+  {
+    label: "Ort",
+    value: "place",
+  },
+  {
+    label: "Bereich",
+    value: "occupational_area",
+  },
+  {
+    label: "Branche",
+    value: "branche",
+  },
+  {
+    label: "Erfahrung",
+    value: "work_experience",
+  },
+];
+// , occupational_area , position, time, work	work_experience, branche

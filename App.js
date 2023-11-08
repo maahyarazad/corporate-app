@@ -36,16 +36,16 @@ export default function App() {
                 <UserProvider>
                   <Provider store={store}>
                     <PostProvider>
-                      <UserContextProvider>
-                        {/* ^ to be removed*/}
-                        <UploadContextProvider>
-                          <LocationContextProvider>
-                            <SectionContextProvider>
-                              <AppNavigation />
-                            </SectionContextProvider>
-                          </LocationContextProvider>
-                        </UploadContextProvider>
-                      </UserContextProvider>
+                      {/* <UserContextProvider> */}
+                      {/* ^ to be removed*/}
+                      <UploadContextProvider>
+                        <LocationContextProvider>
+                          <SectionContextProvider>
+                            <AppNavigation />
+                          </SectionContextProvider>
+                        </LocationContextProvider>
+                      </UploadContextProvider>
+                      {/* </UserContextProvider> */}
                     </PostProvider>
                   </Provider>
                 </UserProvider>

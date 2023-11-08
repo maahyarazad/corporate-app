@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { Alert, Image, TouchableOpacity, View } from "react-native";
+import { Alert, Image, Platform, TouchableOpacity, View } from "react-native";
 import { ActivityIndicator, Checkbox, TextInput } from "react-native-paper";
 import { SafeArea } from "../../components/safearea.component";
 import { Spacer } from "../../components/spacer/spacer.component";
@@ -20,6 +20,9 @@ import { companyLogo, config, EULAPrivacyLink } from "../../utils/constants";
 import useRequest from "../../../hooks/useRequest";
 import useAuth from "../../../hooks/useAuth";
 import { TranslationContext } from "../../services/translation/translation.context";
+import * as Application from "expo-application";
+import * as Network from "expo-network";
+import * as Constants from "expo-constants";
 
 export const TextInputForm = styled(TextInput)`
   border-radius: 10px;
@@ -71,18 +74,39 @@ export const LoginScreen = ({ navigation }) => {
         return;
       }
 
+      const ip = await Network.getIpAddressAsync();
+      const platform = Platform.OS;
+      const deviceId =
+        platform === "ios"
+          ? await Application.getIosIdForVendorAsync()
+          : platform === "android"
+          ? await Application.androidId
+          : "n/a";
+
       setLoginLoading(true);
       const credentials = {
         app_id: config.APP_ID,
         username,
         password,
+        device_id: deviceId,
+        ip_address: ip,
+        platform: platform,
+        version: Constants.default.expoConfig.version,
       };
 
       // const response = await login(credentials, setLoading);
 
       const response = await request("/v2/auth/login", "post", credentials);
       if (response.success) {
+        if (response.member_id) {
+          navigate("UpdateMember", {
+            member_id: response.member_id,
+            credentials,
+          });
+          return;
+        }
         if (response.status) {
+          console.log("refreshToken", response.refreshToken);
           signin(response.refreshToken, response.accessToken);
           setLang(response.member ? "de" : "en");
           navigation.navigate("VerifyOTP", {
@@ -93,6 +117,8 @@ export const LoginScreen = ({ navigation }) => {
             userId: response.user_id,
           });
         }
+      } else {
+        Alert.alert(response.title, response.message);
       }
 
       //   console.log("LOGIN:", response);
@@ -116,6 +142,7 @@ export const LoginScreen = ({ navigation }) => {
       //     });
       //   }
     } catch (err) {
+      console.log("ERROR", err);
       setLoading(false);
     }
   };

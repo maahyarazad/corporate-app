@@ -158,7 +158,7 @@
         "yes": "Yes",
         "free": "Free",
         "offer-restriction": {
-            "title": "Incomplete Profile",
+            "title": "Update Card",
             "message": "You need to upload your member card to use any offers or you can also call us to order a card",
             "order-now": "Order Card",
             "upload-card": "Upload Card"

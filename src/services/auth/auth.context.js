@@ -50,7 +50,7 @@ export const AuthContextProvider = ({ children }) => {
         token,
       }));
       if (!!token) {
-        await retrieve();
+        // await retrieve();
       }
     })();
 

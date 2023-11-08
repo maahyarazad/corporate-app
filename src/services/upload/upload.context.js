@@ -10,8 +10,8 @@ import useAuth from "../../../hooks/useAuth";
 export const UploadContext = createContext();
 
 export const UploadContextProvider = ({ children }) => {
-  const { setUser, user } = useContext(AuthContext);
-  const { getUserInfo } = useContext(UserContext);
+  // const { setUser, user } = useContext(AuthContext);
+  // const { getUserInfo } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const request = useRequest();
   const { submittedCard } = useAuth();

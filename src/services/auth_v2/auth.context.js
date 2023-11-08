@@ -1,5 +1,7 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useRef, useState } from "react";
 import * as SecureStorage from "expo-secure-store";
+import useUser from "../../../hooks/useUser";
+import useRequest from "../../../hooks/useRequest";
 
 export const AuthContext = createContext(null);
 
@@ -7,40 +9,42 @@ const AuthProvider = ({ children }) => {
   const [refreshToken, setRefreshToken] = useState(null);
   const [accessToken, setAccessToken] = useState(null);
   const [phoneVerified, setPhoneVerified] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(null);
   const [hasSubmit, setHasSubmit] = useState(null);
   const [isSkip, setIsSkip] = useState(null);
   const [loading, setLoading] = useState(false);
   const [noConnection, setNoConnection] = useState(false);
   const [noConnectionRetry, setNoConnectionRetry] = useState({});
+  // const request = useRequest();
+  const isMounted = useRef(true);
+
+  const initialize = async () => {
+    try {
+      setLoading(true);
+      const flags = await retrieveInfo();
+      console.log("FLAG", flags);
+      if (flags && isMounted.current) {
+        await setTimeout(() => {
+          setRefreshToken(flags._refreshToken);
+          setAccessToken(flags._accessToken);
+          setIsAuthorized(parseInt(flags._isAuthorized));
+          setPhoneVerified(flags._phoneVerified);
+          setHasSubmit(parseInt(flags._hasSubmit ?? 0));
+          setIsSkip(parseInt(flags._isSkip));
+          setLoading(false);
+        }, 0);
+        setNoConnection(false);
+      }
+    } catch (error) {
+    } finally {
+    }
+  };
 
   useEffect(() => {
-    let isMounted = true;
-
-    const initialize = async () => {
-      console.log("boboha");
-      try {
-        setLoading(true);
-        const flags = await retrieveInfo();
-        console.log("FLAGS", flags);
-        if (flags && isMounted) {
-          await setTimeout(() => {
-            setRefreshToken(flags._refreshToken);
-            setAccessToken(flags._accessToken);
-            setPhoneVerified(flags._phoneVerified);
-            setHasSubmit(flags._hasSubmit);
-            setIsSkip(flags._isSkip);
-            setLoading(false);
-          }, 0);
-        }
-      } catch (error) {
-      } finally {
-      }
-    };
-
     initialize();
 
     return () => {
-      isMounted = false;
+      isMounted.current = false;
     };
   }, []);
 
@@ -56,6 +60,8 @@ const AuthProvider = ({ children }) => {
     try {
       setRefreshToken(refToken);
       setAccessToken(accToken);
+      await SecureStorage.setItemAsync("refreshToken", refToken);
+      await SecureStorage.setItemAsync("accessToken", accToken);
     } catch (error) {
       console.error("Failed in storing the tokens:", error);
     }
@@ -72,10 +78,15 @@ const AuthProvider = ({ children }) => {
       setRefreshToken(null);
       setAccessToken(null);
       setPhoneVerified(null);
+      setIsAuthorized(null);
+      setHasSubmit(null);
+      setIsSkip(null);
       await SecureStorage.deleteItemAsync("refreshToken");
       await SecureStorage.deleteItemAsync("accessToken");
       await SecureStorage.deleteItemAsync("verified");
       await SecureStorage.deleteItemAsync("hasSubmit");
+      await SecureStorage.deleteItemAsync("isSkip");
+      await SecureStorage.deleteItemAsync("isAuthorized");
       await SecureStorage.deleteItemAsync("userData"); //Not Sure to delete?
     } catch (error) {
       console.error("Failed in removing the tokens:", error);
@@ -93,8 +104,7 @@ const AuthProvider = ({ children }) => {
   const verifyOTP = async () => {
     try {
       setPhoneVerified(true);
-      await SecureStorage.setItemAsync("refreshToken", refreshToken);
-      await SecureStorage.setItemAsync("accessToken", accessToken);
+
       await SecureStorage.setItemAsync("verified", "true");
     } catch (error) {
       console.error("Failed to store: ", error);
@@ -109,8 +119,30 @@ const AuthProvider = ({ children }) => {
    */
   const submittedCard = async () => {
     try {
-      setHasSubmit("1");
+      setHasSubmit(1);
       await SecureStorage.setItemAsync("hasSubmit", "1");
+    } catch (error) {
+      console.error("Failed to store: ", error);
+    }
+  };
+
+  const authorize = async () => {
+    try {
+      setIsAuthorized(1);
+      await SecureStorage.setItemAsync("isAuthorized", "1");
+    } catch (error) {
+      console.error("Failed to store: ", error);
+    }
+  };
+
+  const unauthorize = async () => {
+    try {
+      setIsAuthorized(0);
+      setHasSubmit(0);
+
+      await SecureStorage.setItemAsync("hasSubmit", "0");
+      await SecureStorage.setItemAsync("isAuthorized", "0");
+      console.log("unauth");
     } catch (error) {
       console.error("Failed to store: ", error);
     }
@@ -137,8 +169,22 @@ const AuthProvider = ({ children }) => {
    * Navigate to card verification page
    *
    */
-  const goToVerification = () => {
-    setIsSkip(false);
+  const goToVerification = async () => {
+    try {
+      setIsSkip(false);
+      setIsAuthorized(0);
+      setHasSubmit(0);
+      await SecureStorage.setItemAsync("hasSubmit", "0");
+      await SecureStorage.setItemAsync("isAuthorized", "0");
+    } catch (error) {
+      console.log("Failed to store: ", error);
+    }
+  };
+
+  const renewAccessToken = async (token) => {
+    setAccessToken(token);
+
+    await SecureStorage.setItemAsync("accessToken", token);
   };
 
   /**
@@ -153,10 +199,18 @@ const AuthProvider = ({ children }) => {
     const _refreshToken = await SecureStorage.getItemAsync("refreshToken");
     const _accessToken = await SecureStorage.getItemAsync("accessToken");
     const _phoneVerified = await SecureStorage.getItemAsync("verified");
+    const _isAuthorized = await SecureStorage.getItemAsync("isAuthorized");
     const _hasSubmit = await SecureStorage.getItemAsync("hasSubmit");
     const _isSkip = await SecureStorage.getItemAsync("isSkip");
 
-    return { _refreshToken, _accessToken, _phoneVerified, _hasSubmit, _isSkip };
+    return {
+      _refreshToken,
+      _accessToken,
+      _phoneVerified,
+      _isAuthorized,
+      _hasSubmit,
+      _isSkip,
+    };
   };
 
   const values = {
@@ -167,9 +221,10 @@ const AuthProvider = ({ children }) => {
     refreshToken,
     accessToken,
     isSkip,
-    setAccessToken,
+    renewAccessToken,
     phoneVerified,
     submittedCard,
+    isAuthorized,
     hasSubmit,
     skipAuth,
     goToVerification,
@@ -177,6 +232,9 @@ const AuthProvider = ({ children }) => {
     setNoConnection,
     noConnectionRetry,
     setNoConnectionRetry,
+    initialize,
+    authorize,
+    unauthorize,
   };
 
   return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>;

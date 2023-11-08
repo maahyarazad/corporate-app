@@ -44,6 +44,7 @@ import { PartnerService } from "../../services/location/location.service";
 import { TranslationContext } from "../../services/translation/translation.context";
 import useRequest from "../../../hooks/useRequest";
 import useUser from "../../../hooks/useUser";
+import { theme } from "../../infrastructure/theme";
 
 export const AuthEditProfileScreen = () => {
   const [showCountries, setShowCountries] = useState(false);
@@ -66,12 +67,12 @@ export const AuthEditProfileScreen = () => {
     partner_id: "---",
     partner_name: "---",
     card_valid_date: "---",
+    cardNumber: "---",
   });
   const dateLimit = new Date();
   dateLimit.setFullYear(dateLimit.getFullYear() - 18);
   const honorificLabelList = honorificList.map((x) => ({ label: x, value: x }));
   const isMounted = useRef(true);
-  const navigation = useNavigation();
   const [partnerList, setPartnerList] = useState();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { i18n, lang } = useContext(TranslationContext);
@@ -79,68 +80,11 @@ export const AuthEditProfileScreen = () => {
   const request = useRequest();
   const [userData, setUserData] = useState(null);
 
-  // useLayoutEffect(() => {
-  //   isMounted.current = true;
-
-  //   const getUserData = async () => {
-  //     try {
-  //       return await getUserInfo();
-  //     } catch (error) {
-  //       console.error("Failed to get user data: ", error);
-  //     }
-  //   };
-
-  //   const userData = getUserData();
-  //   console.log(userData);
-
-  //   const data = {
-  //     ...state,
-  //     user_id: userData.user_id,
-  //     username: userData.username,
-  //   };
-
-  //   const getPartners = async () => {
-  //     try {
-  //       const response = await PartnerService.getPartners();
-  //       if (response.success && isMounted.current) {
-  //         setPartnerList(response.data);
-
-  //         setState({
-  //           ...data,
-  //           partner_name: response.data.filter(
-  //             (partner) => partner.value == userInfo.partner_id
-  //           )[0].label,
-  //         });
-  //       } else {
-  //         Alert.alert(
-  //           "Error Occured",
-  //           "There's a problem loading the partners"
-  //         );
-  //       }
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
-  //   if (!user.member) {
-  //     getPartners();
-  //   } else {
-  //     setState(data);
-  //   }
-  //   console.log("get partner");
-  //   setState(data);
-  //   setStateCopy(data);
-
-  //   console.log(state.partner_name);
-
-  //   return () => {
-  //     isMounted.current = false;
-  //   };
-  // }, []);
-
   useEffect(() => {
     let isMounted = true;
     const initialize = async () => {
       try {
+        setIsLoading(true);
         //Get partners
         const response = await request("/v2/partner/active", "get");
         const response_userInfo = await getUserInfo();
@@ -158,8 +102,10 @@ export const AuthEditProfileScreen = () => {
               "There's a problem loading the partners"
             );
           }
+          setIsLoading(false);
         }
       } catch (err) {
+        setIsLoading(false);
         console.err(err);
       }
     };
@@ -196,6 +142,7 @@ export const AuthEditProfileScreen = () => {
         card_valid_date: moment(userData.card_valid_date)
           .format("MM/YY")
           .toString(),
+        cardNumber: userData.card_number,
       });
     }
 
@@ -217,6 +164,19 @@ export const AuthEditProfileScreen = () => {
     setState({ ...state, partner_id: partnerId, partner_name: partnerName });
   };
 
+  const checkForEmpty = () => {
+    let empty = false;
+    Object.keys(state).forEach((key) => {
+      if (state[key] !== "---" && state[key] !== "") {
+        empty = false;
+      } else {
+        empty = true;
+      }
+    });
+    if (empty) Alert.alert("Notice", "Please fill in all the required fields");
+    return empty;
+  };
+
   const handleSubmit = async () => {
     try {
       const data = {
@@ -226,6 +186,8 @@ export const AuthEditProfileScreen = () => {
       console.log("LOG", data);
 
       setIsSubmitted(true);
+
+      if (checkForEmpty()) return null;
 
       setIsLoading(true);
 
@@ -324,12 +286,14 @@ export const AuthEditProfileScreen = () => {
               <Button
                 mode="contained"
                 onPress={handleSubmit}
-                color="rgb(230,135,0)"
+                buttonColor={theme.colors.icons.active}
+                style={{ borderRadius: 10 }}
                 icon={() => {
                   return (
                     <MaterialCommunityIcons
                       name="content-save-outline"
                       size={20}
+                      color={"white"}
                     ></MaterialCommunityIcons>
                   );
                 }}
@@ -339,11 +303,14 @@ export const AuthEditProfileScreen = () => {
             </View>
           </View>
           <KeyboardAwareScrollView
+            style={{ marginHorizontal: -18 }}
             contentContainerStyle={{
               flexGrow: 1,
               flexDirection: "column",
               justifyContent: "center",
+              paddingHorizontal: 18,
             }}
+            indicatorStyle={"white"}
             keyboardShouldPersistTaps={"always"}
             keyboardDismissMode={
               Platform.OS === "ios" ? "interactive" : "on-drag"
@@ -353,19 +320,19 @@ export const AuthEditProfileScreen = () => {
             <CustomTextInput
               value={state.username}
               disable={true}
-              label={i18n.t("profile-tabs.profile.username")}
+              label={i18n.t("profile-tabs.profile.username") + "*"}
             />
             <Spacer position={"top"} size="medium" />
             <CustomTextInput
               value={state.email}
               disable={true}
-              label={i18n.t("profile-tabs.profile.email")}
+              label={i18n.t("profile-tabs.profile.email") + "*"}
             />
             <Spacer position={"top"} size="medium" />
             <CustomTextInput
               value={state.mobile}
               disable={true}
-              label={i18n.t("profile-tabs.profile.mobile")}
+              label={i18n.t("profile-tabs.profile.mobile") + "*"}
             />
             <Spacer position={"top"} size="medium" />
             <View
@@ -408,7 +375,7 @@ export const AuthEditProfileScreen = () => {
               onChangeText={(prev) => {
                 setState({ ...state, firstname: prev });
               }}
-              label={i18n.t("profile-tabs.profile.firstname")}
+              label={i18n.t("profile-tabs.profile.firstname") + "*"}
             />
             <Spacer position={"top"} size="medium" />
             <CustomTextInput
@@ -416,7 +383,7 @@ export const AuthEditProfileScreen = () => {
               onChangeText={(prev) => {
                 setState({ ...state, middlename: prev });
               }}
-              label={i18n.t("profile-tabs.profile.middlename")}
+              label={i18n.t("profile-tabs.profile.middlename") + "*"}
             />
             <Spacer position={"top"} size="medium" />
             <CustomTextInput
@@ -424,7 +391,7 @@ export const AuthEditProfileScreen = () => {
               onChangeText={(prev) => {
                 setState({ ...state, lastname: prev });
               }}
-              label={i18n.t("profile-tabs.profile.lastname")}
+              label={i18n.t("profile-tabs.profile.lastname") + "*"}
             />
             <Spacer position={"top"} size="medium" />
 
@@ -442,7 +409,7 @@ export const AuthEditProfileScreen = () => {
                       : i18n.t("gender.female")
                     : "---"
                 }
-                label={i18n.t("gender.title")}
+                label={i18n.t("gender.title") + "*"}
                 style={{
                   width: "100%",
                   maxHeight: 58,
@@ -485,7 +452,7 @@ export const AuthEditProfileScreen = () => {
               <CustomTextInput
                 value={moment(state.birthdate).format("DD.MMM YYYY")}
                 // onChangeText={setBirthdate}
-                label={i18n.t("profile-tabs.profile.birthdate")}
+                label={i18n.t("profile-tabs.profile.birthdate") + "*"}
                 style={{
                   width: "100%",
                   maxHeight: 60,
@@ -495,7 +462,7 @@ export const AuthEditProfileScreen = () => {
               <DatePicker
                 value={state.birthdate}
                 onDateChange={(date) => setState({ ...state, birthdate: date })}
-                title={i18n.t("profile-tabs.profile.birthdate")}
+                title={i18n.t("profile-tabs.profile.birthdate") + "*"}
                 isNullable={false}
                 iosMode="date"
                 androidMode="date"
@@ -520,7 +487,7 @@ export const AuthEditProfileScreen = () => {
             >
               <CustomTextInput
                 value={state.nationality}
-                label={i18n.t("profile-tabs.profile.nationality")}
+                label={i18n.t("profile-tabs.profile.nationality") + "*"}
                 style={{
                   width: "100%",
                   height: 58,
@@ -589,6 +556,15 @@ export const AuthEditProfileScreen = () => {
               </>
             )}
             <Spacer position={"top"} size="medium" />
+            <CustomTextInput
+              value={state.cardNumber}
+              onChangeText={(prev) => {
+                setState({ ...state, cardNumber: prev });
+              }}
+              keyboardType="numeric"
+              label={"GEC Card Number *"}
+              error={isSubmitted && state.cardNumber.trim() === ""}
+            />
           </KeyboardAwareScrollView>
         </View>
       </SafeArea>

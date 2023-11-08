@@ -32,6 +32,7 @@ import {
 import { navigate } from "../../navigation/navigate";
 import { width } from "../styles";
 import useRequest from "../../../hooks/useRequest";
+import { theme } from "../../infrastructure/theme";
 
 const test_data = [
   { outlet_name: "Merchant A" },
@@ -308,15 +309,16 @@ export const Hotpicks = () => {
               >
                 {hotpickList && (
                   <Chip
-                    style={
-                      {
-                        // width: 130,
-                      }
-                    }
+                    style={{
+                      // width: 130,
+                      backgroundColor: theme.colors.icons.active,
+                      borderRadius: 50,
+                    }}
                     textStyle={{ width: 105, textAlign: "center" }}
                   >
                     <Label
                       weight={"bold"}
+                      color={"white"}
                     >{`${currentIndex} out of ${hotpickList.length}`}</Label>
                   </Chip>
                 )}

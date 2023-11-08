@@ -63,60 +63,60 @@ export const ProfInfo = () => {
         )}
         <RenderRow
           label={i18n.t("profile-tabs.profile.username")}
-          value={`${userData.username}`}
+          value={`${userData?.username}`}
         />
         <RenderRow
           label={i18n.t("profile-tabs.profile.email")}
-          value={userData.email}
+          value={userData?.email}
         />
         <RenderRow
           label={i18n.t("profile-tabs.profile.mobile")}
-          value={`+${userData.area_code} ${userData.phone_number}`}
+          value={`+${userData?.area_code} ${userData?.phone_number}`}
         />
         {/* {console.log("CARD NUMBER:", userInfo.card_number)} */}
-        {!!userData.card_number &&
-          userData.card_number.trim() != "" &&
-          userData.card_number != "" && (
+        {!!userData?.card_number &&
+          userData?.card_number.trim() != "" &&
+          userData?.card_number != "" && (
             <RenderRow
               label={"Card Number"}
-              value={userData.card_number
-                .toString()
+              value={userData?.card_number
+                ?.toString()
                 .replace(/.{4}/g, `$& `)
                 .trim()}
             />
           )}
-        {
+        {!!userData?.expiry && (
           <>
             {/* <Label>{userInfo.card_valid_date}</Label> */}
             <RenderRow
               label={"Validity Date"}
-              value={moment(userData.card_valid_date).format("MM/YY")}
+              value={moment(userData?.expiry).format("MM/YY")}
             />
           </>
-        }
+        )}
 
-        {userData.partner_name != undefined &&
-          userData.partner_name.trim() != "" && (
+        {userData?.partner_name != undefined &&
+          userData.partner_name?.trim() != "" && (
             <RenderRow
               label={i18n.t("profile-tabs.profile.partner")}
-              value={userData.partner_name}
+              value={userData?.partner_name}
             />
           )}
 
         <RenderRow
           label={i18n.t("profile-tabs.profile.name")}
-          value={`${userData.honorifics} ${userData.first_name}${
-            !!userData.middlename ? ` ${userData.middle_name} ` : " "
-          }${userData.last_name}`}
+          value={`${userData?.honorifics} ${userData?.first_name}${
+            !!userData?.middlename ? ` ${userData?.middle_name} ` : " "
+          }${userData?.last_name}`}
         />
         <RenderRow
           label={i18n.t("profile-tabs.profile.birthdate")}
-          value={moment(userData.birthdate).format("LL")}
+          value={moment(userData?.birthdate).format("LL")}
         />
         <RenderRow
           label={i18n.t("profile-tabs.profile.gender")}
           value={
-            userData.gender.toLowerCase() === "m"
+            userData?.gender?.toLowerCase() === "m"
               ? i18n.t("gender.male")
               : i18n.t("gender.female")
           }

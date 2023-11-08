@@ -24,33 +24,39 @@ import { TranslationContext } from "../../services/translation/translation.conte
 import { config } from "../../utils/constants";
 import useRequest from "../../../hooks/useRequest";
 import useAuth from "../../../hooks/useAuth";
+import useUser from "../../../hooks/useUser";
 
 export const OtpVerification = ({ route, navigation }) => {
   const MAX_CODE_LENGTH = 4;
   const OTP_COOLDOWN = 120;
-  const { isLoading, verify, resendOTP, user } = useContext(AuthContext);
+  const { isLoading, verify, resendOTP } = useContext(AuthContext);
   const { i18n } = useContext(TranslationContext);
   const [otpCooldown, setOtpCooldown] = useState(OTP_COOLDOWN);
   const mobileNum = route.params.hiddenNumber;
   const [code, setCode] = useState("");
   const [pinReady, setPinReady] = useState(false);
   const { colors } = useTheme();
-  const { user_id, device_id } = user;
   const [resendStatus, setResendStatus] = useState(true);
   const [resendMsg, setResendMsg] = useState(i18n.t("auth.code-sent"));
   const request = useRequest();
   const { verifyOTP } = useAuth();
+  const { userData, getUserInfo } = useUser();
 
   const handleVerify = async () => {
     try {
       const otp_details = { otp: code, app_id: config.APP_ID };
 
-      const response = await request("/v2/auth/verify", "post", otp_details);
+      const response = await request(
+        "/v2/auth/verify",
+        "post",
+        otp_details
+      ).catch(() => {
+        console.log("OTP Failed", response);
+      });
 
       if (response.success) {
-        verifyOTP();
+        await verifyOTP();
       }
-      console.log("OTP RESPONSE", response);
 
       if (!response) {
         handleCodeChange("");
@@ -88,7 +94,7 @@ export const OtpVerification = ({ route, navigation }) => {
   };
 
   const handleResend = () => {
-    resendOTP(user_id).then((response) => {
+    resendOTP(userData.user_id).then((response) => {
       setResendMsg(i18n.t("auth.code-sent2"));
       setResendStatus(true);
     });

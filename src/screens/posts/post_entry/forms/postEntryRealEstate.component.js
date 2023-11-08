@@ -16,9 +16,16 @@ import {
 import { Slider } from "@miblanchard/react-native-slider";
 import { theme } from "../../../../infrastructure/theme";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import MediaUploader from "../../../../components/mediaUploader.js/mediaUploader.component";
+import { PostAgreementCheckbox } from "./postEntryStandard.component";
 
-const PostEntryRealEstate = () => {
+const PostEntryRealEstate = ({ onSubmit, mode }) => {
   const MAX_CONTENT = 3000;
+
+  const [isAgreed, setIsAgreed] = useState(false);
+  const toggleAgreement = () => {
+    setIsAgreed(!isAgreed);
+  };
 
   const [offerTypes, setOfferTypes] = useState(
     realEstateOffers.map((item) => {
@@ -44,10 +51,12 @@ const PostEntryRealEstate = () => {
     street: null,
     art: null,
     space: null,
-    bedrooms: 1,
+    sleep_rooms_start: 1,
+    sleep_rooms_end: 2,
     price: null,
     title: "",
     content: "",
+    images: null,
   });
 
   const [offerTypeOpen, setOfferTypeOpen] = useState(false);
@@ -83,7 +92,15 @@ const PostEntryRealEstate = () => {
   };
 
   const handleChangeBedrooms = (_value) => {
-    setState({ ...state, bedrooms: _value });
+    if (mode === 1) {
+      setState({ ...state, sleep_rooms_start: _value });
+    } else {
+      setState({
+        ...state,
+        sleep_rooms_start: _value[0],
+        sleep_rooms_end: _value[1],
+      });
+    }
   };
 
   const handleTitleChange = (_value) => {
@@ -97,6 +114,36 @@ const PostEntryRealEstate = () => {
       ...state,
       content: _value,
     });
+  };
+
+  const setImages = (images) => {
+    setState({
+      ...state,
+      images: images,
+    });
+  };
+
+  const submitForm = async () => {
+    try {
+      const formData = new FormData();
+
+      // Iterate image append into formData
+      state.images.forEach((image) => {
+        formData.append("images", {
+          name: image.name,
+          type: image.type,
+          uri: image.uri,
+        });
+      });
+
+      Object.keys(state).forEach((key) => {
+        if (key !== "images") formData.append(key, state[key]);
+      });
+
+      onSubmit(formData);
+    } catch (error) {
+      console.log("Failed to create standard post:", error);
+    }
   };
 
   return (
@@ -166,7 +213,8 @@ const PostEntryRealEstate = () => {
         <Label size={"title"}>Schlafräume</Label>
         <View>
           <Slider
-            value={state.bedrooms}
+            // value={state.bedrooms}
+            value={[state.sleep_rooms_start, state.sleep_rooms_end]}
             minimumValue={1}
             maximumValue={5}
             onValueChange={handleChangeBedrooms}
@@ -193,7 +241,7 @@ const PostEntryRealEstate = () => {
                   }}
                 >
                   <Label size={16} weight={"bold"}>
-                    {state.bedrooms}
+                    {state.sleep_rooms_start}
                   </Label>
                 </View>
               );
@@ -215,7 +263,7 @@ const PostEntryRealEstate = () => {
       <TextInput
         placeholder="Preis"
         onChangeText={handleChangePrice}
-        value={state.space}
+        value={state.price}
         style={styles.formField}
         keyboardType="numeric"
       />
@@ -250,30 +298,24 @@ const PostEntryRealEstate = () => {
       </View>
 
       {/* Browser Media */}
-      <View
-        style={{
-          height: 100,
-          width: 100,
-          borderRadius: 20,
-          borderColor: "#ccc",
-          borderStyle: "dashed",
-          borderWidth: 3,
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <MaterialCommunityIcons name="image-plus" size={30} color={"#ccc"} />
-      </View>
+      <MediaUploader
+        images={state.images}
+        setImages={setImages}
+        header={true}
+        show={mode === 1}
+      />
+
+      {/* Acknowledgement Checkbox */}
+      <PostAgreementCheckbox
+        toggleAgreement={toggleAgreement}
+        isAgreed={isAgreed}
+      />
 
       {/* Submit Button */}
-      <TouchableOpacity
-        onPress={() => {
-          console.log(state);
-        }}
-      >
+      <TouchableOpacity onPress={submitForm} disabled={!isAgreed}>
         <View
           style={{
-            backgroundColor: theme.colors.icons.active,
+            backgroundColor: isAgreed ? theme.colors.icons.active : "#ccc",
             justifyContent: "center",
             alignItems: "center",
             paddingVertical: 16,
@@ -281,11 +323,11 @@ const PostEntryRealEstate = () => {
           }}
         >
           <Label
-            size={16}
+            size={"subtitle"}
             weight={"bold"}
             style={{ color: "white", letterSpacing: 1 }}
           >
-            Submit
+            Absenden
           </Label>
         </View>
       </TouchableOpacity>

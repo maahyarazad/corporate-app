@@ -20,14 +20,23 @@ import { useNavigation } from "@react-navigation/native";
 
 const POST_TYPE = [
   {
-    id: 0,
+    id: 1,
     label: "Forum",
+    subtitle: "Ich möchte mich austauschen!",
     icon: "forum-outline",
   },
   {
-    id: 1,
-    label: "Marketplatz",
+    id: 2,
+    label: "Angebot",
+    subtitle: "Ich möchte etwas verkaufen!",
     icon: "storefront-outline",
+  },
+
+  {
+    id: 3,
+    label: "Gesuch",
+    subtitle: "Ich möchte etwas kaufen!",
+    icon: "text-box-search-outline",
   },
 ];
 
@@ -54,7 +63,7 @@ const PostEntrySelect = () => {
         try {
           setLoading(true);
           const responseForum = await request(
-            "/v2/post/form/categories",
+            "/v2/post/forum/categories",
             "get"
           );
           const responseMarketplace = await request(
@@ -76,10 +85,9 @@ const PostEntrySelect = () => {
       preloadCategries();
     } else if (selectedType !== null && categories) {
       setSelectedType(null);
-      navigation.removeListener();
       navigate("post-select-category", {
         type: selectedType,
-        list: categories[selectedType.id],
+        list: categories[selectedType.id === 1 ? 0 : 1],
       });
     }
 
@@ -94,16 +102,34 @@ const PostEntrySelect = () => {
     };
 
     return (
-      <TouchableOpacity key={type.id} onPress={onSelect}>
+      <TouchableOpacity
+        key={type.id}
+        onPress={onSelect}
+        // style={{ width: "100%" }}
+      >
         <View style={styles.categoryButton}>
-          <MaterialCommunityIcons
-            name={type.icon}
-            size={60}
-            color={theme.colors.icons.active}
-          />
-          <Label size={20} weight={"bold"}>
-            {type.label}
-          </Label>
+          <View
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              gap: 12,
+              alignItems: "center",
+            }}
+          >
+            <MaterialCommunityIcons
+              name={type.icon}
+              size={50}
+              color={theme.colors.icons.active}
+            />
+            <View style={{ flex: 1 }}>
+              <Label size={20} weight={"bold"}>
+                {type.label}
+              </Label>
+              <Label size={16} weight={"medium"} color={"#999"}>
+                {type.subtitle}
+              </Label>
+            </View>
+          </View>
         </View>
       </TouchableOpacity>
     );
@@ -123,7 +149,7 @@ const PostEntrySelect = () => {
                   size={24}
                   color="black"
                 />
-                <Label>Back to Feed</Label>
+                <Label>Zurück zum Feed</Label>
               </View>
             </TouchableOpacity>
           </View>
@@ -133,14 +159,7 @@ const PostEntrySelect = () => {
           <View style={styles.body}>
             <View style={{ gap: 10 }}>
               <Label size={25} weight={"bold"} style={{ textAlign: "center" }}>
-                What would you like to do?
-              </Label>
-              <Label
-                size={"subtitle"}
-                weight={"medium"}
-                style={{ textAlign: "center" }}
-              >
-                Talk about something or sell something?
+                Was möchten Sie tun?
               </Label>
             </View>
             <View style={styles.typeButtonContainer}>
@@ -167,16 +186,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
+    paddingVertical: 8,
   },
   categoryButton: {
-    width: BUTTON_SIZE,
-    height: BUTTON_SIZE,
+    width: "100%",
     backgroundColor: "white",
-    borderRadius: 15,
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: "row",
+    borderRadius: 50,
     padding: 16,
-    gap: 16,
+    paddingHorizontal: 30,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -187,7 +205,10 @@ const styles = StyleSheet.create({
   },
   typeButtonContainer: {
     gap: 20,
-    flexDirection: "row",
+    // flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    width: "100%",
   },
   body: {
     flex: 1,

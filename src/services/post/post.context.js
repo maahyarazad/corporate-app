@@ -234,7 +234,7 @@ export default function PostProvider({ children }) {
         //       return [...prev.slice(10)];
         //     });
         //   }
-
+        console.log("success", response.success);
         setRootPosts([...rootPosts, ...response.data]);
         const end = performance.now();
         console.log("PERFORMANCE", end - start);
@@ -253,6 +253,16 @@ export default function PostProvider({ children }) {
 
   const clearRootPosts = () => {
     setRootPosts([]);
+  };
+
+  const fetchPost = async (post_id) => {
+    try {
+      const response = await request(`/v2/post/${post_id}`, "get");
+
+      return response;
+    } catch (error) {
+      console.error("Failed to get post:", error);
+    }
   };
 
   const fetchComments = async (postId, mode = 0, prev = 0) => {
@@ -294,7 +304,6 @@ export default function PostProvider({ children }) {
       const response = await request(`/v2/post/like`, "post", {
         post_id,
       });
-
       if (response.success) {
         const postIndex = rootPosts.findIndex(
           (post) => post.post_id === post_id
@@ -306,7 +315,7 @@ export default function PostProvider({ children }) {
         const updatedPost = {
           ...rootPosts[postIndex],
           liked: 1,
-          likeCount: rootPosts[postIndex].likeCount + 1,
+          likeCount: parseInt(rootPosts[postIndex].likeCount) + 1,
         };
 
         //if like is success, return true
@@ -342,7 +351,7 @@ export default function PostProvider({ children }) {
         const updatedPost = {
           ...rootPosts[postIndex],
           liked: 0,
-          likeCount: rootPosts[postIndex].likeCount - 1,
+          likeCount: parseInt(rootPosts[postIndex].likeCount) - 1,
         };
 
         //if like is success, return true
@@ -404,10 +413,11 @@ export default function PostProvider({ children }) {
     }
   };
 
-  const removePost = async (post_id) => {
+  const removePost = async (post_id, type = 1) => {
     try {
       const response = await request(`/v2/post/remove`, "delete", {
         post_id,
+        type,
       });
 
       if (response.success) {
@@ -483,23 +493,23 @@ export default function PostProvider({ children }) {
       const response = await request(`/v2/post/comment`, "post", newComment);
 
       if (response.success) {
-        const postIndex = rootPosts.findIndex((post) => post.id === postId);
+        // const postIndex = rootPosts.findIndex((post) => post.id === postId);
 
-        console.log("POST INDEX FOUND", postIndex);
-        //Abort when post cant be found
+        // console.log("POST INDEX FOUND", postIndex);
+        // //Abort when post cant be found
 
-        if (postIndex === -1) return;
+        // if (postIndex === -1) return;
 
-        const updatedPost = {
-          ...rootPosts[postIndex],
-          // commentCount: rootPosts[postIndex].commentCount + 1,
-        };
+        // const updatedPost = {
+        //   ...rootPosts[postIndex],
+        //   // commentCount: rootPosts[postIndex].commentCount + 1,
+        // };
 
-        setRootPosts((prevState) => [
-          ...prevState.slice(0, postIndex),
-          updatedPost,
-          ...prevState.slice(postIndex + 1),
-        ]);
+        // setRootPosts((prevState) => [
+        //   ...prevState.slice(0, postIndex),
+        //   updatedPost,
+        //   ...prevState.slice(postIndex + 1),
+        // ]);
         return response;
       }
       return response;
@@ -536,8 +546,7 @@ export default function PostProvider({ children }) {
         `/v2/post/latest/more?limit=${limit}&status=${status}&post_id=${post_id}`,
         "get"
       );
-
-      if (response.success) {
+      if (response.success && rootPosts[0].post_id !== post_id) {
         setRootPosts((prev) => {
           // if (prev.length > 20) {
           //   return [...response.data, ...prev.slice(0, 10)];
@@ -576,6 +585,7 @@ export default function PostProvider({ children }) {
     removePost,
     editPost,
     getMoreRecentPosts,
+    fetchPost,
   };
 
   return <PostContext.Provider value={values}>{children}</PostContext.Provider>;

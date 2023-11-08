@@ -28,6 +28,7 @@ import PostEntryStandard from "./forms/postEntryStandard.component";
 import PostEntryMobil from "./forms/postEntryMobil.component";
 import PostEntryRealEstate from "./forms/postEntryRealEstate.component";
 import PostEntryJobs from "./forms/postEntryJobs.component";
+import useRequest from "../../../../hooks/useRequest";
 
 const PostEntryScreen = () => {
   const route = useRoute();
@@ -42,6 +43,8 @@ const PostEntryScreen = () => {
     user_id: null,
     category_id: null,
   });
+
+  const request = useRequest();
 
   const handleEditPost = () => {
     // navigate("feed");
@@ -87,46 +90,36 @@ const PostEntryScreen = () => {
     goback();
   };
 
+  const onSubmit = async (formData) => {
+    console.log(type);
+    console.log("awh");
+    formData.append("type", JSON.stringify(type));
+    formData.append("category", JSON.stringify(category));
+
+    const response = await request("/v2/post/new/v2", "POST", formData, {
+      "Content-Type": "multipart/form-data",
+    });
+
+    if (response.success) {
+      // alert("success!");
+      navigation.pop(3);
+      Alert.alert("Success!", "Your post has been created!");
+    }
+  };
+
   const RenderForm = () => {
-    // const render = (_type, _category) => {
-    //   return Forms[_type.id][_type.id === 0 ? 0 : _category.id].form();
-    // };
-
-    // const Forms = [
-    //   [
-    //     {
-    //       id: 0,
-    //       label: "Forum",
-    //       form: () => {
-    //         return <PageostEntryStandard />;
-    //       },
-    //     },
-    //   ],
-    //   [
-    //     {
-    //       id: 0,
-    //       label: "Marketplace - Auto Motorrad",
-    //       form: (
-    //         <View>
-    //           <Label>Auto Motorrad Form</Label>
-    //         </View>
-    //       ),
-    //     },
-    //   ],
-    // ];
-
     if (type.label.toLowerCase() === "forum") {
-      return <PostEntryStandard />;
+      return <PostEntryStandard onSubmit={onSubmit} />;
     } else {
       switch (category.art) {
         case "standard":
-          return <PostEntryStandard />;
+          return <PostEntryStandard onSubmit={onSubmit} mode={type.id - 1} />;
         case "mobil":
-          return <PostEntryMobil />;
+          return <PostEntryMobil onSubmit={onSubmit} mode={type.id - 1} />;
         case "immo":
-          return <PostEntryRealEstate />;
+          return <PostEntryRealEstate onSubmit={onSubmit} mode={type.id - 1} />;
         case "job":
-          return <PostEntryJobs />;
+          return <PostEntryJobs onSubmit={onSubmit} mode={type.id - 1} />;
       }
     }
 
@@ -138,7 +131,7 @@ const PostEntryScreen = () => {
       <TouchableOpacity onPress={onReturn}>
         <View style={styles.backButton}>
           <MaterialCommunityIcons name="arrow-left" size={24} color="black" />
-          <Label>Back</Label>
+          <Label>Zurück</Label>
         </View>
       </TouchableOpacity>
     );
@@ -173,13 +166,18 @@ const PostEntryScreen = () => {
                   justifyContent: "center",
                   alignItems: "center",
                   gap: 10,
+                  paddingHorizontal: 20,
                 }}
               >
                 <Label size={25} weight={"bold"}>
-                  You're almost there!
+                  Sie sind fast am Ziel!
                 </Label>
-                <Label size={"subtitle"} weight={"medium"}>
-                  Complete the details and you're good to go!
+                <Label
+                  size={"subtitle"}
+                  weight={"medium"}
+                  style={{ textAlign: "center" }}
+                >
+                  Vervollständigen Sie die Details und schon kann es losgehen!
                 </Label>
               </View>
               <Spacer size={"large"} position={"top"} />
@@ -244,6 +242,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
+    paddingVertical: 8,
   },
   formField: {
     borderWidth: 1,

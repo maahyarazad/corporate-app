@@ -175,7 +175,14 @@ export const MyCard = ({
             </View>
             {CARD_SIZE[size].type === 1 && (
               <Card.Content>
-                <View style={{ flexDirection: "row", padding: 0, margin: 0 }}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    padding: 0,
+                    margin: 0,
+                    overflow: "hidden",
+                  }}
+                >
                   {offer_types &&
                     offer_types.map((type, index) => {
                       return (

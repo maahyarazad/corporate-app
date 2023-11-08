@@ -36,7 +36,7 @@ export const OfferModalInfo = ({
   const [showModal, setShowModal] = useState(false);
   const request = useRequest();
   const { userData } = useUser();
-  const { isSkip, goToVerification } = useAuth();
+  const { isSkip } = useAuth();
 
   const onAvailOffer = async () => {
     try {
@@ -74,14 +74,8 @@ export const OfferModalInfo = ({
     }
   };
 
-  const handleCall = () => {
-    Linking.openURL(`tel:+971562050066`).catch((err) => {
-      alert("Unable to call this number");
-    });
-  };
-
-  const handleUpload = () => {
-    goToVerification();
+  const closeModal = () => {
+    setShowModal(false);
   };
 
   return (
@@ -94,75 +88,7 @@ export const OfferModalInfo = ({
       }}
     >
       <CustomModal showModal={showModal}>
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: "#000000aa",
-          }}
-        >
-          <View
-            style={{
-              width: "95%",
-              maxHeight: 550,
-              backgroundColor: "white",
-              justifyContent: "space-between",
-              alignItems: "flex-start",
-              borderRadius: 12,
-              padding: 16,
-            }}
-          >
-            <View style={{ position: "absolute", right: 12, top: 12 }}>
-              <IconButton
-                icon={() => (
-                  <MaterialCommunityIcons
-                    name="close"
-                    style={{ fontSize: 25 }}
-                  />
-                )}
-                onPress={() => {
-                  setShowModal(false);
-                }}
-                style={{ margin: 0, padding: 0 }}
-                rippleColor="#ccc"
-              ></IconButton>
-            </View>
-            <Label size={"heading"} weight={"bold"}>
-              {i18n.t("offer-restriction.title")}
-            </Label>
-            <Spacer position={"top"} size={"medium"} />
-            <Label>{i18n.t("offer-restriction.message")}</Label>
-            <View style={{ flexDirection: "row", marginTop: 20 }}>
-              <Button
-                onPress={handleCall}
-                labelStyle={{ fontSize: 12 }}
-                contentStyle={{
-                  width: "100%",
-                }}
-                style={{
-                  flex: 1,
-                  backgroundColor: "#1282FF",
-                }}
-                mode="contained"
-              >
-                {i18n.t("offer-restriction.order-now")}
-              </Button>
-              <Spacer position={"right"} size={"small"} />
-              <Button
-                onPress={handleUpload}
-                labelStyle={{ fontSize: 12 }}
-                contentStyle={{}}
-                style={{
-                  backgroundColor: "#1282FF",
-                }}
-                mode="contained"
-              >
-                {i18n.t("offer-restriction.upload-card")}
-              </Button>
-            </View>
-          </View>
-        </View>
+        <OrderCardModal onClose={closeModal} />
       </CustomModal>
       <LoadingOverlay display={loading} />
       <View
@@ -248,6 +174,7 @@ export const OfferModalInfo = ({
           justifyContent: "space-around",
           margin: 16,
           paddingHorizontal: 16,
+          gap: 12,
         }}
       >
         <Button
@@ -260,6 +187,7 @@ export const OfferModalInfo = ({
           style={{
             flex: 1,
             backgroundColor: "#1282FF",
+            borderRadius: 10,
           }}
           mode="contained"
         >
@@ -267,7 +195,6 @@ export const OfferModalInfo = ({
             {i18n.t("redeem-offer.avail-offer")}
           </Text>
         </Button>
-        <Spacer position={"left"} size={"medium"} />
         <Button
           onPress={onCloseModal}
           labelStyle={{ fontSize: 12 }}
@@ -278,6 +205,7 @@ export const OfferModalInfo = ({
           style={{
             flex: 1,
             backgroundColor: "#1282FF",
+            borderRadius: 10,
           }}
           mode="contained"
         >
@@ -298,3 +226,88 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
 });
+
+export const OrderCardModal = ({ onClose }) => {
+  const { i18n } = useContext(TranslationContext);
+  const { goToVerification } = useAuth();
+  const handleCall = () => {
+    Linking.openURL(`tel:${encodeURIComponent("+971562050066")}`).catch(
+      (err) => {
+        alert("Unable to call this number");
+      }
+    );
+  };
+
+  const handleUpload = () => {
+    goToVerification();
+  };
+
+  return (
+    <View
+      style={{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#000000aa",
+      }}
+    >
+      <View
+        style={{
+          width: "95%",
+          maxHeight: 550,
+          backgroundColor: "white",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          borderRadius: 12,
+          padding: 16,
+        }}
+      >
+        <View style={{ position: "absolute", right: 12, top: 12 }}>
+          <IconButton
+            icon={() => (
+              <MaterialCommunityIcons name="close" style={{ fontSize: 25 }} />
+            )}
+            onPress={onClose}
+            style={{ margin: 0, padding: 0 }}
+            rippleColor="#ccc"
+          ></IconButton>
+        </View>
+        <Label size={"heading"} weight={"bold"}>
+          {i18n.t("offer-restriction.title")}
+        </Label>
+        <Spacer position={"top"} size={"medium"} />
+        <Label>{i18n.t("offer-restriction.message")}</Label>
+        <View style={{ flexDirection: "row", marginTop: 20, gap: 12 }}>
+          <Button
+            onPress={handleCall}
+            labelStyle={{ fontSize: 12 }}
+            contentStyle={{
+              width: "100%",
+            }}
+            style={{
+              flex: 1,
+              backgroundColor: "#1282FF",
+              borderRadius: 10,
+            }}
+            mode="contained"
+          >
+            {i18n.t("offer-restriction.order-now")}
+          </Button>
+          <Button
+            onPress={handleUpload}
+            labelStyle={{ fontSize: 12 }}
+            contentStyle={{}}
+            style={{
+              flex: 1,
+              backgroundColor: "#1282FF",
+              borderRadius: 10,
+            }}
+            mode="contained"
+          >
+            {i18n.t("offer-restriction.upload-card")}
+          </Button>
+        </View>
+      </View>
+    </View>
+  );
+};

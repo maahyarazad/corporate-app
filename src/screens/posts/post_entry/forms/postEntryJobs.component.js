@@ -12,9 +12,16 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Label } from "../../../../components/typography/label.component";
 import DropDownPicker from "react-native-dropdown-picker";
 import { employmentTypes } from "../../../../utils/marketplaceConstants";
+import MediaUploader from "../../../../components/mediaUploader.js/mediaUploader.component";
+import { PostAgreementCheckbox } from "./postEntryStandard.component";
 
-const PostEntryJobs = () => {
+const PostEntryJobs = ({ onSubmit, mode }) => {
   const MAX_CONTENT = 3000;
+
+  const [isAgreed, setIsAgreed] = useState(false);
+  const toggleAgreement = () => {
+    setIsAgreed(!isAgreed);
+  };
 
   const [empTypes, setEmpTypes] = useState(
     employmentTypes.map((item) => {
@@ -32,9 +39,10 @@ const PostEntryJobs = () => {
     branch: null,
     field: null,
     place: null,
-    employmentType: null,
+    experience: null,
     title: "",
     content: "",
+    images: null,
   });
 
   const handleJobType = (jobType) => {
@@ -56,8 +64,34 @@ const PostEntryJobs = () => {
   const handleContent = (_value) => {
     setState({ ...state, content: _value });
   };
-  const onSelectEmpType = (_value) => {
-    setState({ ...state, employmentType: _value() });
+  const onSelectExperience = (_value) => {
+    setState({ ...state, experience: _value() });
+  };
+  const setImages = (images) => {
+    setState({ ...state, images: images });
+  };
+
+  const submitForm = async () => {
+    try {
+      const formData = new FormData();
+
+      // Iterate image append into formData
+      state.images.forEach((image) => {
+        formData.append("images", {
+          name: image.name,
+          type: image.type,
+          uri: image.uri,
+        });
+      });
+
+      Object.keys(state).forEach((key) => {
+        if (key !== "images") formData.append(key, state[key]);
+      });
+
+      onSubmit(formData);
+    } catch (error) {
+      console.log("Failed to create standard post:", error);
+    }
   };
 
   return (
@@ -114,9 +148,9 @@ const PostEntryJobs = () => {
       <DropDownPicker
         open={empTypeOpen}
         setOpen={setEmpTypeOpen}
-        value={state.employmentType}
+        value={state.experience}
         items={empTypes}
-        setValue={onSelectEmpType}
+        setValue={onSelectExperience}
         textStyle={{ fontSize: 18 }}
         style={styles.formField}
         listMode="SCROLLVIEW"
@@ -160,30 +194,24 @@ const PostEntryJobs = () => {
       </View>
 
       {/* Browser Media */}
-      <View
-        style={{
-          height: 100,
-          width: 100,
-          borderRadius: 20,
-          borderColor: "#ccc",
-          borderStyle: "dashed",
-          borderWidth: 3,
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <MaterialCommunityIcons name="image-plus" size={30} color={"#ccc"} />
-      </View>
+      <MediaUploader
+        images={state.images}
+        setImages={setImages}
+        header={true}
+        show={mode === 1}
+      />
+
+      {/* Acknowledgement Checkbox */}
+      <PostAgreementCheckbox
+        toggleAgreement={toggleAgreement}
+        isAgreed={isAgreed}
+      />
 
       {/* Submit Button */}
-      <TouchableOpacity
-        onPress={() => {
-          console.log(state);
-        }}
-      >
+      <TouchableOpacity onPress={submitForm} disabled={!isAgreed}>
         <View
           style={{
-            backgroundColor: theme.colors.icons.active,
+            backgroundColor: isAgreed ? theme.colors.icons.active : "#ccc",
             justifyContent: "center",
             alignItems: "center",
             paddingVertical: 16,
@@ -191,11 +219,11 @@ const PostEntryJobs = () => {
           }}
         >
           <Label
-            size={16}
+            size={"subtitle"}
             weight={"bold"}
             style={{ color: "white", letterSpacing: 1 }}
           >
-            Submit
+            Absenden
           </Label>
         </View>
       </TouchableOpacity>

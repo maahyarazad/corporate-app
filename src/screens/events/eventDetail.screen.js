@@ -24,6 +24,7 @@ import { AuthContext } from "../../services/auth/auth.context";
 import { EventService } from "../../services/event/event.service";
 import { LocationContext } from "../../services/location/location.context";
 import { TranslationContext } from "../../services/translation/translation.context";
+import useRequest from "../../../hooks/useRequest";
 
 export const EventDetailScreen = () => {
   const route = useRoute();
@@ -38,6 +39,7 @@ export const EventDetailScreen = () => {
   const [showModal, setShowModal] = useState(false);
   const [actions, setActions] = useState(false);
   const [confirmationMSG, setConfirmationMSG] = useState("");
+  const request = useRequest();
 
   useEffect(() => {
     let isMounted = true;
@@ -47,11 +49,11 @@ export const EventDetailScreen = () => {
         setIsLoading(true);
         const data = {
           id,
-          user_id: user.user_id,
           lang,
         };
         console.log(data);
-        const response = await EventService.getOneEvent(data);
+        const response = await request("/v1/api/event/detail", "post", data);
+        // const response = await EventService.getOneEvent(data);
         if (response.success && isMounted) {
           console.log(response.data);
           setEventDetails(response.data);
@@ -136,11 +138,12 @@ export const EventDetailScreen = () => {
       setAttendLoading(true);
 
       const data = {
-        user_id: user.user_id,
         eventId: eventId,
       };
 
-      const response = await EventService.cancelAttend(data);
+      // const response = await EventService.cancelAttend(data);
+      const response = await request("/v1/api/event/cancel", "post", data);
+
       //Refresh Page
       setConfirmationMSG(i18n.t("events.cancellation-msg"));
       setShowModal(true);
@@ -169,7 +172,10 @@ export const EventDetailScreen = () => {
         guest_type: 1,
       };
 
-      const response = await EventService.attendEvent(data);
+      // const response = await EventService.attendEvent(data);
+
+      const response = await request("/v1/api/event/attend", "post", data);
+
       //Refresh Page
       setConfirmationMSG(i18n.t("events.participation-msg"));
       setShowModal(true);
@@ -227,7 +233,7 @@ export const EventDetailScreen = () => {
                   setIncludeGuests(!includeGuests);
                 }}
                 uncheckedColor="black"
-                color="black"
+                color={theme.colors.icons.active}
               />
               <Label
                 onPress={() => {
@@ -279,30 +285,61 @@ export const EventDetailScreen = () => {
     );
   };
 
+  const EventDetails = () => {
+    return (
+      <View style={{ gap: 4 }}>
+        <View style={{ flexDirection: "row", gap: 8 }}>
+          <MaterialCommunityIcons
+            color={theme.colors.ui.lightGray}
+            size={18}
+            name="calendar-clock-outline"
+          />
+          <Label>
+            {moment(eventDetails.eventTime).format("DD.MMMM YYYY h:mm A")}
+          </Label>
+        </View>
+        <View style={{ flexDirection: "row", gap: 8 }}>
+          <MaterialCommunityIcons
+            color={theme.colors.ui.lightGray}
+            size={18}
+            name="map-marker"
+          />
+          <Label>{eventDetails.eventPlace}</Label>
+        </View>
+      </View>
+    );
+  };
+
+  const StatusModal = ({ message }) => {
+    return (
+      <CustomModal type="fade" showModal={showModal}>
+        <View style={styles.modalContainer}>
+          <View
+            style={{
+              backgroundColor: "white",
+              width: "80%",
+              height: "15%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              padding: 25,
+              borderRadius: 15,
+            }}
+          >
+            <Label weight={"bold"} size="heading">
+              {message}
+            </Label>
+          </View>
+        </View>
+      </CustomModal>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <SafeArea>
         <KeyboardAwareScrollView>
-          <CustomModal type="fade" showModal={showModal}>
-            <View style={styles.modalContainer}>
-              <View
-                style={{
-                  backgroundColor: "white",
-                  width: "80%",
-                  height: "15%",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  padding: 25,
-                  borderRadius: 15,
-                }}
-              >
-                <Label weight={"bold"} size="heading">
-                  {confirmationMSG}
-                </Label>
-              </View>
-            </View>
-          </CustomModal>
+          <StatusModal message={confirmationMSG} />
           {eventDetails && (
             <View>
               <View
@@ -352,25 +389,8 @@ export const EventDetailScreen = () => {
                 >
                   {eventDetails.eventName}
                 </Label>
-                <Label>
-                  <MaterialCommunityIcons
-                    color={theme.colors.ui.lightGray}
-                    size={18}
-                    name="calendar-clock-outline"
-                  />
-                  {` ` +
-                    moment(eventDetails.eventTime).format(
-                      "DD.MMMM YYYY h:mm A"
-                    )}
-                </Label>
-                <Label>
-                  <MaterialCommunityIcons
-                    color={theme.colors.ui.lightGray}
-                    size={18}
-                    name="map-marker"
-                  />
-                  {` ` + eventDetails.eventPlace}
-                </Label>
+                <EventDetails />
+
                 <GuestCheckbox />
                 <RegisterButton />
 

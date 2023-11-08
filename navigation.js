@@ -3,7 +3,11 @@ import {
   CardStyleInterpolators,
   createStackNavigator,
 } from "@react-navigation/stack";
-import { NavigationContainer } from "@react-navigation/native";
+import {
+  NavigationContainer,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
 import { LoginScreen } from "./src/screens/login/login.screen";
 import { EntertainerScreen } from "./src/screens/entertainer.screen";
 import { VerifyInfo } from "./src/screens/login/login-verify-info.screen";
@@ -57,6 +61,8 @@ import PostEntryScreen from "./src/screens/posts/post_entry/postEntry.screen";
 import { theme } from "./src/infrastructure/theme";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import PostEntryCategorySelect from "./src/screens/posts/post_entry/postEntryCategorySelect.screen";
+import PostDetailMarketplace from "./src/screens/posts/postDetailMarketplace.screen";
+import PostSearch from "./src/screens/posts/postSearch.screen";
 
 const AuthStack = createStackNavigator();
 const MainStack = createStackNavigator();
@@ -212,6 +218,7 @@ const OverlappingStack = createStackNavigator();
 const OverlappingNavigator = () => {
   const { userData } = useUser();
   const { i18n, hello } = useContext(TranslationContext);
+
   return (
     <BottomSheetModalProvider>
       <OverlappingStack.Navigator>
@@ -253,7 +260,7 @@ const OverlappingNavigator = () => {
                       {i18n.t("user_greeting", {
                         name:
                           userData != undefined
-                            ? userData.first_name.split(" ")[0]
+                            ? userData.first_name?.split(" ")[0]
                             : "",
                       })}
                     </Label>
@@ -342,6 +349,16 @@ const OverlappingNavigator = () => {
           }}
         />
         <OverlappingStack.Screen
+          name="post-search"
+          component={PostSearch}
+          options={{
+            headerShown: false,
+            cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+            gestureDirection: "horizontal",
+            gestureResponseDistance: 200,
+          }}
+        />
+        <OverlappingStack.Screen
           name="post-select"
           component={PostEntrySelect}
           options={{
@@ -362,6 +379,33 @@ const OverlappingNavigator = () => {
             ),
           }}
         />
+        <OverlappingStack.Screen
+          name="marketplace-details"
+          component={PostDetailMarketplace}
+          options={{
+            headerShown: true,
+            title: "",
+            headerLeft: () => (
+              <TouchableOpacity onPress={goback}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 6,
+                    paddingHorizontal: 8,
+                  }}
+                >
+                  <MaterialCommunityIcons
+                    name="arrow-left"
+                    size={24}
+                    color="black"
+                  />
+                  <Label>Back to Feed</Label>
+                </View>
+              </TouchableOpacity>
+            ),
+          }}
+        />
       </OverlappingStack.Navigator>
     </BottomSheetModalProvider>
   );
@@ -371,7 +415,7 @@ const MainScreen = () => {
   const { userData } = useUser();
   const { i18n, hello } = useContext(TranslationContext);
 
-  console.log(i18n.t("welcome"));
+  // console.log(i18n.t("welcome"));
 
   return (
     <>
@@ -382,7 +426,13 @@ const MainScreen = () => {
           options={{ headerShown: false }}
         />
 
-        <MainStack.Screen name="Profile" component={ProfileScreen} />
+        <MainStack.Screen
+          name="Profile"
+          component={ProfileScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
 
         <MainStack.Screen
           name="Logout"
@@ -540,9 +590,10 @@ const ExceedTimeout = () => {
 };
 
 export const AppNavigation = () => {
-  const { isRetrieving, user, skip } = useContext(AuthContext);
+  // const { isRetrieving, user, skip } = useContext(AuthContext);
   const { isOutdated } = useContext(AppContext);
-  const { phoneVerified, refreshToken, isSkip, noConnection } = useAuth();
+  const { phoneVerified, refreshToken, isSkip, noConnection, isAuthorized } =
+    useAuth();
   const { userData } = useUser();
   // const [skip, setSkip] = useState(0);
   // useEffect(() => {
@@ -650,10 +701,10 @@ export const AppNavigation = () => {
     require("./assets/specials/Trending_Offers.png"),
   ]);
 
-  if (isRetrieving || !assets) {
+  // if (isRetrieving || !assets) {
+  if (!assets) {
     return <SplashScreen />;
   }
-
   return (
     <>
       {/* user.isAuthorized && user.submitCard ? ( */}
@@ -668,7 +719,7 @@ export const AppNavigation = () => {
         ) : isOutdated ? (
           <VersionMismatchScreen />
         ) : phoneVerified && refreshToken ? (
-          (userData && userData.isAuthorized) || isSkip ? (
+          !!isAuthorized || !!isSkip ? (
             <MainScreen />
           ) : (
             <ApprovalScreen />

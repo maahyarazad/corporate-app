@@ -112,7 +112,7 @@ export default function Comment({
 
   const toggleLike = () => {
     setLike(!like);
-    setLikeCount(like ? likeCount - 1 : likeCount + 1);
+    setLikeCount(like ? parseInt(likeCount) - 1 : parseInt(likeCount) + 1);
 
     if (like) {
       unlikeComment(data.post_id);
