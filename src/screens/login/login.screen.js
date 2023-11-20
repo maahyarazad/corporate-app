@@ -1,5 +1,12 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { Alert, Image, Platform, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  Image,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { ActivityIndicator, Checkbox, TextInput } from "react-native-paper";
 import { SafeArea } from "../../components/safearea.component";
 import { Spacer } from "../../components/spacer/spacer.component";
@@ -56,6 +63,7 @@ export const LoginScreen = ({ navigation }) => {
 
   const handleLogin = async () => {
     try {
+      setLoginLoading(true);
       if (
         (!username || username.trim().match(/^\s+$|^$/)) &&
         (!password || password.trim().match(/^\s+$|^$/))
@@ -83,7 +91,6 @@ export const LoginScreen = ({ navigation }) => {
           ? await Application.androidId
           : "n/a";
 
-      setLoginLoading(true);
       const credentials = {
         app_id: config.APP_ID,
         username,
@@ -106,7 +113,6 @@ export const LoginScreen = ({ navigation }) => {
           return;
         }
         if (response.status) {
-          console.log("refreshToken", response.refreshToken);
           signin(response.refreshToken, response.accessToken);
           setLang(response.member ? "de" : "en");
           navigation.navigate("VerifyOTP", {
@@ -120,6 +126,7 @@ export const LoginScreen = ({ navigation }) => {
       } else {
         Alert.alert(response.title, response.message);
       }
+      setLoginLoading(false);
 
       //   console.log("LOGIN:", response);
       //   if (response.status) {
@@ -143,7 +150,6 @@ export const LoginScreen = ({ navigation }) => {
       //   }
     } catch (err) {
       console.log("ERROR", err);
-      setLoading(false);
     }
   };
 
@@ -352,12 +358,16 @@ export const LoginScreen = ({ navigation }) => {
                   <LoginButton
                     onPress={handleLogin}
                     activeOpacity={0.8}
-                    disabled={!checked}
-                    checked={checked}
+                    disabled={!checked || loginLoading}
+                    checked={checked && !loginLoading}
                   >
-                    <Label style={{ color: "white" }} weight={"bold"}>
-                      Login
-                    </Label>
+                    {loginLoading ? (
+                      <ActivityIndicator color="white" />
+                    ) : (
+                      <Label style={{ color: "white" }} weight={"bold"}>
+                        Login
+                      </Label>
+                    )}
                   </LoginButton>
                 </View>
                 {canRegister && (
@@ -430,3 +440,5 @@ export const LoginScreen = ({ navigation }) => {
     </>
   );
 };
+
+const styles = StyleSheet.create({});

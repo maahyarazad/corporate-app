@@ -282,7 +282,11 @@ export const HomeScreen = ({ ...props }) => {
 
   return (
     <>
-      {userData && userData?.expiry && expireWarning && !closeWarning ? (
+      {userData &&
+      userData?.expiry &&
+      expireWarning &&
+      !closeWarning &&
+      !isSkip ? (
         <WarningBar
           canClose={true}
           msg={`Your card will expire in ${moment(userData.expiry).diff(

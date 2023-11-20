@@ -32,7 +32,7 @@ const UserProvider = ({ children }) => {
       }
     };
 
-    if (refreshToken && accessToken) retrieveUserData();
+    if (refreshToken && accessToken && !userData) retrieveUserData();
 
     return () => {
       isMounted = false;
@@ -41,20 +41,27 @@ const UserProvider = ({ children }) => {
 
   const syncUserInfo = async () => {
     try {
-      const response = await request("/v2/auth/me", "get");
+      const response = await request(
+        "/v2/auth/me",
+        "get",
+        null,
+        null,
+        null,
+        accessToken
+      );
       //Fetch user data from database and store in device
 
       if (accessToken && response && response.success) {
         setUserData(response.data);
 
         SecureStorage.setItemAsync("userData", JSON.stringify(response.data));
-
+        console.log("USER DATA");
         return response.data;
       } else {
         const lastSuccessfulUserData = await SecureStorage.getItemAsync(
           "userData"
         );
-
+        console.log("USER BACK UP");
         setUserData(JSON.parse(lastSuccessfulUserData));
         return null;
         // return lastSuccessfulUserData;
@@ -70,11 +77,10 @@ const UserProvider = ({ children }) => {
       // const response = await request("/v2/auth/me", "get");
 
       if (
-        response &&
-        response.expired === 1 &&
-        response.member === 0 &&
-        response.isAuthorized === 1 &&
-        response.hasSubmit === 1
+        response?.expired === 1 &&
+        response?.member === 0 &&
+        response?.isAuthorized === 1 &&
+        response?.hasSubmit === 1
       ) {
         updateAuthDB();
         Alert.alert(
@@ -83,12 +89,12 @@ const UserProvider = ({ children }) => {
         );
         goToVerification();
       } else if (
-        response.isAuthorized === 0 &&
-        response.hasSubmit === 0 &&
+        response?.isAuthorized === 0 &&
+        response?.hasSubmit === 0 &&
         !!isSkip
       ) {
         unauthorize();
-      } else if (response.isAuthorized === 1) {
+      } else if (response?.isAuthorized === 1) {
         authorize();
       }
     } catch (error) {

@@ -13,7 +13,7 @@ export const CacheImage = ({
   pointerEvents,
   resizeMode,
   local = false,
-  defaultImage = "",
+  defaultImage = require("../../assets/icon.png"),
   // defaultImage = "https://www.german-emirates-club.com/user/member_images/non_img_men_s1.jpg",
 }) => {
   const [state, setState] = useState({ source: null });
@@ -73,6 +73,26 @@ export const CacheImage = ({
     };
   }, [uri]);
 
+  const deleteCachedImage = async (_uri) => {
+    try {
+      const name = shorthash.unique(_uri);
+      const extension = _uri.slice(findCharRight(_uri, "."));
+      const path = `${FileSystem.cacheDirectory}${name}${extension}`;
+      await FileSystem.deleteAsync(path);
+      console.log("deleting ", path);
+    } catch (error) {
+      console.log("Failed to delete cached image: ", error);
+    }
+  };
+
+  const handleOnError = async () => {
+    await deleteCachedImage(uri);
+
+    setState({
+      source: defaultImage,
+    });
+  };
+
   return (
     <Image
       key={imgKey}
@@ -80,12 +100,7 @@ export const CacheImage = ({
       resizeMode={resizeMode}
       onLoadStart={onLoadStart}
       source={state.source}
-      onError={() => {
-        console.log("ERROR LOADING IMAGE");
-        setState({
-          source: require("../../assets/icon.png"),
-        });
-      }}
+      onError={handleOnError}
       style={style}
     />
   );

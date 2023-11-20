@@ -16,6 +16,7 @@ import UserProvider from "./src/services/user_v2/user.context";
 import PostProvider from "./src/services/post/post.context";
 import { Provider } from "react-redux";
 import configureStore from "./redux/store/postStore";
+import AlertContextProvider from "./src/services/alert/alert.context";
 
 const store = configureStore();
 
@@ -28,31 +29,33 @@ export default function App() {
   return (
     <>
       <ThemeProvider theme={theme}>
-        <TranslationContextProvider>
-          <AppContextProvider>
-            <AuthContextProvider>
-              {/* ^ to be removed*/}
-              <AuthProvider>
-                <UserProvider>
-                  <Provider store={store}>
-                    <PostProvider>
-                      {/* <UserContextProvider> */}
-                      {/* ^ to be removed*/}
-                      <UploadContextProvider>
-                        <LocationContextProvider>
-                          <SectionContextProvider>
-                            <AppNavigation />
-                          </SectionContextProvider>
-                        </LocationContextProvider>
-                      </UploadContextProvider>
-                      {/* </UserContextProvider> */}
-                    </PostProvider>
-                  </Provider>
-                </UserProvider>
-              </AuthProvider>
-            </AuthContextProvider>
-          </AppContextProvider>
-        </TranslationContextProvider>
+        <AlertContextProvider>
+          <TranslationContextProvider>
+            <AppContextProvider>
+              <AuthContextProvider>
+                {/* ^ to be removed*/}
+                <AuthProvider>
+                  <UserProvider>
+                    <Provider store={store}>
+                      <PostProvider>
+                        {/* <UserContextProvider> */}
+                        {/* ^ to be removed*/}
+                        <UploadContextProvider>
+                          <LocationContextProvider>
+                            <SectionContextProvider>
+                              <AppNavigation />
+                            </SectionContextProvider>
+                          </LocationContextProvider>
+                        </UploadContextProvider>
+                        {/* </UserContextProvider> */}
+                      </PostProvider>
+                    </Provider>
+                  </UserProvider>
+                </AuthProvider>
+              </AuthContextProvider>
+            </AppContextProvider>
+          </TranslationContextProvider>
+        </AlertContextProvider>
       </ThemeProvider>
       <ExpoStatusBar style="dark" />
     </>

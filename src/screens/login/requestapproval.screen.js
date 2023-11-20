@@ -69,8 +69,6 @@ export const RequestApprovalScreen = () => {
   }, []);
 
   useEffect(() => {
-    console.log("hasSubmit Changed", hasSubmit);
-
     return () => {};
   }, [hasSubmit]);
 

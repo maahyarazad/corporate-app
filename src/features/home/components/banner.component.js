@@ -57,6 +57,7 @@ const Pressable = styled(TouchableOpacity)`
   border-right-width: 0px;
   border-color: rgba(0, 0, 0, 0.05);
   box-shadow: 4px 4px 4px rgba(0, 0, 0, ${Platform.OS === "ios" ? 0.3 : 1});
+  background-color: white;
   justify-content: center;
   padding-left: 16px;
   padding-right: 16px;

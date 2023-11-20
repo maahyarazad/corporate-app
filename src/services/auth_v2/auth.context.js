@@ -2,6 +2,8 @@ import React, { createContext, useEffect, useRef, useState } from "react";
 import * as SecureStorage from "expo-secure-store";
 import useUser from "../../../hooks/useUser";
 import useRequest from "../../../hooks/useRequest";
+import axios from "axios";
+import { config } from "../../utils/constants";
 
 export const AuthContext = createContext(null);
 
@@ -17,7 +19,6 @@ const AuthProvider = ({ children }) => {
   const [noConnectionRetry, setNoConnectionRetry] = useState({});
   // const request = useRequest();
   const isMounted = useRef(true);
-
   const initialize = async () => {
     try {
       setLoading(true);
@@ -88,6 +89,42 @@ const AuthProvider = ({ children }) => {
       await SecureStorage.deleteItemAsync("isSkip");
       await SecureStorage.deleteItemAsync("isAuthorized");
       await SecureStorage.deleteItemAsync("userData"); //Not Sure to delete?
+
+      const logout = await axios
+        .request({
+          method: "put",
+          url: "/v2/auth/logout",
+          baseURL: config.SERVER_HOST,
+          timeout: 15000,
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        })
+        .catch(async (err) => {
+          switch (err.response.status) {
+            case 401:
+              const response = await axios.get("/v2/auth/refresh_token", {
+                baseURL: config.SERVER_HOST,
+                headers: {
+                  Authorization: `Bearer ${refreshToken}`,
+                },
+              });
+
+              if (response.data.success) {
+                const newAccessToken = response.data.accessToken;
+                const _logout = await axios.request({
+                  method: "put",
+                  url: "/v2/auth/logout",
+                  baseURL: config.SERVER_HOST,
+                  timeout: 15000,
+                  headers: {
+                    Authorization: `Bearer ${newAccessToken}`,
+                  },
+                });
+              }
+              break;
+          }
+        });
     } catch (error) {
       console.error("Failed in removing the tokens:", error);
     }

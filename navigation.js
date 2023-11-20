@@ -293,6 +293,7 @@ const OverlappingNavigator = () => {
                   style={{
                     width: "100%",
                     height: "100%",
+                    justifyContent: "center",
                   }}
                 >
                   <Image
@@ -708,11 +709,6 @@ export const AppNavigation = () => {
   return (
     <>
       {/* user.isAuthorized && user.submitCard ? ( */}
-      {userData
-        ? console.log(
-            `Auth/Submit: ${userData.isAuthorized}/${userData.hasSubmit}`
-          )
-        : console.log("Empty")}
       <NavigationContainer ref={navigationRef}>
         {noConnection ? (
           <TimeoutStackScreen />

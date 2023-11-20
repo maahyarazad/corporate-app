@@ -351,10 +351,10 @@ export const EntertainerScreen = () => {
           //Hide Specific Tabs
           if (tab.route === "Events" && !eventList.length) return;
 
+          if (tab.route === "Feed" && userData && !userData.member) return;
           {
-            /* if (tab.route === "Feed" && userData && !userData.member) return; */
+            /* if (tab.route === "Feed" && true) return; //Disable Feed */
           }
-          if (tab.route === "Feed" && true) return; //Disable Feed
 
           return (
             <Tab.Screen

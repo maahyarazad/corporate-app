@@ -423,7 +423,11 @@ export const AvailOfferScreen = ({ route }) => {
                   <Spacer position={"left"} size={"small"} />
                   <Button
                     onPress={() => {
-                      Linking.openURL(`tel:${location.phone.split("|")[0]}`);
+                      Linking.openURL(
+                        `tel:${encodeURIComponent(
+                          location.phone.split("|")[0]
+                        )}`
+                      );
                     }}
                     labelStyle={{ fontSize: 12 }}
                     contentStyle={{ padding: 10 }}

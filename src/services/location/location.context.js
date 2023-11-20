@@ -24,16 +24,18 @@ export const LocationContextProvider = ({ children }) => {
     let isMounted = true;
     (async () => {
       console.log("LOCATION");
-      getUserLocation()
-        .then((response) => {
-          if (isMounted) setUserLocation(response);
-          console.log("CORRECT"), response;
-        })
-        .catch((err) => {
-          console.error("Location Context Error: ", err);
-        });
+      if (userData) {
+        getUserLocation()
+          .then((response) => {
+            if (isMounted) setUserLocation(response);
+            console.log("CORRECT"), response;
+          })
+          .catch((err) => {
+            console.error("Location Context Error: ", err);
+          });
 
-      if (userData.user_id !== undefined) getEventsList();
+        getEventsList();
+      }
     })();
 
     return () => {

@@ -27,7 +27,7 @@ export const TopPartners = () => {
       );
       if (isMounted && topPartners) {
         setTopPartners(topPartners.result);
-        console.log("Partners", topPartners.result);
+        // console.log("Partners", topPartners.result);
       }
     };
     if (!isLogout.current) {

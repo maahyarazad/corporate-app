@@ -29,6 +29,7 @@ export const Pressable = styled(TouchableOpacity)`
   elevation: 6;
   width: 100px;
   border-radius: 10px;
+  background-color: white;
   box-shadow: 3px 4px 5px rgba(0, 0, 0, ${Platform.OS === "ios" ? 0.3 : 1});
 `;
 

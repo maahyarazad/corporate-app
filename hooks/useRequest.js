@@ -5,6 +5,7 @@ import useAuth from "./useAuth";
 import refreshAccessToken from "../helper/refreshAccessToken";
 import { navigate } from "../src/navigation/navigate";
 import useUser from "./useUser";
+import useAlert from "./useAlert";
 
 const MAX_RETRY = 3;
 
@@ -24,6 +25,7 @@ export default function useRequest() {
   } = useAuth();
 
   const user = useUser();
+  const { showAlert } = useAlert();
 
   const httpRequest = async (
     url,
@@ -38,7 +40,6 @@ export default function useRequest() {
       if (retry > MAX_RETRY) {
         return;
       }
-      console.log(`URL Called: (${method.toUpperCase()})`, url);
 
       const options = {
         method,
@@ -78,11 +79,16 @@ export default function useRequest() {
         return goToVerification();
       }
 
+      if (retry > 0) {
+        console.log(
+          `----------------------------------------------\nRetry #${retry}\nAccess Token: ${token}`
+        );
+      }
+      console.log(`URL Called: (${method.toUpperCase()})`, url);
       const response = await axios.request({
         timeoutErrorMessage: "Request Timeout",
         ...options,
       });
-      // console.log("REQUEST Response: ", response);
 
       return Promise.resolve(response.data);
     } catch (error) {
@@ -140,27 +146,30 @@ export default function useRequest() {
             }
 
             //refresh token
-            const response = await refreshAccessToken(refreshToken).catch(
-              (logout) => {
+            await refreshAccessToken(refreshToken)
+              .then(async (newAccessToken) => {
+                console.log("New access token", newAccessToken);
+                renewAccessToken(newAccessToken);
+
+                return await httpRequest(
+                  url,
+                  method,
+                  body,
+                  header,
+                  signal,
+                  newAccessToken,
+                  ++retry
+                );
+              })
+              .catch((logout) => {
                 if (logout) {
-                  Alert.alert("Token Invalid", "Please login again.");
+                  showAlert({
+                    title: "Token Invalid",
+                    message: "Please login again.",
+                  });
                   return signout();
                 }
-              }
-            );
-
-            if (response) {
-              renewAccessToken(response);
-              //retry
-              return await httpRequest(
-                url,
-                method,
-                body,
-                header,
-                signal,
-                response
-              );
-            }
+              });
 
             // signOut();
             throw error;

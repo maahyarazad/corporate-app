@@ -29,7 +29,7 @@ import useUser from "../../../hooks/useUser";
 export const OtpVerification = ({ route, navigation }) => {
   const MAX_CODE_LENGTH = 4;
   const OTP_COOLDOWN = 120;
-  const { isLoading, verify, resendOTP } = useContext(AuthContext);
+  const { resendOTP } = useContext(AuthContext);
   const { i18n } = useContext(TranslationContext);
   const [otpCooldown, setOtpCooldown] = useState(OTP_COOLDOWN);
   const mobileNum = route.params.hiddenNumber;
@@ -41,9 +41,11 @@ export const OtpVerification = ({ route, navigation }) => {
   const request = useRequest();
   const { verifyOTP } = useAuth();
   const { userData, getUserInfo } = useUser();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleVerify = async () => {
     try {
+      setIsLoading(true);
       const otp_details = { otp: code, app_id: config.APP_ID };
 
       const response = await request(
@@ -55,12 +57,14 @@ export const OtpVerification = ({ route, navigation }) => {
       });
 
       if (response.success) {
+        await getUserInfo();
         await verifyOTP();
       }
 
       if (!response) {
         handleCodeChange("");
       }
+      setIsLoading(false);
     } catch (error) {}
   };
 
