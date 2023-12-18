@@ -92,14 +92,8 @@ const PostCardMarketplace = ({ item }) => {
                   overflow: "hidden",
                 }}
               >
-                {/* Image */}
-                {/* <CacheImage
+                <CacheImage
                   uri={images[0] + "_s2.jpg"}
-                  style={{ width: "100%", aspectRatio: 1 }}
-                  resizeMode={"cover"}
-                /> */}
-                <Image
-                  source={{ uri: images[0] + "_s2.jpg" }}
                   style={{ width: "100%", aspectRatio: 1 }}
                   resizeMode="cover"
                 />
@@ -152,7 +146,7 @@ const PostCardMarketplace = ({ item }) => {
                   Kategorie: <Label weight={"bold"}>{item.category}</Label>
                 </Label>
               </View>
-              {item.price_from && (
+              {item.price_from ? (
                 <Label
                   size={18}
                   weight={"bold"}
@@ -170,6 +164,8 @@ const PostCardMarketplace = ({ item }) => {
                         item.price_to
                       )} AED`}
                 </Label>
+              ) : (
+                <></>
               )}
             </View>
           </View>

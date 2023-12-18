@@ -146,22 +146,8 @@ export default function useRequest() {
             }
 
             //refresh token
-            await refreshAccessToken(refreshToken)
-              .then(async (newAccessToken) => {
-                console.log("New access token", newAccessToken);
-                renewAccessToken(newAccessToken);
-
-                return await httpRequest(
-                  url,
-                  method,
-                  body,
-                  header,
-                  signal,
-                  newAccessToken,
-                  ++retry
-                );
-              })
-              .catch((logout) => {
+            const response = await refreshAccessToken(refreshToken).catch(
+              (logout) => {
                 if (logout) {
                   showAlert({
                     title: "Token Invalid",
@@ -169,8 +155,22 @@ export default function useRequest() {
                   });
                   return signout();
                 }
-              });
+              }
+            );
 
+            if (response) {
+              console.log("REFRESHING TOKEN");
+              renewAccessToken(response);
+              //retry
+              return await httpRequest(
+                url,
+                method,
+                body,
+                header,
+                signal,
+                response
+              );
+            }
             // signOut();
             throw error;
           case 403:

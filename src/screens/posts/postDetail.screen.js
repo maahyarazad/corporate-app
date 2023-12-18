@@ -3,6 +3,7 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   RefreshControl,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -182,6 +183,7 @@ export default function PostDetailScreen() {
         setPostComments(revert);
       } else {
         newComment.id = response.newId;
+        newComment.post_id = response.newPostId;
         newComment.hideActions = false;
         setPostComments([...postComments, newComment]);
       }
@@ -278,7 +280,7 @@ export default function PostDetailScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={[styles.container]}>
       {post && (
         <KeyboardAvoidingView
           style={{ flex: 1 }}
@@ -299,6 +301,7 @@ export default function PostDetailScreen() {
                 viewReplies={viewMoreReplies}
                 viewPreviousComments={viewPreviousComments}
                 remainingComments={remainingComments}
+                origin={router.params.origin}
               />
             )}
           </ScrollView>
@@ -362,23 +365,27 @@ export default function PostDetailScreen() {
                 }
               </View>
               <Spacer position={"right"} size={"small"} />
-              <Button
-                mode="contained"
-                labelStyle={{ color: "white" }}
-                contentStyle={{}}
-                style={styles.replyButton}
-                uppercase={false}
-                color={theme.colors.icons.active}
-                disabled={!comment}
-                onPress={handleCommentSend}
-              >
-                <Label>Reply</Label>
-              </Button>
+              <View>
+                <Button
+                  mode="contained"
+                  labelStyle={{ color: "white" }}
+                  contentStyle={{}}
+                  style={styles.replyButton}
+                  uppercase={false}
+                  buttonColor={theme.colors.icons.active}
+                  disabled={!comment}
+                  onPress={handleCommentSend}
+                >
+                  <Label color="white" weight={"bold"}>
+                    Reply
+                  </Label>
+                </Button>
+              </View>
             </View>
           </View>
         </KeyboardAvoidingView>
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 

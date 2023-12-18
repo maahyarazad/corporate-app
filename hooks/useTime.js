@@ -35,7 +35,7 @@ const useTime = () => {
       return `${result} week${result > 1 ? "s" : ""} ago`;
     } else if (diff > month && diff < year) {
       const result = calculateUnit(diff, month);
-      return `${result} month${result > 1 ? "s" : ""} ago`;
+      return `vor ${result} monat${result > 1 ? "en" : ""}`;
     } else if (diff > year) {
       const result = calculateUnit(diff, year);
       return `${result} year${result > 1 ? "s" : ""} ago`;

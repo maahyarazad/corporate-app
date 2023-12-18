@@ -48,7 +48,6 @@ export const ProfRedeemHistory = () => {
         setHeaderList(response.data.headers);
         setOverall(response.data.overall);
       }
-      console.log("transaction response:", response);
     };
 
     getUserTransactions();

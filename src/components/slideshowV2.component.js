@@ -1,8 +1,10 @@
 import {
   Dimensions,
+  Image,
   StyleSheet,
   Text,
   Touchable,
+  TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
@@ -17,6 +19,8 @@ import Animated, {
 } from "react-native-reanimated";
 import GalleryView from "react-native-image-viewing";
 import { theme } from "../infrastructure/theme";
+import { companyLogo } from "../utils/constants";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
@@ -78,15 +82,18 @@ const PaginationItem = ({
 const SlideshowV2 = ({ images }) => {
   const progressValue = useSharedValue(0);
   const [openGallery, setOpenGallery] = useState(false);
+  const [imageIndex, setImageIndex] = useState(0);
 
-  const galleryOpen = () => {
-    setOpenGallery(true);
-  };
   const galleryClose = () => {
     setOpenGallery(false);
   };
 
-  const renderImage = ({ item }) => {
+  const renderImage = ({ item, index }) => {
+    const galleryOpen = () => {
+      setImageIndex(index);
+      setOpenGallery(true);
+    };
+
     return (
       <TouchableWithoutFeedback onPress={galleryOpen}>
         <View>
@@ -132,6 +139,38 @@ const SlideshowV2 = ({ images }) => {
         images={images}
         onRequestClose={galleryClose}
         visible={openGallery}
+        imageIndex={imageIndex}
+        HeaderComponent={() => (
+          <View
+            style={{
+              width: "100%",
+              marginTop: 40,
+              flexDirection: "row",
+              justifyContent: "space-between",
+              paddingHorizontal: 10,
+            }}
+          >
+            <Image
+              width={100}
+              height={100}
+              source={companyLogo}
+              resizeMode="contain"
+              style={{ width: 100, height: 100 }}
+            ></Image>
+
+            <View style={{ top: 20 }}>
+              <TouchableOpacity activeOpacity={0.7} onPress={galleryClose}>
+                <View style={{ padding: 10 }}>
+                  <MaterialCommunityIcons
+                    name={"close"}
+                    size={30}
+                    color={"#ddd"}
+                  />
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
       />
     </View>
   );

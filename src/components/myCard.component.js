@@ -2,6 +2,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import React, { useContext, useEffect, useState } from "react";
 import {
   Image,
+  ImageBackground,
   Pressable,
   StyleSheet,
   Text,
@@ -66,24 +67,35 @@ export const MyCard = ({
               style={{
                 position: "relative",
                 // backgroundColor: "#ccc",
+                overflow: "hidden",
               }}
             >
-              <CacheImage
+              <ImageBackground
+                source={size === "partner" ? { uri: imgUrl } : {}}
                 style={{
-                  //   backgroundColor: "green",
-                  borderTopLeftRadius: 10,
-                  borderTopRightRadius: 10,
-                  backgroundColor: "#aaa",
-                  width:
-                    imgWidth != undefined
-                      ? imgWidth
-                      : CARD_SIZE[size].image.width,
-                  height: imgHeight ?? CARD_SIZE[size].image.height,
-                  opacity: press ? 0.7 : 1,
-                  zIndex: 1,
+                  backgroundColor: "#ccc",
+                  justifyContent: "center",
+                  alignItems: "center",
                 }}
-                uri={imgUrl}
-              />
+                blurRadius={10}
+              >
+                <CacheImage
+                  style={{
+                    //   backgroundColor: "green",
+                    borderTopLeftRadius: 10,
+                    borderTopRightRadius: 10,
+                    width:
+                      imgWidth != undefined
+                        ? imgWidth
+                        : CARD_SIZE[size].image.width,
+                    height: imgHeight ?? CARD_SIZE[size].image.height,
+                    opacity: press ? 0.7 : 1,
+                    zIndex: 1,
+                  }}
+                  uri={imgUrl}
+                  resizeMode={size === "partner" ? "contain" : "cover"}
+                />
+              </ImageBackground>
               {userLocation && !!distance && (
                 <View
                   style={{

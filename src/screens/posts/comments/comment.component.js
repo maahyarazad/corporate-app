@@ -208,19 +208,21 @@ export default function Comment({
         >
           <Button
             mode="contained"
-            labelStyle={{ fontSize: 10 }}
+            labelStyle={{ fontSize: 12 }}
             contentStyle={{ backgroundColor: "#aaa", minWidth: 80 }}
+            style={{ borderRadius: 8 }}
             onPress={cancelEdit}
           >
             Cancel
           </Button>
           <Button
             mode="contained"
-            labelStyle={{ fontSize: 10 }}
+            labelStyle={{ fontSize: 12 }}
             contentStyle={{
               backgroundColor: theme.colors.icons.active,
               minWidth: 80,
             }}
+            style={{ borderRadius: 8 }}
             onPress={onEditSave}
           >
             Save
@@ -330,13 +332,13 @@ export default function Comment({
                     <Spacer size={"medium"} position={"right"} />
                     {!disableReply && (
                       <TouchableOpacity onPress={() => onReply(data.id)}>
-                        <View style={styles.inline}>
+                        <View style={[styles.inline, { gap: 4 }]}>
                           <MaterialCommunityIcons
                             size={12}
                             name="message-reply-text-outline"
                           />
                           <Label size={12} weight={"bold"}>
-                            {` Reply`}
+                            Antworten
                           </Label>
                         </View>
                       </TouchableOpacity>
@@ -403,6 +405,7 @@ const styles = StyleSheet.create({
   inline: {
     flexDirection: "row",
     alignItems: "center",
+    paddingVertical: 2,
   },
   subcomment: {
     marginLeft: 50,

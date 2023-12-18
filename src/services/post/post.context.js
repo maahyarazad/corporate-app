@@ -208,18 +208,15 @@ export default function PostProvider({ children }) {
   const [replyTo, setReplyTo] = useState(null);
   const request = useRequest();
 
-  const loadOldPosts = async (post_id) => {
+  const loadOldPosts = async (last) => {
     try {
-      // alert(`Page ${page}`);
-      // alert("load old");
-      const last_post_id = post_id ?? rootPosts[rootPosts.length - 1].post_id;
       const limit = 20;
       const status = 1;
       const start = performance.now();
-
       const testing = debounce(async () => {
+        console.log("last", last);
         const response = await request(
-          `/v2/post/old?post_id=${last_post_id}&limit=${limit}&status=${status}`,
+          `/v2/post/old?last=${last}&limit=${limit}&status=${status}`,
           "get"
         );
 
@@ -234,10 +231,9 @@ export default function PostProvider({ children }) {
         //       return [...prev.slice(10)];
         //     });
         //   }
-        console.log("success", response.success);
+        console.log("Number of results", response.data.length);
         setRootPosts([...rootPosts, ...response.data]);
         const end = performance.now();
-        console.log("PERFORMANCE", end - start);
         // }
         // return response.data;
         // setTestPosts([...response.data]);
@@ -371,7 +367,7 @@ export default function PostProvider({ children }) {
 
   const likeComment = async (post_id) => {
     try {
-      const response = await request(`/v2/post/like`, "post", {
+      const response = await request(`/v2/post/comment/like`, "post", {
         post_id,
       });
     } catch (error) {
@@ -413,14 +409,12 @@ export default function PostProvider({ children }) {
     }
   };
 
-  const removePost = async (post_id, type = 1) => {
+  const removePost = async (post_id, removeRequest = false) => {
     try {
-      const response = await request(`/v2/post/remove`, "delete", {
+      const response = await request(`/v2/post/request/remove`, "put", {
         post_id,
-        type,
       });
-
-      if (response.success) {
+      if (response.success && !removeRequest) {
         const _rootPosts = rootPosts.filter((post) => post.post_id !== post_id);
         setRootPosts(_rootPosts);
       }

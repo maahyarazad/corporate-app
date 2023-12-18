@@ -12,11 +12,10 @@ import { theme } from "../../../../infrastructure/theme";
 import { Label } from "../../../../components/typography/label.component";
 import MediaUploader from "../../../../components/mediaUploader.js/mediaUploader.component";
 import { Checkbox } from "react-native-paper";
+import useUser from "../../../../../hooks/useUser";
 
 const PostEntryStandard = ({ onSubmit, mode }) => {
   const MAX_CONTENT = 3000;
-
-  const [isAgreed, setIsAgreed] = useState(false);
 
   const [state, setState] = useState({
     title: "",
@@ -45,9 +44,9 @@ const PostEntryStandard = ({ onSubmit, mode }) => {
     });
   };
 
-  const toggleAgreement = () => {
-    setIsAgreed(!isAgreed);
-  };
+  // const toggleAgreement = () => {
+  //   setIsAgreed(!isAgreed);
+  // };
 
   const submitForm = async () => {
     try {
@@ -55,11 +54,11 @@ const PostEntryStandard = ({ onSubmit, mode }) => {
 
       // Iterate image append into formData
       if (state.images)
-        state.images.forEach((image) => {
-          formData.append("images", {
-            name: image.name,
-            type: image.type,
-            uri: image.uri,
+        state.images.forEach((media) => {
+          formData.append("media", {
+            name: media.name,
+            type: media.type,
+            uri: media.type === "video" ? media.videoURI : media.uri,
           });
         });
 
@@ -77,7 +76,7 @@ const PostEntryStandard = ({ onSubmit, mode }) => {
     <>
       <TextInput
         style={styles.formField}
-        placeholder="Title"
+        placeholder="Titel"
         value={state.title}
         onChangeText={handleTitleChange}
       />
@@ -85,7 +84,7 @@ const PostEntryStandard = ({ onSubmit, mode }) => {
       <View style={{ height: 400 }}>
         <TextInput
           style={[styles.formField, { flex: 1, paddingTop: 16, fontSize: 18 }]}
-          placeholder="Content"
+          placeholder="Text"
           multiline={true}
           value={state.content}
           onChangeText={handleContentChange}
@@ -111,20 +110,16 @@ const PostEntryStandard = ({ onSubmit, mode }) => {
         images={state.images}
         setImages={setImages}
         header={true}
-        show={mode === 1}
       />
 
       {/* Acknowledgement Checkbox */}
-      <PostAgreementCheckbox
-        toggleAgreement={toggleAgreement}
-        isAgreed={isAgreed}
-      />
+      {mode > 0 && <PostAgreementCheckbox />}
 
       {/* Submit Button */}
-      <TouchableOpacity onPress={submitForm} disabled={!isAgreed}>
+      <TouchableOpacity onPress={submitForm}>
         <View
           style={{
-            backgroundColor: isAgreed ? theme.colors.icons.active : "#ccc",
+            backgroundColor: theme.colors.icons.active,
             justifyContent: "center",
             alignItems: "center",
             paddingVertical: 16,
@@ -144,7 +139,8 @@ const PostEntryStandard = ({ onSubmit, mode }) => {
   );
 };
 
-export const PostAgreementCheckbox = ({ toggleAgreement, isAgreed }) => {
+export const PostAgreementCheckbox = () => {
+  const { userData } = useUser();
   return (
     <View
       style={{
@@ -156,24 +152,29 @@ export const PostAgreementCheckbox = ({ toggleAgreement, isAgreed }) => {
         paddingRight: 50,
         borderRadius: 8,
         paddingVertical: 10,
-        paddingLeft: 8,
+        paddingHorizontal: 12,
         gap: 8,
       }}
     >
-      <Checkbox.Android
+      {/* <Checkbox.Android
         status={isAgreed ? "checked" : "unchecked"}
         color={theme.colors.icons.active}
         onPress={toggleAgreement}
-      />
-      <TouchableOpacity onPress={toggleAgreement}>
-        <View>
-          <Label>
-            Ich erkläre mich unwiderruflich damit einverstanden, dass meine
-            Handynummer für eine Person sichtbar ist, die auf meinen Beitrag
-            antworten möchte!
-          </Label>
-        </View>
-      </TouchableOpacity>
+      /> */}
+      <View>
+        <Label
+          style={{
+            fontStyle: "italic",
+          }}
+        >
+          {
+            "Anfragen auf Ihr Angebot erhalten Sie telefonisch!\n\nIhre registrierte Mobiltelefonnummer lautet:\n"
+          }
+          <Label
+            weight={"bold"}
+          >{`+${userData?.area_code} ${userData?.phone_number}`}</Label>
+        </Label>
+      </View>
     </View>
   );
 };

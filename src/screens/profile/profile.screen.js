@@ -36,7 +36,7 @@ const ProfilePrimaryScreen = () => {
     <>
       {
         <SafeArea style={{ backgroundColor: "#efefef" }}>
-          <View style={{ paddingHorizontal: 16 }}>
+          <View style={{ paddingHorizontal: 12 }}>
             <TouchableOpacity
               onPress={goback}
               style={{
@@ -55,7 +55,11 @@ const ProfilePrimaryScreen = () => {
               </Label>
             </TouchableOpacity>
           </View>
-
+          <View style={{ paddingHorizontal: 14, paddingBottom: 6 }}>
+            <Label weight={"bold"} size={"h5"}>
+              Profil
+            </Label>
+          </View>
           {/* Main Container */}
           <View
             style={{ flex: 1, alignItems: "center", justifyContent: "center" }}

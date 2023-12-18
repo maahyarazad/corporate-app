@@ -16,6 +16,8 @@ import PostCard from "./post_card/postCard.component";
 import PostCardMarketplace from "./post_card/postCardMarketplace.component";
 import { LoadingOverlay } from "../../components/loading/loading.component";
 import { theme } from "../../infrastructure/theme";
+import moment from "moment";
+import { Button } from "react-native-paper";
 
 const Searchbar = ({ onSearch, setValue }) => {
   const searchRef = useRef();
@@ -85,6 +87,7 @@ const PostSearch = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isEmpty, setIsEmpty] = useState(false);
   const [keyword, setKeyword] = useState("");
+  const [remaining, setRemaining] = useState(null);
 
   const request = useRequest();
 
@@ -106,6 +109,8 @@ const PostSearch = () => {
         setPosts(response.data);
         setIsLoading(false);
         setIsEmpty(response.data?.length === 0 ? true : false);
+        setRemaining(response.remaining);
+        console.log("remaining0", response.remaining);
       }
     } catch (error) {
       setIsLoading(false);
@@ -120,6 +125,7 @@ const PostSearch = () => {
         author: `${item.first_name} ${item.last_name}`,
         post: item,
         editMode: false,
+        origin: "search",
       });
     };
 
@@ -136,12 +142,13 @@ const PostSearch = () => {
   const loadMore = async () => {
     try {
       // alert(keyword);
+      if (!remaining) return;
       if (posts && posts?.length < 50) {
         setIsLoading(true);
         const response = await request(
-          `/v2/post/search?keyword=${keyword}&prev=${
-            posts[posts.length - 1].post_id
-          }`,
+          `/v2/post/search?keyword=${keyword}&prev=${moment(
+            posts[posts.length - 1].date_posted
+          ).unix()}`,
           "get"
         );
 
@@ -149,6 +156,8 @@ const PostSearch = () => {
           setPosts((prev) => [...prev, ...response.data]);
           setIsLoading(false);
           setIsEmpty(response.data?.length === 0 ? true : false);
+          setRemaining(response.remaining);
+          console.log("remaining", response.remaining);
         }
       }
     } catch (error) {
@@ -160,11 +169,12 @@ const PostSearch = () => {
   const LoadMoreButton = () => {
     const loadMoreManual = async () => {
       try {
+        if (!remaining) return;
         setIsLoading(true);
         const response = await request(
-          `/v2/post/search?keyword=${keyword}&prev=${
-            posts[posts.length - 1].post_id
-          }`,
+          `/v2/post/search?keyword=${keyword}&prev=${moment(
+            posts[posts.length - 1].date_posted
+          ).unix()}`,
           "get"
         );
 
@@ -172,6 +182,8 @@ const PostSearch = () => {
           setPosts((prev) => [...prev, ...response.data]);
           setIsLoading(false);
           setIsEmpty(response.data?.length === 0 ? true : false);
+          setRemaining(response.remaining);
+          console.log("remaining2", response.remaining);
         }
       } catch (error) {
         setIsLoading(false);
@@ -180,7 +192,8 @@ const PostSearch = () => {
     };
     return (
       posts &&
-      posts?.length >= 50 && (
+      posts?.length >= 50 &&
+      remaining && (
         <TouchableOpacity onPress={loadMoreManual}>
           <View
             style={{
@@ -211,6 +224,7 @@ const PostSearch = () => {
     <SafeAreaView style={styles.container}>
       <View style={{ flex: 1 }}>
         <Searchbar setValue={setKeyword} onSearch={handleOnSearch} />
+
         <View style={{ flex: 1 }}>
           {isEmpty ? (
             <View

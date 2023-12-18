@@ -76,10 +76,6 @@ const RenderTickView = ({ item, state, setValue, mode }) => {
 const MemoizedRenderTick = React.memo(RenderTickView);
 
 const PostEntryMobil = ({ onSubmit, mode }) => {
-  const [isAgreed, setIsAgreed] = useState(false);
-  const toggleAgreement = () => {
-    setIsAgreed(!isAgreed);
-  };
   const [items, setItems] = useState(
     makerList.map((item) => {
       return {
@@ -324,11 +320,11 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
       const formData = new FormData();
 
       // Iterate image append into formData
-      state.images.forEach((image) => {
-        formData.append("images", {
-          name: image.name,
-          type: image.type,
-          uri: image.uri,
+      state.images.forEach((media) => {
+        formData.append("media", {
+          name: media.name,
+          type: media.type,
+          uri: media.type === "video" ? media.videoURI : media.uri,
         });
       });
 
@@ -730,16 +726,13 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
       />
 
       {/* Acknowledgement Checkbox */}
-      <PostAgreementCheckbox
-        toggleAgreement={toggleAgreement}
-        isAgreed={isAgreed}
-      />
+      <PostAgreementCheckbox />
 
       {/* Submit Button */}
-      <TouchableOpacity onPress={submitForm} disabled={!isAgreed}>
+      <TouchableOpacity onPress={submitForm}>
         <View
           style={{
-            backgroundColor: isAgreed ? theme.colors.icons.active : "#ccc",
+            backgroundColor: theme.colors.icons.active,
             justifyContent: "center",
             alignItems: "center",
             paddingVertical: 16,

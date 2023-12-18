@@ -9,6 +9,7 @@ import {
   Alert,
   FlatList,
   RefreshControl,
+  SafeAreaView,
   ScrollView,
   Text,
   TouchableHighlight,
@@ -43,6 +44,7 @@ import moment from "moment";
 import { CustomModal } from "../components/modal/customModal.component";
 import { OrderCardModal } from "../features/offers/components/offerModalForm";
 import * as SecureStore from "expo-secure-store";
+import HomeHeader from "../features/home/components/header.component";
 
 const HomeContainer = styled(FlatList)`
   flex: 1;
@@ -66,9 +68,12 @@ const RenderHome = ({ handleSearch }) => {
     <>
       <UrlListener />
       <StatusBar style="dark" />
-
-      <ScrollView nestedScrollEnabled={true} removeClippedSubviews={true}>
-        <Spacer position={"top"} size={"medium"}>
+      <ScrollView
+        style={{ backgroundColor: "#eee", height: "100%" }}
+        nestedScrollEnabled={true}
+        removeClippedSubviews={true}
+      >
+        {/* <Spacer position={"top"} size={"medium"}>
           <Spacer position={"left"} size={"medium"}>
             <Spacer position={"right"} size={"medium"}>
               <View style={{ flexDirection: "row" }}>
@@ -87,7 +92,7 @@ const RenderHome = ({ handleSearch }) => {
               </View>
             </Spacer>
           </Spacer>
-        </Spacer>
+        </Spacer> */}
         <FeaturedBanner />
         <Hotpicks />
         <HomeCategory />
@@ -255,6 +260,40 @@ export const HomeScreen = ({ ...props }) => {
     );
   };
 
+  const RenderWarning = () => {
+    if (userData) {
+      if (userData.expired) {
+        return (
+          <WarningBar
+            msg={`Your card has already expired on ${moment(
+              userData.expiry
+            ).format("MMM YYYY")}. Please upload your new card.`}
+          />
+        );
+      } else if (!closeWarning && !isSkip) {
+        if (expireWarning) {
+          return (
+            <WarningBar
+              canClose={true}
+              msg={`Your card will expire in ${moment(userData.expiry).diff(
+                moment(),
+                "days"
+              )} days. Please order a new card and upload it.`}
+            />
+          );
+        } else if (moment(userData?.expiry).diff(moment(), "days") <= 10) {
+          return (
+            <WarningBar
+              msg={`Your card will expire in ${calculateRemainingTime()}. Please order a new card and upload it.`}
+            />
+          );
+        }
+      }
+    }
+
+    return null;
+  };
+
   const calculateRemainingTime = () => {
     const remainingDays = moment(userData?.expiry).diff(moment(), "days");
 
@@ -281,42 +320,8 @@ export const HomeScreen = ({ ...props }) => {
   };
 
   return (
-    <>
-      {userData &&
-      userData?.expiry &&
-      expireWarning &&
-      !closeWarning &&
-      !isSkip ? (
-        <WarningBar
-          canClose={true}
-          msg={`Your card will expire in ${moment(userData.expiry).diff(
-            moment(),
-            "days"
-          )} days. Please order a new card and upload it.`}
-        />
-      ) : userData &&
-        moment(userData?.expiry).diff(moment(), "days") <= 10 &&
-        !closeWarning &&
-        !isSkip ? (
-        <WarningBar
-          msg={`Your card will expire in ${calculateRemainingTime()}. Please order a new card and upload it.`}
-        />
-      ) : isSkip ? (
-        <WarningBar
-          msg={
-            "You have not uploaded a card yet. To avail offers, please upload a card."
-          }
-        />
-      ) : (
-        userData &&
-        userData?.expired > 0 && (
-          <WarningBar
-            msg={`Your card has already expired on ${moment(
-              userData.expiry
-            ).format("MMM YYYY")}. Please upload your new card.`}
-          />
-        )
-      )}
+    <SafeAreaView style={{ backgroundColor: "white", flex: 1 }}>
+      <RenderWarning />
       <CustomModal showModal={showModal}>
         <OrderCardModal onClose={closeModal} />
       </CustomModal>
@@ -325,9 +330,10 @@ export const HomeScreen = ({ ...props }) => {
           <RefreshControl refreshing={testing.current} onRefresh={onRefresh} />
         }
         showsVerticalScrollIndicator={false}
+        style={{ flex: 1 }}
       >
         <MemoeizedHome handleSearch={handleSearch} />
       </ScrollView>
-    </>
+    </SafeAreaView>
   );
 };

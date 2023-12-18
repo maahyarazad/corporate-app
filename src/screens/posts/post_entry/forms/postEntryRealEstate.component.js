@@ -22,11 +22,6 @@ import { PostAgreementCheckbox } from "./postEntryStandard.component";
 const PostEntryRealEstate = ({ onSubmit, mode }) => {
   const MAX_CONTENT = 3000;
 
-  const [isAgreed, setIsAgreed] = useState(false);
-  const toggleAgreement = () => {
-    setIsAgreed(!isAgreed);
-  };
-
   const [offerTypes, setOfferTypes] = useState(
     realEstateOffers.map((item) => {
       return {
@@ -50,7 +45,8 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
     place: null,
     street: null,
     art: null,
-    space: null,
+    living_space_start: null,
+    living_space_end: null,
     sleep_rooms_start: 1,
     sleep_rooms_end: 2,
     price: null,
@@ -83,14 +79,31 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
     setState({ ...state, street: _value });
   };
 
-  const handleChangeSpace = (_value) => {
-    setState({ ...state, space: _value });
+  const onLivingSpaceStartChange = (_value) => {
+    setState({
+      ...state,
+      living_space_start: _value.replace(/[^0-9]/g, ""),
+    });
+  };
+  const onLivingSpaceEndChange = (_value) => {
+    setState({
+      ...state,
+      living_space_end: _value.replace(/[^0-9]/g, ""),
+    });
   };
 
-  const handleChangePrice = (_value) => {
-    setState({ ...state, price: _value });
+  const onPriceFromChange = (_value) => {
+    setState({
+      ...state,
+      price_from: _value.replace(/[^0-9]/g, ""),
+    });
   };
-
+  const onPriceToChange = (_value) => {
+    setState({
+      ...state,
+      price_to: _value.replace(/[^0-9]/g, ""),
+    });
+  };
   const handleChangeBedrooms = (_value) => {
     if (mode === 1) {
       setState({ ...state, sleep_rooms_start: _value });
@@ -128,17 +141,20 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
       const formData = new FormData();
 
       // Iterate image append into formData
-      state.images.forEach((image) => {
-        formData.append("images", {
-          name: image.name,
-          type: image.type,
-          uri: image.uri,
+      if (state.images) {
+        state.images.forEach((media) => {
+          formData.append("media", {
+            name: media.name,
+            type: media.type,
+            uri: media.type === "video" ? media.videoURI : media.uri,
+          });
         });
-      });
-
+      }
+      console.log("test");
       Object.keys(state).forEach((key) => {
         if (key !== "images") formData.append(key, state[key]);
       });
+      console.log("test2");
 
       onSubmit(formData);
     } catch (error) {
@@ -202,19 +218,57 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
         searchContainerStyle={styles.searchContainer}
         searchTextInputStyle={styles.searchTextInput}
       />
-      <TextInput
-        placeholder="Wohnfläche"
-        onChangeText={handleChangeSpace}
-        value={state.space}
-        style={styles.formField}
-        keyboardType="numeric"
-      />
+
+      {mode === 1 ? (
+        <TextInput
+          placeholder="Wohnfläche"
+          onChangeText={onLivingSpaceStartChange}
+          value={state.living_space_start}
+          style={styles.formField}
+          keyboardType="numeric"
+        />
+      ) : (
+        <>
+          <Label size={"subtitle"} weight={"bold"}>
+            Wohnfläche
+          </Label>
+          <View style={{ flexDirection: "row", gap: 8 }}>
+            <TextInput
+              placeholder="von"
+              value={
+                state.living_space_start
+                  ? Intl.NumberFormat("de-DE").format(state.living_space_start)
+                  : ""
+              }
+              onChangeText={onLivingSpaceStartChange}
+              style={[styles.formField, { flex: 1 }]}
+              keyboardType="numeric"
+            />
+            <TextInput
+              placeholder="bis"
+              value={
+                state.living_space_end
+                  ? Intl.NumberFormat("de-DE").format(state.living_space_end)
+                  : ""
+              }
+              onChangeText={onLivingSpaceEndChange}
+              style={[styles.formField, { flex: 1 }]}
+              keyboardType="numeric"
+            />
+          </View>
+        </>
+      )}
+
       <View style={[styles.formField, { gap: 10, paddingBottom: 30 }]}>
         <Label size={"title"}>Schlafräume</Label>
         <View>
           <Slider
             // value={state.bedrooms}
-            value={[state.sleep_rooms_start, state.sleep_rooms_end]}
+            value={
+              mode === 1
+                ? state.sleep_rooms_start
+                : [state.sleep_rooms_start, state.sleep_rooms_end]
+            }
             minimumValue={1}
             maximumValue={5}
             onValueChange={handleChangeBedrooms}
@@ -231,7 +285,7 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
             )}
             trackClickable={true}
             animateTransitions={true}
-            renderBelowThumbComponent={() => {
+            renderBelowThumbComponent={(e) => {
               return (
                 <View
                   style={{
@@ -241,7 +295,7 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
                   }}
                 >
                   <Label size={16} weight={"bold"}>
-                    {state.sleep_rooms_start}
+                    {!!e ? state.sleep_rooms_end : state.sleep_rooms_start}
                   </Label>
                 </View>
               );
@@ -260,13 +314,45 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
           </View>
         </View>
       </View>
-      <TextInput
-        placeholder="Preis"
-        onChangeText={handleChangePrice}
-        value={state.price}
-        style={styles.formField}
-        keyboardType="numeric"
-      />
+      {mode === 1 ? (
+        <TextInput
+          placeholder="Preis"
+          onChangeText={onPriceFromChange}
+          value={state.price}
+          style={styles.formField}
+          keyboardType="numeric"
+        />
+      ) : (
+        <>
+          <Label size={"subtitle"} weight={"bold"}>
+            Preis
+          </Label>
+          <View style={{ flexDirection: "row", gap: 8 }}>
+            <TextInput
+              placeholder="von"
+              value={
+                state.price_from
+                  ? Intl.NumberFormat("de-DE").format(state.price_from)
+                  : ""
+              }
+              onChangeText={onPriceFromChange}
+              style={[styles.formField, { flex: 1 }]}
+              keyboardType="numeric"
+            />
+            <TextInput
+              placeholder="bis"
+              value={
+                state.price_to
+                  ? Intl.NumberFormat("de-DE").format(state.price_to)
+                  : ""
+              }
+              onChangeText={onPriceToChange}
+              style={[styles.formField, { flex: 1 }]}
+              keyboardType="numeric"
+            />
+          </View>
+        </>
+      )}
       <TextInput
         style={styles.formField}
         placeholder="Titel"
@@ -306,16 +392,13 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
       />
 
       {/* Acknowledgement Checkbox */}
-      <PostAgreementCheckbox
-        toggleAgreement={toggleAgreement}
-        isAgreed={isAgreed}
-      />
+      <PostAgreementCheckbox />
 
       {/* Submit Button */}
-      <TouchableOpacity onPress={submitForm} disabled={!isAgreed}>
+      <TouchableOpacity onPress={submitForm}>
         <View
           style={{
-            backgroundColor: isAgreed ? theme.colors.icons.active : "#ccc",
+            backgroundColor: theme.colors.icons.active,
             justifyContent: "center",
             alignItems: "center",
             paddingVertical: 16,

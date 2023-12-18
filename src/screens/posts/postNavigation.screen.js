@@ -14,10 +14,6 @@ const PostTabsScreen = createMaterialTopTabNavigator();
 const PostStackScreen = createStackNavigator();
 
 export const PostStackNavigationScreen = () => {
-  useEffect(() => {
-    return () => {};
-  }, []);
-
   return (
     <PostStackScreen.Navigator>
       {/* <PostStackScreen.Screen

@@ -17,12 +17,6 @@ import { PostAgreementCheckbox } from "./postEntryStandard.component";
 
 const PostEntryJobs = ({ onSubmit, mode }) => {
   const MAX_CONTENT = 3000;
-
-  const [isAgreed, setIsAgreed] = useState(false);
-  const toggleAgreement = () => {
-    setIsAgreed(!isAgreed);
-  };
-
   const [empTypes, setEmpTypes] = useState(
     employmentTypes.map((item) => {
       return {
@@ -76,11 +70,11 @@ const PostEntryJobs = ({ onSubmit, mode }) => {
       const formData = new FormData();
 
       // Iterate image append into formData
-      state.images.forEach((image) => {
-        formData.append("images", {
-          name: image.name,
-          type: image.type,
-          uri: image.uri,
+      state.images.forEach((media) => {
+        formData.append("media", {
+          name: media.name,
+          type: media.type,
+          uri: media.type === "video" ? media.videoURI : media.uri,
         });
       });
 
@@ -202,16 +196,13 @@ const PostEntryJobs = ({ onSubmit, mode }) => {
       />
 
       {/* Acknowledgement Checkbox */}
-      <PostAgreementCheckbox
-        toggleAgreement={toggleAgreement}
-        isAgreed={isAgreed}
-      />
+      <PostAgreementCheckbox />
 
       {/* Submit Button */}
-      <TouchableOpacity onPress={submitForm} disabled={!isAgreed}>
+      <TouchableOpacity onPress={submitForm}>
         <View
           style={{
-            backgroundColor: isAgreed ? theme.colors.icons.active : "#ccc",
+            backgroundColor: theme.colors.icons.active,
             justifyContent: "center",
             alignItems: "center",
             paddingVertical: 16,

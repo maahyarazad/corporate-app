@@ -56,20 +56,21 @@ const Pressable = styled(TouchableOpacity)`
   border-left-width: 0px;
   border-right-width: 0px;
   border-color: rgba(0, 0, 0, 0.05);
-  box-shadow: 4px 4px 4px rgba(0, 0, 0, ${Platform.OS === "ios" ? 0.3 : 1});
-  background-color: white;
+
   justify-content: center;
   padding-left: 16px;
   padding-right: 16px;
+  background: #eee;
   /* elevation: 6; */
 `;
 
 const BannerContainer = styled(View)`
-  overflow: hidden;
+  /* overflow: hidden; */
   /* padding-right: 30px; */
   border-radius: 10px;
   flex: 1;
   background-color: grey;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, ${Platform.OS === "ios" ? 0.4 : 1});
 `;
 
 const renderBanner = ({ item, screenWidth, setLoading, loading }) => {
@@ -111,6 +112,7 @@ const renderBanner = ({ item, screenWidth, setLoading, loading }) => {
             style={{
               width: "100%",
               height: "100%",
+              borderRadius: 10,
               // resizeMode: "cover",
             }}
             uri={`${config.SERVER_HOST}/banners/${item.banner_image}`}

@@ -6,6 +6,7 @@ import {
 import {
   NavigationContainer,
   useNavigation,
+  useNavigationState,
   useRoute,
 } from "@react-navigation/native";
 import { LoginScreen } from "./src/screens/login/login.screen";
@@ -63,6 +64,7 @@ import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import PostEntryCategorySelect from "./src/screens/posts/post_entry/postEntryCategorySelect.screen";
 import PostDetailMarketplace from "./src/screens/posts/postDetailMarketplace.screen";
 import PostSearch from "./src/screens/posts/postSearch.screen";
+import NotificationsScreen from "./src/screens/notifications.screen";
 
 const AuthStack = createStackNavigator();
 const MainStack = createStackNavigator();
@@ -217,7 +219,7 @@ const OverlappingStack = createStackNavigator();
 
 const OverlappingNavigator = () => {
   const { userData } = useUser();
-  const { i18n, hello } = useContext(TranslationContext);
+  const { i18n } = useContext(TranslationContext);
 
   return (
     <BottomSheetModalProvider>
@@ -230,63 +232,7 @@ const OverlappingNavigator = () => {
             headerTitle: "",
             headerLeftContainerStyle: { paddingLeft: 8 },
             headerRightContainerStyle: { paddingRight: 4 },
-            headerRight: () => {
-              return (
-                <>
-                  <View
-                    style={{
-                      width: "100%",
-                      flexDirection: "row",
-                      alignContent: "center",
-                      justifyContent: "flex-end",
-                      paddingRight: 4,
-                    }}
-                  >
-                    <Label
-                      style={{
-                        paddingRight: 8,
-                        textAlign: "right",
-                        alignSelf: "center",
-                      }}
-                      numberOfLines={1}
-                      size={"subtitle"}
-                      weight={"bold"}
-                    >
-                      {/* {`Hi there, ${
-                        userInfo != undefined
-                          ? userInfo.first_name.split(" ")[0]
-                          : ""
-                      }!`} */}
-                      {i18n.t("user_greeting", {
-                        name:
-                          userData != undefined
-                            ? userData.first_name?.split(" ")[0]
-                            : "",
-                      })}
-                    </Label>
-                    <TouchableOpacity
-                      onPress={() => {
-                        navigate("Profile");
-                      }}
-                    >
-                      {userData && userData.member_image ? (
-                        <View style={{ borderRadius: 25, overflow: "hidden" }}>
-                          <CacheImage
-                            style={{ width: 35, height: 35 }}
-                            uri={userData.member_image}
-                          />
-                        </View>
-                      ) : (
-                        <MaterialCommunityIcons
-                          name="account-circle"
-                          size={25}
-                        />
-                      )}
-                    </TouchableOpacity>
-                  </View>
-                </>
-              );
-            },
+
             headerLeft: () => {
               return (
                 <View
@@ -341,14 +287,7 @@ const OverlappingNavigator = () => {
             headerLeftLabelVisible: false,
           }}
         />
-        <OverlappingStack.Screen
-          name="post-select-category"
-          component={PostEntryCategorySelect}
-          options={{
-            presentation: "modal",
-            headerShown: false,
-          }}
-        />
+
         <OverlappingStack.Screen
           name="post-search"
           component={PostSearch}
@@ -357,6 +296,24 @@ const OverlappingNavigator = () => {
             cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
             gestureDirection: "horizontal",
             gestureResponseDistance: 200,
+          }}
+        />
+        <OverlappingStack.Screen
+          name="notifications"
+          component={NotificationsScreen}
+          options={{
+            headerShown: false,
+            cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+            gestureDirection: "horizontal",
+            gestureResponseDistance: 200,
+          }}
+        />
+        <OverlappingStack.Screen
+          name="post-select-category"
+          component={PostEntryCategorySelect}
+          options={{
+            presentation: "modal",
+            headerShown: false,
           }}
         />
         <OverlappingStack.Screen

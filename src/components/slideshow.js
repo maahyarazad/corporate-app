@@ -3,6 +3,7 @@ import {
   Dimensions,
   FlatList,
   Image,
+  ImageBackground,
   StyleSheet,
   TouchableOpacity,
   TouchableWithoutFeedback,
@@ -48,16 +49,22 @@ export const Slideshow = ({ images }) => {
     return (
       <TouchableWithoutFeedback key={index} onPress={handleOpenGallery}>
         <View>
-          <CacheImage
-            imgKey={index}
-            onLoad={imageLoaded}
-            style={{
-              width: width,
-              height: width * (4 / 5),
-              resizeMode: "cover",
-            }}
-            uri={`${adminFileBaseURL}${item.image}`}
-          />
+          <ImageBackground
+            // source={{ uri: adminFileBaseURL + item.image }}
+            style={{ backgroundColor: "white" }}
+            blurRadius={10}
+          >
+            <CacheImage
+              imgKey={index}
+              onLoad={imageLoaded}
+              style={{
+                width: width,
+                aspectRatio: 1.77,
+                resizeMode: "contain",
+              }}
+              uri={`${adminFileBaseURL}${item.image}`}
+            />
+          </ImageBackground>
         </View>
       </TouchableWithoutFeedback>
     );

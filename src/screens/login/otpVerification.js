@@ -60,12 +60,13 @@ export const OtpVerification = ({ route, navigation }) => {
         await getUserInfo();
         await verifyOTP();
       }
-
       if (!response) {
         handleCodeChange("");
       }
       setIsLoading(false);
-    } catch (error) {}
+    } catch (error) {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {

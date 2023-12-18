@@ -1,6 +1,8 @@
 import {
   Alert,
+  FlatList,
   Image,
+  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -8,8 +10,7 @@ import {
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Button, Chip } from "react-native-paper";
-import { CustomTextInput } from "../../../components/customTextInput";
+import { Button } from "react-native-paper";
 import { CacheImage } from "../../../components/cacheImage";
 import { Label } from "../../../components/typography/label.component";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -18,13 +19,18 @@ import Avatar from "../avatar/avatar.component";
 import { Spacer } from "../../../components/spacer/spacer.component";
 import { theme } from "../../../infrastructure/theme";
 import usePosts from "./usePosts";
-import useLike from "../../../../hooks/useLike";
 import useTime from "../../../../hooks/useTime";
-import moment from "moment";
 import { Skeleton } from "../../../components/skeleton";
 import useUser from "../../../../hooks/useUser";
 import BottomSheetSelector from "../../../components/bottomSheetSelector.component";
-import { goback, navigate } from "../../../navigation/navigate";
+import { goback } from "../../../navigation/navigate";
+import { height, width } from "../../../components/styles";
+import GalleryView from "react-native-image-viewing";
+import { companyLogo } from "../../../utils/constants";
+import * as VideoThumbnails from "expo-video-thumbnails";
+import VideoPlayerModal from "../../../components/videoPlayerModal/videoPlayerModal.component";
+
+const MemoizedGalleryView = React.memo(GalleryView);
 
 export default function PostCard({
   data,
@@ -36,54 +42,70 @@ export default function PostCard({
   viewReplies,
   remainingComments,
   viewPreviousComments,
+  origin = "feed",
 }) {
+  const { likePost, unlikePost, removePost } = usePosts();
+  const { userData } = useUser();
   const { timeDiffString } = useTime();
   const [like, setLike] = useState(data.liked);
   const [likeCount, setLikeCount] = useState(data.likeCount);
   const [commentCount, setCommentCount] = useState(data.commentCount);
-
-  const { likePost, unlikePost, removePost } = usePosts();
-  const { userData } = useUser();
-
   const [showDrawer, setShowDrawer] = useState(false);
+  const [imageIndex, setImageIndex] = useState(0);
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [isCaptionVisible, setIsCaptionVisible] = useState(true);
+  const [thumbnails, setThumbnails] = useState([]);
+  const [selectedVideo, setSelectedVideo] = useState(null);
+
+  const toggleCaption = () => {
+    setIsCaptionVisible(!isCaptionVisible);
+  };
 
   const options = [
     {
-      title: "Remove Post",
-      description: "Remove this post from the feed",
+      title: "Delete Post",
+      description: "Request to delete your post",
       logo: "trash-can-outline",
       onPress: () => {
-        Alert.alert(
-          "Remove Post",
-          "Are you sure you want to remove this post?",
-          [
-            { text: "Cancel", onPress: () => {}, isPreferred: true },
-            {
-              text: "Delete",
-              style: "destructive",
-              onPress: () => {
-                //Call Remove Comment API
-                removePost(data.post_id);
-                onDrawerClose();
-                if (comment) {
-                  goback();
-                }
+        if (commentCount > 0 && userData.old_user_id === data.user_id) {
+          Alert.alert("Notice", "You cannot delete a post with comments.");
+        } else {
+          Alert.alert(
+            "Delete Post",
+            "Are you sure you want to delete this post?",
+            [
+              { text: "Cancel", onPress: () => {}, isPreferred: true },
+              {
+                text: "Delete",
+                style: "destructive",
+                onPress: () => {
+                  //Call Remove Comment API
+                  Alert.alert(
+                    "Notice",
+                    "Your request has been sent. Please wait for the admin to approve."
+                  );
+                  removePost(data.post_id, true);
+                  onDrawerClose();
+                  if (comment) {
+                    goback();
+                  }
+                },
               },
-            },
-          ]
-        );
+            ]
+          );
+        }
       },
     },
-    {
-      title: "Edit Post",
-      description: "Edit your post",
-      logo: "pencil",
-      onPress: () => {
-        //Call Remove Comment API
-        navigate("post-edit", { post: data, editMode: true });
-        onDrawerClose();
-      },
-    },
+    // {
+    //   title: "Edit Post",
+    //   description: "Edit your post",
+    //   logo: "pencil",
+    //   onPress: () => {
+    //     //Call Remove Comment API
+    //     navigate("post-edit", { post: data, editMode: true });
+    //     onDrawerClose();
+    //   },
+    // },
   ];
 
   const [optionsTest, setOptionsTest] = useState([{}]);
@@ -95,21 +117,23 @@ export default function PostCard({
   }, [data.liked, data.likeCount, data.commentCount]);
 
   useEffect(() => {
-    console.log(`rendering list ${data.id}`);
-
+    // if (commentCount > 0 && true) {
     // if (commentCount > 0 && userData.old_user_id === data.user_id) {
 
-    if (commentCount > 0 && true) {
-      const index = options.findIndex((item) => item.title === "Edit Post");
-      // console.log("index", index, data.title);
-      options.splice(index, 1);
+    //   const index = options.findIndex((item) => item.title === "Edit Post");
+    //   // console.log("index", index, data.title);
+    //   options.splice(index, 1);
 
-      // console.log("options", options);
-    }
+    //   // console.log("options", options);
+    // }
+
+    getThumbnails();
 
     setOptionsTest(options);
 
-    return () => {};
+    return () => {
+      setThumbnails((prev) => []);
+    };
   }, []);
 
   const onDrawerClose = () => {
@@ -158,7 +182,11 @@ export default function PostCard({
     const _like = !like;
     //Route to like/unlike post
     setLike(_like);
-    setLikeCount((prevCount) => prevCount + (_like ? 1 : -1));
+    setLikeCount((prevCount) => parseInt(prevCount) + (_like ? 1 : -1));
+    if (origin === "search") {
+      data.likeCount = parseInt(data.likeCount) + (_like ? 1 : -1);
+      data.liked = !like;
+    }
 
     try {
       //Wrap in timeout to prevent lag
@@ -177,6 +205,134 @@ export default function PostCard({
 
   const handleOptionPress = () => {
     onDrawerOpen();
+  };
+
+  const onGalleryClose = () => {
+    setGalleryOpen(false);
+  };
+
+  const getThumbnails = async () => {
+    try {
+      const array_images = data.images?.split(",");
+      const media_types = data.type?.split(",");
+
+      array_images?.map(async (item, index) => {
+        if (media_types[index] === "video") {
+          const thumbnail = await VideoThumbnails.getThumbnailAsync(
+            item + ".mp4",
+            {
+              time: 1000,
+            }
+          );
+          setThumbnails((prev) => [
+            ...prev,
+            {
+              uri: thumbnail.uri,
+              videoURI: item + ".mp4",
+              type: "video",
+            },
+          ]);
+        } else {
+          setThumbnails((prev) => [
+            ...prev,
+            {
+              uri: item,
+              type: media_types[index],
+            },
+          ]);
+        }
+      });
+    } catch (error) {
+      console.error("Failed to get thumbnail", error);
+    }
+  };
+
+  const renderImageGrid = ({ item, index }) => {
+    const handlePress = () => {
+      if (item.type === "video") {
+        setSelectedVideo(item.videoURI);
+      } else {
+        setImageIndex(index);
+        setGalleryOpen(true);
+      }
+    };
+    if (index <= 3 || comment)
+      return (
+        <TouchableWithoutFeedback onPress={handlePress}>
+          <View
+            style={{
+              backgroundColor: "#eee",
+              aspectRatio: comment
+                ? 1
+                : index === 2 && thumbnails.length === 3
+                ? 2
+                : 1,
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            {item.type === "video" ? (
+              <Image
+                source={{
+                  uri: item.uri,
+                }}
+                resizeMode="contain"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  resizeMode: "cover",
+                }}
+              />
+            ) : (
+              <CacheImage
+                uri={item.uri + "_s1.jpg"}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  resizeMode: "cover",
+                }}
+              />
+            )}
+            {item.type === "video" && (
+              <View
+                style={{
+                  position: "absolute",
+                }}
+              >
+                <MaterialCommunityIcons
+                  name="play-circle-outline"
+                  size={80}
+                  color={"white"}
+                />
+              </View>
+            )}
+
+            {index === 3 && thumbnails.length > 4 && !comment && (
+              <TouchableWithoutFeedback onPress={onCommentPress}>
+                <View
+                  style={{
+                    position: "absolute",
+                    backgroundColor: "#00000088",
+                    bottom: 0,
+                    top: 0,
+                    right: 0,
+                    left: 0,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Label size={"title"} color={"white"}>{`+${
+                    thumbnails.length - 4
+                  } more`}</Label>
+                </View>
+              </TouchableWithoutFeedback>
+            )}
+          </View>
+        </TouchableWithoutFeedback>
+      );
+
+    return null;
   };
 
   const SkeletonComment = () => {
@@ -221,6 +377,44 @@ export default function PostCard({
     );
   };
 
+  const onVideoClose = () => {
+    setSelectedVideo(null);
+  };
+
+  const ImageWithCaption = ({ image, isVisible, onPress }) => {
+    console.log(isVisible);
+    return (
+      <TouchableOpacity
+        activeOpacity={1}
+        onPress={onPress}
+        style={{ pointerEvents: "box-only" }}
+      >
+        <View>
+          <Image
+            source={{ uri: image.uri }}
+            style={{ width: "100%", height: 300 }}
+          />
+          <Label color={"white"}>aw</Label>
+          {isVisible && (
+            <View
+              style={{
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                top: 0,
+              }}
+            >
+              <Text style={{ color: "white", textAlign: "center" }}>
+                bobo ka
+              </Text>
+            </View>
+          )}
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <View
       style={[
@@ -231,6 +425,7 @@ export default function PostCard({
         },
       ]}
     >
+      <VideoPlayerModal video={selectedVideo} onClose={onVideoClose} />
       <View style={styles.background}>
         <TouchableWithoutFeedback onPress={onCommentPress}>
           {/* Title */}
@@ -281,8 +476,8 @@ export default function PostCard({
                     </View>
                   </View>
                   <Spacer position={"right"} size={"large"} />
-                  {/* {userData.old_user_id === data.user_id && ( */}
-                  {true && (
+                  {/* {true && ( */}
+                  {userData.old_user_id === data.user_id && (
                     <View
                       style={{
                         position: "absolute",
@@ -323,6 +518,29 @@ export default function PostCard({
           <PostContent content={data.content} />
         </View>
 
+        {/* Images */}
+        {/* <View style={styles.imageGridContainer}> */}
+        {/* {Array(4).fill("Test").map(renderImageGrid)} */}
+        {thumbnails.length > 0 &&
+          (comment ? (
+            <FlatList
+              data={thumbnails}
+              scrollEnabled={false}
+              renderItem={renderImageGrid}
+            />
+          ) : (
+            <FlatList
+              data={thumbnails}
+              numColumns={2}
+              scrollEnabled={false}
+              columnWrapperStyle={{ columnGap: 2 }}
+              style={{ rowGap: 2, maxHeight: width, overflow: "hidden" }}
+              renderItem={renderImageGrid}
+            />
+          ))}
+
+        {/* </View> */}
+
         <View
           style={[
             styles.container,
@@ -354,7 +572,7 @@ export default function PostCard({
             onPress={onCommentPress}
             uppercase={false}
           >
-            Comment
+            Kommentieren
           </Button>
           <Button
             style={styles.actionButton}
@@ -363,7 +581,7 @@ export default function PostCard({
             onPress={onSharePress}
             uppercase={false}
           >
-            ???
+            Teilen
           </Button>
         </View>
       </View>
@@ -378,7 +596,9 @@ export default function PostCard({
                   onPress={viewPreviousComments}
                   style={{ alignSelf: "flex-start" }}
                 >
-                  <Label weight={"bold"}>View previous comments...</Label>
+                  <Label weight={"bold"}>
+                    Vorherige Kommentare anzeigen...
+                  </Label>
                 </TouchableOpacity>
               </View>
             )}
@@ -402,9 +622,65 @@ export default function PostCard({
       <BottomSheetSelector
         data={optionsTest}
         onClose={onDrawerClose}
-        windowSize="25%"
+        windowSize="15%"
         display={showDrawer}
       />
+      {data.images && (
+        <MemoizedGalleryView
+          visible={galleryOpen}
+          images={thumbnails.map((item) => {
+            return item.type === "video"
+              ? { uri: item.uri }
+              : { uri: item.uri + "_s1.jpg" };
+          })}
+          imageIndex={imageIndex}
+          onRequestClose={onGalleryClose}
+          animationType="fade"
+          swipeToCloseEnabled={true}
+          HeaderComponent={() => (
+            <SafeAreaView
+              style={{
+                flex: 1,
+                width: "100%",
+                marginTop: 40,
+                justifyContent: "space-between",
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  paddingHorizontal: 10,
+                  flex: 1,
+                }}
+              >
+                <Image
+                  width={100}
+                  height={100}
+                  source={companyLogo}
+                  resizeMode="contain"
+                  style={{ width: 100, height: 100 }}
+                ></Image>
+
+                <View style={{ top: 20 }}>
+                  <TouchableOpacity
+                    activeOpacity={0.7}
+                    onPress={onGalleryClose}
+                  >
+                    <View style={{ padding: 10 }}>
+                      <MaterialCommunityIcons
+                        name={"close"}
+                        size={30}
+                        color={"#ddd"}
+                      />
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </SafeAreaView>
+          )}
+        />
+      )}
     </View>
   );
 }
@@ -434,6 +710,7 @@ const styles = StyleSheet.create({
     borderColor: "#ddd",
     margin: 0,
     padding: 0,
+    borderRadius: 0,
   },
   content: {
     paddingVertical: 10,
@@ -483,4 +760,16 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   background: { backgroundColor: "#fff" },
+  imageGridContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    columnGap: 8,
+    rowGap: 8,
+    paddingHorizontal: 8,
+  },
+  halfImage: {
+    width: "49%",
+    height: width / 2,
+    backgroundColor: "red",
+  },
 });

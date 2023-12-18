@@ -15,19 +15,21 @@ import { Spacer } from "../../../components/spacer/spacer.component";
 import BottomSheetSelector from "../../../components/bottomSheetSelector.component";
 import { goback, navigate } from "../../../navigation/navigate";
 import usePosts from "./usePosts";
+import useUser from "../../../../hooks/useUser";
 
 const PostCardHeader = ({ item }) => {
   const { timeDiffString } = useTime();
   const { removePost } = usePosts();
+  const { userData } = useUser();
   const options = [
     {
-      title: "Remove Post",
-      description: "Remove this post from the feed",
+      title: "Delete Post",
+      description: "Remove your post",
       logo: "trash-can-outline",
       onPress: () => {
         Alert.alert(
-          "Remove Post",
-          "Are you sure you want to remove this post?",
+          "Delete Post",
+          "Are you sure you want to delete this post?",
           [
             { text: "Cancel", onPress: () => {}, isPreferred: true },
             {
@@ -35,7 +37,8 @@ const PostCardHeader = ({ item }) => {
               style: "destructive",
               onPress: () => {
                 //Call Remove Comment API
-                removePost(item.post_id, 2);
+                Alert.alert("Notice", "Your post has been deleted");
+                removePost(item.post_id, false);
                 onDrawerClose();
               },
             },
@@ -43,16 +46,16 @@ const PostCardHeader = ({ item }) => {
         );
       },
     },
-    {
-      title: "Edit Post",
-      description: "Edit your post",
-      logo: "pencil",
-      onPress: () => {
-        //Call Remove Comment API
-        navigate("post-edit", { post: item, editMode: true });
-        onDrawerClose();
-      },
-    },
+    // {
+    //   title: "Edit Post",
+    //   description: "Edit your post",
+    //   logo: "pencil",
+    //   onPress: () => {
+    //     //Call Remove Comment API
+    //     navigate("post-edit", { post: item, editMode: true });
+    //     onDrawerClose();
+    //   },
+    // },
   ];
 
   const [optionsTest, setOptionsTest] = useState([{}]);
@@ -121,8 +124,8 @@ const PostCardHeader = ({ item }) => {
               </View>
             </View>
             <Spacer position={"right"} size={"large"} />
-            {/* {userData.old_user_id === data.user_id && ( */}
-            {true && (
+            {/* {true && ( */}
+            {userData.old_user_id === item.user_id && (
               <View
                 style={{
                   position: "absolute",
@@ -150,7 +153,7 @@ const PostCardHeader = ({ item }) => {
       <BottomSheetSelector
         data={optionsTest}
         onClose={onDrawerClose}
-        windowSize="25%"
+        windowSize="15%"
         display={showDrawer}
       />
     </View>

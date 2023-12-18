@@ -1,6 +1,8 @@
 import {
   Alert,
+  Image,
   Modal,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -28,6 +30,10 @@ import { Spacer } from "../../components/spacer/spacer.component";
 import PostCardMarketplace from "./post_card/postCardMarketplace.component";
 import useAuth from "../../../hooks/useAuth";
 import { SearchButton } from "../../components/searchbutton";
+import moment from "moment";
+import { useTranslation } from "../../../hooks/useTranslation";
+import { CacheImage } from "../../components/cacheImage";
+import HomeHeader from "../../features/home/components/header.component";
 
 const PostCardModified = ({ item, ...props }) => {
   useEffect(() => {
@@ -91,6 +97,7 @@ export default function PostsScreen() {
   const [changeCount, setChangeCount] = useState(0);
   const [lastViewed, setLastViewed] = useState(null);
   const { signout } = useAuth();
+  const { i18n } = useTranslation();
 
   const flatListRef = useRef();
 
@@ -102,15 +109,15 @@ export default function PostsScreen() {
         );
         if (last_post_viewed) {
           setLastViewed(parseInt(last_post_viewed));
-          loadOldPosts(parseInt(99999));
+          loadOldPosts(moment().unix());
         } else {
           console.log("test2");
           setLastViewed(parseInt(99999));
-          loadOldPosts(99999);
+          loadOldPosts(moment().unix());
         }
       } catch (error) {
         alert("Failed to retrieve last viewed post");
-        console.log(error);
+        console.error(error);
       }
     };
 
@@ -240,11 +247,13 @@ export default function PostsScreen() {
   const loadNextPage = async () => {
     try {
       setIsLoading(true);
-      await loadOldPosts();
+      await loadOldPosts(
+        moment(rootPosts[rootPosts.length - 1].date_posted).unix()
+      );
       setIsLoading(false);
       // }
     } catch (error) {
-      console.log(error);
+      console.error("wat", error);
     } finally {
       setIsLoading(false);
     }
@@ -367,48 +376,51 @@ export default function PostsScreen() {
 
   return (
     <>
-      <View style={[styles.container, { gap: 0 }]}>
+      <SafeAreaView
+        style={[styles.container, { gap: 0, backgroundColor: "white" }]}
+      >
+        {/* Header */}
         {rootPosts?.length > 0 && (
           <>
             {true ? (
               <FlatList
-                ListHeaderComponent={() => (
-                  <View
-                    style={{
-                      flex: 1,
-                      backgroundColor: "white",
-                      alignItems: "center",
-                      paddingHorizontal: 8,
-                    }}
-                  >
-                    <TouchableWithoutFeedback onPress={onSearchFocus}>
-                      <View
-                        style={{
-                          paddingVertical: 10,
-                          paddingHorizontal: 10,
-                          marginVertical: 4,
-                          flexDirection: "row",
-                          gap: 10,
-                          backgroundColor: "#eee",
-                          borderRadius: 50,
-                          width: "100%",
-                        }}
-                      >
-                        <MaterialCommunityIcons
-                          name="magnify"
-                          size={20}
-                          color="black"
-                        />
-                        <Label size={"subtitle"}>Posts durchsuchen</Label>
-                      </View>
-                    </TouchableWithoutFeedback>
-                  </View>
-                )}
+                // ListHeaderComponent={() => (
+                //   <View
+                //     style={{
+                //       flex: 1,
+                //       backgroundColor: "white",
+                //       alignItems: "center",
+                //       paddingHorizontal: 8,
+                //     }}
+                //   >
+                //     <TouchableWithoutFeedback onPress={onSearchFocus}>
+                //       <View
+                //         style={{
+                //           paddingVertical: 10,
+                //           paddingHorizontal: 10,
+                //           marginVertical: 4,
+                //           flexDirection: "row",
+                //           gap: 10,
+                //           backgroundColor: "#eee",
+                //           borderRadius: 50,
+                //           width: "100%",
+                //         }}
+                //       >
+                //         <MaterialCommunityIcons
+                //           name="magnify"
+                //           size={20}
+                //           color="black"
+                //         />
+                //         <Label size={"subtitle"}>Posts durchsuchen</Label>
+                //       </View>
+                //     </TouchableWithoutFeedback>
+                //   </View>
+                // )}
                 showDefaultLoadingIndicators={false}
                 ref={flatListRef}
                 // scrollEnabled={false}
                 ItemSeparatorComponent={insertSeparator}
-                style={styles.container}
+                style={[styles.container, { backgroundColor: "#eee" }]}
                 // refreshing={refreshing}
                 keyExtractor={(item) => item?.post_id?.toString()}
                 // onRefresh={refreshPage}
@@ -416,8 +428,8 @@ export default function PostsScreen() {
                 // extraData={updateCount}
                 onEndReached={loadNextPage}
                 onEndReachedThreshold={0.5}
-                onStartReachedThreshold={0.5}
-                onStartReached={debounceRefreshPage}
+                // onStartReachedThreshold={0.5}
+                // onStartReached={debounceRefreshPage}
                 maintainVisibleContentPosition={{
                   minIndexForVisible: 0,
                 }}
@@ -470,7 +482,7 @@ export default function PostsScreen() {
             </View>
           </TouchableOpacity>
         </View>
-      </View>
+      </SafeAreaView>
     </>
   );
 }
@@ -484,7 +496,7 @@ const styles = StyleSheet.create({
   },
   separator: {
     // backgroundColor: "#ddd",
-    height: 20,
+    height: 8,
   },
   floatButton: {
     position: "absolute",
