@@ -1,3 +1,4 @@
+// Import required libraries and components
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { Linking, Text, View } from "react-native";
@@ -13,11 +14,12 @@ import { LocationContext } from "../services/location/location.context";
 import { TranslationContext } from "../services/translation/translation.context";
 import { adminFileBaseURL } from "../utils/constants";
 import useRequest from "../../hooks/useRequest";
+import { theme } from "../infrastructure/theme";
 
+// Styled components for the map and markers
 export const StyledMap = styled(MapView)`
   flex: 1;
 `;
-
 export const MyLocationMarkerRange = styled(View)`
   width: 150px;
   height: 150px;
@@ -26,7 +28,6 @@ export const MyLocationMarkerRange = styled(View)`
   align-items: center;
   justify-content: center;
 `;
-
 export const MyLocationMarker = styled(View)`
   width: 25px;
   height: 25px;
@@ -36,9 +37,14 @@ export const MyLocationMarker = styled(View)`
   border-color: white;
 `;
 
+// Main component for the map screen
 export const MapScreen = ({ navigation }) => {
-  const { getUserLocation, getCoords, userLocation } =
+  // Contexts to access location and translation services
+  const { getUserLocation, userLocation, getLocationPermission } =
     useContext(LocationContext);
+  const { i18n } = useContext(TranslationContext);
+
+  // Component state for managing location data, loading states, etc.
   const [myLocation, setMyLocation] = useState(null);
   const [partnerLocations, setPartnerLocations] = useState();
   const [showImageload, setShowImageload] = useState(false);
@@ -51,27 +57,25 @@ export const MapScreen = ({ navigation }) => {
     locationId: 0,
   });
   const [showPartnerDetails, setShowPartnerDetails] = useState(false);
-  const { i18n } = useContext(TranslationContext);
+
+  // Reference to the map component for programmatic control
   const mapRef = useRef();
+  // Custom hook for API requests
   const request = useRequest();
 
+  // Fetch partner locations and user location on component mount
   useEffect(() => {
     let isMounted = true;
 
-    // getCoords(100).then((response) => {
-    // if (isMounted) setPartnerLocations(response);
-    // });
-
+    // Function to fetch partner coordinates
     const getCoordinates = async (count) => {
       try {
         const response = await request(
           `/v2/partner/coordinates/${count}`,
           "get"
         );
-
-        if (response) {
-          console.log(getCoordinates);
-          if (isMounted) setPartnerLocations(response);
+        if (response && isMounted) {
+          setPartnerLocations(response);
         }
       } catch (error) {
         console.error("Failed to get coordinates:", error);
@@ -80,29 +84,29 @@ export const MapScreen = ({ navigation }) => {
 
     getCoordinates(100);
 
-    console.log("userLocation:", userLocation);
-
+    // Fetch the user's current location
     getUserLocation()
       .then((response) => {
-        console.log("getuserlocation response: ", response);
         if (isMounted) setMyLocation(response.coords);
       })
       .catch((err) => {
         console.log("error: ", err);
       });
 
+    // Cleanup function to prevent state updates on unmounted component
     return () => {
       isMounted = false;
     };
   }, []);
 
+  // Function to center the map on the user's location
   const handleCenter = () => {
-    mapRef != undefined &&
+    if (mapRef.current && myLocation) {
       mapRef.current.animateCamera(
         {
           center: {
-            latitude: myLocation?.latitude,
-            longitude: myLocation?.longitude,
+            latitude: myLocation.latitude,
+            longitude: myLocation.longitude,
           },
           altitude: 10000,
           zoom: 15,
@@ -111,33 +115,38 @@ export const MapScreen = ({ navigation }) => {
         },
         { duration: 500 }
       );
+    }
   };
 
+  // Function to convert degrees to radians
   const degToRad = (degrees) => {
     return degrees * (Math.PI / 180);
   };
 
+  // Function to center the map on a partner's location and calculate the distance
   const handlePartnerCentre = (lat, lng) => {
-    if (!!myLocation && !!myLocation.latitude && !!myLocation.longitude) {
-      const dLat = degToRad(Math.abs(lat - myLocation?.latitude));
-      const dLong = degToRad(Math.abs(lng - myLocation?.longitude));
+    // Calculate distance if the user's location is known
+    if (myLocation && myLocation.latitude && myLocation.longitude) {
+      const dLat = degToRad(Math.abs(lat - myLocation.latitude));
+      const dLong = degToRad(Math.abs(lng - myLocation.longitude));
+      // Earth's radius in meters
       const eRadius = 6378137;
       const a =
         Math.sin(dLat / 2) ** 2 +
         Math.cos(degToRad(lat)) *
-          Math.cos(degToRad(myLocation?.latitude)) *
+          Math.cos(degToRad(myLocation.latitude)) *
           Math.sin(dLong / 2) ** 2;
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       const d = eRadius * c;
-
-      setDistance((d / 1000).toFixed(2));
+      setDistance((d / 1000).toFixed(2)); // Convert distance to kilometers and set state
     }
 
-    mapRef != undefined &&
+    // Center the map on the partner's location
+    if (mapRef.current) {
       mapRef.current.animateCamera(
         {
           center: {
-            latitude: lat - 0.005,
+            latitude: lat - 0.005, // Offset for better visibility
             longitude: lng,
           },
           altitude: 10000,
@@ -147,15 +156,22 @@ export const MapScreen = ({ navigation }) => {
         },
         { duration: 200 }
       );
+    }
   };
 
+  // Function to navigate to the location view
   const goLocation = (locationId) => {
-    navigation.navigate("Location View", {
-      locId: locationId,
-    });
+    navigation.navigate("Location View", { locId: locationId });
   };
 
+  // Function to open the device settings to change permissions
+  const handleChangePermission = () => {
+    Linking.openSettings();
+  };
+
+  // Function to open the native map for directions
   const getDirections = (lat, lng, place) => {
+    // Platform-specific URL scheme
     const scheme = Platform.select({
       ios: "maps:0,0?q=",
       android: "geo:0,0?q=",
@@ -169,19 +185,16 @@ export const MapScreen = ({ navigation }) => {
     Linking.openURL(url);
   };
 
+  // Function to navigate back in the navigation stack
   const navigateBack = () => {
     navigation.goBack();
   };
 
+  // Render loading view if user location is not yet available
   if (!userLocation) {
     return (
-      <SafeArea
-        style={{
-          flex: 1,
-          top: 0,
-          width: "100%",
-        }}
-      >
+      <SafeArea style={{ flex: 1, top: 0, width: "100%" }}>
+        {/* Instructions to enable location permissions */}
         <View
           style={{
             flexDirection: "row",
@@ -206,59 +219,57 @@ export const MapScreen = ({ navigation }) => {
             justifyContent: "center",
             alignItems: "center",
             paddingHorizontal: 32,
+            gap: 12,
           }}
         >
           <Label style={{ textAlign: "center" }}>
             You need to enable Location in your device settings.
           </Label>
+          <Button
+            style={{ borderRadius: 8 }}
+            buttonColor={theme.colors.icons.active}
+            mode="contained"
+            onPress={handleChangePermission}
+          >
+            Change Permission
+          </Button>
         </View>
       </SafeArea>
     );
   }
 
+  // Main render method for the map and markers
   return (
     <>
       <View style={{ flex: 1 }}>
-        {/* {myLocation && <Text>{myLocation.latitude}</Text>}*/}
-        {/* <StyledMap></StyledMap>  */}
-        {/* <MapView z></MapView> */}
-        {partnerLocations != undefined && myLocation != undefined ? (
-          <MapView
-            style={{ flex: 1 }}
+        {partnerLocations && myLocation ? (
+          <StyledMap
             provider={"google"}
-            // minZoomLevel={14} // default => 0
-            // maxZoomLevel={15} // default => 20
             ref={mapRef}
-            // zoomEnabled={false}
             camera={{
               center: {
-                latitude: myLocation?.latitude,
-                longitude: myLocation?.longitude,
+                latitude: myLocation.latitude,
+                longitude: myLocation.longitude,
               },
               altitude: 10000,
               zoom: 15,
               pitch: 1,
               heading: 1,
             }}
-
-            // region={{
-            //   latitude: myLocation?.latitude,
-            //   longitude: myLocation?.longitude,
-            //   latitudeDelta: 0,
-            //   longitudeDelta: 0,
-            // }}
           >
+            {/* User location marker */}
             <Marker
               tracksViewChanges={false}
               coordinate={{
-                longitude: myLocation?.longitude,
-                latitude: myLocation?.latitude,
+                longitude: myLocation.longitude,
+                latitude: myLocation.latitude,
               }}
             >
               <MyLocationMarkerRange>
                 <MyLocationMarker></MyLocationMarker>
               </MyLocationMarkerRange>
             </Marker>
+            {/* Partner location markers */}
             {partnerLocations.map((location, index) => (
               <Marker
                 key={index}
@@ -268,6 +279,7 @@ export const MapScreen = ({ navigation }) => {
                   latitude: location.lat,
                 }}
                 onPress={() => {
+                  // Set location details and show partner details
                   setLocationState({
                     ...locationState,
                     locationName: location.title,
@@ -282,10 +294,11 @@ export const MapScreen = ({ navigation }) => {
                 }}
               ></Marker>
             ))}
-          </MapView>
+          </StyledMap>
         ) : (
           <LoadingOverlay display={true} />
         )}
+        {/* Overlay for back button and partner details */}
         <SafeArea
           style={{
             flex: 1,
@@ -297,6 +310,7 @@ export const MapScreen = ({ navigation }) => {
           }}
           pointerEvents="box-none"
         >
+          {/* Navigation and action buttons */}
           <View
             style={{
               flexDirection: "row",
@@ -315,12 +329,7 @@ export const MapScreen = ({ navigation }) => {
                 <Ionicons name={"arrow-back"} size={35} />
               </TouchableRipple>
             </View>
-            <View
-              style={{
-                alignItems: "flex-end",
-                alignSelf: "flex-end",
-              }}
-            >
+            <View style={{ alignItems: "flex-end", alignSelf: "flex-end" }}>
               <TouchableRipple
                 onPress={handleCenter}
                 style={{
@@ -348,6 +357,7 @@ export const MapScreen = ({ navigation }) => {
               </TouchableRipple>
             </View>
           </View>
+          {/* Partner details view */}
           {showPartnerDetails ? (
             <View
               style={{
@@ -368,52 +378,41 @@ export const MapScreen = ({ navigation }) => {
                   marginLeft: 20,
                   borderRadius: 10,
                   shadowOpacity: 0.4,
-                  shadowOffset: {
-                    height: 5,
-                    width: 5,
-                  },
+                  shadowOffset: { height: 5, width: 5 },
                   shadowRadius: 7,
                 }}
               >
                 <View>
-                  <View>
-                    {showImageload ? (
-                      <View
-                        style={{
-                          width: "100%",
-                          height: 150,
-                          borderRadius: 10,
-                          overflow: "hidden",
-                          position: "absolute",
-                          zIndex: 1,
-                        }}
-                      >
-                        <LoadingOverlay display={true}></LoadingOverlay>
-                      </View>
-                    ) : (
-                      <></>
-                    )}
-
-                    <CacheImage
-                      onLoadStart={() => {
-                        setShowImageload(true);
-                        console.log("starting");
-                        //alert(`${adminFileBaseURL}${locationState.locationImage}`)
-                      }}
-                      onLoad={() => {
-                        setShowImageload(false);
-                        console.log("complete");
-                      }}
-                      uri={`${adminFileBaseURL}${locationState.locationImage}`}
+                  {/* Image loading overlay */}
+                  {showImageload ? (
+                    <View
                       style={{
                         width: "100%",
                         height: 150,
-                        resizeMode: "cover",
                         borderRadius: 10,
+                        overflow: "hidden",
+                        position: "absolute",
+                        zIndex: 1,
                       }}
-                    />
-                  </View>
-                  <Spacer size={"medium"} position={"top"}></Spacer>
+                    >
+                      <LoadingOverlay display={true}></LoadingOverlay>
+                    </View>
+                  ) : null}
+
+                  {/* Cached image of the location */}
+                  <CacheImage
+                    onLoadStart={() => setShowImageload(true)}
+                    onLoad={() => setShowImageload(false)}
+                    uri={`${adminFileBaseURL}${locationState.locationImage}`}
+                    style={{
+                      width: "100%",
+                      height: 150,
+                      resizeMode: "cover",
+                      borderRadius: 10,
+                    }}
+                  />
+                  <Spacer size={"medium"} position={"top"} />
+                  {/* Location name and distance */}
                   <Label size={"title"} weight={"bold"}>
                     {locationState.locationName}
                   </Label>
@@ -424,24 +423,13 @@ export const MapScreen = ({ navigation }) => {
                   >
                     {distance} KM
                   </Label>
-                  <Spacer size={"medium"} position={"top"}></Spacer>
+                  <Spacer size={"medium"} position={"top"} />
 
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      // flex: 1,
-                    }}
-                  >
+                  {/* Action buttons */}
+                  <View style={{ flexDirection: "row" }}>
                     <Button
-                      style={{
-                        borderRadius: 10,
-                        flex: 1,
-                        height: 40,
-                      }}
-                      labelStyle={{
-                        fontSize: 12,
-                        width: "100%",
-                      }}
+                      style={{ borderRadius: 10, flex: 1, height: 40 }}
+                      labelStyle={{ fontSize: 12, width: "100%" }}
                       buttonColor="#0082FF"
                       mode="contained"
                       onPress={() =>
@@ -454,22 +442,13 @@ export const MapScreen = ({ navigation }) => {
                     >
                       {i18n.t("offer-details.get-directions").toUpperCase()}
                     </Button>
-                    <Spacer size={"small"} position={"left"}></Spacer>
+                    <Spacer size={"small"} position={"left"} />
                     <Button
-                      style={{
-                        borderRadius: 10,
-                        flex: 1,
-                        height: 40,
-                      }}
-                      labelStyle={{
-                        fontSize: 12,
-                        width: "100%",
-                      }}
+                      style={{ borderRadius: 10, flex: 1, height: 40 }}
+                      labelStyle={{ fontSize: 12, width: "100%" }}
                       buttonColor="#0082FF"
                       mode="contained"
-                      onPress={() => {
-                        goLocation(locationState.locationId);
-                      }}
+                      onPress={() => goLocation(locationState.locationId)}
                     >
                       {i18n.t("redeem-offer.view-offer").toUpperCase()}
                     </Button>
@@ -477,9 +456,7 @@ export const MapScreen = ({ navigation }) => {
                 </View>
               </View>
             </View>
-          ) : (
-            <></>
-          )}
+          ) : null}
         </SafeArea>
       </View>
     </>

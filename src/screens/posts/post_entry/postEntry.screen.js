@@ -29,6 +29,7 @@ import PostEntryMobil from "./forms/postEntryMobil.component";
 import PostEntryRealEstate from "./forms/postEntryRealEstate.component";
 import PostEntryJobs from "./forms/postEntryJobs.component";
 import useRequest from "../../../../hooks/useRequest";
+import { StatusBar } from "react-native";
 
 const PostEntryScreen = () => {
   const route = useRoute();
@@ -91,19 +92,25 @@ const PostEntryScreen = () => {
   };
 
   const onSubmit = async (formData) => {
-    console.log(type);
-    console.log("awh");
-    formData.append("type", JSON.stringify(type));
-    formData.append("category", JSON.stringify(category));
+    try {
+      formData.append("type", JSON.stringify(type));
+      formData.append("category", JSON.stringify(category));
 
-    const response = await request("/v2/post/new/v2", "POST", formData, {
-      "Content-Type": "multipart/form-data",
-    });
+      console.log("FORMDATA", JSON.stringify(formData));
+      const response = await request("/v2/post/new/v2", "POST", formData, {
+        "Content-Type": "multipart/form-data",
+      });
 
-    if (response.success) {
-      // alert("success!");
-      navigation.pop(3);
-      Alert.alert("Success!", "Your post has been created!");
+      if (response && response.success) {
+        // alert("success!");
+        navigation.pop(3);
+        Alert.alert(
+          "Beitrag erstellt!",
+          "Bitte geben Sie uns einen Moment, und Ihr Beitrag wird bald veröffentlicht. Wir werden Sie informieren."
+        );
+      }
+    } catch (error) {
+      console.error("Failed to create post", error);
     }
   };
 
@@ -139,6 +146,7 @@ const PostEntryScreen = () => {
 
   return (
     <SafeAreaView style={[styles.container]}>
+      <StatusBar barStyle="light-content " />
       <View style={[styles.container, { marginBottom: -35 }]}>
         <BackButton />
         <KeyboardAvoidingView

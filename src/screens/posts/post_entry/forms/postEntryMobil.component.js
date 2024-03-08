@@ -1,4 +1,5 @@
 import {
+  Alert,
   FlatList,
   StyleSheet,
   Switch,
@@ -122,6 +123,7 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
     })
   );
 
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [colorOpen, setColorOpen] = useState(false);
   const [monthOpen, setMonthOpen] = useState(false);
   const [yearFromOpen, setYearFromOpen] = useState(false);
@@ -134,15 +136,75 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
     title: "",
     content: "",
     month: 1,
-    year_from: null,
-    year_to: null,
+    year_from: 0,
+    year_to: 0,
     color: null,
-    kilometer_from: null,
-    kilometer_to: null,
-    price_from: null,
-    price_to: null,
+    kilometer_from: 0,
+    kilometer_to: 0,
+    price_from: 0,
+    price_to: 0,
     images: null,
   });
+
+  const validationCheck = () => {
+    if (
+      state.maker &&
+      state.model &&
+      state.title &&
+      state.content &&
+      state.month &&
+      state.year_from &&
+      (mode === 1 ? true : state.year_to) &&
+      state.color &&
+      state.kilometer_from &&
+      (mode === 1 ? true : state.kilometer_to) &&
+      state.price_from &&
+      (mode === 1 ? true : state.price_to)
+    ) {
+      //price from should greater than 0
+      if (state.price_from <= 0) {
+        Alert.alert("Fehler", "Preis muss größer als 0 sein.");
+        return true;
+      }
+
+      //Price to is less than price from
+      if (mode === 2 && state.price_to <= state.price_from) {
+        Alert.alert("Fehler", "Bitte geben Sie eine gültige Preisspanne an.");
+        return true;
+      }
+
+      //Kilometer to is less than kilometer from
+      if (mode === 2 && state.kilometer_to <= state.kilometer_from) {
+        Alert.alert(
+          "Fehler",
+          "Bitte geben Sie eine gültige Kilometerreichweite ein."
+        );
+        return true;
+      }
+
+      //Year to is less than year from
+      if (mode === 2 && state.year_to <= state.year_from) {
+        Alert.alert(
+          "Fehler",
+          "Bitte geben Sie eine gültige Jahresbereich ein."
+        );
+        return true;
+      }
+
+      alert("success");
+      return false;
+    } else {
+      console.log("mode", state.price_to);
+      Alert.alert("Fehler", "Bitte füllen Sie alle Felder aus.");
+      return true;
+    }
+  };
+
+  useEffect(() => {
+    console.log("State", state);
+
+    return () => {};
+  }, [state]);
 
   const onSelectMaker = (_maker) => {
     setState({ ...state, maker: _maker() });
@@ -152,10 +214,10 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
     setState({ ...state, month: _month() });
   };
   const onSelectYearFrom = (_year) => {
-    setState({ ...state, year_from: _year() });
+    setState({ ...state, year_from: parseInt(_year()) });
   };
   const onSelectYearTo = (_year) => {
-    setState({ ...state, year_to: _year() });
+    setState({ ...state, year_to: parseInt(_year()) });
   };
 
   const onModelChange = (_value) => {
@@ -175,25 +237,25 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
   const onKilometerFromChange = (_value) => {
     setState({
       ...state,
-      kilometer_from: _value.replace(/[^0-9]/g, ""),
+      kilometer_from: parseFloat(_value.replace(/[^0-9]/g, "")),
     });
   };
   const onKilometerToChange = (_value) => {
     setState({
       ...state,
-      kilometer_to: _value.replace(/[^0-9]/g, ""),
+      kilometer_to: parseFloat(_value.replace(/[^0-9]/g, "")),
     });
   };
   const onPriceFromChange = (_value) => {
     setState({
       ...state,
-      price_from: _value.replace(/[^0-9]/g, ""),
+      price_from: parseFloat(_value.replace(/[^0-9]/g, "")),
     });
   };
   const onPriceToChange = (_value) => {
     setState({
       ...state,
-      price_to: _value.replace(/[^0-9]/g, ""),
+      price_to: parseFloat(_value.replace(/[^0-9]/g, "")),
     });
   };
 
@@ -316,17 +378,23 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
   const navigation = useNavigation();
 
   const submitForm = async () => {
+    setIsSubmitted(true);
+    if (validationCheck()) {
+      return;
+    }
+
     try {
       const formData = new FormData();
 
       // Iterate image append into formData
-      state.images.forEach((media) => {
-        formData.append("media", {
-          name: media.name,
-          type: media.type,
-          uri: media.type === "video" ? media.videoURI : media.uri,
+      if (state.images)
+        state.images.forEach((media) => {
+          formData.append("media", {
+            name: media.name,
+            type: media.type,
+            uri: media.type === "video" ? media.videoURI : media.uri,
+          });
         });
-      });
 
       Object.keys(state).forEach((key) => {
         if (key !== "images") formData.append(key, state[key]);
@@ -398,7 +466,10 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
         items={items}
         setValue={onSelectMaker}
         textStyle={{ fontSize: 18 }}
-        style={styles.formField}
+        style={[
+          styles.formField,
+          { borderColor: isSubmitted && !state.maker ? "red" : "#bbb" },
+        ]}
         listMode="SCROLLVIEW"
         placeholder="Select Maker"
         zIndex={10}
@@ -422,7 +493,12 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
         placeholder="Modell"
         onChangeText={onModelChange}
         value={state.model}
-        style={styles.formField}
+        style={[
+          styles.formField,
+          {
+            borderColor: isSubmitted && !state.model ? "red" : "#bbb",
+          },
+        ]}
       />
 
       {mode === 1 ? (
@@ -464,7 +540,12 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
               items={years}
               setValue={onSelectYearFrom}
               textStyle={{ fontSize: 18 }}
-              style={[styles.formField]}
+              style={[
+                styles.formField,
+                {
+                  borderColor: isSubmitted && !state.year_from ? "red" : "#bbb",
+                },
+              ]}
               placeholder="Baujahr"
               listMode="SCROLLVIEW"
               placeholderStyle={{ color: "#bbb", fontSize: 18 }}
@@ -497,7 +578,16 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
                 items={years}
                 setValue={onSelectYearFrom}
                 textStyle={{ fontSize: 18 }}
-                style={[styles.formField]}
+                style={[
+                  styles.formField,
+                  {
+                    borderColor:
+                      isSubmitted &&
+                      (!state.year_from || state.year_to <= state.year_from)
+                        ? "red"
+                        : "#bbb",
+                  },
+                ]}
                 placeholder="von"
                 listMode="SCROLLVIEW"
                 placeholderStyle={{ color: "#bbb", fontSize: 18 }}
@@ -523,7 +613,16 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
                 items={years}
                 setValue={onSelectYearTo}
                 textStyle={{ fontSize: 18 }}
-                style={[styles.formField]}
+                style={[
+                  styles.formField,
+                  {
+                    borderColor:
+                      isSubmitted &&
+                      (!state.year_to || state.year_to <= state.year_from)
+                        ? "red"
+                        : "#bbb",
+                  },
+                ]}
                 placeholder="bis"
                 listMode="SCROLLVIEW"
                 placeholderStyle={{ color: "#bbb", fontSize: 18 }}
@@ -548,7 +647,12 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
         items={colors}
         setValue={onSelectColor}
         textStyle={{ fontSize: 18 }}
-        style={[styles.formField]}
+        style={[
+          styles.formField,
+          {
+            borderColor: isSubmitted && !state.color ? "red" : "#bbb",
+          },
+        ]}
         placeholder="Farbe"
         listMode="SCROLLVIEW"
         placeholderStyle={{ color: "#bbb", fontSize: 18 }}
@@ -571,7 +675,13 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
               : ""
           }
           onChangeText={onKilometerFromChange}
-          style={styles.formField}
+          style={[
+            styles.formField,
+            {
+              borderColor:
+                isSubmitted && !state.kilometer_from ? "red" : "#bbb",
+            },
+          ]}
           keyboardType="numeric"
         />
       ) : (
@@ -588,7 +698,18 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
                   : ""
               }
               onChangeText={onKilometerFromChange}
-              style={[styles.formField, { flex: 1 }]}
+              style={[
+                styles.formField,
+                {
+                  flex: 1,
+                  borderColor:
+                    isSubmitted &&
+                    (!state.kilometer_from ||
+                      state.kilometer_to <= state.kilometer_from)
+                      ? "red"
+                      : "#bbb",
+                },
+              ]}
               keyboardType="numeric"
             />
             <TextInput
@@ -599,7 +720,18 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
                   : ""
               }
               onChangeText={onKilometerToChange}
-              style={[styles.formField, { flex: 1 }]}
+              style={[
+                styles.formField,
+                {
+                  flex: 1,
+                  borderColor:
+                    isSubmitted &&
+                    (!state.kilometer_to ||
+                      state.kilometer_to <= state.kilometer_from)
+                      ? "red"
+                      : "#bbb",
+                },
+              ]}
               keyboardType="numeric"
             />
           </View>
@@ -614,7 +746,12 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
               : ""
           }
           onChangeText={onPriceFromChange}
-          style={styles.formField}
+          style={[
+            styles.formField,
+            {
+              borderColor: isSubmitted && !state.price_from ? "red" : "#bbb",
+            },
+          ]}
           keyboardType="numeric"
         />
       ) : (
@@ -631,7 +768,16 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
                   : ""
               }
               onChangeText={onPriceFromChange}
-              style={[styles.formField, { flex: 1 }]}
+              style={[
+                styles.formField,
+                {
+                  flex: 1,
+                  borderColor:
+                    isSubmitted && state.price_to <= state.price_from
+                      ? "red"
+                      : "#bbb",
+                },
+              ]}
               keyboardType="numeric"
             />
             <TextInput
@@ -642,7 +788,17 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
                   : ""
               }
               onChangeText={onPriceToChange}
-              style={[styles.formField, { flex: 1 }]}
+              style={[
+                styles.formField,
+                {
+                  flex: 1,
+                  borderColor:
+                    isSubmitted &&
+                    (!state.price_to || state.price_to <= state.price_from)
+                      ? "red"
+                      : "#bbb",
+                },
+              ]}
               keyboardType="numeric"
             />
           </View>
@@ -688,7 +844,12 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
         />
       </View>
       <TextInput
-        style={styles.formField}
+        style={[
+          styles.formField,
+          {
+            borderColor: isSubmitted && !state.title ? "red" : "#bbb",
+          },
+        ]}
         placeholder="Titel"
         value={state.title}
         onChangeText={handleTitleChange}
@@ -696,7 +857,15 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
 
       <View style={{ height: 400 }}>
         <TextInput
-          style={[styles.formField, { flex: 1, paddingTop: 16, fontSize: 18 }]}
+          style={[
+            styles.formField,
+            {
+              flex: 1,
+              paddingTop: 16,
+              fontSize: 18,
+              borderColor: isSubmitted && !state.title ? "red" : "#bbb",
+            },
+          ]}
           placeholder="Text"
           multiline={true}
           value={state.content}

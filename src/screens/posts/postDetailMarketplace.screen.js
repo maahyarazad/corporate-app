@@ -32,6 +32,7 @@ import {
   realEstateOffers,
 } from "../../utils/marketplaceConstants";
 import { Skeleton } from "../../components/skeleton";
+import PostPromptMessage from "./post_card/postPromptMessage/postPromptMessage.component";
 
 const PostDetailMarketplace = ({ item }) => {
   const router = useRoute();
@@ -39,31 +40,43 @@ const PostDetailMarketplace = ({ item }) => {
   const [images, setImages] = useState(null);
   const request = useRequest();
   const [state, setState] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // if (images) console.log(images);
+
+    return () => {};
+  }, [images]);
 
   useEffect(() => {
     // reorganize images
-    if (post.images) {
-      console.log(post.images.split(","));
-      setImages(
-        post.images.split(",").map((image) => {
-          return { uri: image + "_s1.jpg" };
-        })
-      );
-    }
+
     //fetch marketplace post
     const fetchPost = async () => {
       try {
+        setLoading(true);
         const response = await request(
-          `/v2/post/marketplace?category=${post.category_id}&id=${post.post_id}`,
+          `/v2/post/marketplace?id=${post.post_id}`,
           "GET"
         );
 
         if (response.success) {
-          console.log(response.data);
           setState(response.data);
+          if (response.data && response.data.images) {
+            const _images = response.data.images.split(",");
+            const media_types = response.data.types.split(",");
+
+            setImages(
+              _images.map((image, index) => {
+                return { uri: image, type: media_types[index] };
+              })
+            );
+          }
         }
       } catch (error) {
         console.error("Failed to get post", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -78,8 +91,8 @@ const PostDetailMarketplace = ({ item }) => {
 
   const handlePressSMS = () => {
     const phoneNumber = "+971543839091";
-    const link = `https://www.german-emirates-club.com/Marketplace/${post.id}`;
-    const message = `Hello, I am interested in your post about the ${post.title}. Is it still available?\n\n${link}`;
+    const link = `https://www.german-emirates-club.com/Marketplace/${state.id}`;
+    const message = `Hello, I am interested in your post about the ${state.title}. Is it still available?\n\n${link}`;
     const url = `sms:+971543839091&body=${encodeURIComponent(message)}`; // The 'sms:' scheme followed by the phone number
     Linking.canOpenURL(url)
       .then((supported) => {
@@ -107,7 +120,7 @@ const PostDetailMarketplace = ({ item }) => {
   };
 
   const ModeChip = () => {
-    const [mode, setMode] = useState(post.mode);
+    const [mode, setMode] = useState(state.mode);
 
     switch (mode) {
       case "offer":
@@ -142,7 +155,7 @@ const PostDetailMarketplace = ({ item }) => {
   };
 
   const Specifications = () => {
-    switch (post.category_id) {
+    switch (state.category_id) {
       case 2:
         //Car
         return (
@@ -168,7 +181,7 @@ const PostDetailMarketplace = ({ item }) => {
                           ? `${Intl.NumberFormat("de-DE").format(
                               state[field.value]
                             )} ${
-                              post.mode === "search"
+                              state.mode === "search"
                                 ? "- " +
                                   Intl.NumberFormat("de-DE").format(
                                     state["milage_to"]
@@ -176,7 +189,7 @@ const PostDetailMarketplace = ({ item }) => {
                                 : ""
                             }`
                           : field.value === "year_from" &&
-                            post.mode === "search"
+                            state.mode === "search"
                           ? `${state["year_from"]} - ${state["year_to"]}`
                           : state[field.value]
                       }
@@ -298,7 +311,16 @@ const PostDetailMarketplace = ({ item }) => {
   const PostSkeleton = () => {
     return (
       <>
-        <View style={[styles.container, { backgroundColor: "#eee" }]}>
+        <View
+          style={[
+            {
+              paddingHorizontal: 12,
+              paddingVertical: 0,
+              backgroundColor: "white",
+              gap: 8,
+            },
+          ]}
+        >
           {Array(5)
             .fill("")
             .map((item, index) => {
@@ -367,126 +389,187 @@ const PostDetailMarketplace = ({ item }) => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: "white" }]}>
-      <ScrollView
-        style={[
-          { gap: 8, backgroundColor: "#eee" },
-          Platform.OS === "android" && { margin: -14 },
-        ]}
-        contentContainerStyle={{ gap: 10 }}
-      >
-        {/* Slideshow Section */}
-        <View>
-          {images && post.mode === "offer" && <SlideshowV2 images={images} />}
-          <View style={[styles.container]}>
-            <View style={styles.rows}>
-              <ModeChip />
-            </View>
-            <Label weight={"bold"} size={"heading"}>
-              {post.title}
-            </Label>
-            {post.price && (
-              <Label
-                weight={"bold"}
-                size={18}
-                color={theme.colors.icons.active}
-              >
-                {Intl.NumberFormat("de-DE").format(post.price)} AED
+      {!loading ? (
+        <>
+          {!state ? (
+            <View style={styles.unavailableContainer}>
+              <MaterialCommunityIcons name="tools" size={80} />
+              <Label weight={"bold"} size={"h5"}>
+                Page Unavailable
               </Label>
-            )}
-          </View>
-        </View>
-
-        {state ? (
-          <>
-            {state && <Specifications />}
-
-            {/* Details Section */}
-            <View style={[styles.container]}>
-              <View style={styles.header}>
-                <Label weight={"bold"} size={"title"}>
-                  Details
+              <Button
+                mode="contained"
+                style={{
+                  backgroundColor: theme.colors.icons.active,
+                  borderRadius: 8,
+                  marginTop: 16,
+                }}
+                onPress={goback}
+              >
+                <Label size={18} color={"white"} weight={"bold"}>
+                  Return
                 </Label>
-              </View>
-              <DetailRow
-                icon={"format-list-bulleted-type"}
-                label={"Kategorie"}
-                value={post.category}
-              ></DetailRow>
-              <DetailRow
-                icon={"calendar"}
-                label={"Datum der Veröffentlichung"}
-                value={moment(post.date_posted).format("LL")}
-              ></DetailRow>
-              <DetailRow icon={"account"} label={"Gepostet von"}>
-                {/* Posted By */}
-                <View style={[styles.title]}>
-                  {/* avatar */}
-                  <Avatar size={30} image={post.prof_image} />
-                  <View style={styles.authorContainer}>
-                    <View
-                      style={{
-                        alignSelf: "stretch",
-                        justifyContent: "space-between",
-                        flexDirection: "row",
-                      }}
-                    >
-                      <View>
-                        {/* name */}
-                        <View style={styles.rows}>
-                          <View>
-                            <Label size={"body"} weight={"bold"}>
-                              {`${post.first_name} ${post.last_name}`}
-                            </Label>
-                          </View>
-                        </View>
-                      </View>
+              </Button>
+            </View>
+          ) : (
+            <>
+              <ScrollView
+                style={[
+                  { gap: 8, backgroundColor: "#eee" },
+                  Platform.OS === "android" && { margin: -14 },
+                ]}
+                contentContainerStyle={{ gap: 10 }}
+              >
+                {router.params.showPrompt && (
+                  <PostPromptMessage
+                    severity={
+                      state.approved === 1 || state.approved === 2
+                        ? "info"
+                        : state.approved === -1
+                        ? "warning"
+                        : null
+                    }
+                    title={
+                      state.approved === 1 || state.approved === 2
+                        ? "Dein Beitrag wurde genehmigt"
+                        : state.approved === -1
+                        ? "Dein Beitrag wurde abgelehnt"
+                        : ""
+                    }
+                    message={
+                      state.approved === 1 || state.approved === 2
+                        ? "Herzlichen Glückwunsch! Dein Beitrag ist jetzt veröffentlicht und kann von allen gesehen werden."
+                        : state.response_msg
+                    }
+                  />
+                )}
+
+                {/* Slideshow Section */}
+
+                <View>
+                  {images && state.mode === "offer" && (
+                    <SlideshowV2 images={images} />
+                  )}
+                  <View style={[styles.container]}>
+                    <View style={styles.rows}>
+                      <ModeChip />
                     </View>
-                    {/* <Label size={"caption"} weight={"regular"}>
-                {data.category}
-              </Label> */}
-                    {/* Category */}
+                    <Label weight={"bold"} size={"heading"}>
+                      {state.title}
+                    </Label>
+                    {state.price_from && (
+                      <Label
+                        weight={"bold"}
+                        size={18}
+                        color={theme.colors.icons.active}
+                      >
+                        {`${Intl.NumberFormat("de-DE").format(
+                          state.price_from
+                        )}${
+                          state.mode === "search"
+                            ? ` - ${Intl.NumberFormat("de-DE").format(
+                                state.price_to
+                              )}`
+                            : ""
+                        } AED`}
+                      </Label>
+                    )}
                   </View>
                 </View>
-              </DetailRow>
-            </View>
+                {state && <Specifications />}
 
-            {/* Description Section */}
-            <View style={[styles.container]}>
-              <View style={styles.header}>
-                <Label weight={"bold"} size={"title"}>
-                  Detaillierte Beschreibung
-                </Label>
+                {/* Details Section */}
+                <View style={[styles.container]}>
+                  <View style={styles.header}>
+                    <Label weight={"bold"} size={"title"}>
+                      Details
+                    </Label>
+                  </View>
+                  <DetailRow
+                    icon={"format-list-bulleted-type"}
+                    label={"Kategorie"}
+                    value={state.category}
+                  ></DetailRow>
+                  <DetailRow
+                    icon={"calendar"}
+                    label={"Datum der Veröffentlichung"}
+                    value={moment(state.date_requested).format("LL")}
+                  ></DetailRow>
+                  <DetailRow icon={"account"} label={"Gepostet von"}>
+                    {/* Posted By */}
+                    <View style={[styles.title]}>
+                      {/* avatar */}
+                      <Avatar size={30} image={state.prof_image} />
+                      <View style={styles.authorContainer}>
+                        <View
+                          style={{
+                            alignSelf: "stretch",
+                            justifyContent: "space-between",
+                            flexDirection: "row",
+                          }}
+                        >
+                          <View>
+                            {/* name */}
+                            <View style={styles.rows}>
+                              <View>
+                                <Label size={"body"} weight={"bold"}>
+                                  {`${state.first_name} ${state.last_name}`}
+                                </Label>
+                              </View>
+                            </View>
+                          </View>
+                        </View>
+                        {/* <Label size={"caption"} weight={"regular"}>
+                {data.category}
+              </Label> */}
+                        {/* Category */}
+                      </View>
+                    </View>
+                  </DetailRow>
+                </View>
+
+                {/* Description Section */}
+                <View style={[styles.container]}>
+                  <View style={styles.header}>
+                    <Label weight={"bold"} size={"title"}>
+                      Detaillierte Beschreibung
+                    </Label>
+                  </View>
+                  <Label>{state.body}</Label>
+                </View>
+              </ScrollView>
+              <View
+                style={[
+                  styles.rows,
+                  { padding: 8, backgroundColor: "white", gap: 8 },
+                ]}
+              >
+                <CustomButton
+                  icon={"message-outline"}
+                  onPress={handlePressSMS}
+                  iconSize={18}
+                  style={{ flex: 1 }}
+                  color={theme.colors.icons.active}
+                  label={"SMS"}
+                />
+                <CustomButton
+                  icon={"phone"}
+                  onPress={handlePressCall}
+                  iconSize={18}
+                  style={{ flex: 1 }}
+                  color={theme.colors.icons.active}
+                  label={"Call"}
+                />
               </View>
-              <Label>{post.content}</Label>
-            </View>
-          </>
-        ) : (
-          <>
-            <PostSkeleton />
-            <PostSkeleton />
-          </>
-        )}
-      </ScrollView>
-      <View
-        style={[styles.rows, { padding: 8, backgroundColor: "white", gap: 8 }]}
-      >
-        <CustomButton
-          icon={"message-outline"}
-          onPress={handlePressSMS}
-          iconSize={18}
-          style={{ flex: 1 }}
-          color={theme.colors.icons.active}
-          label={"SMS"}
-        />
-        <CustomButton
-          icon={"phone"}
-          onPress={handlePressCall}
-          iconSize={18}
-          style={{ flex: 1 }}
-          color={theme.colors.icons.active}
-          label={"Call"}
-        />
-      </View>
+            </>
+          )}
+        </>
+      ) : (
+        <View style={{ paddingVertical: 10, gap: 20 }}>
+          <PostSkeleton />
+          <PostSkeleton />
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -535,6 +618,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
     // height: 40,
+  },
+  unavailableContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "white",
+    gap: 16,
   },
 });
 

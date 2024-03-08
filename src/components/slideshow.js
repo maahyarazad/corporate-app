@@ -71,13 +71,15 @@ export const Slideshow = ({ images }) => {
   };
   const onViewableItemsChanged = ({ viewableItems, changed }) => {
     if (viewableItems != undefined && viewableItems.length > 0)
-      setCurrentImageIndex(parseInt(viewableItems[0].key));
+      setCurrentImageIndex(
+        parseInt(viewableItems[viewableItems.length - 1].key)
+      );
   };
 
   const viewabilityConfigCallbackPairs = useRef([
     {
       viewabilityConfig: {
-        itemVisiblePercentThreshold: 100,
+        itemVisiblePercentThreshold: 50,
       },
       onViewableItemsChanged: onViewableItemsChanged,
     },

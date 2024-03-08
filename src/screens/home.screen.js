@@ -16,7 +16,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { FeaturedBanner } from "../features/home/components/banner.component";
+import FeaturedBanner from "../features/home/components/banner.component";
 import { HomeCategory } from "../features/home/components/category.component";
 import styled from "styled-components/native";
 import { Spacer } from "../components/spacer/spacer.component";
@@ -25,13 +25,10 @@ import { UserContext } from "../services/user/user.context";
 import { AuthContext } from "../services/auth/auth.context";
 import { navigate } from "../navigation/navigate";
 import { SearchButton } from "../components/searchbutton";
-import {
-  MemoizedTopPartner,
-  TopPartners,
-} from "../features/home/components/toppartners.component";
+import TopPartners from "../features/home/components/toppartners.component";
 import { config, typeEnum } from "../utils/constants";
 import { TranslationContext } from "../services/translation/translation.context";
-import { Hotpicks } from "../components/hotpick/hotpicks.component";
+import Hotpicks from "../components/hotpick/hotpicks.component";
 import { UrlListener } from "../utils/urlRouter";
 import { LocationContext } from "../services/location/location.context";
 import { StatusBar } from "expo-status-bar";
@@ -45,6 +42,7 @@ import { CustomModal } from "../components/modal/customModal.component";
 import { OrderCardModal } from "../features/offers/components/offerModalForm";
 import * as SecureStore from "expo-secure-store";
 import HomeHeader from "../features/home/components/header.component";
+import useRequest from "../../hooks/useRequest";
 
 const HomeContainer = styled(FlatList)`
   flex: 1;
@@ -60,8 +58,79 @@ const NearMeButton = styled(TouchableHighlight)`
 `;
 
 const RenderHome = ({ handleSearch }) => {
-  const handleNavigateMap = () => {
-    navigate("Map");
+  const [bannerData, setBannerData] = useState(null);
+  const [hotpickData, setHotpickData] = useState(null);
+  const [categoryData, setCategoryData] = useState(null);
+  const [topPartnersData, setTopPartnersData] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const { lang } = useContext(TranslationContext);
+  const { userData } = useUser();
+  const request = useRequest();
+
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    isMounted.current = true;
+
+    // if (!isLogout.current) {
+    fetchData();
+    // }
+
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      setRefreshing(true);
+
+      const data = {
+        id: config.APP_ID,
+        status: 1,
+        user_id: userData.user_id,
+      };
+
+      const bannerFetch = request(`/v2/app/get-banners`, "post", data);
+      const hotpicksFetch = request(
+        `/v2/offer/hotpicks?app_id=${config.APP_ID}&lang=${lang}&limit=10`,
+        "get"
+      );
+      const categoryFetch = request(
+        `/v2/partner/category-available2?app_id=${config.APP_ID}&lang=${lang}`,
+        "get"
+      );
+      const topPartnersFetch = request(
+        `/v2/partner/top-per-category?app_id=${config.APP_ID}&lang=${lang}&count=5`,
+        "get"
+      );
+
+      const [bannerResult, hotpickResult, categoryResult, topPartnersResult] =
+        await Promise.all([
+          bannerFetch,
+          hotpicksFetch,
+          categoryFetch,
+          topPartnersFetch,
+        ]);
+
+      console.log("hotpick", hotpickResult);
+
+      if (isMounted.current) {
+        if (bannerResult.success) setBannerData(bannerResult.data);
+        if (hotpickResult.success) setHotpickData(hotpickResult.data);
+        if (categoryResult.success) setCategoryData(categoryResult.result);
+        if (topPartnersResult.success)
+          setTopPartnersData(topPartnersResult.result);
+      }
+    } catch (error) {
+      setRefreshing(false);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const onRefresh = async () => {
+    fetchData();
   };
 
   return (
@@ -69,34 +138,17 @@ const RenderHome = ({ handleSearch }) => {
       <UrlListener />
       <StatusBar style="dark" />
       <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
         style={{ backgroundColor: "#eee", height: "100%" }}
         nestedScrollEnabled={true}
         removeClippedSubviews={true}
       >
-        {/* <Spacer position={"top"} size={"medium"}>
-          <Spacer position={"left"} size={"medium"}>
-            <Spacer position={"right"} size={"medium"}>
-              <View style={{ flexDirection: "row" }}>
-                <SearchButton onPress={handleSearch} />
-                <Spacer position={"left"} size={"small"} />
-                <NearMeButton
-                  underlayColor={"#EEE"}
-                  onPress={handleNavigateMap}
-                >
-                  <MaterialCommunityIcons
-                    name="map-search"
-                    size={25}
-                    color={"#555"}
-                  />
-                </NearMeButton>
-              </View>
-            </Spacer>
-          </Spacer>
-        </Spacer> */}
-        <FeaturedBanner />
-        <Hotpicks />
-        <HomeCategory />
-        <TopPartners />
+        <FeaturedBanner bannerData={bannerData} />
+        <Hotpicks hotpickData={hotpickData} />
+        <HomeCategory categoryData={categoryData} />
+        <TopPartners topPartnersData={topPartnersData} />
       </ScrollView>
     </>
   );
@@ -104,24 +156,8 @@ const RenderHome = ({ handleSearch }) => {
 
 const MemoeizedHome = React.memo(RenderHome);
 
-const TestComp = () => {
-  useEffect(() => {
-    alert("test");
-
-    return () => {};
-  }, []);
-
-  return (
-    <View>
-      <Text>Test</Text>
-    </View>
-  );
-};
-
 export const HomeScreen = ({ ...props }) => {
   const { navigation } = props;
-  const [refreshing, setRefreshing] = useState(0);
-  const [refreshCount, setRefreshCount] = useState(0);
   const { i18n } = useContext(TranslationContext);
   const { eventList } = useContext(LocationContext);
   const testing = useRef(false);
@@ -172,11 +208,6 @@ export const HomeScreen = ({ ...props }) => {
     } catch (error) {
       console.error("Failed to save local storage [Home]:", error);
     }
-  };
-
-  const onRefresh = () => {
-    testing.current = false;
-    setRefreshing((prev) => prev + 1);
   };
 
   const handleSearch = () => {
@@ -325,15 +356,7 @@ export const HomeScreen = ({ ...props }) => {
       <CustomModal showModal={showModal}>
         <OrderCardModal onClose={closeModal} />
       </CustomModal>
-      <ScrollView
-        refreshControl={
-          <RefreshControl refreshing={testing.current} onRefresh={onRefresh} />
-        }
-        showsVerticalScrollIndicator={false}
-        style={{ flex: 1 }}
-      >
-        <MemoeizedHome handleSearch={handleSearch} />
-      </ScrollView>
+      <MemoeizedHome handleSearch={handleSearch} />
     </SafeAreaView>
   );
 };

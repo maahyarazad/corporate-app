@@ -25,6 +25,7 @@ import { config } from "../../utils/constants";
 import useRequest from "../../../hooks/useRequest";
 import useAuth from "../../../hooks/useAuth";
 import useUser from "../../../hooks/useUser";
+import { navigate } from "../../navigation/navigate";
 
 export const OtpVerification = ({ route, navigation }) => {
   const MAX_CODE_LENGTH = 4;
@@ -32,7 +33,7 @@ export const OtpVerification = ({ route, navigation }) => {
   const { resendOTP } = useContext(AuthContext);
   const { i18n } = useContext(TranslationContext);
   const [otpCooldown, setOtpCooldown] = useState(OTP_COOLDOWN);
-  const mobileNum = route.params.hiddenNumber;
+  const hiddenNum2 = route.params.hiddenNumber;
   const [code, setCode] = useState("");
   const [pinReady, setPinReady] = useState(false);
   const { colors } = useTheme();
@@ -42,6 +43,24 @@ export const OtpVerification = ({ route, navigation }) => {
   const { verifyOTP } = useAuth();
   const { userData, getUserInfo } = useUser();
   const [isLoading, setIsLoading] = useState(false);
+  const [hiddenNum, setHiddenNum] = useState(false);
+
+  useEffect(() => {
+    if (userData && userData.area_code && userData.phone_number) {
+      console.log("OTP", userData);
+      const mobileNum = `${userData.area_code}${userData.phone_number}`;
+      const _hiddenNum = mobileNum.replace(/\d(?=(?:\D*\d){4})/g, "*");
+
+      console.log("hiddenNum", _hiddenNum);
+      console.log("hiddenNum2", hiddenNum2);
+
+      setHiddenNum(_hiddenNum);
+    } else {
+      setHiddenNum(hiddenNum2);
+    }
+
+    return () => {};
+  }, [userData?.phone_number, userData?.area_code]);
 
   const handleVerify = async () => {
     try {
@@ -109,6 +128,10 @@ export const OtpVerification = ({ route, navigation }) => {
     setCode(value);
   };
 
+  const handleMobileChange = () => {
+    navigate("MobileChange");
+  };
+
   return (
     <Background>
       <SafeArea style={{ alignItems: "center" }}>
@@ -127,7 +150,7 @@ export const OtpVerification = ({ route, navigation }) => {
           >
             <Spacer position={"top"} size={"large"} />
             <IconBg>
-              <StatusBar style="dark" />
+              <StatusBar style="light" />
               <MaterialCommunityIcons
                 color={colors.ui.secondary}
                 size={width * 0.4}
@@ -153,7 +176,7 @@ export const OtpVerification = ({ route, navigation }) => {
                 >
                   {i18n.t("auth.message", {
                     codeLength: MAX_CODE_LENGTH,
-                    mobileNumber: `+${mobileNum}`,
+                    mobileNumber: `+${hiddenNum}`,
                   })}
                 </Label>
                 {/* <Label
@@ -163,6 +186,15 @@ export const OtpVerification = ({ route, navigation }) => {
                   +{mobileNum}
                 </Label> */}
               </View>
+              <Spacer position={"top"} size={"medium"} />
+              <TouchableOpacity onPress={handleMobileChange}>
+                <Label
+                  style={{ color: "white", textDecorationLine: "underline" }}
+                  size={"title"}
+                >
+                  {i18n.t("update-mobile-number.header")}
+                </Label>
+              </TouchableOpacity>
               <Spacer position={"top"} size={"medium"} />
 
               <CodeInputField

@@ -40,7 +40,7 @@ const VideoPlayerModal = ({ video, onClose }) => {
                 alignItems: "center",
               }}
             >
-              <Label color={"#aaa"}>Drag down to close</Label>
+              <Label color={"#aaa"}>Nach unten ziehen zum Schlie</Label>
               <VideoPlayer
                 source={{
                   uri: video,

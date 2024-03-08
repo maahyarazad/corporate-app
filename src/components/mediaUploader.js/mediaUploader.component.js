@@ -124,7 +124,8 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
           return {
             uri: resizedImage,
             name: item.fileName,
-            type: item.type,
+            // type: item.type,
+            type: "image/jpeg",
           };
         });
 
@@ -172,7 +173,7 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
           const thumbnail = await VideoThumbnails.getThumbnailAsync(r2, {
             time: 1000,
           });
-          thumbnail.type = "video";
+          thumbnail.type = "video/mp4";
           thumbnail.name = item.fileName;
           thumbnail.videoURI = r2;
 
@@ -347,7 +348,7 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
   return (
     <>
       {show && (
-        <>
+        <View>
           <CustomModal showModal={openModal} type="none">
             <TouchableWithoutFeedback
               onPress={() => {
@@ -439,7 +440,11 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
                         </View>
                       </View>
                       <View
-                        style={{ position: "absolute", right: -20, top: -20 }}
+                        style={{
+                          position: "absolute",
+                          right: -20,
+                          top: -20,
+                        }}
                       >
                         <View>
                           <TouchableWithoutFeedback
@@ -585,7 +590,7 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
               </View>
             )}
           />
-        </>
+        </View>
       )}
     </>
   );

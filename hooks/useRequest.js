@@ -85,6 +85,9 @@ export default function useRequest() {
         );
       }
       console.log(`URL Called: (${method.toUpperCase()})`, url);
+
+      if (url) console.log("REQ RESPONSE", options);
+
       const response = await axios.request({
         timeoutErrorMessage: "Request Timeout",
         ...options,
@@ -105,9 +108,11 @@ export default function useRequest() {
       // );
       if (error && error.response && error.response.status >= 0) {
         // Alert.alert("Error Code", error.response.status);
+        console.log("ERROR:", error.response.status, error.response.data);
 
         switch (error.response.status) {
           case 0:
+            console.log("NO CONNECTION", config.SERVER_HOST + url);
             if (retry >= MAX_RETRY) {
               setNoConnection(true);
               setNoConnectionRetry({
@@ -142,7 +147,9 @@ export default function useRequest() {
                 "Notice",
                 "You have already logged in from another device!"
               );
-              return signout();
+              signout();
+              user.setUserData(null);
+              return;
             }
 
             //refresh token
@@ -153,7 +160,9 @@ export default function useRequest() {
                     title: "Token Invalid",
                     message: "Please login again.",
                   });
-                  return signout();
+                  signout();
+                  user.setUserData(null);
+                  return;
                 }
               }
             );

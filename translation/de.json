@@ -1,6 +1,22 @@
 {
     "de": 
         {
+        "update-mobile-number" : {
+            "header": "Handynummer aktualisieren",
+            "success": "Erfolgreich",
+            "failed": "Fehlgeschlagen",
+            "success-msg": "Handynummer erfolgreich aktualisiert",
+            "failed-msg": "Aktualisierung der Handynummer fehlgeschlagen",
+            "confirm": "Bestätigen"
+        },
+        "update-email" : {
+            "header": "E-Mail-Adresse aktualisieren",
+            "success": "Erfolgreich",
+            "failed": "Fehlgeschlagen",
+            "success-msg": "E-Mail-Adresse erfolgreich aktualisiert",
+            "failed-msg": "Aktualisierung der E-Mail-Adresse fehlgeschlagen",
+            "confirm": "Bestätigen"
+        },
         "bottom-tabs": {
             "home": "Home",
             "offers": "Angebote",
@@ -46,6 +62,9 @@
                 
             },
             "settings-menu": {
+                "login-face-id" : "Anmeldung mit Face ID",
+                "login-face-recognition" : "Anmeldung mit Gesichtserkennung",
+                "login-fingerprint" : "Anmeldung mit Fingerabdruck",
                 "settings-permission": "App Einstellungen & Rechte",
                 "legal": "EULA & Datenschutz",
                 "contact-us": "Kontakt",
@@ -125,7 +144,7 @@
                 "registration-success-msg": "Ihre Teilnahme mit Gästen ist bestätigt."
             }
         },
-        "read-more": "Mehr...",
+        "read-more": "Weiterlesen",
         "proceed": "Bestätigen",
         "auth": {
             "account-verification": "Account bestätigen",

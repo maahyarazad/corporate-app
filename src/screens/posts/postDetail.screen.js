@@ -19,6 +19,9 @@ import { theme } from "../../infrastructure/theme";
 import { Button } from "react-native-paper";
 import { Spacer } from "../../components/spacer/spacer.component";
 import useUser from "../../../hooks/useUser";
+import PostPromptMessage from "./post_card/postPromptMessage/postPromptMessage.component";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { goback } from "../../navigation/navigate";
 
 const COMMENT_MAXLENGTH = 500;
 
@@ -80,7 +83,11 @@ export default function PostDetailScreen() {
 
         if (response.success) {
           setPost(response.data[0]);
-          changeHeader(`${response.data[0].first_name}'s post`);
+          changeHeader(
+            response.data[0].id === null
+              ? ``
+              : `${response.data[0].first_name}s Beitrag`
+          );
 
           getComments(response.data[0].id);
         }
@@ -92,7 +99,7 @@ export default function PostDetailScreen() {
     if (router.params.id) {
       getPost();
     } else {
-      changeHeader(`${author}'s post`);
+      changeHeader(`${router.params.post.first_name}s Beitrag`);
       setPost(router.params.post);
 
       getComments(router.params.post.id);
@@ -287,102 +294,151 @@ export default function PostDetailScreen() {
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           keyboardVerticalOffset={85}
         >
-          <ScrollView
-            keyboardDismissMode="none"
-            keyboardShouldPersistTaps="handled"
-          >
-            {post && (
-              <PostCard
-                data={post}
-                comment={true}
-                onLikePress={handleLikePress}
-                onCommentPress={handleCommentPress}
-                commentData={makeTree(postComments)}
-                viewReplies={viewMoreReplies}
-                viewPreviousComments={viewPreviousComments}
-                remainingComments={remainingComments}
-                origin={router.params.origin}
-              />
-            )}
-          </ScrollView>
-
-          {/* Comment Field */}
-          <View
-            style={{
-              paddingHorizontal: 12,
-              paddingVertical: 10,
-              backgroundColor: theme.colors.icons.active + "55",
-            }}
-          >
-            {replyTo && focus && (
-              <>
-                <Label>
-                  {`Replying to `}
-                  <Label weight={"bold"}>{replyTo.name}</Label>
+          {post.id === null ? (
+            <View style={styles.unavailableContainer}>
+              <MaterialCommunityIcons name="tools" size={80} />
+              <Label weight={"bold"} size={"h5"}>
+                Page Unavailable
+              </Label>
+              <Button
+                mode="contained"
+                style={{
+                  backgroundColor: theme.colors.icons.active,
+                  borderRadius: 8,
+                  marginTop: 16,
+                }}
+                onPress={goback}
+              >
+                <Label size={18} color={"white"} weight={"bold"}>
+                  Return
                 </Label>
-                <Spacer position={"bottom"} size={"small"} />
-              </>
-            )}
-            <View
-              style={{
-                flexDirection: "row",
-              }}
-            >
-              <View style={{ flex: 1, gap: 5 }}>
-                <View style={{ flexDirection: "row" }}>
-                  <CustomTextInput
-                    ref={keyboardRef}
-                    inputStyle={{
-                      borderRadius: 8,
-                      backgroundColor: "white",
-                      paddingTop: 10,
-                    }}
-                    style={{
-                      backgroundColor: null,
-                      flex: 1,
-                    }}
-                    onBlur={fieldOnBlur}
-                    multiline={true}
-                    areaHeight={20}
-                    placeholder={"Add a comment"}
-                    onChangeText={handleCommentChange}
-                    value={comment}
-                    maxLength={COMMENT_MAXLENGTH}
-                  />
-                </View>
-                {
-                  <View
-                    style={{
-                      height: 2,
-                      width: `${(comment.length / COMMENT_MAXLENGTH) * 100}%`,
-                      backgroundColor:
-                        (comment.length / COMMENT_MAXLENGTH) * 100 > 90
-                          ? "red"
-                          : "#88CC00",
-                      borderRadius: 50,
-                    }}
-                  ></View>
-                }
-              </View>
-              <Spacer position={"right"} size={"small"} />
-              <View>
-                <Button
-                  mode="contained"
-                  labelStyle={{ color: "white" }}
-                  contentStyle={{}}
-                  style={styles.replyButton}
-                  uppercase={false}
-                  buttonColor={theme.colors.icons.active}
-                  disabled={!comment}
-                  onPress={handleCommentSend}
-                >
-                  <Label color="white" weight={"bold"}>
-                    Reply
-                  </Label>
-                </Button>
-              </View>
+              </Button>
             </View>
-          </View>
+          ) : (
+            <>
+              <ScrollView
+                keyboardDismissMode="none"
+                keyboardShouldPersistTaps="handled"
+              >
+                {router.params.showPrompt && (
+                  <PostPromptMessage
+                    severity={
+                      post.approved === 1 || post.approved === 2
+                        ? "info"
+                        : post.approved === -1
+                        ? "warning"
+                        : null
+                    }
+                    title={
+                      post.approved === 1 || post.approved === 2
+                        ? "Dein Beitrag wurde genehmigt"
+                        : post.approved === -1
+                        ? "Dein Beitrag wurde abgelehnt"
+                        : ""
+                    }
+                    message={
+                      post.approved === 1 || post.approved === 2
+                        ? "Herzlichen Glückwunsch! Dein Beitrag ist jetzt veröffentlicht und kann von allen gesehen werden."
+                        : post.response_msg
+                    }
+                  />
+                )}
+                {post && (
+                  <PostCard
+                    data={post}
+                    comment={true}
+                    onLikePress={handleLikePress}
+                    onCommentPress={handleCommentPress}
+                    commentData={makeTree(postComments)}
+                    viewReplies={viewMoreReplies}
+                    viewPreviousComments={viewPreviousComments}
+                    remainingComments={remainingComments}
+                    origin={router.params.origin}
+                  />
+                )}
+              </ScrollView>
+
+              {/* Comment Field */}
+              <View
+                style={{
+                  paddingHorizontal: 12,
+                  paddingVertical: 10,
+                  backgroundColor: theme.colors.icons.active + "55",
+                }}
+              >
+                {replyTo && focus && (
+                  <>
+                    <Label>
+                      {`Replying to `}
+                      <Label weight={"bold"}>{replyTo.name}</Label>
+                    </Label>
+                    <Spacer position={"bottom"} size={"small"} />
+                  </>
+                )}
+                <View
+                  style={{
+                    flexDirection: "row",
+                  }}
+                >
+                  <View style={{ flex: 1, gap: 5 }}>
+                    <View style={{ flexDirection: "row" }}>
+                      <CustomTextInput
+                        ref={keyboardRef}
+                        inputStyle={{
+                          borderRadius: 8,
+                          backgroundColor: "white",
+                          paddingTop: 10,
+                        }}
+                        style={{
+                          backgroundColor: null,
+                          flex: 1,
+                        }}
+                        onBlur={fieldOnBlur}
+                        multiline={true}
+                        areaHeight={20}
+                        placeholder={"Add a comment"}
+                        onChangeText={handleCommentChange}
+                        value={comment}
+                        maxLength={COMMENT_MAXLENGTH}
+                      />
+                    </View>
+                    {
+                      <View
+                        style={{
+                          height: 2,
+                          width: `${
+                            (comment.length / COMMENT_MAXLENGTH) * 100
+                          }%`,
+                          backgroundColor:
+                            (comment.length / COMMENT_MAXLENGTH) * 100 > 90
+                              ? "red"
+                              : "#88CC00",
+                          borderRadius: 50,
+                        }}
+                      ></View>
+                    }
+                  </View>
+                  <Spacer position={"right"} size={"small"} />
+                  <View>
+                    <Button
+                      mode="contained"
+                      labelStyle={{ color: "white" }}
+                      contentStyle={{}}
+                      style={styles.replyButton}
+                      uppercase={false}
+                      buttonColor={theme.colors.icons.active}
+                      disabled={!comment}
+                      onPress={handleCommentSend}
+                    >
+                      <Label color="white" weight={"bold"}>
+                        Reply
+                      </Label>
+                    </Button>
+                  </View>
+                </View>
+              </View>
+            </>
+          )}
         </KeyboardAvoidingView>
       )}
     </SafeAreaView>
@@ -423,5 +479,12 @@ const styles = StyleSheet.create({
   replyButton: {
     borderRadius: 10,
     justifyContent: "center",
+  },
+  unavailableContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "white",
+    gap: 16,
   },
 });

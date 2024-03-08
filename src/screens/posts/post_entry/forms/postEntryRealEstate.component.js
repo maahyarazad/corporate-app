@@ -1,4 +1,5 @@
 import {
+  Alert,
   StyleSheet,
   Text,
   TextInput,
@@ -45,11 +46,12 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
     place: null,
     street: null,
     art: null,
-    living_space_start: null,
-    living_space_end: null,
+    living_space_start: 0,
+    living_space_end: 0,
     sleep_rooms_start: 1,
     sleep_rooms_end: 2,
-    price: null,
+    price_from: 0,
+    price_to: 0,
     title: "",
     content: "",
     images: null,
@@ -57,6 +59,7 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
 
   const [offerTypeOpen, setOfferTypeOpen] = useState(false);
   const [realEstateTypeOpen, setRealEstateTypeOpen] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const closeAllDropdown = () => {
     setOfferTypeOpen(false);
@@ -82,26 +85,26 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
   const onLivingSpaceStartChange = (_value) => {
     setState({
       ...state,
-      living_space_start: _value.replace(/[^0-9]/g, ""),
+      living_space_start: parseFloat(_value.replace(/[^0-9]/g, "")),
     });
   };
   const onLivingSpaceEndChange = (_value) => {
     setState({
       ...state,
-      living_space_end: _value.replace(/[^0-9]/g, ""),
+      living_space_end: parseFloat(_value.replace(/[^0-9]/g, "")),
     });
   };
 
   const onPriceFromChange = (_value) => {
     setState({
       ...state,
-      price_from: _value.replace(/[^0-9]/g, ""),
+      price_from: parseFloat(_value.replace(/[^0-9]/g, "")),
     });
   };
   const onPriceToChange = (_value) => {
     setState({
       ...state,
-      price_to: _value.replace(/[^0-9]/g, ""),
+      price_to: parseFloat(_value.replace(/[^0-9]/g, "")),
     });
   };
   const handleChangeBedrooms = (_value) => {
@@ -136,8 +139,54 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
     });
   };
 
+  const validationCheck = () => {
+    if (
+      state.art &&
+      state.content &&
+      state.living_space_start &&
+      (mode === 1 ? true : state.living_space_end) &&
+      state.offer &&
+      state.place &&
+      state.street &&
+      state.title &&
+      state.price_from &&
+      (mode === 1 ? true : state.price_to)
+    ) {
+      //price from should be greater than 0
+      if (state.price_from <= 0) {
+        Alert.alert("Fehler", "Preis muss größer als 0 sein.");
+        return true;
+      }
+
+      //Price to is less than price from
+      if (mode === 2 && state.price_to <= state.price_from) {
+        Alert.alert("Fehler", "Bitte geben Sie eine gültige Preisspanne an.");
+        return true;
+      }
+
+      //Kilometer to is less than kilometer from
+      if (mode === 2 && state.living_space_end <= state.living_space_start) {
+        Alert.alert(
+          "Fehler",
+          "Bitte geben Sie eine gültige Wohnflächenbereich ein."
+        );
+        return true;
+      }
+
+      alert("success");
+      return false;
+    } else {
+      Alert.alert("Fehler", "Bitte füllen Sie alle Felder aus.");
+      return true;
+    }
+  };
+
   const submitForm = async () => {
     try {
+      setIsSubmitted(true);
+      if (validationCheck()) {
+        return;
+      }
       const formData = new FormData();
 
       // Iterate image append into formData
@@ -174,7 +223,10 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
         items={offerTypes}
         setValue={onSelectOffer}
         textStyle={{ fontSize: 18 }}
-        style={styles.formField}
+        style={[
+          styles.formField,
+          { borderColor: isSubmitted && !state.offer ? "red" : "#bbb" },
+        ]}
         listMode="SCROLLVIEW"
         placeholder="Bitte Wahlen Zweck"
         zIndex={10}
@@ -189,13 +241,19 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
         placeholder="Ort, Region, Land"
         onChangeText={handleChangePlace}
         value={state.place}
-        style={styles.formField}
+        style={[
+          styles.formField,
+          { borderColor: isSubmitted && !state.place ? "red" : "#bbb" },
+        ]}
       />
       <TextInput
         placeholder="Stadtteil, Straße"
         onChangeText={handleChangeStreet}
         value={state.street}
-        style={styles.formField}
+        style={[
+          styles.formField,
+          { borderColor: isSubmitted && !state.street ? "red" : "#bbb" },
+        ]}
       />
       <DropDownPicker
         open={realEstateTypeOpen}
@@ -207,7 +265,10 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
         items={types}
         setValue={onSelectType}
         textStyle={{ fontSize: 18 }}
-        style={styles.formField}
+        style={[
+          styles.formField,
+          { borderColor: isSubmitted && !state.art ? "red" : "#bbb" },
+        ]}
         listMode="SCROLLVIEW"
         placeholder="Art der Immobilie"
         zIndex={10}
@@ -223,8 +284,18 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
         <TextInput
           placeholder="Wohnfläche"
           onChangeText={onLivingSpaceStartChange}
-          value={state.living_space_start}
-          style={styles.formField}
+          value={
+            state.living_space_start
+              ? Intl.NumberFormat("de-DE").format(state.living_space_start)
+              : ""
+          }
+          style={[
+            styles.formField,
+            {
+              borderColor:
+                isSubmitted && !state.living_space_start ? "red" : "#bbb",
+            },
+          ]}
           keyboardType="numeric"
         />
       ) : (
@@ -241,7 +312,18 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
                   : ""
               }
               onChangeText={onLivingSpaceStartChange}
-              style={[styles.formField, { flex: 1 }]}
+              style={[
+                styles.formField,
+                {
+                  flex: 1,
+                  borderColor:
+                    isSubmitted &&
+                    (!state.living_space_start ||
+                      state.living_space_end <= state.living_space_start)
+                      ? "red"
+                      : "#bbb",
+                },
+              ]}
               keyboardType="numeric"
             />
             <TextInput
@@ -252,7 +334,18 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
                   : ""
               }
               onChangeText={onLivingSpaceEndChange}
-              style={[styles.formField, { flex: 1 }]}
+              style={[
+                styles.formField,
+                {
+                  flex: 1,
+                  borderColor:
+                    isSubmitted &&
+                    (!state.living_space_end ||
+                      state.living_space_end <= state.living_space_start)
+                      ? "red"
+                      : "#bbb",
+                },
+              ]}
               keyboardType="numeric"
             />
           </View>
@@ -318,8 +411,15 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
         <TextInput
           placeholder="Preis"
           onChangeText={onPriceFromChange}
-          value={state.price}
-          style={styles.formField}
+          value={
+            state.price_from
+              ? Intl.NumberFormat("de-DE").format(state.price_from)
+              : ""
+          }
+          style={[
+            styles.formField,
+            { borderColor: isSubmitted && !state.price_from ? "red" : "#bbb" },
+          ]}
           keyboardType="numeric"
         />
       ) : (
@@ -336,7 +436,17 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
                   : ""
               }
               onChangeText={onPriceFromChange}
-              style={[styles.formField, { flex: 1 }]}
+              style={[
+                styles.formField,
+                {
+                  flex: 1,
+                  borderColor:
+                    isSubmitted &&
+                    (!state.price_from || state.price_to <= state.price_from)
+                      ? "red"
+                      : "#bbb",
+                },
+              ]}
               keyboardType="numeric"
             />
             <TextInput
@@ -347,14 +457,27 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
                   : ""
               }
               onChangeText={onPriceToChange}
-              style={[styles.formField, { flex: 1 }]}
+              style={[
+                styles.formField,
+                {
+                  flex: 1,
+                  borderColor:
+                    isSubmitted &&
+                    (!state.price_to || state.price_to <= state.price_from)
+                      ? "red"
+                      : "#bbb",
+                },
+              ]}
               keyboardType="numeric"
             />
           </View>
         </>
       )}
       <TextInput
-        style={styles.formField}
+        style={[
+          styles.formField,
+          { borderColor: isSubmitted && !state.title ? "red" : "#bbb" },
+        ]}
         placeholder="Titel"
         value={state.title}
         onChangeText={handleTitleChange}
@@ -362,7 +485,15 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
 
       <View style={{ height: 400 }}>
         <TextInput
-          style={[styles.formField, { flex: 1, paddingTop: 16, fontSize: 18 }]}
+          style={[
+            styles.formField,
+            {
+              flex: 1,
+              paddingTop: 16,
+              fontSize: 18,
+              borderColor: isSubmitted && !state.content ? "red" : "#bbb",
+            },
+          ]}
           placeholder="Text"
           multiline={true}
           value={state.content}

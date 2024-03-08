@@ -110,35 +110,10 @@ const SkeletonCategoryHome = () => {
   );
 };
 
-export const HomeCategory = ({ size }) => {
+export const HomeCategory = ({ size, categoryData }) => {
   const navigation = useContext(NavigationContext);
   const { i18n, lang } = useContext(TranslationContext);
   const { setSectionTitle } = useContext(SectionContext);
-  const [categoryList, setCategoryList] = useState();
-  const { isLogout } = useContext(AuthContext);
-  const request = useRequest();
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const getCategories = async () => {
-      const categories = await request(
-        `/v2/partner/category-available2?app_id=${config.APP_ID}&lang=${lang}`,
-        "get"
-      );
-      // console.log("categories", categories);
-      if (isMounted && categories.result) {
-        setCategoryList(categories.result);
-      }
-    };
-    if (!isLogout.current) {
-      getCategories();
-    }
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   return (
     <>
@@ -158,12 +133,12 @@ export const HomeCategory = ({ size }) => {
           </Spacer>
         </CategoryHeaderView>
         <CategoryContentView>
-          {categoryList ? (
+          {categoryData ? (
             <>
               <FlatList
                 horizontal
                 pagingEnabled
-                data={categoryList}
+                data={categoryData}
                 fadingEdgeLength={100}
                 snapToAlignment="start"
                 snapToInterval={100 + 16}

@@ -40,42 +40,14 @@ const test_data = [
   { outlet_name: "Merchant C" },
 ];
 
-export const Hotpicks = () => {
+const Hotpicks = ({ hotpickData }) => {
   const { i18n } = useContext(TranslationContext);
   const progressValue = useSharedValue(0);
   const [isVertical, setIsVertical] = useState(false);
-  const [hotpickList, setHotpickList] = useState([]);
   const { lang } = useContext(TranslationContext);
   const [reverse, setReverse] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const request = useRequest();
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const getHotpicks = async () => {
-      const data = {
-        app_id: config.APP_ID,
-        lang: lang,
-        limit: 10,
-      };
-      const response = await request(
-        `/v2/offer/hotpicks?app_id=${config.APP_ID}&lang=${lang}&limit=10`,
-        "get"
-      );
-
-      if (isMounted) {
-        // setHotpickList(response.data.slice(0, 5));
-        setHotpickList(response.data);
-      }
-    };
-
-    getHotpicks();
-
-    return () => {
-      isMounted = true;
-    };
-  }, []);
 
   const PaginationItem = ({
     animValue,
@@ -167,7 +139,7 @@ export const Hotpicks = () => {
 
   return (
     <>
-      {!!hotpickList && hotpickList.length > 0 && (
+      {!!hotpickData && hotpickData.length > 0 && (
         <View style={styles.container}>
           <View style={styles.header}>
             <Label style={{ marginTop: 16 }} size="heading" weight="bold">
@@ -176,7 +148,7 @@ export const Hotpicks = () => {
             </Label>
           </View>
           <View style={styles.hotpickContent}>
-            {hotpickList.length > 2 ? (
+            {hotpickData.length > 2 ? (
               <Carousel
                 style={{
                   flex: 1,
@@ -188,7 +160,7 @@ export const Hotpicks = () => {
                   padding: -10,
                 }}
                 windowSize={3}
-                data={hotpickList}
+                data={hotpickData}
                 renderItem={renderItem}
                 autoPlay={true}
                 snapEnabled={true}
@@ -221,25 +193,27 @@ export const Hotpicks = () => {
                   parallaxScrollingOffset: 205,
                 }}
               />
-            ) : hotpickList.length === 1 ? (
+            ) : hotpickData.length === 1 ? (
               <>
                 {/* Show only 1 card */}
-                <MyCard
-                  //ADD ONPRESS FUNCTION HERE
-                  onPress={() => {
-                    handlePress(hotpickList[0].partner_id);
-                  }}
-                  size={"hotpick"}
-                  width={"100%"}
-                  imgWidth={"100%"}
-                  imgHeight={Dimensions.get("screen").width * 0.5}
-                  stamp={offerStamps[hotpickList[0].premium_id - 1]}
-                  offer_name={hotpickList[0].offer_name}
-                  imgUrl={`${hotpickList[0].file}`}
-                  // imgUrl={`${item.file}`}
-                  outlet_name={hotpickList[0].outlet_name}
-                  style={{ padding: 16, paddingTop: 26 }}
-                />
+                <View style={{ padding: 16 }}>
+                  <MyCard
+                    //ADD ONPRESS FUNCTION HERE
+                    onPress={() => {
+                      handlePress(hotpickData[0].partner_id);
+                    }}
+                    size={"hotpick"}
+                    width={"100%"}
+                    imgWidth={"100%"}
+                    imgHeight={Dimensions.get("screen").width * 0.5}
+                    stamp={offerStamps[hotpickData[0].premium_id - 1]}
+                    offer_name={hotpickData[0].offer_name}
+                    imgUrl={`${hotpickData[0].file}`}
+                    // imgUrl={`${item.file}`}
+                    outlet_name={hotpickData[0].outlet_name}
+                    style={{ padding: 16, paddingTop: 26 }}
+                  />
+                </View>
               </>
             ) : (
               <>
@@ -252,7 +226,7 @@ export const Hotpicks = () => {
                     alignItems: "center",
                     flexDirection: "column",
                   }}
-                  data={hotpickList}
+                  data={hotpickData}
                   renderItem={renderItem}
                   autoPlay={true}
                   autoPlayReverse={reverse}
@@ -270,6 +244,13 @@ export const Hotpicks = () => {
                     } else if (absoluteProgress === 1) {
                       setReverse(true);
                     }
+                    if (
+                      Math.floor(absoluteProgress + 1) /
+                        (absoluteProgress + 1) ===
+                      1
+                    ) {
+                      setCurrentIndex(absoluteProgress + 1);
+                    }
                   }}
                   withAnimation={{
                     type: "timing",
@@ -278,14 +259,14 @@ export const Hotpicks = () => {
                     },
                   }}
                   modeConfig={{
-                    parallaxScrollingScale: 0.8,
+                    parallaxScrollingScale: 0.9,
                     parallaxScrollingOffset: 150,
                   }}
                 />
               </>
             )}
 
-            {hotpickList && hotpickList.length > 1 && !!progressValue && (
+            {hotpickData && hotpickData.length > 1 && !!progressValue && (
               <View
                 style={[
                   { marginBottom: 2 },
@@ -307,7 +288,7 @@ export const Hotpicks = () => {
                       },
                 ]}
               >
-                {hotpickList && (
+                {hotpickData && (
                   <Chip
                     style={{
                       // width: 130,
@@ -319,12 +300,12 @@ export const Hotpicks = () => {
                     <Label
                       weight={"bold"}
                       color={"white"}
-                    >{`${currentIndex} out of ${hotpickList.length}`}</Label>
+                    >{`${currentIndex} out of ${hotpickData.length}`}</Label>
                   </Chip>
                 )}
 
-                {/* {hotpickList &&
-                  hotpickList.map((_, index) => {
+                {/* {hotpickData &&
+                  hotpickData.map((_, index) => {
                     return (
                       <PaginationItem
                         backgroundColor={"#ccc"}
@@ -332,7 +313,7 @@ export const Hotpicks = () => {
                         index={index}
                         key={index}
                         isRotate={isVertical}
-                        length={hotpickList.length}
+                        length={hotpickData.length}
                       />
                     );
                   })} */}
@@ -369,3 +350,5 @@ const styles = StyleSheet.create({
     // backgroundColor: "red",
   },
 });
+
+export default React.memo(Hotpicks);

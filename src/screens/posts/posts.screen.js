@@ -3,7 +3,9 @@ import {
   Image,
   Modal,
   SafeAreaView,
+  FlatList,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -23,7 +25,7 @@ import useUser from "../../../hooks/useUser";
 import { Post } from "./postDetail.screen";
 import { Button, Searchbar } from "react-native-paper";
 import { debounce } from "lodash";
-import { FlatList } from "react-native-bidirectional-infinite-scroll";
+// import { FlatList } from "react-native-bidirectional-infinite-scroll";
 import { navigate } from "../../navigation/navigate";
 import * as SecureStore from "expo-secure-store";
 import { Spacer } from "../../components/spacer/spacer.component";
@@ -34,6 +36,12 @@ import moment from "moment";
 import { useTranslation } from "../../../hooks/useTranslation";
 import { CacheImage } from "../../components/cacheImage";
 import HomeHeader from "../../features/home/components/header.component";
+import PostCardMagazine from "./post_card/postCardMagazine.component";
+import useRequest from "../../../hooks/useRequest";
+import { Skeleton } from "../../components/skeleton";
+import { width } from "../../components/styles";
+
+const MAX_MAGAZINE = 20;
 
 const PostCardModified = ({ item, ...props }) => {
   useEffect(() => {
@@ -68,7 +76,83 @@ const PostCardModified = ({ item, ...props }) => {
   );
 };
 
+const RenderRowPostCard = ({ item, index, magazines }) => {
+  const handleTitlePress = () => {
+    alert("Go to profile page");
+  };
+
+  const handleCommentPress = () => {
+    console.log("POST Pressed: ", item);
+    navigate("post-detail", {
+      author: `${item.first_name} ${item.last_name}`,
+      post: item,
+      editMode: false,
+    });
+  };
+
+  const handleSharePress = async () => {
+    try {
+      const result = await Share.share({
+        message: `https://www.german-emirates-club.com/Forum/${item.category_id}/${item.id}`,
+        title: "Awesome content",
+      });
+
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          console.log("shared with activity type of ", result.activityType);
+        } else {
+          console.log("shared");
+        }
+      }
+    } catch (error) {
+      console.error("Failed to share post:", error);
+    }
+  };
+
+  const renderMagazines = () => {
+    if (magazines) {
+      if (index % 5 === 0 && index !== 0) {
+        const magazineIndex = (Math.floor(index / 5) - 1) % magazines.length;
+        return (
+          <View style={{ marginBottom: 4 }}>
+            <MemoizedPostCardMagazine item={magazines[magazineIndex]} />
+          </View>
+        );
+      }
+    }
+    return null;
+  };
+
+  const renderCard = () => {
+    switch (item.post_type) {
+      case 1:
+        return (
+          <MemoizedPostComponent
+            key={item.id}
+            item={item}
+            onCommentPress={handleCommentPress}
+            onSharePress={handleSharePress}
+            onTitlePress={handleTitlePress}
+          />
+        );
+
+      case 2:
+        return <MemoizedPostCardMarketplace key={item.id} item={item} />;
+    }
+  };
+
+  return (
+    <View key={item.id}>
+      {renderMagazines()}
+      {renderCard()}
+    </View>
+  );
+};
+
+const MemoizedRowPostCard = React.memo(RenderRowPostCard);
+const MemoizedPostCardMagazine = React.memo(PostCardMagazine);
 const MemoizedPostComponent = React.memo(PostCardModified);
+const MemoizedPostCardMarketplace = React.memo(PostCardMarketplace);
 
 export default function PostsScreen() {
   const navigation = useNavigation();
@@ -86,6 +170,7 @@ export default function PostsScreen() {
     loadOldPosts,
     updateCount,
     getMoreRecentPosts,
+    getLatestMagazines,
     testFunction,
   } = usePosts();
   const [page, setPage] = useState(0);
@@ -98,6 +183,8 @@ export default function PostsScreen() {
   const [lastViewed, setLastViewed] = useState(null);
   const { signout } = useAuth();
   const { i18n } = useTranslation();
+  const [magazines, setMagazines] = useState(null);
+  const request = useRequest();
 
   const flatListRef = useRef();
 
@@ -107,6 +194,7 @@ export default function PostsScreen() {
         const last_post_viewed = await SecureStore.getItemAsync(
           "last_post_viewed"
         );
+
         if (last_post_viewed) {
           setLastViewed(parseInt(last_post_viewed));
           loadOldPosts(moment().unix());
@@ -121,6 +209,17 @@ export default function PostsScreen() {
       }
     };
 
+    const fetchMagazines = async () => {
+      const response = await request(
+        `/v2/post/magazine/latest?limit=${MAX_MAGAZINE}`,
+        "get"
+      );
+      if (response.success) {
+        setMagazines(response.data);
+      }
+    };
+
+    fetchMagazines();
     retrieveLastViewed();
 
     return () => {
@@ -135,23 +234,6 @@ export default function PostsScreen() {
     }
     return () => {};
   }, [updateCount]);
-
-  const handleTitlePress = () => {
-    alert("Go to profile page");
-  };
-
-  const handleCommentPress = (post) => {
-    console.log("POST Pressed: ", post);
-    navigation.navigate("post-detail", {
-      author: `${post.first_name} ${post.last_name}`,
-      post,
-      editMode: false,
-    });
-  };
-
-  const handleSharePress = () => {
-    alert("???");
-  };
 
   const onViewableItemsChanged = useCallback(
     async ({ viewableItems, changed }) => {
@@ -265,48 +347,10 @@ export default function PostsScreen() {
     // signout();
   };
 
-  const handleCloseModal = () => {
-    if (isNewPostEmpty()) {
-      setShowNewPostModal(false);
-    } else {
-      confirmModalClose();
-    }
-  };
-
-  const isNewPostEmpty = () => {
-    if (
-      newPostState.title.trim() === "" &&
-      newPostState.content.trim() === ""
-    ) {
-      return true;
-    } else {
-      return false;
-    }
-  };
-
-  const confirmModalClose = () => {
-    Alert.alert(
-      "Discard Post?",
-      "Are you sure you want to discard this post? ",
-      [
-        {
-          text: "Cancel",
-          onPress: () => {},
-        },
-        {
-          text: "Discard",
-          onPress: () => {
-            setShowNewPostModal(false);
-            setNewPostState(newPostDefault);
-          },
-        },
-      ]
-    );
-  };
-
   const refreshPage = async () => {
     try {
-      await getMoreRecentPosts(rootPosts[0].post_id);
+      console.log("last date:", rootPosts[0].date_posted);
+      await getMoreRecentPosts(rootPosts[0].date_posted);
       // alert("damn");
       // fetchNewPosts(posts[0].post_id);
     } catch (error) {
@@ -352,27 +396,75 @@ export default function PostsScreen() {
     return <View style={styles.separator}></View>;
   };
 
-  const renderRowPostCard = ({ item, index }) => {
-    const handlePress = () => {
-      handleCommentPress(item);
+  const LoadingScreen = () => {
+    const SkeletonCard = () => {
+      return (
+        <View style={{ gap: 12, paddingVertical: 8 }}>
+          <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
+            <Skeleton
+              width={50}
+              height={50}
+              opacityMax={0.2}
+              variant={"circle"}
+            />
+            <View style={{ flex: 1, gap: 6 }}>
+              <Skeleton
+                width={"50%"}
+                height={20}
+                opacityMax={0.2}
+                variant={"circle"}
+              />
+              <Skeleton
+                width={"30%"}
+                height={20}
+                opacityMax={0.2}
+                variant={"circle"}
+              />
+            </View>
+          </View>
+          <View style={{ gap: 6 }}>
+            <Skeleton
+              width={"100%"}
+              height={22}
+              opacityMax={0.2}
+              variant={"circle"}
+            />
+            <Skeleton
+              width={"100%"}
+              height={22}
+              opacityMax={0.2}
+              variant={"circle"}
+            />
+            <Skeleton
+              width={"100%"}
+              height={22}
+              opacityMax={0.2}
+              variant={"circle"}
+            />
+            <Skeleton
+              width={"40%"}
+              height={22}
+              opacityMax={0.2}
+              variant={"circle"}
+            />
+          </View>
+        </View>
+      );
     };
 
-    switch (item.post_type) {
-      case 1:
-        return (
-          <MemoizedPostComponent
-            key={item.id}
-            item={item}
-            onCommentPress={handlePress}
-            onSharePress={handleSharePress}
-            onTitlePress={handleTitlePress}
-          />
-        );
-
-      case 2:
-        return <PostCardMarketplace key={item.id} item={item} />;
-    }
+    return (
+      <View style={{ padding: 8, gap: 16 }}>
+        <SkeletonCard />
+        <SkeletonCard />
+        <SkeletonCard />
+        <SkeletonCard />
+      </View>
+    );
   };
+
+  const renderRow = ({ item, index }) => (
+    <MemoizedRowPostCard item={item} index={index} magazines={magazines} />
+  );
 
   return (
     <>
@@ -380,86 +472,84 @@ export default function PostsScreen() {
         style={[styles.container, { gap: 0, backgroundColor: "white" }]}
       >
         {/* Header */}
-        {rootPosts?.length > 0 && (
+        {rootPosts?.length > 0 ? (
           <>
-            {true ? (
-              <FlatList
-                // ListHeaderComponent={() => (
-                //   <View
-                //     style={{
-                //       flex: 1,
-                //       backgroundColor: "white",
-                //       alignItems: "center",
-                //       paddingHorizontal: 8,
-                //     }}
-                //   >
-                //     <TouchableWithoutFeedback onPress={onSearchFocus}>
-                //       <View
-                //         style={{
-                //           paddingVertical: 10,
-                //           paddingHorizontal: 10,
-                //           marginVertical: 4,
-                //           flexDirection: "row",
-                //           gap: 10,
-                //           backgroundColor: "#eee",
-                //           borderRadius: 50,
-                //           width: "100%",
-                //         }}
-                //       >
-                //         <MaterialCommunityIcons
-                //           name="magnify"
-                //           size={20}
-                //           color="black"
-                //         />
-                //         <Label size={"subtitle"}>Posts durchsuchen</Label>
-                //       </View>
-                //     </TouchableWithoutFeedback>
-                //   </View>
-                // )}
-                showDefaultLoadingIndicators={false}
-                ref={flatListRef}
-                // scrollEnabled={false}
-                ItemSeparatorComponent={insertSeparator}
-                style={[styles.container, { backgroundColor: "#eee" }]}
-                // refreshing={refreshing}
-                keyExtractor={(item) => item?.post_id?.toString()}
-                // onRefresh={refreshPage}
-                data={rootPosts}
-                // extraData={updateCount}
-                onEndReached={loadNextPage}
-                onEndReachedThreshold={0.5}
-                // onStartReachedThreshold={0.5}
-                // onStartReached={debounceRefreshPage}
-                maintainVisibleContentPosition={{
-                  minIndexForVisible: 0,
-                }}
-                viewabilityConfigCallbackPairs={
-                  viewabilityConfigCallbackPairs.current
-                }
-                viewabilityConfig={{
-                  viewareaCoveragePercentThreshold: 30,
-                }}
-                initialNumToRender={4}
-                maxToRenderPerBatch={15}
-                removeClippedSubviews={true}
-                updateCellsBatchingPeriod={200}
-                scrollEventThrottle={1000}
-                windowSize={15}
-                showsVerticalScrollIndicator={false}
-                ListFooterComponent={() => (
-                  <View
-                    style={{
-                      alignItems: "center",
-                      paddingVertical: 12,
-                    }}
-                  ></View>
-                )}
-                renderItem={renderRowPostCard}
-              ></FlatList>
-            ) : (
-              <PostCardMarketplace />
-            )}
+            <FlatList
+              // ListHeaderComponent={() => (
+              //   <View
+              //     style={{
+              //       flex: 1,
+              //       backgroundColor: "white",
+              //       alignItems: "center",
+              //       paddingHorizontal: 8,
+              //     }}
+              //   >
+              //     <TouchableWithoutFeedback onPress={onSearchFocus}>
+              //       <View
+              //         style={{
+              //           paddingVertical: 10,
+              //           paddingHorizontal: 10,
+              //           marginVertical: 4,
+              //           flexDirection: "row",
+              //           gap: 10,
+              //           backgroundColor: "#eee",
+              //           borderRadius: 50,
+              //           width: "100%",
+              //         }}
+              //       >
+              //         <MaterialCommunityIcons
+              //           name="magnify"
+              //           size={20}
+              //           color="black"
+              //         />
+              //         <Label size={"subtitle"}>Posts durchsuchen</Label>
+              //       </View>
+              //     </TouchableWithoutFeedback>
+              //   </View>
+              // )}
+              showDefaultLoadingIndicators={false}
+              ref={flatListRef}
+              // scrollEnabled={false}
+              ItemSeparatorComponent={insertSeparator}
+              style={[styles.container, { backgroundColor: "#eee" }]}
+              // refreshing={refreshing}
+              keyExtractor={(item) => item?.post_id?.toString()}
+              // onRefresh={refreshPage}
+              data={rootPosts}
+              // extraData={updateCount}
+              onEndReached={loadNextPage}
+              onEndReachedThreshold={5}
+              // onStartReachedThreshold={0.5}
+              onStartReached={debounceRefreshPage}
+              maintainVisibleContentPosition={{
+                minIndexForVisible: 0,
+              }}
+              viewabilityConfigCallbackPairs={
+                viewabilityConfigCallbackPairs.current
+              }
+              viewabilityConfig={{
+                viewareaCoveragePercentThreshold: 30,
+              }}
+              initialNumToRender={10}
+              maxToRenderPerBatch={15}
+              removeClippedSubviews={true}
+              updateCellsBatchingPeriod={200}
+              scrollEventThrottle={1000}
+              windowSize={15}
+              showsVerticalScrollIndicator={false}
+              ListFooterComponent={() => (
+                <View
+                  style={{
+                    alignItems: "center",
+                    paddingVertical: 12,
+                  }}
+                ></View>
+              )}
+              renderItem={renderRow}
+            ></FlatList>
           </>
+        ) : (
+          <LoadingScreen />
         )}
         <View style={styles.floatButton}>
           <TouchableOpacity onPress={handleNewPost}>
@@ -496,7 +586,7 @@ const styles = StyleSheet.create({
   },
   separator: {
     // backgroundColor: "#ddd",
-    height: 8,
+    height: 4,
   },
   floatButton: {
     position: "absolute",

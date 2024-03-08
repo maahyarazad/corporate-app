@@ -65,6 +65,9 @@ import PostEntryCategorySelect from "./src/screens/posts/post_entry/postEntryCat
 import PostDetailMarketplace from "./src/screens/posts/postDetailMarketplace.screen";
 import PostSearch from "./src/screens/posts/postSearch.screen";
 import NotificationsScreen from "./src/screens/notifications.screen";
+import ChangeMobileNumberScreen from "./src/screens/profile/changeMobileNumber.screen";
+import PostDetailMagazine from "./src/screens/posts/postDetailMagazine.screen";
+import ChangeEmailAddressScreen from "./src/screens/profile/changeEmailAddress.screen ";
 
 const AuthStack = createStackNavigator();
 const MainStack = createStackNavigator();
@@ -211,6 +214,26 @@ const AuthStackScreen = () => {
           gestureResponseDistance: 200,
         }}
       />
+      <AuthStack.Screen
+        name="MobileChange"
+        component={ChangeMobileNumberScreen}
+        options={{
+          headerShown: false,
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+          gestureDirection: "horizontal",
+          gestureResponseDistance: 200,
+        }}
+      />
+      <AuthStack.Screen
+        name="EmailChange"
+        component={ChangeEmailAddressScreen}
+        options={{
+          headerShown: false,
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+          gestureDirection: "horizontal",
+          gestureResponseDistance: 200,
+        }}
+      />
     </AuthStack.Navigator>
   );
 };
@@ -272,6 +295,7 @@ const OverlappingNavigator = () => {
               color: "black",
             },
             headerLeftLabelVisible: false,
+            headerTitle: "",
           }}
         />
         <OverlappingStack.Screen
@@ -331,7 +355,7 @@ const OverlappingNavigator = () => {
                     size={24}
                     color="black"
                   />
-                  <Label>Back to Feed</Label>
+                  <Label>Zuruck</Label>
                 </View>
               </TouchableOpacity>
             ),
@@ -358,7 +382,34 @@ const OverlappingNavigator = () => {
                     size={24}
                     color="black"
                   />
-                  <Label>Back to Feed</Label>
+                  <Label>Zuruck</Label>
+                </View>
+              </TouchableOpacity>
+            ),
+          }}
+        />
+        <OverlappingStack.Screen
+          name="magazine-details"
+          component={PostDetailMagazine}
+          options={{
+            headerShown: true,
+            title: "",
+            headerLeft: () => (
+              <TouchableOpacity onPress={goback}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 6,
+                    paddingHorizontal: 8,
+                  }}
+                >
+                  <MaterialCommunityIcons
+                    name="arrow-left"
+                    size={24}
+                    color="black"
+                  />
+                  <Label>Zuruck</Label>
                 </View>
               </TouchableOpacity>
             ),

@@ -9,6 +9,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import PostEntryScreen from "./post_entry/postEntry.screen";
 import PostEntrySelect from "./post_entry/postEntrySelect.screen";
 import { useNavigation } from "@react-navigation/native";
+import PostDetailMagazine from "./postDetailMagazine.screen";
 
 const PostTabsScreen = createMaterialTopTabNavigator();
 const PostStackScreen = createStackNavigator();
@@ -85,6 +86,7 @@ export const PostTabsNavigationScreen = () => {
     //   />
     // </PostTabsScreen.Navigator>
     <PostsScreen />
+    // <PostDetailMagazine />
   );
 };
 

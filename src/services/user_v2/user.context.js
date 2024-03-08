@@ -51,6 +51,29 @@ const UserProvider = ({ children }) => {
       );
       //Fetch user data from database and store in device
 
+      console.log("user token", response);
+
+      // console.log("bio token", response.data.biometric_token);
+      // const bioToken = await SecureStorage.getItemAsync("biometric_token");
+      // if (bioToken) {
+      //   console.log(
+      //     "bio token match",
+      //     bioToken === response.data.biometric_token
+      //   );
+      //   if (bioToken !== response.data.biometric_token) {
+      //   }
+      // }
+      console.log("overriding biotoken");
+      if (response.data.biometric_token != null) {
+        console.log("biometric_token", response.data.biometric_token);
+        await SecureStorage.setItemAsync(
+          "biometric_token",
+          response.data.biometric_token
+        );
+      } else {
+        await SecureStorage.deleteItemAsync("biometric_token");
+      }
+
       if (accessToken && response && response.success) {
         setUserData(response.data);
 

@@ -23,21 +23,21 @@ const PostCardHeader = ({ item }) => {
   const { userData } = useUser();
   const options = [
     {
-      title: "Delete Post",
-      description: "Remove your post",
+      title: "Beitrag löschen",
+      description: "Deinen Beitrag entfernen",
       logo: "trash-can-outline",
       onPress: () => {
         Alert.alert(
-          "Delete Post",
-          "Are you sure you want to delete this post?",
+          "Beitrag löschen",
+          "Bist du sicher, dass du diesen Beitrag löschen möchtest?",
           [
-            { text: "Cancel", onPress: () => {}, isPreferred: true },
+            { text: "Abbrechen", onPress: () => {}, isPreferred: true },
             {
-              text: "Delete",
+              text: "Löschen",
               style: "destructive",
               onPress: () => {
                 //Call Remove Comment API
-                Alert.alert("Notice", "Your post has been deleted");
+                Alert.alert("Hinweis", "Dein Beitrag wurde gelöscht");
                 removePost(item.post_id, false);
                 onDrawerClose();
               },
@@ -111,35 +111,40 @@ const PostCardHeader = ({ item }) => {
               </View>
             )}
             <View>
-              <Label size={"caption"}>{timeDiffString(item.date_posted)}</Label>
+              {/* <Label size={"caption"}>{timeDiffString(item.date_posted)}</Label> */}
             </View>
           </View>
-          <View style={styles.optionsContainer}>
+          <View
+            style={[
+              styles.optionsContainer,
+              { position: "absolute", right: 0, gap: 6 },
+            ]}
+          >
             {/* category */}
             <View style={[styles.row]}>
               <View style={[styles.row, styles.chip]}>
                 <Label weight={"bold"} size={12}>
-                  Marketplatz
+                  Marktplatz
                 </Label>
               </View>
             </View>
-            <Spacer position={"right"} size={"large"} />
             {/* {true && ( */}
             {userData.old_user_id === item.user_id && (
-              <View
-                style={{
-                  position: "absolute",
-                  right: 0,
-                  top: -4,
-                }}
-              >
-                <TouchableOpacity onPress={onDrawerOpen}>
-                  <MaterialCommunityIcons
-                    name="dots-horizontal"
-                    size={25}
-                    color={"#aaa"}
-                  />
-                </TouchableOpacity>
+              <View>
+                <View
+                  style={{
+                    right: 0,
+                    top: -4,
+                  }}
+                >
+                  <TouchableOpacity onPress={onDrawerOpen}>
+                    <MaterialCommunityIcons
+                      name="dots-horizontal"
+                      size={25}
+                      color={"#aaa"}
+                    />
+                  </TouchableOpacity>
+                </View>
               </View>
             )}
           </View>

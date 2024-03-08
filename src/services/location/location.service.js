@@ -50,6 +50,7 @@ export const getLocations = (data) => {
 };
 
 export const getOneLocation = (id, lang) => {
+  alert("peste");
   return new Promise((resolve, reject) => {
     axiosInstance
       .get(`location/${id}?app=${config.APP_ID}&lang=${lang}`)

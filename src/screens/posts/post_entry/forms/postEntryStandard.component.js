@@ -16,6 +16,7 @@ import useUser from "../../../../../hooks/useUser";
 
 const PostEntryStandard = ({ onSubmit, mode }) => {
   const MAX_CONTENT = 3000;
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const [state, setState] = useState({
     title: "",
@@ -48,15 +49,29 @@ const PostEntryStandard = ({ onSubmit, mode }) => {
   //   setIsAgreed(!isAgreed);
   // };
 
+  const isAnyEmpty = () => {
+    if (state.title && state.content) {
+      return false;
+    } else {
+      Alert.alert("Fehler", "Bitte füllen Sie alle Felder aus.");
+      return true;
+    }
+  };
+
   const submitForm = async () => {
     try {
+      setIsSubmitted(true);
+      if (isAnyEmpty()) {
+        return;
+      }
+
       const formData = new FormData();
 
       // Iterate image append into formData
       if (state.images)
         state.images.forEach((media) => {
           formData.append("media", {
-            name: media.name,
+            name: "kapoya",
             type: media.type,
             uri: media.type === "video" ? media.videoURI : media.uri,
           });
@@ -75,16 +90,31 @@ const PostEntryStandard = ({ onSubmit, mode }) => {
   return (
     <>
       <TextInput
-        style={styles.formField}
-        placeholder="Titel"
+        style={[
+          styles.formField,
+          {
+            borderColor:
+              isSubmitted && state.title.trim() === "" ? "red" : "#bbb",
+          },
+        ]}
+        placeholder="Titel *"
         value={state.title}
         onChangeText={handleTitleChange}
       />
 
       <View style={{ height: 400 }}>
         <TextInput
-          style={[styles.formField, { flex: 1, paddingTop: 16, fontSize: 18 }]}
-          placeholder="Text"
+          style={[
+            styles.formField,
+            {
+              flex: 1,
+              paddingTop: 16,
+              fontSize: 18,
+              borderColor:
+                isSubmitted && state.content.trim() === "" ? "red" : "#bbb",
+            },
+          ]}
+          placeholder="Text *"
           multiline={true}
           value={state.content}
           onChangeText={handleContentChange}

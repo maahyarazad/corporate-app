@@ -4,6 +4,7 @@ import useLog from "../../../hooks/useLog";
 import useRequest from "../../../hooks/useRequest";
 import useAuth from "../../../hooks/useAuth";
 import { debounce } from "lodash";
+import moment from "moment";
 
 export const PostContext = createContext(null);
 
@@ -204,9 +205,28 @@ export default function PostProvider({ children }) {
 
   const [rootPosts, setRootPosts] = useState([]);
   const [updateCount, setUpdateCount] = useState(0);
+  const [magazines, setMagazines] = useState([]);
+  const [magazinePage, setMagazinePage] = useState(0);
 
   const [replyTo, setReplyTo] = useState(null);
   const request = useRequest();
+
+  const getLatestMagazines = async () => {
+    try {
+      console.log("Test");
+      const response = await request(
+        `/v2/post/magazine/latest?limit=10`,
+        "get"
+      );
+
+      if (response.success) {
+        // console.log("fetched magazines", response.data);
+        setMagazines(response.data);
+      }
+    } catch (error) {
+      console.error("Failed to get magazines:", error);
+    }
+  };
 
   const loadOldPosts = async (last) => {
     try {
@@ -220,17 +240,7 @@ export default function PostProvider({ children }) {
           "get"
         );
 
-        // const response = await request(`/v2/post/latest?page=${_page}`, "get");
-        // if (response.success) {
-        //   setRootPosts((prev) => {
-        //     return [...prev, ...response.data];
-        //   });
-
-        //   if (rootPosts.length > 20) {
-        //     setRootPosts((prev) => {
-        //       return [...prev.slice(10)];
-        //     });
-        //   }
+        console.log("Magazine 1", magazines);
         console.log("Number of results", response.data.length);
         setRootPosts([...rootPosts, ...response.data]);
         const end = performance.now();
@@ -532,15 +542,18 @@ export default function PostProvider({ children }) {
     setReplyTo(null);
   };
 
-  const getMoreRecentPosts = async (post_id) => {
+  const getMoreRecentPosts = async (last_post) => {
     try {
       const limit = 20;
       const status = 1;
       const response = await request(
-        `/v2/post/latest/more?limit=${limit}&status=${status}&post_id=${post_id}`,
+        `/v2/post/latest/more?limit=${limit}&status=${status}&last_post=${moment(
+          last_post
+        ).unix()}`,
         "get"
       );
-      if (response.success && rootPosts[0].post_id !== post_id) {
+      if (response.success) console.log("MORE", response.data);
+      if (response.success) {
         setRootPosts((prev) => {
           // if (prev.length > 20) {
           //   return [...response.data, ...prev.slice(0, 10)];
@@ -580,6 +593,7 @@ export default function PostProvider({ children }) {
     editPost,
     getMoreRecentPosts,
     fetchPost,
+    getLatestMagazines,
   };
 
   return <PostContext.Provider value={values}>{children}</PostContext.Provider>;

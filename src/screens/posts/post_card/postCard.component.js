@@ -29,10 +29,11 @@ import GalleryView from "react-native-image-viewing";
 import { companyLogo } from "../../../utils/constants";
 import * as VideoThumbnails from "expo-video-thumbnails";
 import VideoPlayerModal from "../../../components/videoPlayerModal/videoPlayerModal.component";
+import { useTranslation } from "../../../../hooks/useTranslation";
 
 const MemoizedGalleryView = React.memo(GalleryView);
 
-export default function PostCard({
+const PostCard = ({
   data,
   comment = false,
   onTitlePress,
@@ -43,7 +44,7 @@ export default function PostCard({
   remainingComments,
   viewPreviousComments,
   origin = "feed",
-}) {
+}) => {
   const { likePost, unlikePost, removePost } = usePosts();
   const { userData } = useUser();
   const { timeDiffString } = useTime();
@@ -63,20 +64,23 @@ export default function PostCard({
 
   const options = [
     {
-      title: "Delete Post",
-      description: "Request to delete your post",
+      title: "Beitrag löschen",
+      description: "Anfrage zur Löschung deines Beitrags",
       logo: "trash-can-outline",
       onPress: () => {
         if (commentCount > 0 && userData.old_user_id === data.user_id) {
-          Alert.alert("Notice", "You cannot delete a post with comments.");
+          Alert.alert(
+            "Hinweis",
+            "Du kannst einen Beitrag mit Kommentaren nicht löschen."
+          );
         } else {
           Alert.alert(
-            "Delete Post",
-            "Are you sure you want to delete this post?",
+            "Beitrag löschen",
+            "Bist du sicher, dass du diesen Beitrag löschen möchtest?",
             [
-              { text: "Cancel", onPress: () => {}, isPreferred: true },
+              { text: "Abbrechen", onPress: () => {}, isPreferred: true },
               {
-                text: "Delete",
+                text: "Löschen",
                 style: "destructive",
                 onPress: () => {
                   //Call Remove Comment API
@@ -117,6 +121,7 @@ export default function PostCard({
   }, [data.liked, data.likeCount, data.commentCount]);
 
   useEffect(() => {
+    console.log("PostCard Renders");
     // if (commentCount > 0 && true) {
     // if (commentCount > 0 && userData.old_user_id === data.user_id) {
 
@@ -126,7 +131,6 @@ export default function PostCard({
 
     //   // console.log("options", options);
     // }
-
     getThumbnails();
 
     setOptionsTest(options);
@@ -146,6 +150,7 @@ export default function PostCard({
   const PostContent = ({ content }) => {
     //cut content to 150 characters
     const [cutContent, setCutContent] = useState(content.slice(0, 150));
+    const { i18n } = useTranslation();
 
     //add read more to content if the length is more than 150
     useEffect(() => {
@@ -168,7 +173,7 @@ export default function PostCard({
                 fontWeight: "bold",
               }}
             >
-              Read more
+              {i18n.t("read-more")}
             </Text>
           </TouchableWithoutFeedback>
         </Text>
@@ -217,30 +222,38 @@ export default function PostCard({
       const media_types = data.type?.split(",");
 
       array_images?.map(async (item, index) => {
-        if (media_types[index] === "video") {
-          const thumbnail = await VideoThumbnails.getThumbnailAsync(
-            item + ".mp4",
-            {
-              time: 1000,
-            }
-          );
-          setThumbnails((prev) => [
-            ...prev,
-            {
-              uri: thumbnail.uri,
-              videoURI: item + ".mp4",
-              type: "video",
-            },
-          ]);
-        } else {
-          setThumbnails((prev) => [
-            ...prev,
-            {
-              uri: item,
-              type: media_types[index],
-            },
-          ]);
-        }
+        // if (media_types[index] === "video") {
+        //   const thumbnail = await VideoThumbnails.getThumbnailAsync(
+        //     item + ".mp4",
+        //     {
+        //       time: 1000,
+        //     }
+        //   );
+        //   setThumbnails((prev) => [
+        //     ...prev,
+        //     {
+        //       uri: thumbnail.uri,
+        //       videoURI: item + ".mp4",
+        //       type: "video",
+        //     },
+        //   ]);
+        // } else {
+        //   setThumbnails((prev) => [
+        //     ...prev,
+        //     {
+        //       uri: item,
+        //       type: media_types[index],
+        //     },
+        //   ]);
+        // }
+        setThumbnails((prev) => [
+          ...prev,
+          {
+            uri: item,
+            videoURI: media_types[index] === "video" ? item + ".mp4" : null,
+            type: media_types[index],
+          },
+        ]);
       });
     } catch (error) {
       console.error("Failed to get thumbnail", error);
@@ -272,28 +285,15 @@ export default function PostCard({
               alignItems: "center",
             }}
           >
-            {item.type === "video" ? (
-              <Image
-                source={{
-                  uri: item.uri,
-                }}
-                resizeMode="contain"
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  resizeMode: "cover",
-                }}
-              />
-            ) : (
-              <CacheImage
-                uri={item.uri + "_s1.jpg"}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  resizeMode: "cover",
-                }}
-              />
-            )}
+            <CacheImage
+              uri={item.uri + "_s1.jpg"}
+              style={{
+                width: "100%",
+                height: "100%",
+                resizeMode: "cover",
+              }}
+            />
+
             {item.type === "video" && (
               <View
                 style={{
@@ -324,7 +324,7 @@ export default function PostCard({
                 >
                   <Label size={"title"} color={"white"}>{`+${
                     thumbnails.length - 4
-                  } more`}</Label>
+                  } mehr`}</Label>
                 </View>
               </TouchableWithoutFeedback>
             )}
@@ -461,12 +461,17 @@ export default function PostCard({
                     </View>
                   )}
                   <View>
-                    <Label size={"caption"}>
+                    {/* <Label size={"caption"}>
                       {timeDiffString(data.date_posted)}
-                    </Label>
+                    </Label> */}
                   </View>
                 </View>
-                <View style={styles.optionsContainer}>
+                <View
+                  style={[
+                    styles.optionsContainer,
+                    { position: "absolute", right: 0, gap: 6 },
+                  ]}
+                >
                   {/* category */}
                   <View style={[styles.row]}>
                     <View style={[styles.row, styles.chip]}>
@@ -475,23 +480,24 @@ export default function PostCard({
                       </Label>
                     </View>
                   </View>
-                  <Spacer position={"right"} size={"large"} />
+                  {/* <Spacer position={"right"} size={"large"} /> */}
                   {/* {true && ( */}
                   {userData.old_user_id === data.user_id && (
-                    <View
-                      style={{
-                        position: "absolute",
-                        right: 0,
-                        top: -4,
-                      }}
-                    >
-                      <TouchableOpacity onPress={handleOptionPress}>
-                        <MaterialCommunityIcons
-                          name="dots-horizontal"
-                          size={25}
-                          color={"#aaa"}
-                        />
-                      </TouchableOpacity>
+                    <View>
+                      <View
+                        style={{
+                          right: 0,
+                          top: -4,
+                        }}
+                      >
+                        <TouchableOpacity onPress={handleOptionPress}>
+                          <MaterialCommunityIcons
+                            name="dots-horizontal"
+                            size={25}
+                            color={"#aaa"}
+                          />
+                        </TouchableOpacity>
+                      </View>
                     </View>
                   )}
                 </View>
@@ -549,8 +555,8 @@ export default function PostCard({
           ]}
         >
           <Label style={styles.counter}>{`${likeCount} Likes`} </Label>
-          <Label style={styles.counter}>{`${commentCount} Comment${
-            commentCount > 1 ? "s" : ""
+          <Label style={styles.counter}>{`${commentCount} Kommentar${
+            commentCount > 1 ? "e" : ""
           }`}</Label>
         </View>
 
@@ -683,7 +689,7 @@ export default function PostCard({
       )}
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -773,3 +779,5 @@ const styles = StyleSheet.create({
     backgroundColor: "red",
   },
 });
+
+export default React.memo(PostCard);

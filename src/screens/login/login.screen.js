@@ -5,6 +5,7 @@ import {
   Platform,
   StyleSheet,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { ActivityIndicator, Checkbox, TextInput } from "react-native-paper";
@@ -12,15 +13,12 @@ import { SafeArea } from "../../components/safearea.component";
 import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";
 import styled from "styled-components/native";
-import { LoadingOverlay } from "../../components/loading/loading.component";
 import { useTheme } from "styled-components";
 import { StatusBar } from "expo-status-bar";
-import { AuthContext } from "../../services/auth/auth.context";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { navigate } from "../../navigation/navigate";
 import Background from "../../components/background/background.component";
 import { CustomTextInput } from "../../components/customTextInput";
-import { UserContext } from "../../services/user/user.context";
 import * as WebBrowser from "expo-web-browser";
 import { isValidURL } from "../../utils/isValidURL";
 import { companyLogo, config, EULAPrivacyLink } from "../../utils/constants";
@@ -30,6 +28,9 @@ import { TranslationContext } from "../../services/translation/translation.conte
 import * as Application from "expo-application";
 import * as Network from "expo-network";
 import * as Constants from "expo-constants";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import useBiometrics from "../../../hooks/useBiometrics";
+import { useTranslation } from "../../../hooks/useTranslation";
 
 export const TextInputForm = styled(TextInput)`
   border-radius: 10px;
@@ -38,7 +39,6 @@ export const TextInputForm = styled(TextInput)`
 `;
 
 export const LoginButton = styled(TouchableOpacity)`
-  flex: 1;
   min-height: 60px;
   max-height: 60px;
   background-color: ${({ checked }) => (checked ? "#207ede" : "#c7c7c7")};
@@ -56,10 +56,103 @@ export const LoginScreen = ({ navigation }) => {
   const request = useRequest();
   const { signin, loading } = useAuth();
   const { setLang } = useContext(TranslationContext);
-
+  const [biometricType, setBiometricType] = useState(null);
   const theme = useTheme();
+  const biometric = useBiometrics();
+  const { i18n } = useTranslation();
 
-  const handleForgetPassword = () => [navigate("ForgotPassword")];
+  useEffect(() => {
+    console.log("biometric", biometric);
+    return () => {};
+  }, [biometric.available]);
+
+  const handleBiometricLogin = async () => {
+    try {
+      if (!biometric.enrolled) {
+        Alert.alert(
+          "Notice",
+          `Please enable your ${biometric.type} in your device settings.`
+        );
+        return;
+      }
+
+      //Check if biometric token is available
+      if (!biometric.token) {
+        Alert.alert(
+          "Notice",
+          `Please enable '${i18n.t(
+            `profile-tabs.settings-menu.login-${biometric.type}`
+          )}' in your device settings. \n\n` +
+            `${i18n.t("bottom-tabs.profile")} > ${i18n.t(
+              "profile-tabs.settings"
+            )} > ${i18n.t(
+              `profile-tabs.settings-menu.login-${biometric.type}`
+            )}`
+        );
+        return;
+      }
+
+      //Authenticate User
+      const status = await biometric.authenticate();
+
+      if (status) {
+        console.log("Biometric Token:", biometric.token);
+
+        const ip = await Network.getIpAddressAsync();
+        const platform = Platform.OS;
+        const deviceId =
+          platform === "ios"
+            ? await Application.getIosIdForVendorAsync()
+            : platform === "android"
+            ? await Application.androidId
+            : "n/a";
+
+        const credentials = {
+          app_id: config.APP_ID,
+          device_id: deviceId,
+          ip_address: ip,
+          platform: platform,
+          version: Constants.default.expoConfig.version,
+          biometric_token: biometric.token,
+        };
+
+        // const response = await login(credentials, setLoading);
+
+        const response = await request("/v2/auth/login", "post", credentials);
+
+        if (response.success) {
+          setLang(response.member ? "de" : "en");
+          if (response.member_id) {
+            navigate("UpdateMember", {
+              member_id: response.member_id,
+              credentials,
+            });
+            return;
+          }
+          if (response.status) {
+            signin(response.refreshToken, response.accessToken);
+            navigation.navigate("VerifyOTP", {
+              hiddenNumber: response.phone_number,
+            });
+          } else {
+            signin(response.refreshToken, response.accessToken);
+            navigation.navigate("Unverified Email", {
+              userId: response.user_id,
+            });
+          }
+        } else {
+          Alert.alert(response.title, response.message);
+        }
+      } else {
+      }
+    } catch (error) {
+      console.error("Failed to login using biometrics:", error);
+    }
+  };
+
+  const handleForgetPassword = () => {
+    navigate("ForgotPassword");
+  };
 
   const handleLogin = async () => {
     try {
@@ -105,6 +198,8 @@ export const LoginScreen = ({ navigation }) => {
 
       const response = await request("/v2/auth/login", "post", credentials);
       if (response.success) {
+        console.log("Response Login", response);
+        setLang(response.member ? "de" : "en");
         if (response.member_id) {
           navigate("UpdateMember", {
             member_id: response.member_id,
@@ -114,11 +209,11 @@ export const LoginScreen = ({ navigation }) => {
         }
         if (response.status) {
           signin(response.refreshToken, response.accessToken);
-          setLang(response.member ? "de" : "en");
           navigation.navigate("VerifyOTP", {
             hiddenNumber: response.phone_number,
           });
         } else {
+          signin(response.refreshToken, response.accessToken);
           navigation.navigate("Unverified Email", {
             userId: response.user_id,
           });
@@ -354,21 +449,53 @@ export const LoginScreen = ({ navigation }) => {
                   </Spacer>
 
                   <Spacer position={"top"} size={"medium"} />
-
-                  <LoginButton
-                    onPress={handleLogin}
-                    activeOpacity={0.8}
-                    disabled={!checked || loginLoading}
-                    checked={checked && !loginLoading}
-                  >
-                    {loginLoading ? (
-                      <ActivityIndicator color="white" />
-                    ) : (
-                      <Label style={{ color: "white" }} weight={"bold"}>
-                        Login
-                      </Label>
+                  <View style={{ gap: 22 }}>
+                    <LoginButton
+                      onPress={handleLogin}
+                      style={{ flex: 1 }}
+                      activeOpacity={0.8}
+                      disabled={!checked || loginLoading}
+                      checked={checked && !loginLoading}
+                    >
+                      {loginLoading ? (
+                        <ActivityIndicator color="white" />
+                      ) : (
+                        <Label style={{ color: "white" }} weight={"bold"}>
+                          Login
+                        </Label>
+                      )}
+                    </LoginButton>
+                    {biometric.available != null && biometric.type != null && (
+                      <TouchableWithoutFeedback onPress={handleBiometricLogin}>
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            gap: 10,
+                          }}
+                        >
+                          <MaterialCommunityIcons
+                            color="white"
+                            name={
+                              biometric.type === "fingerprint"
+                                ? "fingerprint"
+                                : "face-recognition"
+                            }
+                            size={30}
+                          />
+                          <Label
+                            color={"white"}
+                            style={{ textDecorationLine: "underline" }}
+                          >
+                            {i18n.t(
+                              `profile-tabs.settings-menu.login-${biometric.type}`
+                            )}
+                          </Label>
+                        </View>
+                      </TouchableWithoutFeedback>
                     )}
-                  </LoginButton>
+                  </View>
                 </View>
                 {canRegister && (
                   <View>

@@ -123,48 +123,22 @@ const renderBanner = ({ item, screenWidth, setLoading, loading }) => {
   );
 };
 
-export const FeaturedBanner = ({ bannerData }) => {
+const FeaturedBanner = ({ bannerData }) => {
   const [loading, setLoading] = useState(true);
   const screenWidth = Math.floor(Dimensions.get("window").width);
-  const [bannerList, setBannerList] = useState();
-  const { isLogout, user } = useContext(AuthContext);
-  const request = useRequest();
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const getBanners = async (count) => {
-      const data = {
-        id: config.APP_ID,
-        status: 1,
-        user_id: user.user_id,
-      };
-      const banners = await request(`/v2/app/get-banners`, "post", data);
-
-      if (isMounted && banners.success) {
-        setBannerList(banners.data);
-      }
-    };
-    if (!isLogout.current) {
-      getBanners();
-    }
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   return (
     <>
-      {bannerList && bannerList.length > 0 ? (
+      {bannerData && bannerData.length > 0 ? (
         <>
           <Spacer position={"top"} size={"medium"} />
           <ListContainer>
             <Carousel
               width={Dimensions.get("screen").width}
               height={Dimensions.get("screen").width * (9 / 16)}
-              data={bannerList}
-              autoPlay={true}
+              data={bannerData}
+              autoPlay={bannerData.length > 1 ? true : false}
+              loop={bannerData.length > 1 ? true : false}
               panGestureHandlerProps={{
                 activeOffsetX: [-10, 10],
               }}
@@ -181,3 +155,5 @@ export const FeaturedBanner = ({ bannerData }) => {
     </>
   );
 };
+
+export default React.memo(FeaturedBanner);

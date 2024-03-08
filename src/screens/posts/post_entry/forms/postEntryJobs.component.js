@@ -1,4 +1,5 @@
 import {
+  Alert,
   StyleSheet,
   Text,
   TextInput,
@@ -27,6 +28,7 @@ const PostEntryJobs = ({ onSubmit, mode }) => {
   );
 
   const [empTypeOpen, setEmpTypeOpen] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const [state, setState] = useState({
     jobType: "full",
@@ -65,18 +67,40 @@ const PostEntryJobs = ({ onSubmit, mode }) => {
     setState({ ...state, images: images });
   };
 
+  const validationCheck = () => {
+    // Check if all fields are filled
+    if (
+      state.branch &&
+      state.field &&
+      state.place &&
+      state.experience &&
+      state.title &&
+      state.content
+    ) {
+      return false;
+    } else {
+      Alert.alert("Fehler", "Bitte füllen Sie alle Felder aus.");
+      return true;
+    }
+  };
+
   const submitForm = async () => {
     try {
       const formData = new FormData();
 
+      setIsSubmitted(true);
+
+      if (validationCheck()) return;
+
       // Iterate image append into formData
-      state.images.forEach((media) => {
-        formData.append("media", {
-          name: media.name,
-          type: media.type,
-          uri: media.type === "video" ? media.videoURI : media.uri,
+      if (state.images)
+        state.images.forEach((media) => {
+          formData.append("media", {
+            name: media.name,
+            type: media.type,
+            uri: media.type === "video" ? media.videoURI : media.uri,
+          });
         });
-      });
 
       Object.keys(state).forEach((key) => {
         if (key !== "images") formData.append(key, state[key]);
@@ -125,19 +149,28 @@ const PostEntryJobs = ({ onSubmit, mode }) => {
         placeholder="Branche"
         onChangeText={handleBranch}
         value={state.branch}
-        style={styles.formField}
+        style={[
+          styles.formField,
+          { borderColor: isSubmitted && !state.branch ? "red" : "#bbb" },
+        ]}
       />
       <TextInput
         placeholder="Berufsfeld"
         onChangeText={handleField}
         value={state.field}
-        style={styles.formField}
+        style={[
+          styles.formField,
+          { borderColor: isSubmitted && !state.field ? "red" : "#bbb" },
+        ]}
       />
       <TextInput
         placeholder="Ort, Region, Land"
         onChangeText={handlePlace}
         value={state.place}
-        style={styles.formField}
+        style={[
+          styles.formField,
+          { borderColor: isSubmitted && !state.place ? "red" : "#bbb" },
+        ]}
       />
       <DropDownPicker
         open={empTypeOpen}
@@ -146,7 +179,10 @@ const PostEntryJobs = ({ onSubmit, mode }) => {
         items={empTypes}
         setValue={onSelectExperience}
         textStyle={{ fontSize: 18 }}
-        style={styles.formField}
+        style={[
+          styles.formField,
+          { borderColor: isSubmitted && !state.experience ? "red" : "#bbb" },
+        ]}
         listMode="SCROLLVIEW"
         placeholder="Anstellungsart"
         zIndex={10}
@@ -158,7 +194,10 @@ const PostEntryJobs = ({ onSubmit, mode }) => {
         searchTextInputStyle={styles.searchTextInput}
       />
       <TextInput
-        style={styles.formField}
+        style={[
+          styles.formField,
+          { borderColor: isSubmitted && !state.title ? "red" : "#bbb" },
+        ]}
         placeholder="Titel"
         value={state.title}
         onChangeText={handleTitle}
@@ -166,7 +205,11 @@ const PostEntryJobs = ({ onSubmit, mode }) => {
 
       <View style={{ height: 400 }}>
         <TextInput
-          style={[styles.formField, { flex: 1, paddingTop: 16, fontSize: 18 }]}
+          style={[
+            styles.formField,
+            { flex: 1, paddingTop: 16, fontSize: 18 },
+            { borderColor: isSubmitted && !state.content ? "red" : "#bbb" },
+          ]}
           placeholder="Text"
           multiline={true}
           value={state.content}

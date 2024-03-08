@@ -46,7 +46,7 @@ export const RequestApprovalScreen = () => {
   const [type, setType] = useState(CameraType.back);
   const [photo, setPhoto] = useState();
   const { signout, skipAuth } = useAuth();
-  const { userData } = useUser();
+  const { userData, setUserData } = useUser();
 
   //useRefs
   const scrollRef = useRef();
@@ -69,6 +69,7 @@ export const RequestApprovalScreen = () => {
   }, []);
 
   useEffect(() => {
+    console.log("userData", userData);
     return () => {};
   }, [hasSubmit]);
 
@@ -202,6 +203,7 @@ export const RequestApprovalScreen = () => {
   const handleLogout = () => {
     // navigate("Logout");
     signout();
+    setUserData(null);
   };
 
   const handleUseImage = () => {

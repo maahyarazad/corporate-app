@@ -98,11 +98,11 @@ const ProfilePrimaryScreen = () => {
                   gap: 12,
                 }}
               >
-                <Label>You have not uploaded a card.</Label>
+                <Label>Sie haben keine Karte hochgeladen.</Label>
                 <CustomButton
                   onPress={goToVerification}
                   style={{ backgroundColor: theme.colors.icons.active }}
-                  label={"Go to Upload page"}
+                  label={"Zur Upload-Seite gehen"}
                   labelStyle={{ color: "white" }}
                 />
               </View>

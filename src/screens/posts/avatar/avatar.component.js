@@ -14,6 +14,8 @@ export default function Avatar({ onError, image, size = 50 }) {
             height: size,
             flex: 0,
             flexGrow: 0,
+            borderColor: "#ddd",
+            borderWidth: 1,
           },
         ]}
       >

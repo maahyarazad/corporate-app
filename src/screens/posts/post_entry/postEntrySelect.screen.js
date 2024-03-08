@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Label } from "../../../components/typography/label.component";
 import { goback, navigate } from "../../../navigation/navigate";
@@ -50,13 +50,14 @@ const PostEntrySelect = () => {
   const [categories, setCategories] = useState(null);
   const [hasPressed, setHasPressed] = useState(false);
   const [selectedType, setSelectedType] = useState(null);
+  const isMounted = useRef(true);
 
   const onReturn = () => {
     goback();
   };
 
   useEffect(() => {
-    let isMounted = true;
+    isMounted.current = true;
 
     if (!categories && selectedType === null) {
       const preloadCategries = async () => {
@@ -70,16 +71,18 @@ const PostEntrySelect = () => {
             "/v2/post/marketplace/categories",
             "get"
           );
-
           if (
             responseMarketplace.success &&
             responseForum.success &&
             isMounted
           ) {
+            console.log("SAVING CATEGORIES");
             setCategories([responseForum.data, responseMarketplace.data]);
             setLoading(false);
           }
-        } catch (error) {}
+        } catch (error) {
+          console.error("Failed to preload categories: ", error);
+        }
       };
 
       preloadCategries();
@@ -92,7 +95,7 @@ const PostEntrySelect = () => {
     }
 
     return () => {
-      isMounted = false;
+      isMounted.current = false;
     };
   }, [selectedType, categories]);
 

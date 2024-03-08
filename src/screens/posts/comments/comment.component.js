@@ -74,17 +74,17 @@ export default function Comment({
 
     if (userData.old_user_id === data.user_id) {
       options.push({
-        title: "Remove",
-        description: "Remove this comment",
+        title: "Entfernen",
+        description: "Diesen Kommentar entfernen",
         logo: "trash-can",
         onPress: () => {
           Alert.alert(
-            "Remove Comment",
-            "Are you sure you want to remove this comment?",
+            "Kommentar entfernen",
+            "Bist du sicher, dass du diesen Kommentar entfernen möchtest?",
             [
-              { text: "Cancel", onPress: () => {}, isPreferred: true },
+              { text: "Abbrechen", onPress: () => {}, isPreferred: true },
               {
-                text: "Delete",
+                text: "Entfernen",
                 style: "destructive",
                 onPress: () => {
                   //Call Remove Comment API
@@ -98,8 +98,8 @@ export default function Comment({
       });
 
       options.push({
-        title: "Edit",
-        description: "Edit this comment",
+        title: "Bearbeiten",
+        description: "Diesen Kommentar bearbeiten",
         logo: "pencil",
         onPress: () => {
           setEditMode(true);
@@ -213,7 +213,7 @@ export default function Comment({
             style={{ borderRadius: 8 }}
             onPress={cancelEdit}
           >
-            Cancel
+            Abbrechen
           </Button>
           <Button
             mode="contained"
@@ -225,7 +225,7 @@ export default function Comment({
             style={{ borderRadius: 8 }}
             onPress={onEditSave}
           >
-            Save
+            Speichern
           </Button>
         </View>
       </View>

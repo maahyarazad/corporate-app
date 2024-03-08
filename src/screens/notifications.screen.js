@@ -8,7 +8,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import { Label } from "../components/typography/label.component";
 import { goback, navigate } from "../navigation/navigate";
 import { Ionicons } from "@expo/vector-icons";
@@ -21,6 +21,151 @@ import { companyLogo, config } from "../utils/constants";
 import { StatusBar } from "expo-status-bar";
 import { Button } from "react-native-paper";
 import { CacheImage } from "../components/cacheImage";
+import { SafeArea } from "../components/safearea.component";
+
+const RenderNotification = memo(({ item, index }) => {
+  const [hasRead, setHasRead] = useState(item.read);
+  const request = useRequest();
+
+  const calculateRemainingTime = (time) => {
+    const finalAppend = (text) => {
+      return "vor " + text;
+    };
+
+    const remainingDays = moment(moment()).diff(time, "days");
+    if (!(remainingDays > 0)) {
+      const remainingHours = moment(moment()).diff(time, "hours");
+
+      if (!(remainingHours > 0)) {
+        const remainingMinutes = moment(moment()).diff(time, "minutes");
+
+        if (!(remainingMinutes > 0)) {
+          return `Gerade eben`;
+        }
+
+        return finalAppend(remainingMinutes + ` Min.`);
+      }
+
+      return finalAppend(remainingHours + ` Std.`);
+    }
+
+    return finalAppend(remainingDays + ` Tagen`);
+  };
+
+  const handlePress = (show) => {
+    setHasRead(true);
+    const link = item.href.slice(1).split("/");
+
+    const read = async () => {
+      try {
+        const response = await request(
+          `/v2/user/notifications/${item.id}`,
+          "POST"
+        );
+      } catch (error) {
+        console.log("Failed to read notification:", error);
+      }
+    };
+
+    read();
+    console.log("lenk", item.href);
+    switch (link[0]) {
+      case "forum":
+        console.log("item", item);
+        navigate("post-detail", {
+          id: link[1],
+          showPrompt: item.msg_id === 3 || item.msg_id === 4,
+        });
+        break;
+      case "marketplace":
+        navigate("marketplace-details", {
+          post: {
+            post_id: link[1],
+          },
+          showPrompt: item.msg_id === 3 || item.msg_id === 4,
+        });
+    }
+  };
+
+  return (
+    <TouchableWithoutFeedback onPress={handlePress}>
+      <View
+        style={[
+          styles.notification,
+          {
+            backgroundColor: hasRead
+              ? "white"
+              : theme.colors.icons.active + "44",
+          },
+        ]}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 15,
+            flex: 12,
+          }}
+        >
+          <View
+            style={[
+              styles.iconContainer,
+              {
+                height: "60%",
+                alignSelf: "flex-start",
+                justifyContent: "center",
+                alignItems: "center",
+              },
+            ]}
+          >
+            {item.image ? (
+              <CacheImage
+                uri={`${item.image}_s1.jpg`}
+                resizeMode={"contain"}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  borderRadius: 100,
+                }}
+              />
+            ) : (
+              <View
+                style={{
+                  width: "100%",
+                  height: "100%",
+
+                  backgroundColor: "white",
+                  borderRadius: 100,
+                  padding: 6,
+                }}
+              >
+                <Image
+                  source={companyLogo}
+                  style={{
+                    aspectRatio: 1,
+                    flex: 1,
+                  }}
+                  resizeMode="contain"
+                />
+              </View>
+            )}
+          </View>
+          <Label
+            style={{
+              flexWrap: "wrap",
+              flex: 1,
+            }}
+          >
+            {item.message}
+          </Label>
+        </View>
+        <View style={{ flex: 4, alignItems: "flex-end" }}>
+          <Label>{item.time && calculateRemainingTime(item.time)}</Label>
+        </View>
+      </View>
+    </TouchableWithoutFeedback>
+  );
+});
 
 const NotificationsScreen = () => {
   const { i18n } = useTranslation();
@@ -48,146 +193,11 @@ const NotificationsScreen = () => {
 
       if (response.success) {
         setNotifications(response.data);
+        console.log("notifications", response.data);
       }
     } catch (error) {
       console.log("error", error);
     }
-  };
-
-  const calculateRemainingTime = (time) => {
-    console.log("calculate time");
-    const remainingDays = moment(moment()).diff(time, "days");
-    console.log(remainingDays);
-    if (!(remainingDays > 0)) {
-      const remainingHours = moment(moment()).diff(time, "hours");
-      console.log(remainingHours);
-
-      if (!(remainingHours > 0)) {
-        const remainingMinutes = moment(moment()).diff(time, "minutes");
-        console.log(remainingMinutes);
-
-        if (!(remainingMinutes > 0)) {
-          return `Just now`;
-        }
-
-        return remainingMinutes + `Today`;
-      }
-
-      return remainingHours + `Today`;
-    }
-
-    return remainingDays + `d`;
-  };
-
-  const RenderNotification = ({ item, index }) => {
-    const [hasRead, setHasRead] = useState(item.read);
-
-    const handlePress = () => {
-      setHasRead(true);
-      const link = item.href.slice(1).split("/");
-
-      const read = async () => {
-        try {
-          const response = await request(
-            `/v2/user/notifications/${item.id}`,
-            "POST"
-          );
-        } catch (error) {
-          console.log("Failed to read notification:", error);
-        }
-      };
-
-      read();
-
-      switch (link[0]) {
-        case "post":
-          navigate("post-detail", {
-            id: link[1],
-          });
-          break;
-      }
-    };
-
-    return (
-      <TouchableWithoutFeedback onPress={handlePress}>
-        <View
-          style={[
-            styles.notification,
-            {
-              backgroundColor: hasRead
-                ? "white"
-                : theme.colors.icons.active + "44",
-            },
-          ]}
-        >
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 15,
-              flex: 12,
-            }}
-          >
-            <View
-              style={[
-                styles.iconContainer,
-                {
-                  height: "60%",
-                  alignSelf: "flex-start",
-                  justifyContent: "center",
-                  alignItems: "center",
-                },
-              ]}
-            >
-              {item.image ? (
-                <CacheImage
-                  uri={`${item.image}_s1.jpg`}
-                  resizeMode={"contain"}
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    borderRadius: 100,
-                  }}
-                />
-              ) : (
-                <View
-                  style={{
-                    width: "100%",
-                    height: "100%",
-
-                    backgroundColor: "white",
-                    borderRadius: 100,
-                    padding: 6,
-                  }}
-                >
-                  <Image
-                    source={companyLogo}
-                    style={{
-                      aspectRatio: 1,
-                      flex: 1,
-                    }}
-                    resizeMode="contain"
-                  />
-                </View>
-              )}
-            </View>
-            <Label
-              style={{
-                flexWrap: "wrap",
-                flex: 1,
-              }}
-            >
-              {item.message}
-            </Label>
-          </View>
-          <View style={{ flex: 4, alignItems: "flex-end" }}>
-            <Label>
-              {item.time && calculateRemainingTime(item.time) + " ago"}
-            </Label>
-          </View>
-        </View>
-      </TouchableWithoutFeedback>
-    );
   };
 
   const renderSeparator = () => {
@@ -202,9 +212,13 @@ const NotificationsScreen = () => {
     );
   };
 
+  const renderItem = ({ item, index }) => (
+    <RenderNotification item={item} index={index} />
+  );
+
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.container}>
+    <SafeArea style={{ backgroundColor: "white" }}>
+      <View style={[styles.container]}>
         <View style={{ paddingHorizontal: 0 }}>
           <TouchableOpacity
             onPress={goback}
@@ -250,9 +264,7 @@ const NotificationsScreen = () => {
           </View> */}
           <FlatList
             data={notifications}
-            renderItem={({ item, index }) => (
-              <RenderNotification item={item} index={index} />
-            )}
+            renderItem={renderItem}
             style={{ marginHorizontal: -8 }}
             ItemSeparatorComponent={renderSeparator}
             ListEmptyComponent={() => {
@@ -274,7 +286,7 @@ const NotificationsScreen = () => {
           />
         </View>
       </View>
-    </SafeAreaView>
+    </SafeArea>
   );
 };
 

@@ -18,6 +18,7 @@ import { theme } from "../../../infrastructure/theme";
 import { navigate } from "../../../navigation/navigate";
 import { CacheImage } from "../../../components/cacheImage";
 import PostCardHeader from "./postCardHeader.component";
+import * as VideoThumbnail from "expo-video-thumbnails";
 
 const PostCardMarketplace = ({ item }) => {
   const { timeDiffString } = useTime();
@@ -29,11 +30,38 @@ const PostCardMarketplace = ({ item }) => {
   };
 
   const [images, setImages] = useState(null);
+  const [imageCount, setImageCount] = useState(0);
+  const [videoCount, setVideoCount] = useState(0);
 
   useEffect(() => {
     if (item.images) {
-      setImages(item.images.split(","));
+      const media_types = item.type.split(",");
+      const getImages = async () => {
+        let _imageCount = 0;
+        let _videoCount = 0;
+        const imagePromises =
+          item.images &&
+          item.images.split(",").map(async (image, index) => {
+            if (media_types[index] === "video") {
+              _videoCount++;
+            } else {
+              _imageCount++;
+            }
+            return {
+              uri: `${image}_s1.jpg`,
+              type: media_types[index],
+            };
+          });
+
+        const newImages = await new Promise.all(imagePromises);
+        setImageCount(_imageCount);
+        setVideoCount(_videoCount);
+        setImages(newImages);
+      };
+
+      getImages();
     }
+    console.log("PostCardMarketplace", item.id);
     return () => {};
   }, []);
 
@@ -78,22 +106,19 @@ const PostCardMarketplace = ({ item }) => {
         <View>
           {/* Title */}
           <PostCardHeader item={item} />
-          <View style={[styles.container, styles.row, { paddingBottom: 0 }]}>
-            <ModeChip />
-          </View>
-          <View style={[styles.row, styles.container, { gap: 8 }]}>
-            {images && item.mode === "offer" && (
+          {images && item.mode === "offer" && (
+            <View style={styles.container}>
               <View
                 style={{
                   backgroundColor: "#ddd",
-                  width: 120,
-                  height: 120,
+                  width: "100%",
+                  aspectRatio: 1.77,
                   borderRadius: 12,
                   overflow: "hidden",
                 }}
               >
                 <CacheImage
-                  uri={images[0] + "_s2.jpg"}
+                  uri={images[0].uri}
                   style={{ width: "100%", aspectRatio: 1 }}
                   resizeMode="cover"
                 />
@@ -102,26 +127,69 @@ const PostCardMarketplace = ({ item }) => {
                     position: "absolute",
                     bottom: 4,
                     left: 4,
-                    backgroundColor: "#eee",
                     flexDirection: "row",
-                    paddingHorizontal: 2,
-                    paddingVertical: 2,
-                    borderRadius: 6,
-                    paddingRight: 4,
-                    gap: 2,
+                    gap: 4,
                   }}
                 >
-                  <MaterialCommunityIcons
-                    name={"image"}
-                    size={15}
-                    color={"#777"}
-                  />
-                  <Label size={12} weight={"bold"} style={{ color: "#777" }}>
-                    {`${images.length}`}
-                  </Label>
+                  {!!imageCount && (
+                    <View style={styles.mediaCounter}>
+                      <MaterialCommunityIcons
+                        name={"image"}
+                        size={15}
+                        color={"#777"}
+                      />
+                      <Label
+                        size={12}
+                        weight={"bold"}
+                        style={{ color: "#777" }}
+                      >
+                        {`${imageCount}`}
+                      </Label>
+                    </View>
+                  )}
+                  {!!videoCount && (
+                    <View style={styles.mediaCounter}>
+                      <MaterialCommunityIcons
+                        name={"video"}
+                        size={15}
+                        color={"#777"}
+                      />
+                      <Label
+                        size={12}
+                        weight={"bold"}
+                        style={{ color: "#777" }}
+                      >
+                        {`${videoCount}`}
+                      </Label>
+                    </View>
+                  )}
                 </View>
+                {images[0].type === "video" && (
+                  <View
+                    style={{
+                      flex: 1,
+                      position: "absolute",
+                      width: "100%",
+                      height: "100%",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <MaterialCommunityIcons
+                      name={"play-circle-outline"}
+                      size={50}
+                      color={"white"}
+                    />
+                  </View>
+                )}
               </View>
-            )}
+            </View>
+          )}
+
+          <View style={[styles.container, styles.row, { paddingBottom: 0 }]}>
+            <ModeChip />
+          </View>
+          <View style={[styles.row, styles.container, { gap: 8 }]}>
             <View
               style={{
                 justifyContent: "space-between",
@@ -137,7 +205,11 @@ const PostCardMarketplace = ({ item }) => {
                 }}
               >
                 <View style={{ gap: 8 }}>
-                  <Label size={"title"} weight={"bold"} numberOfLines={1}>
+                  <Label
+                    size={"title"}
+                    weight={"bold"}
+                    numberOfLinei={images ? 1 : 2}
+                  >
                     {item.title}
                   </Label>
                   <Label numberOfLines={2}>{item.content}</Label>
@@ -203,5 +275,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: 50,
     opacity: 0.6,
+  },
+  mediaCounter: {
+    flexDirection: "row",
+    paddingHorizontal: 2,
+    paddingVertical: 2,
+    borderRadius: 6,
+    paddingRight: 4,
+    gap: 2,
+
+    backgroundColor: "#eee",
   },
 });
