@@ -102,7 +102,7 @@ export const TransactionSummaryScreen = () => {
               weight={"medium"}
               size={"subtitle"}
             >
-              {moment(transactDate).format("LLL")}
+              {moment(transactDate).format("DD.MMMM YYYY H:mm A")}
             </Label>
             <View
               style={{
