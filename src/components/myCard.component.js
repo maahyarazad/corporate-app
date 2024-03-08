@@ -1,11 +1,13 @@
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Image,
+  ImageBackground,
   Pressable,
   StyleSheet,
   Text,
   TouchableHighlight,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { Card, Chip } from "react-native-paper";
@@ -36,21 +38,21 @@ export const MyCard = ({
   const [press, setPress] = useState(false);
 
   return (
-    <View
-      style={[
-        styles.container,
-        {
-          width: width != undefined ? width : CARD_SIZE[size].card.width,
+    <>
+      {/* <TouchableHighlight> */}
+      <Card
+        style={{
+          borderRadius: 10,
+          marginTop: 10,
           shadowOpacity: 0.4,
           shadowRadius: 6,
           elevation: 10,
-        },
-        style,
-      ]}
-    >
-      {/* <TouchableHighlight> */}
-      <Card style={{ borderRadius: 10, marginTop: 10, overflow: "hidden" }}>
-        <TouchableHighlight
+          backgroundColor: "white",
+        }}
+      >
+        <TouchableOpacity
+          style={{ borderRadius: 10 }}
+          activeOpacity={0.6}
           underlayColor={"#00000022"}
           onPress={onPress}
           onPressOut={() => {
@@ -65,24 +67,35 @@ export const MyCard = ({
               style={{
                 position: "relative",
                 // backgroundColor: "#ccc",
+                overflow: "hidden",
               }}
             >
-              <CacheImage
+              <ImageBackground
+                source={size === "partner" ? { uri: imgUrl } : {}}
                 style={{
-                  //   backgroundColor: "green",
-                  borderTopLeftRadius: 10,
-                  borderTopRightRadius: 10,
-                  backgroundColor: "#aaa",
-                  width:
-                    imgWidth != undefined
-                      ? imgWidth
-                      : CARD_SIZE[size].image.width,
-                  height: imgHeight ?? CARD_SIZE[size].image.height,
-                  opacity: press ? 0.7 : 1,
-                  zIndex: 1,
+                  backgroundColor: "#ccc",
+                  justifyContent: "center",
+                  alignItems: "center",
                 }}
-                uri={imgUrl}
-              />
+                blurRadius={10}
+              >
+                <CacheImage
+                  style={{
+                    //   backgroundColor: "green",
+                    borderTopLeftRadius: 10,
+                    borderTopRightRadius: 10,
+                    width:
+                      imgWidth != undefined
+                        ? imgWidth
+                        : CARD_SIZE[size].image.width,
+                    height: imgHeight ?? CARD_SIZE[size].image.height,
+                    opacity: press ? 0.7 : 1,
+                    zIndex: 1,
+                  }}
+                  uri={imgUrl}
+                  resizeMode={size === "partner" ? "contain" : "cover"}
+                />
+              </ImageBackground>
               {userLocation && !!distance && (
                 <View
                   style={{
@@ -173,47 +186,54 @@ export const MyCard = ({
               )}
             </View>
             {CARD_SIZE[size].type === 1 && (
-              <Card.Content
-                style={{ flexDirection: "row", padding: 0, margin: 0 }}
-              >
-                {offer_types &&
-                  offer_types.map((type, index) => {
-                    return (
-                      <Chip
-                        // textStyle={{ marginLeft: 0 }}
-                        key={`${type}${index}`}
-                        style={{
-                          backgroundColor: "#FFD892",
-                          padding: 0,
-                          height: 20,
-                          alignItems: "flex-start",
-                          justifyContent: "center",
-                          marginRight: 8,
-                        }}
-                      >
-                        {type.premium_en}
-                      </Chip>
-                    );
-                  })}
-                <LinearGradient
-                  colors={["#ffffff00", "#fff", "#fff"]}
+              <Card.Content>
+                <View
                   style={{
-                    flex: 1,
-                    position: "absolute",
-                    width: 50,
-                    height: 50,
-                    right: 0,
+                    flexDirection: "row",
+                    padding: 0,
+                    margin: 0,
+                    overflow: "hidden",
                   }}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                ></LinearGradient>
+                >
+                  {offer_types &&
+                    offer_types.map((type, index) => {
+                      return (
+                        <Chip
+                          // textStyle={{ marginLeft: 0 }}
+                          key={`${type}${index}`}
+                          style={{
+                            backgroundColor: "#FFD892",
+                            padding: 0,
+                            alignItems: "flex-start",
+                            justifyContent: "center",
+                            marginRight: 8,
+                            borderRadius: 50,
+                          }}
+                        >
+                          {type.premium_en}
+                        </Chip>
+                      );
+                    })}
+                  <LinearGradient
+                    colors={["#ffffff00", "#fff", "#fff"]}
+                    style={{
+                      flex: 1,
+                      position: "absolute",
+                      width: "20%",
+                      height: "100%",
+                      right: 0,
+                    }}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                  ></LinearGradient>
+                </View>
               </Card.Content>
             )}
           </View>
-        </TouchableHighlight>
+        </TouchableOpacity>
       </Card>
       {/* </TouchableHighlight> */}
-    </View>
+    </>
   );
 };
 

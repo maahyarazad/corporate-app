@@ -50,7 +50,7 @@ export const AuthContextProvider = ({ children }) => {
         token,
       }));
       if (!!token) {
-        await retrieve();
+        // await retrieve();
       }
     })();
 
@@ -116,15 +116,12 @@ export const AuthContextProvider = ({ children }) => {
             "Card Expired",
             "Your membership card has expired. Please contact your administrator."
           );
-          setUser((prev) => ({ ...prev, token: "" }));
-          removeStorage();
+          setUser((prev) => ({ ...prev, isAuthorized: 0, submitCard: 0 }));
+          // removeStorage();
         }
         setNoConnection(false);
       }
     } catch (err) {
-      // console.log("erra: ", err);
-
-      console.log("err:", err);
       switch (err.status) {
         case 0:
           setNoConnection(true);
@@ -151,6 +148,7 @@ export const AuthContextProvider = ({ children }) => {
     try {
       return await checkAuthorization();
     } catch (error) {
+      console.log("============= SECOND ==============");
       throw error;
     }
   };

@@ -1,5 +1,4 @@
 import { MaterialCommunityIcons, SimpleLineIcons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import {
@@ -17,14 +16,9 @@ import {
 } from "react-native";
 import { SafeArea } from "../../components/safearea.component";
 import { Spacer } from "../../components/spacer/spacer.component";
-import {
-  ApprovalBackground,
-  ApprovalContainer,
-  CompanyLogo,
-  width,
-} from "../../components/styles";
+import { CompanyLogo, width } from "../../components/styles";
 import { Label } from "../../components/typography/label.component";
-import { companyLogo, config, loginBGImage } from "../../utils/constants";
+import { companyLogo } from "../../utils/constants";
 import { AnimatedButton } from "../../components/animatedButton";
 import { Camera, CameraType } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
@@ -36,8 +30,9 @@ import { PostCardUpload } from "../../components/postCardUpload";
 import { LoadingOverlay } from "../../components/loading/loading.component";
 import Background from "../../components/background/background.component";
 import moment from "moment";
-import * as SecureStore from "expo-secure-store";
 import { TranslationContext } from "../../services/translation/translation.context";
+import useAuth from "../../../hooks/useAuth";
+import useUser from "../../../hooks/useUser";
 
 const imageHeightRatio = width * (1 / 1);
 const cardRatio = 2.125 / 3.375;
@@ -50,6 +45,8 @@ export const RequestApprovalScreen = () => {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [type, setType] = useState(CameraType.back);
   const [photo, setPhoto] = useState();
+  const { signout, skipAuth } = useAuth();
+  const { userData, setUserData } = useUser();
 
   //useRefs
   const scrollRef = useRef();
@@ -58,8 +55,10 @@ export const RequestApprovalScreen = () => {
   //context
   const { uploadCard, loading, setLoading, abortUpload } =
     useContext(UploadContext);
-  const { user, setUser, setSkip } = useContext(AuthContext);
+
+  // const { user, setUser, setSkip } = useContext(AuthContext);
   const { i18n } = useContext(TranslationContext);
+  const { hasSubmit } = useAuth();
 
   const cameraContainerAnimated = useRef(
     new Animated.Value(width * cardRatio)
@@ -68,6 +67,11 @@ export const RequestApprovalScreen = () => {
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.flashScrollIndicators();
   }, []);
+
+  useEffect(() => {
+    console.log("userData", userData);
+    return () => {};
+  }, [hasSubmit]);
 
   const handleEdit = () => {
     navigate("AuthEditProfile");
@@ -103,41 +107,38 @@ export const RequestApprovalScreen = () => {
         {
           text: i18n.t("skip-auth-msg.button-order"),
           onPress: () => {
-            Linking.openURL(`tel:+971562050066`).catch((err) => {
-              alert("Unable to call this number");
-            });
+            Linking.openURL(`tel:${encodeURIComponent("+971562050066")}`).catch(
+              (err) => {
+                alert("Unable to call this number");
+              }
+            );
           },
         },
         {
           text: i18n.t("skip-auth-msg.button-proceed"),
           onPress: () => {
-            setSkip(1);
+            skipAuth();
           },
         },
       ]
     );
-
-    console.log(user);
   };
 
   const handleUpload = async () => {
-    const formData = new FormData();
+    try {
+      const formData = new FormData();
 
-    formData.append("card_image", {
-      name: new Date() + "_upload",
-      uri: photo.uri,
-      type: "image/jpeg",
-    });
-    formData.append("user_id", user.user_id);
-    formData.append("app_id", config.APP_ID);
-    formData.append("ip_address", user.ip_address);
-    formData.append("device_id", user.device_id);
-    formData.append("version", user.version);
-    formData.append("platform", user.platform);
-    formData.append("request_id", user.requestId);
+      formData.append("card_image", {
+        name: new Date() + "_upload",
+        uri: photo.uri,
+        type: "image/jpeg",
+      });
 
-    setLoading(true);
-    uploadCard(formData);
+      setLoading(true);
+      uploadCard(formData);
+    } catch (error) {
+      console.error("Failed to upload: ", error);
+    }
   };
 
   const openCamera = () => {
@@ -200,7 +201,9 @@ export const RequestApprovalScreen = () => {
   };
 
   const handleLogout = () => {
-    navigate("Logout");
+    // navigate("Logout");
+    signout();
+    setUserData(null);
   };
 
   const handleUseImage = () => {
@@ -243,9 +246,9 @@ export const RequestApprovalScreen = () => {
                 />
               </TouchableHighlight>
             </View>
-            {user.remarks != undefined &&
-              user.remarks.trim() !== "" &&
-              !user.submitCard && (
+            {userData?.remarks != undefined &&
+              userData?.remarks.trim() !== "" &&
+              !hasSubmit && (
                 <View style={{ padding: 20 }}>
                   <Label
                     weight={"regular"}
@@ -255,12 +258,13 @@ export const RequestApprovalScreen = () => {
                     <Label size={"subtitle"} weight={"bold"}>
                       {`Rejected Previous Request `}
                     </Label>
-                    ({moment(user.requestDate).format("DD.MMMM YYYY H:mm A")})
-                    {"\n"}
+                    (
+                    {moment(userData.requestDate).format("DD.MMMM YYYY H:mm A")}
+                    ){"\n"}
                     <Label size={"subtitle"} weight={"bold"}>
                       Reason
                     </Label>
-                    : {user.remarks}
+                    : {userData.remarks}
                   </Label>
 
                   <TouchableOpacity onPress={handleEdit}>
@@ -277,7 +281,7 @@ export const RequestApprovalScreen = () => {
                   </TouchableOpacity>
                 </View>
               )}
-            {user.submitCard ? (
+            {hasSubmit ? (
               <PostCardUpload />
             ) : (
               <View>
@@ -594,8 +598,7 @@ export const RequestApprovalScreen = () => {
                     ></AnimatedButton>
                   </View>
                 </View>
-                {console.log("Member:", user)}
-                {user.member ? (
+                {userData && userData.member ? (
                   <>
                     <View
                       style={{

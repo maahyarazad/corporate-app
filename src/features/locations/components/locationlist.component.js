@@ -157,7 +157,7 @@ export const LocationList = ({
                   )}
                 </Text>
               </View>
-              <View style={{ height: 20 }}>
+              <View>
                 <FlatList
                   data={item.offer_types}
                   horizontal
@@ -165,13 +165,23 @@ export const LocationList = ({
                   renderItem={({ item }) => {
                     return (
                       <Chip
-                        icon={() => renderChip(item)}
-                        textStyle={{ marginLeft: 0 }}
+                        // icon={() => renderChip(item)}
+                        textStyle={{
+                          // marginLeft: 0,
+                          // backgroundColor: "red",
+                          marginVertical: 0,
+                          marginHorizontal: 0,
+                          paddingHorizontal: 0,
+                          marginRight: 0,
+                          marginLeft: 0,
+                        }}
                         style={{
                           backgroundColor: "#FFD892",
                           padding: 0,
-                          height: 20,
-                          alignItems: "center",
+                          margin: 0,
+                          borderRadius: 50,
+                          paddingHorizontal: 8,
+                          height: 25,
                           justifyContent: "center",
                         }}
                       >

@@ -58,7 +58,9 @@ export const TransactionSummaryScreen = () => {
   }, []);
 
   const handleDone = () => {
-    navigation.reset({ routes: [{ name: "Entertainer" }] });
+    navigation.reset({
+      routes: [{ name: "Main" }],
+    });
   };
 
   return (
@@ -167,10 +169,10 @@ export const TransactionSummaryScreen = () => {
           <Button
             mode="contained"
             contentStyle={{ paddingVertical: 12 }}
-            color={"orange"}
+            buttonColor={theme.colors.icons.active}
             onPress={handleDone}
           >
-            <Label weight={"bold"} size={"title"}>
+            <Label color={"white"} weight={"bold"} size={"title"}>
               {i18n.t("redemption-success.done")}
             </Label>
           </Button>

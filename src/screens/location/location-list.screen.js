@@ -17,10 +17,13 @@ import { Suggestion } from "../../components/suggestion";
 import { config, searchSource } from "../../utils/constants";
 import { io } from "socket.io-client";
 import { TranslationContext } from "../../services/translation/translation.context";
+import useRequest from "../../../hooks/useRequest";
 
 const Search = styled(Searchbar)`
   margin: 0 12px;
   border: 1px solid rgba(0, 0, 0, 0.2);
+  background-color: white;
+  border-radius: 12px;
 `;
 
 export const LocationListScreen = ({ navigation, route, ...props }) => {
@@ -49,6 +52,7 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
     source: source,
   });
   const isShort = useRef(false);
+  const request = useRequest();
 
   useEffect(() => {
     let mounted = true;
@@ -126,30 +130,33 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
     loadLocations(searchData.current);
   };
 
-  const loadLocations = (data) => {
-    getLocations({ ...data, app_id: config.APP_ID, lang })
-      .then((response) => {
-        if (isMounted.current) {
-          setIsLoading(false);
-          setIsLoadingMore(false);
-          if (response.data.length === 0) {
-            setIsEOF(true);
-            return;
-          } else if (response.data.length < limit) {
-            setIsEOF(true);
-          }
-          if (modeRef.current) {
-            setResultCount(response.totalCount);
-            setLocations(response.data);
-          } else {
-            setLocations([...locations, ...response.data]);
-          }
-        }
-      })
-      .catch((err) => {
-        setIsLoading(false);
-        setIsLoadingMore(false);
+  const loadLocations = async (data) => {
+    try {
+      const response = await request("/v2/partner/", "post", {
+        ...data,
+        app_id: config.APP_ID,
+        lang,
       });
+      if (response) {
+        if (response.data.length === 0) {
+          setIsEOF(true);
+          return;
+        } else if (response.data.length < limit) {
+          setIsEOF(true);
+        }
+        if (modeRef.current) {
+          setResultCount(response.totalCount);
+          setLocations(response.data);
+        } else {
+          setLocations([...locations, ...response.data]);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to load location list:", error);
+    } finally {
+      setIsLoading(false);
+      setIsLoadingMore(false);
+    }
   };
 
   useLayoutEffect(() => {

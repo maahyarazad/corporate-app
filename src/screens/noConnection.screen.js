@@ -7,11 +7,12 @@ import { SafeArea } from "../components/safearea.component";
 import { Spacer } from "../components/spacer/spacer.component";
 import { Label } from "../components/typography/label.component";
 import { AuthContext } from "../services/auth/auth.context";
+import useAuth from "../../hooks/useAuth";
 
 export const NoConnectionScreen = () => {
   const test = useNavigation();
   const route = useRoute();
-  const { noConnectionRetry } = useContext(AuthContext);
+  const { noConnectionRetry } = useAuth();
   return (
     <SafeArea style={styles.safearea}>
       <StatusBar style="light"></StatusBar>

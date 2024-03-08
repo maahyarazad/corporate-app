@@ -1,9 +1,20 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Dimensions, FlatList, Image, StyleSheet, View } from "react-native";
-import { adminFileBaseURL } from "../utils/constants";
+import {
+  Dimensions,
+  FlatList,
+  Image,
+  ImageBackground,
+  StyleSheet,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
+import { adminFileBaseURL, companyLogo } from "../utils/constants";
 import { CacheImage } from "./cacheImage";
 import { LoadingOverlay } from "./loading/loading.component";
 import { Label } from "./typography/label.component";
+import GalleryView from "react-native-image-viewing";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const { width } = Dimensions.get("window");
 
@@ -14,24 +25,61 @@ export const Slideshow = ({ images }) => {
     setLoading(false);
   };
 
-  const renderContainer = ({ item, index }) => (
-    <CacheImage
-      imgKey={index}
-      onLoad={imageLoaded}
-      style={{ width: width, height: "100%", resizeMode: "cover" }}
-      uri={`${adminFileBaseURL}${item.image}`}
-    />
+  const [galleryImages, setGalleryImages] = useState(
+    images.map((item) => {
+      return {
+        uri: `${adminFileBaseURL}${item.image}`,
+      };
+    })
   );
 
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [imageIndex, setImageIndex] = useState(0);
+
+  const handleCloseGallery = () => {
+    setGalleryOpen(false);
+  };
+
+  const renderContainer = ({ item, index }) => {
+    const handleOpenGallery = () => {
+      setGalleryOpen(true);
+      setImageIndex(index);
+      console.log("Opening image:" + item.image);
+    };
+    return (
+      <TouchableWithoutFeedback key={index} onPress={handleOpenGallery}>
+        <View>
+          <ImageBackground
+            // source={{ uri: adminFileBaseURL + item.image }}
+            style={{ backgroundColor: "white" }}
+            blurRadius={10}
+          >
+            <CacheImage
+              imgKey={index}
+              onLoad={imageLoaded}
+              style={{
+                width: width,
+                aspectRatio: 1.77,
+                resizeMode: "contain",
+              }}
+              uri={`${adminFileBaseURL}${item.image}`}
+            />
+          </ImageBackground>
+        </View>
+      </TouchableWithoutFeedback>
+    );
+  };
   const onViewableItemsChanged = ({ viewableItems, changed }) => {
     if (viewableItems != undefined && viewableItems.length > 0)
-      setCurrentImageIndex(parseInt(viewableItems[0].key));
+      setCurrentImageIndex(
+        parseInt(viewableItems[viewableItems.length - 1].key)
+      );
   };
 
   const viewabilityConfigCallbackPairs = useRef([
     {
       viewabilityConfig: {
-        itemVisiblePercentThreshold: 100,
+        itemVisiblePercentThreshold: 50,
       },
       onViewableItemsChanged: onViewableItemsChanged,
     },
@@ -41,6 +89,46 @@ export const Slideshow = ({ images }) => {
 
   return (
     <View style={styles.container}>
+      <GalleryView
+        images={galleryImages}
+        imageIndex={imageIndex}
+        visible={galleryOpen}
+        onRequestClose={handleCloseGallery}
+        HeaderComponent={() => (
+          <View
+            style={{
+              width: "100%",
+              marginTop: 40,
+              flexDirection: "row",
+              justifyContent: "space-between",
+              paddingHorizontal: 10,
+            }}
+          >
+            <Image
+              width={100}
+              height={100}
+              source={companyLogo}
+              resizeMode="contain"
+              style={{ width: 100, height: 100 }}
+            ></Image>
+
+            <View style={{ top: 20 }}>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={handleCloseGallery}
+              >
+                <View style={{ padding: 10 }}>
+                  <MaterialCommunityIcons
+                    name={"close"}
+                    size={30}
+                    color={"#ddd"}
+                  />
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+      />
       <LoadingOverlay display={loading} />
       <View style={{ position: "relative", height: "100%" }}>
         <FlatList

@@ -1,10 +1,12 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Alert,
   FlatList,
   Linking,
+  ScrollView,
   StyleSheet,
   TouchableHighlight,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { Label } from "../../components/typography/label.component";
@@ -17,10 +19,22 @@ import * as Constants from "expo-constants";
 import { AuthContext } from "../../services/auth/auth.context";
 import { TranslationContext } from "../../services/translation/translation.context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import useAuth from "../../../hooks/useAuth";
+import { Switch } from "react-native-paper";
+import * as SecureStore from "expo-secure-store";
+import useBiometrics from "../../../hooks/useBiometrics";
+import useUser from "../../../hooks/useUser";
 
 export const ProfSettings = () => {
-  const { user } = useContext(AuthContext);
+  const { signout } = useAuth();
   const { i18n } = useContext(TranslationContext);
+  const { setUserData } = useUser();
+  const biometric = useBiometrics();
+
+  useEffect(() => {
+    return () => {};
+  }, [biometric.available, biometric.token]);
+
   const settingsList = [
     {
       label: i18n.t("profile-tabs.settings-menu.settings-permission"),
@@ -107,7 +121,9 @@ export const ProfSettings = () => {
       {
         text: i18n.t("yes"),
         onPress: () => {
-          navigate("Logout");
+          signout();
+          setUserData(null);
+          // navigate("Logout");
         },
       },
     ]);
@@ -173,6 +189,80 @@ export const ProfSettings = () => {
     handleSettings,
   ];
 
+  const Section = ({ title, children }) => {
+    return (
+      <View style={styles.section}>
+        <View>
+          <Label size={"subtitle"} weight={"medium"} color={"#888"}>
+            {title}
+          </Label>
+        </View>
+        {children}
+      </View>
+    );
+  };
+
+  const Settings = ({ onPress, icon, label, type = "button" }) => {
+    const [switchValue, setSwitchValue] = useState(!!biometric.token);
+
+    const handleBiometric = async (value) => {
+      try {
+        if (value) {
+          const bioAuth = await biometric.authenticate();
+          if (bioAuth) {
+            if (biometric.enable()) {
+              return setSwitchValue(true);
+            }
+
+            return setSwitchValue();
+          } else setSwitchValue(false);
+        } else {
+          biometric.disable();
+        }
+      } catch (error) {}
+    };
+
+    const cb = async () => {
+      switch (type) {
+        case "button":
+          onPress();
+          break;
+        case "switch":
+          handleBiometric(!switchValue);
+          setSwitchValue(!switchValue);
+          break;
+        default:
+          break;
+      }
+    };
+
+    return (
+      <TouchableWithoutFeedback onPress={cb}>
+        <View style={styles.settingsButton}>
+          <MaterialCommunityIcons
+            color={theme.colors.ui.lightGray2}
+            name={icon}
+            size={25}
+          />
+          <Label weight={"bold"}>{label}</Label>
+          <View style={{ flex: 1 }}>
+            {type === "switch" && (
+              <Switch
+                value={switchValue}
+                color={theme.colors.icons.active}
+                onValueChange={(x) => {
+                  handleBiometric(x);
+                  setSwitchValue(x);
+                }}
+                style={{ alignSelf: "flex-end" }}
+              />
+            )}
+          </View>
+        </View>
+      </TouchableWithoutFeedback>
+    );
+  };
+
   const renderSettings = ({ item }) => {
     return (
       <TouchableHighlight
@@ -201,8 +291,54 @@ export const ProfSettings = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <FlatList
+    <View style={{ flex: 1, backgroundColor: "#f8f8f8" }}>
+      {biometric.available != null && biometric.type != null && (
+        <ScrollView contentContainerStyle={styles.container}>
+          <Section title={"General"}>
+            <Settings
+              icon={"cog-outline"}
+              label={i18n.t("profile-tabs.settings-menu.settings-permission")}
+              onPress={handleSettings}
+            />
+            <Settings
+              icon={biometric.type}
+              label={`Login using ${
+                biometric.type === "fingerprint" ? "Fingerprint" : "Face ID"
+              }`}
+              onPress={handleSettings}
+              type="switch"
+            />
+          </Section>
+          <Section title={"Legal"}>
+            <Settings
+              icon={"shield-search"}
+              label={i18n.t("profile-tabs.settings-menu.legal")}
+              onPress={handlePrivacyPolicy}
+            />
+          </Section>
+          <Section title={"Support"}>
+            <Settings
+              icon={"face-agent"}
+              label={i18n.t("profile-tabs.settings-menu.contact-us")}
+              onPress={handleContactUs}
+            />
+          </Section>
+          <Section title={"Account"}>
+            <Settings
+              icon={"account-remove-outline"}
+              label={i18n.t("profile-tabs.settings-menu.delete-account")}
+              onPress={handleDelete}
+            />
+            <Settings
+              icon={"logout"}
+              label={i18n.t("profile-tabs.settings-menu.logout")}
+              onPress={handleLogout}
+            />
+          </Section>
+          <Label style={{ color: "#777", alignSelf: "flex-end" }}>
+            v{Constants.default.expoConfig.version}
+          </Label>
+          {/* <FlatList
         style={styles.settingsContainer}
         data={settingsList}
         renderItem={renderSettings}
@@ -218,22 +354,24 @@ export const ProfSettings = () => {
               <View style={styles.versionView}>
                 <Label style={{ color: "#777" }}>
                   v{Constants.default.expoConfig.version}
-                  {/* v{Constants.default.expoConfig.version} */}
                 </Label>
               </View>
             </View>
           );
         }}
-      />
+      /> */}
+        </ScrollView>
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    // justifyContent: "center",
+    // alignItems: "center",
+    padding: 15,
+    gap: 18,
   },
   versionView: {
     padding: 8,
@@ -252,4 +390,24 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
+  settingsButton: {
+    flex: 1,
+    padding: 15,
+    backgroundColor: "white",
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowRadius: 4,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  section: {
+    gap: 8,
+  },
+  scrollView: {},
 });

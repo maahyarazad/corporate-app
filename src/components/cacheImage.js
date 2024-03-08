@@ -12,6 +12,9 @@ export const CacheImage = ({
   onLoadStart,
   pointerEvents,
   resizeMode,
+  local = false,
+  defaultImage = require("../../assets/icon.png"),
+  // defaultImage = "https://www.german-emirates-club.com/user/member_images/non_img_men_s1.jpg",
 }) => {
   const [state, setState] = useState({ source: null });
 
@@ -19,32 +22,47 @@ export const CacheImage = ({
     let isMounted = true;
 
     const cache = async () => {
-      const name = shorthash.unique(uri);
-      const extension = uri.slice(findCharRight(uri, "."));
-      const path = `${FileSystem.cacheDirectory}${name}${extension}`;
-      const image = await FileSystem.getInfoAsync(path);
+      try {
+        const name = shorthash.unique(uri);
+        const extension = uri.slice(findCharRight(uri, "."));
+        const path = `${FileSystem.cacheDirectory}${name}${extension}`;
+        const image = await FileSystem.getInfoAsync(path);
 
-      if (image.exists) {
-        if (isMounted) {
-          // console.log("path:", path);
-          // console.log("image from cache");
-          setState({
-            source: {
-              uri: image.uri,
-            },
-          });
+        if (local) {
+          if (isMounted) {
+            // console.log("downloading image to cache");
+            setState({
+              source: {
+                uri: uri,
+              },
+            });
+          }
+        } else {
+          if (image.exists) {
+            if (isMounted) {
+              // console.log("path:", path);
+              // console.log("image from cache");
+              setState({
+                source: {
+                  uri: image.uri,
+                },
+              });
+            }
+            return;
+          }
+          const newImage = await FileSystem.downloadAsync(uri, path);
+
+          if (isMounted) {
+            // console.log("downloading image to cache");
+            setState({
+              source: {
+                uri: newImage.uri,
+              },
+            });
+          }
         }
-        return;
-      }
-      const newImage = await FileSystem.downloadAsync(uri, path);
-
-      if (isMounted) {
-        // console.log("downloading image to cache");
-        setState({
-          source: {
-            uri: newImage.uri,
-          },
-        });
+      } catch (error) {
+        console.log("cache image error: ", error);
       }
     };
     //www.reaconverter.com/howto/wp-content/uploads/2017/02/animation-1.gif
@@ -55,6 +73,26 @@ export const CacheImage = ({
     };
   }, [uri]);
 
+  const deleteCachedImage = async (_uri) => {
+    try {
+      const name = shorthash.unique(_uri);
+      const extension = _uri.slice(findCharRight(_uri, "."));
+      const path = `${FileSystem.cacheDirectory}${name}${extension}`;
+      await FileSystem.deleteAsync(path);
+      console.log("deleting ", path);
+    } catch (error) {
+      console.log("Failed to delete cached image: ", error);
+    }
+  };
+
+  const handleOnError = async () => {
+    await deleteCachedImage(uri);
+
+    setState({
+      source: defaultImage,
+    });
+  };
+
   return (
     <Image
       key={imgKey}
@@ -62,6 +100,7 @@ export const CacheImage = ({
       resizeMode={resizeMode}
       onLoadStart={onLoadStart}
       source={state.source}
+      onError={handleOnError}
       style={style}
     />
   );

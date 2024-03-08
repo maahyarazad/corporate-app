@@ -27,6 +27,7 @@ import { TextInputCurrency } from "../../components/textInputCurrency/textInputC
 import { CodeInputField } from "../../components/codeInputField";
 import { useNavigation } from "@react-navigation/native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import useRequest from "../../../hooks/useRequest";
 
 export const AvailOfferScreen = ({ route }) => {
   const { location, offerInfo, distance, offerCode } = route.params.state;
@@ -44,6 +45,7 @@ export const AvailOfferScreen = ({ route }) => {
   const navigation = useNavigation();
   const { height, width } = Dimensions.get("window");
   const { i18n } = useContext(TranslationContext);
+  const request = useRequest();
 
   useEffect(() => {
     let isMounted = true;
@@ -68,8 +70,7 @@ export const AvailOfferScreen = ({ route }) => {
       paid: paid,
     };
 
-    const response = await OfferService.consumeOfferCode(data);
-    console.log(response);
+    const response = await request(`/v2/offer/consume`, "post", data);
     return response;
   };
 
@@ -413,6 +414,7 @@ export const AvailOfferScreen = ({ route }) => {
                     style={{
                       flex: 1,
                       backgroundColor: pinReady ? "#1282FF" : "gray",
+                      borderRadius: 12,
                     }}
                     mode="contained"
                   >
@@ -421,11 +423,19 @@ export const AvailOfferScreen = ({ route }) => {
                   <Spacer position={"left"} size={"small"} />
                   <Button
                     onPress={() => {
-                      Linking.openURL(`tel:${location.phone.split("|")[0]}`);
+                      Linking.openURL(
+                        `tel:${encodeURIComponent(
+                          location.phone.split("|")[0]
+                        )}`
+                      );
                     }}
                     labelStyle={{ fontSize: 12 }}
                     contentStyle={{ padding: 10 }}
-                    style={{ flex: 1, backgroundColor: "#1282FF" }}
+                    style={{
+                      flex: 1,
+                      backgroundColor: "#1282FF",
+                      borderRadius: 12,
+                    }}
                     mode="contained"
                     icon={() => {
                       return <Ionicons name="call" color={"white"} size={20} />;

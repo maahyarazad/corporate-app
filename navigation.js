@@ -3,7 +3,12 @@ import {
   CardStyleInterpolators,
   createStackNavigator,
 } from "@react-navigation/stack";
-import { NavigationContainer } from "@react-navigation/native";
+import {
+  NavigationContainer,
+  useNavigation,
+  useNavigationState,
+  useRoute,
+} from "@react-navigation/native";
 import { LoginScreen } from "./src/screens/login/login.screen";
 import { EntertainerScreen } from "./src/screens/entertainer.screen";
 import { VerifyInfo } from "./src/screens/login/login-verify-info.screen";
@@ -12,7 +17,7 @@ import { OtpVerification } from "./src/screens/login/otpVerification";
 import { MapScreen } from "./src/screens/map.screen";
 import { AuthContext } from "./src/services/auth/auth.context";
 import { SplashScreen } from "./src/screens/splash.screen";
-import { navigationRef } from "./src/navigation/navigate";
+import { goback, navigate, navigationRef } from "./src/navigation/navigate";
 import { LogoutScreen } from "./src/screens/logout.screen";
 import { RequestApprovalScreen } from "./src/screens/login/requestapproval.screen";
 import { CameraScreen } from "./src/screens/camera.screen";
@@ -24,7 +29,7 @@ import { LocationListScreen } from "./src/screens/location/location-list.screen"
 import { SectionContext } from "./src/services/section/section.context";
 import { AvailOfferScreen } from "./src/screens/offer/availOffer.screen";
 import { LocationViewScreen } from "./src/screens/location/location-view.screen";
-import { Image, View } from "react-native";
+import { Dimensions, Image, TouchableOpacity, View } from "react-native";
 import { UserContext } from "./src/services/user/user.context";
 import { TransactionSummaryScreen } from "./src/screens/offer/transactionSummary.screen";
 import { ForgotPasswordScreen } from "./src/screens/reset-password/forgotPassword";
@@ -41,10 +46,33 @@ import * as SecureStore from "expo-secure-store";
 import { NoConnectionScreen } from "./src/screens/noConnection.screen";
 import { AppContext } from "./src/services/app/app.context";
 import { VersionMismatchScreen } from "./src/screens/versionMismatch.screen";
+import useAuth from "./hooks/useAuth";
+import useUser from "./hooks/useUser";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { CacheImage } from "./src/components/cacheImage";
+import { ProfileScreen } from "./src/screens/profile/profile.screen";
+import BottomSheetSelector from "./src/components/bottomSheetSelector.component";
+import PostEntrySelect from "./src/screens/posts/post_entry/postEntrySelect.screen";
+import {
+  PostStackNavigationScreen,
+  PostTabsNavigationScreen,
+} from "./src/screens/posts/postNavigation.screen";
+import PostDetailScreen from "./src/screens/posts/postDetail.screen";
+import PostEntryScreen from "./src/screens/posts/post_entry/postEntry.screen";
+import { theme } from "./src/infrastructure/theme";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import PostEntryCategorySelect from "./src/screens/posts/post_entry/postEntryCategorySelect.screen";
+import PostDetailMarketplace from "./src/screens/posts/postDetailMarketplace.screen";
+import PostSearch from "./src/screens/posts/postSearch.screen";
+import NotificationsScreen from "./src/screens/notifications.screen";
+import ChangeMobileNumberScreen from "./src/screens/profile/changeMobileNumber.screen";
+import PostDetailMagazine from "./src/screens/posts/postDetailMagazine.screen";
+import ChangeEmailAddressScreen from "./src/screens/profile/changeEmailAddress.screen ";
 
 const AuthStack = createStackNavigator();
 const MainStack = createStackNavigator();
 const ApprovalStack = createStackNavigator();
+const TimeoutStack = createStackNavigator();
 
 const config = {
   animation: "spring",
@@ -186,20 +214,40 @@ const AuthStackScreen = () => {
           gestureResponseDistance: 200,
         }}
       />
+      <AuthStack.Screen
+        name="MobileChange"
+        component={ChangeMobileNumberScreen}
+        options={{
+          headerShown: false,
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+          gestureDirection: "horizontal",
+          gestureResponseDistance: 200,
+        }}
+      />
+      <AuthStack.Screen
+        name="EmailChange"
+        component={ChangeEmailAddressScreen}
+        options={{
+          headerShown: false,
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+          gestureDirection: "horizontal",
+          gestureResponseDistance: 200,
+        }}
+      />
     </AuthStack.Navigator>
   );
 };
 
-const MainScreen = () => {
-  const { userInfo } = useContext(UserContext);
-  const { i18n, hello } = useContext(TranslationContext);
+const OverlappingStack = createStackNavigator();
 
-  console.log(i18n.t("welcome"));
+const OverlappingNavigator = () => {
+  const { userData } = useUser();
+  const { i18n } = useContext(TranslationContext);
 
   return (
-    <>
-      <MainStack.Navigator option>
-        <MainStack.Screen
+    <BottomSheetModalProvider>
+      <OverlappingStack.Navigator>
+        <OverlappingStack.Screen
           name="Entertainer"
           component={EntertainerScreen}
           options={{
@@ -207,38 +255,14 @@ const MainScreen = () => {
             headerTitle: "",
             headerLeftContainerStyle: { paddingLeft: 8 },
             headerRightContainerStyle: { paddingRight: 4 },
-            headerRight: () => {
-              return (
-                <>
-                  <View style={{ width: "100%" }}>
-                    <Label
-                      style={{ paddingRight: 8, textAlign: "right" }}
-                      numberOfLines={1}
-                      size={"subtitle"}
-                      weight={"bold"}
-                    >
-                      {/* {`Hi there, ${
-                        userInfo != undefined
-                          ? userInfo.first_name.split(" ")[0]
-                          : ""
-                      }!`} */}
-                      {i18n.t("user_greeting", {
-                        name:
-                          userInfo != undefined
-                            ? userInfo.first_name.split(" ")[0]
-                            : "",
-                      })}
-                    </Label>
-                  </View>
-                </>
-              );
-            },
+
             headerLeft: () => {
               return (
                 <View
                   style={{
                     width: "100%",
                     height: "100%",
+                    justifyContent: "center",
                   }}
                 >
                   <Image
@@ -254,6 +278,171 @@ const MainScreen = () => {
             },
           }}
         />
+
+        <OverlappingStack.Screen
+          name="post-tabs"
+          component={PostTabsNavigationScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+        <OverlappingStack.Screen
+          name="post-detail"
+          component={PostDetailScreen}
+          options={{
+            headerTintColor: theme.colors.icons.active,
+            headerTitleStyle: {
+              color: "black",
+            },
+            headerLeftLabelVisible: false,
+            headerTitle: "",
+          }}
+        />
+        <OverlappingStack.Screen
+          name="post-entry"
+          component={PostEntryScreen}
+          options={{
+            presentation: "modal",
+            headerShown: false,
+            headerTintColor: theme.colors.icons.active,
+            headerTitleStyle: {
+              color: "black",
+            },
+            headerLeftLabelVisible: false,
+          }}
+        />
+
+        <OverlappingStack.Screen
+          name="post-search"
+          component={PostSearch}
+          options={{
+            headerShown: false,
+            cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+            gestureDirection: "horizontal",
+            gestureResponseDistance: 200,
+          }}
+        />
+        <OverlappingStack.Screen
+          name="notifications"
+          component={NotificationsScreen}
+          options={{
+            headerShown: false,
+            cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+            gestureDirection: "horizontal",
+            gestureResponseDistance: 200,
+          }}
+        />
+        <OverlappingStack.Screen
+          name="post-select-category"
+          component={PostEntryCategorySelect}
+          options={{
+            presentation: "modal",
+            headerShown: false,
+          }}
+        />
+        <OverlappingStack.Screen
+          name="post-select"
+          component={PostEntrySelect}
+          options={{
+            presentation: "modal",
+            headerShown: false,
+            title: "",
+            headerLeft: () => (
+              <TouchableOpacity onPress={goback}>
+                <View>
+                  <MaterialCommunityIcons
+                    name="arrow-left"
+                    size={24}
+                    color="black"
+                  />
+                  <Label>Zuruck</Label>
+                </View>
+              </TouchableOpacity>
+            ),
+          }}
+        />
+        <OverlappingStack.Screen
+          name="marketplace-details"
+          component={PostDetailMarketplace}
+          options={{
+            headerShown: true,
+            title: "",
+            headerLeft: () => (
+              <TouchableOpacity onPress={goback}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 6,
+                    paddingHorizontal: 8,
+                  }}
+                >
+                  <MaterialCommunityIcons
+                    name="arrow-left"
+                    size={24}
+                    color="black"
+                  />
+                  <Label>Zuruck</Label>
+                </View>
+              </TouchableOpacity>
+            ),
+          }}
+        />
+        <OverlappingStack.Screen
+          name="magazine-details"
+          component={PostDetailMagazine}
+          options={{
+            headerShown: true,
+            title: "",
+            headerLeft: () => (
+              <TouchableOpacity onPress={goback}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 6,
+                    paddingHorizontal: 8,
+                  }}
+                >
+                  <MaterialCommunityIcons
+                    name="arrow-left"
+                    size={24}
+                    color="black"
+                  />
+                  <Label>Zuruck</Label>
+                </View>
+              </TouchableOpacity>
+            ),
+          }}
+        />
+      </OverlappingStack.Navigator>
+    </BottomSheetModalProvider>
+  );
+};
+
+const MainScreen = () => {
+  const { userData } = useUser();
+  const { i18n, hello } = useContext(TranslationContext);
+
+  // console.log(i18n.t("welcome"));
+
+  return (
+    <>
+      <MainStack.Navigator option>
+        <MainStack.Screen
+          name="Main"
+          component={OverlappingNavigator}
+          options={{ headerShown: false }}
+        />
+
+        <MainStack.Screen
+          name="Profile"
+          component={ProfileScreen}
+          options={{
+            headerShown: false,
+          }}
+        />
+
         <MainStack.Screen
           name="Logout"
           component={LogoutScreen}
@@ -410,8 +599,11 @@ const ExceedTimeout = () => {
 };
 
 export const AppNavigation = () => {
-  const { isRetrieving, user, noConnection, skip } = useContext(AuthContext);
+  // const { isRetrieving, user, skip } = useContext(AuthContext);
   const { isOutdated } = useContext(AppContext);
+  const { phoneVerified, refreshToken, isSkip, noConnection, isAuthorized } =
+    useAuth();
+  const { userData } = useUser();
   // const [skip, setSkip] = useState(0);
   // useEffect(() => {
   //   let isMounted = true;
@@ -518,10 +710,10 @@ export const AppNavigation = () => {
     require("./assets/specials/Trending_Offers.png"),
   ]);
 
-  if (isRetrieving || !assets) {
+  // if (isRetrieving || !assets) {
+  if (!assets) {
     return <SplashScreen />;
   }
-
   return (
     <>
       {/* user.isAuthorized && user.submitCard ? ( */}
@@ -530,8 +722,8 @@ export const AppNavigation = () => {
           <TimeoutStackScreen />
         ) : isOutdated ? (
           <VersionMismatchScreen />
-        ) : user.token ? (
-          (user.isAuthorized && user.submitCard) || skip ? (
+        ) : phoneVerified && refreshToken ? (
+          !!isAuthorized || !!isSkip ? (
             <MainScreen />
           ) : (
             <ApprovalScreen />

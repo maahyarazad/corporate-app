@@ -7,44 +7,41 @@ import * as SecureStorage from "expo-secure-store";
 import moment from "moment";
 import "moment/locale/de";
 
+// Initialize I18n with the language files
 export const i18n = new I18n({ en, de });
 
+// Create a context for providing translation capabilities throughout your app
 export const TranslationContext = createContext();
 
+// Provider component for the TranslationContext
 export const TranslationContextProvider = ({ children }) => {
-  // const i18n = new I18n(translations);
-  const [lang, setLang] = useState("en");
+  const [lang, setLang] = useState("en"); // Default language is set to 'en'
 
-  // async function loadTranslation(i18n, locale) {
-  //   console.log(`../../translation/${locale}.json`);
-  //   const response = await fetch(`../../../translation/${locale}.json`);
-  //   const translations = await response.json();
-
-  //   i18n.store(translations);
-  // }
-
-  // loadTranslation(i18n, "en");
   useEffect(() => {
-    //retrieve stored language
+    // Flag to manage effect cleanup
     let isMounted = true;
 
+    // Function to retrieve the stored language and set it
     const getLanguage = async () => {
-      const response = await SecureStorage.getItemAsync("language");
-      if (isMounted) setLang(response);
+      const storedLang = await SecureStorage.getItemAsync("language");
+      // Use stored language or fallback to 'en' if null
+      if (isMounted) setLang(storedLang || "en");
     };
 
     getLanguage();
 
+    // Cleanup function to set isMounted to false when the component unmounts
     return () => {
       isMounted = false;
     };
   }, []);
 
   useEffect(() => {
+    // Set the language for i18n and moment
     i18n.locale = lang;
     moment.locale(lang);
 
-    // console.log(moment(new Date("12/27/1994")).format("LLL"));
+    // Persist the selected language setting
     const setLanguage = async () => {
       await SecureStorage.setItemAsync("language", lang);
     };

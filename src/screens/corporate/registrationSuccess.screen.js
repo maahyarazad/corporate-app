@@ -109,9 +109,9 @@ export const RegistrationSuccessfulScreen = () => {
           <Animated.View style={fadeInButtonAnimationStyle}>
             <Button
               mode="contained"
-              color={theme.colors.icons.active}
+              buttonColor={theme.colors.icons.active}
               labelStyle={{ paddingVertical: 14 }}
-              style={{ marginBottom: 100 }}
+              style={{ marginBottom: 100, borderRadius: 10 }}
               onPress={() => {
                 navigate("Login");
               }}

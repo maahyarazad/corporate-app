@@ -1,15 +1,16 @@
 import { Ionicons } from "@expo/vector-icons";
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { Animated, StyleSheet, View } from "react-native";
+import { Animated, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Button } from "react-native-paper";
-import { AuthContext } from "../services/auth/auth.context";
 import { TranslationContext } from "../services/translation/translation.context";
 import { Spacer } from "./spacer/spacer.component";
 import { Label } from "./typography/label.component";
+import useUser from "../../hooks/useUser";
+import { theme } from "../infrastructure/theme";
 
 export const PostCardUpload = () => {
   const animatedValue = useRef(new Animated.Value(0)).current;
-  const { retrieve } = useContext(AuthContext);
+  const { checkAuthorization } = useUser();
   const { i18n } = useContext(TranslationContext);
 
   useEffect(() => {
@@ -32,8 +33,8 @@ export const PostCardUpload = () => {
     opacity: animatedValue,
   };
 
-  const handleRefresh = () => {
-    retrieve();
+  const handleRefresh = async () => {
+    checkAuthorization();
   };
 
   return (
@@ -62,19 +63,21 @@ export const PostCardUpload = () => {
         </View>
       </Animated.View>
       <View style={{ flex: 1, marginTop: "20%" }}>
-        <Button
-          onPress={handleRefresh}
-          mode="contained"
-          style={{ borderRadius: 100 }}
-          contentStyle={{
-            height: 100,
-            width: 100,
-            borderRadius: 100,
-            backgroundColor: "orange",
-          }}
-        >
-          <Ionicons name="refresh" size={50} />
-        </Button>
+        <TouchableOpacity onPress={handleRefresh}>
+          <View
+            style={{
+              backgroundColor: "white",
+              width: 80,
+              aspectRatio: 1,
+              justifyContent: "center",
+              alignItems: "center",
+              borderRadius: 100,
+              backgroundColor: theme.colors.icons.active,
+            }}
+          >
+            <Ionicons name="refresh" size={30} color={"white"} />
+          </View>
+        </TouchableOpacity>
       </View>
     </View>
   );

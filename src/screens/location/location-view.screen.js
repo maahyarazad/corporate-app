@@ -6,6 +6,7 @@ import {
   RefreshControl,
   StyleSheet,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { SafeArea } from "../../components/safearea.component";
@@ -22,6 +23,8 @@ import { itemSeparatorHS } from "../../components/styles";
 import { OfferList } from "../../components/offerList";
 import { LocationInfo } from "../../components/location/LocationInfo.component";
 import { TranslationContext } from "../../services/translation/translation.context";
+import useRequest from "../../../hooks/useRequest";
+import { config } from "../../utils/constants";
 
 const { width, height } = Dimensions.get("window");
 
@@ -34,6 +37,7 @@ export const LocationViewScreen = ({ route, navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [distance, setDistance] = useState();
   const isMounted = useRef(true);
+  const request = useRequest();
 
   useEffect(() => {
     isMounted.current = true;
@@ -47,44 +51,57 @@ export const LocationViewScreen = ({ route, navigation }) => {
   }, [location, userLocation]);
 
   useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
     isMounted.current = true;
 
-    onRefresh();
+    onRefresh(signal);
 
     return () => {
+      // controller.abort();
       isMounted.current = false;
     };
   }, [userLocation]);
 
-  const onRefresh = () => {
+  const onRefresh = (signal) => {
     setLoading(true);
-    getOneLocation(locationId, lang)
-      .then((response) => {
-        if (isMounted.current) {
-          setLocation(response);
-          setLoading(false);
+    getLocation(signal);
+  };
 
-          if (
-            response.lat != undefined &&
-            response.lng != undefined &&
-            userLocation != undefined
-          ) {
-            setDistance(() => {
-              const _distance = getPreciseDistance(
-                {
-                  latitude: userLocation.coords.latitude,
-                  longitude: userLocation.coords.longitude,
-                },
-                { latitude: response.lat, longitude: response.lng }
-              );
-              return (_distance / 1000).toFixed(2); //Unit: Kilometer
-            });
-          }
+  const getLocation = async (signal) => {
+    try {
+      const response = await request(
+        `/v2/partner/${locationId}?app=${config.APP_ID}&lang=${lang}`,
+        "get",
+        undefined,
+        undefined,
+        signal
+      );
+
+      if (isMounted.current && response) {
+        setLocation(response);
+        setLoading(false);
+
+        if (
+          response.lat != undefined &&
+          response.lng != undefined &&
+          userLocation != undefined
+        ) {
+          setDistance(() => {
+            const _distance = getPreciseDistance(
+              {
+                latitude: userLocation.coords.latitude,
+                longitude: userLocation.coords.longitude,
+              },
+              { latitude: response.lat, longitude: response.lng }
+            );
+            return (_distance / 1000).toFixed(2); //Unit: Kilometer
+          });
         }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+      }
+    } catch (error) {
+      console.error("Failed to get location:", error);
+    }
   };
 
   const openWebsite = async (url) => {
@@ -103,8 +120,8 @@ export const LocationViewScreen = ({ route, navigation }) => {
     const latLng = `${location?.lat},${location?.lng}`;
     const label = location?.name;
     const url = Platform.select({
-      ios: `${scheme}${label}@${latLng}`,
-      android: `${scheme}${latLng}(${label})`,
+      ios: `${scheme}${encodeURIComponent(label)}@${latLng}`,
+      android: `${scheme}${latLng}(${encodeURIComponent(labe)})`,
     });
     Linking.openURL(url);
   };
@@ -118,7 +135,7 @@ export const LocationViewScreen = ({ route, navigation }) => {
       <>
         <View style={{ backgroundColor: "#efefef" }}>
           <View>
-            <View style={{ height: 300 }}>
+            <View style={{ height: width * (9 / 16) }}>
               {width != undefined && location != undefined && (
                 <>
                   <Slideshow images={location.images} />
@@ -169,7 +186,7 @@ export const LocationViewScreen = ({ route, navigation }) => {
                     <Label size={"heading"} weight={"bold"}>
                       {i18n.t("offer-details.location")}
                     </Label>
-                    <View style={{ marginBottom: 8 }}>
+                    <View style={{ marginVertical: 8 }}>
                       <Label weight={"medium"}>
                         {location != undefined &&
                         location?.contact_addition != undefined
@@ -205,7 +222,10 @@ export const LocationViewScreen = ({ route, navigation }) => {
                           fontWeight: "bold",
                         }}
                         contentStyle={{ height: 50 }}
-                        style={style.mapButtons}
+                        style={[
+                          style.mapButtons,
+                          { borderBottomLeftRadius: 12 },
+                        ]}
                         onPress={getDirections}
                       >
                         {`${i18n.t("offer-details.get-directions")}`}
@@ -219,7 +239,14 @@ export const LocationViewScreen = ({ route, navigation }) => {
                             fontWeight: "bold",
                           }}
                           contentStyle={{ height: 50 }}
-                          style={style.mapButtons}
+                          style={[
+                            style.mapButtons,
+                            {
+                              borderBottomRightRadius: 12,
+                              borderLeftWidth: 1,
+                              borderColor: "#bbb",
+                            },
+                          ]}
                           onPress={() => openWebsite(location.web)}
                         >
                           {`${i18n.t("offer-details.visit-website")}`}
@@ -233,6 +260,7 @@ export const LocationViewScreen = ({ route, navigation }) => {
                   style={{
                     paddingHorizontal: 16,
                     paddingVertical: 16,
+                    gap: 8,
                   }}
                 >
                   <Label size={"heading"} weight={"bold"}>
@@ -288,9 +316,11 @@ export const LocationViewScreen = ({ route, navigation }) => {
   });
 
   const callNumber = (phoneNumber) => {
-    Linking.openURL(`tel:${phoneNumber.trim()}`).catch((err) => {
-      alert("Unable to call this number");
-    });
+    Linking.openURL(`tel:${encodeURIComponent(phoneNumber.trim())}`).catch(
+      (err) => {
+        alert("Unable to call this number");
+      }
+    );
   };
 
   useEffect(() => {
@@ -400,7 +430,6 @@ const style = StyleSheet.create({
   mapButtons: {
     flex: 1,
     backgroundColor: "#ddd",
-    borderBottomRightRadius: 0,
-    borderTopRightRadius: 0,
+    borderRadius: 0,
   },
 });

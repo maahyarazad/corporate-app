@@ -42,11 +42,11 @@ import { validateCardExpiryDate } from "../../utils/validateCardExpiryDate";
 import { PartnerPicker } from "../../components/partnerPicker";
 import { PartnerService } from "../../services/location/location.service";
 import { TranslationContext } from "../../services/translation/translation.context";
+import useRequest from "../../../hooks/useRequest";
+import useUser from "../../../hooks/useUser";
+import { theme } from "../../infrastructure/theme";
 
 export const AuthEditProfileScreen = () => {
-  const { user } = useContext(AuthContext);
-  const { userInfo, getUserInfo, setUserInfo, setUserInfoAsync } =
-    useContext(UserContext);
   const [showCountries, setShowCountries] = useState(false);
   const [isOpenGender, setIsOpenGender] = useState(false);
   const [isOpenHonorifics, setIsOpenHonorifics] = useState(false);
@@ -66,79 +66,90 @@ export const AuthEditProfileScreen = () => {
     nationality: "---",
     partner_id: "---",
     partner_name: "---",
+    card_valid_date: "---",
+    cardNumber: "---",
   });
   const dateLimit = new Date();
   dateLimit.setFullYear(dateLimit.getFullYear() - 18);
   const honorificLabelList = honorificList.map((x) => ({ label: x, value: x }));
   const isMounted = useRef(true);
-  const navigation = useNavigation();
-  const [partnerList, setPartnerList] = useState([]);
+  const [partnerList, setPartnerList] = useState();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { i18n, lang } = useContext(TranslationContext);
+  const { getUserInfo } = useUser();
+  const request = useRequest();
+  const [userData, setUserData] = useState(null);
 
-  useLayoutEffect(() => {
-    isMounted.current = true;
-    console.log("USERINFO", userInfo);
-    if (userInfo != undefined) {
-      const data = {
-        ...state,
-        user_id: user.user_id,
-        username: userInfo.username,
-        email: userInfo.email,
-        // mobile: `+${userInfo.mobile}`,
-        mobile: `+${userInfo.area_code}${userInfo.phone_number}`,
-        firstname: userInfo.first_name,
-        middlename: userInfo.middle_name,
-        lastname: userInfo.last_name,
-        birthdate: new Date(userInfo.birthdate),
-        nationality: userInfo.nationality,
-        gender: userInfo.gender.toLowerCase(),
-        honorifics: userInfo.honorifics,
-        partner_id: userInfo.partner_id,
-        partner_name: "---",
-        card_valid_date: moment(userInfo.card_valid_date)
-          .format("MM/YY")
-          .toString(),
-      };
+  useEffect(() => {
+    let isMounted = true;
+    const initialize = async () => {
+      try {
+        setIsLoading(true);
+        //Get partners
+        const response = await request("/v2/partner/active", "get");
+        const response_userInfo = await getUserInfo();
 
-      const getPartners = async () => {
-        try {
-          const response = await PartnerService.getPartners();
-          if (response.success && isMounted) {
+        if (isMounted) {
+          if (response_userInfo) {
+            setUserData(response_userInfo);
+          }
+
+          if (response.success) {
             setPartnerList(response.data);
-
-            setState({
-              ...data,
-              partner_name: response.data.filter(
-                (partner) => partner.value == userInfo.partner_id
-              )[0].label,
-            });
           } else {
             Alert.alert(
               "Error Occured",
               "There's a problem loading the partners"
             );
           }
-        } catch (error) {
-          console.log(error);
+          setIsLoading(false);
         }
-      };
-      if (!user.member) {
-        getPartners();
-      } else {
-        setState(data);
+      } catch (err) {
+        setIsLoading(false);
+        console.err(err);
       }
-      console.log("get partner");
-      setState(data);
-      setStateCopy(data);
-    }
+    };
 
-    console.log(state.partner_name);
+    initialize();
 
     return () => {
-      isMounted.current = false;
+      isMounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    if (userData && partnerList && isMounted) {
+      setState({
+        ...state,
+        username: userData.username,
+        firstname: userData.first_name,
+        middlename: userData.middle_name,
+        lastname: userData.last_name,
+        honorifics: userData.honorifics,
+        birthdate: new Date(userData.birthdate),
+        gender: userData.gender,
+        email: userData.email,
+        mobile: `+` + userData.area_code + ` ` + userData.phone_number,
+        nationality: userData.nationality,
+        partner_id: userData.partner_id,
+        partner_name:
+          !userData.member &&
+          partnerList.filter(
+            (partner) => partner.value === userData.partner_id
+          )[0].label,
+        card_valid_date: moment(userData.card_valid_date)
+          .format("MM/YY")
+          .toString(),
+        cardNumber: userData.card_number,
+      });
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [userData, partnerList]);
 
   useEffect(() => {
     if (JSON.stringify(state) === JSON.stringify(stateCopy)) {
@@ -153,6 +164,19 @@ export const AuthEditProfileScreen = () => {
     setState({ ...state, partner_id: partnerId, partner_name: partnerName });
   };
 
+  const checkForEmpty = () => {
+    let empty = false;
+    Object.keys(state).forEach((key) => {
+      if (state[key] !== "---" && state[key] !== "") {
+        empty = false;
+      } else {
+        empty = true;
+      }
+    });
+    if (empty) Alert.alert("Notice", "Please fill in all the required fields");
+    return empty;
+  };
+
   const handleSubmit = async () => {
     try {
       const data = {
@@ -163,18 +187,22 @@ export const AuthEditProfileScreen = () => {
 
       setIsSubmitted(true);
 
+      if (checkForEmpty()) return null;
+
       setIsLoading(true);
-      const response = await UserService.updateUser(data);
+
+      const response = await request("/v2/user/update", "post", data);
+      // const response = await UserService.updateUser(data);
+
       if (response) {
         if (isMounted.current) {
           setIsLoading(false);
 
-          getUserInfo(state.user_id);
           Alert.alert(
             i18n.t("profile-tabs.profile.update.heading"),
             i18n.t("profile-tabs.profile.update.text")
           );
-          navigation.reset({ routes: [{ name: "RequestApproval" }] });
+          goback();
         }
       }
     } catch (error) {
@@ -238,20 +266,51 @@ export const AuthEditProfileScreen = () => {
                 {i18n.t("return")}
               </Label>
             </TouchableOpacity>
-            <Label
-              size={"title"}
-              weight="bold"
-              style={{ color: "#dfdfdf", justifyContent: "center" }}
+            <View
+              style={{
+                width: 150,
+              }}
             >
-              {i18n.t("card-upload.edit-profile")}
-            </Label>
+              {/* <AnimatedButton
+                onPress={handleSubmit}
+                buttonColorFrom={disableButton ? "#999" : "rgba(230,135,0,1)"}
+                buttonColorTo={"rgba(210,115,0,1)"}
+                iconName={"content-save-edit-outline"}
+                iconSize={20}
+                textColor={"black"}
+                textSize={"title"}
+                textWeight={"medium"}
+                label={"update"}
+                disabled={disableButton}
+              ></AnimatedButton> */}
+              <Button
+                mode="contained"
+                onPress={handleSubmit}
+                buttonColor={theme.colors.icons.active}
+                style={{ borderRadius: 10 }}
+                icon={() => {
+                  return (
+                    <MaterialCommunityIcons
+                      name="content-save-outline"
+                      size={20}
+                      color={"white"}
+                    ></MaterialCommunityIcons>
+                  );
+                }}
+              >
+                Update
+              </Button>
+            </View>
           </View>
           <KeyboardAwareScrollView
+            style={{ marginHorizontal: -18 }}
             contentContainerStyle={{
               flexGrow: 1,
               flexDirection: "column",
               justifyContent: "center",
+              paddingHorizontal: 18,
             }}
+            indicatorStyle={"white"}
             keyboardShouldPersistTaps={"always"}
             keyboardDismissMode={
               Platform.OS === "ios" ? "interactive" : "on-drag"
@@ -261,19 +320,19 @@ export const AuthEditProfileScreen = () => {
             <CustomTextInput
               value={state.username}
               disable={true}
-              label={i18n.t("profile-tabs.profile.username")}
+              label={i18n.t("profile-tabs.profile.username") + "*"}
             />
             <Spacer position={"top"} size="medium" />
             <CustomTextInput
               value={state.email}
               disable={true}
-              label={i18n.t("profile-tabs.profile.email")}
+              label={i18n.t("profile-tabs.profile.email") + "*"}
             />
             <Spacer position={"top"} size="medium" />
             <CustomTextInput
               value={state.mobile}
               disable={true}
-              label={i18n.t("profile-tabs.profile.mobile")}
+              label={i18n.t("profile-tabs.profile.mobile") + "*"}
             />
             <Spacer position={"top"} size="medium" />
             <View
@@ -316,7 +375,7 @@ export const AuthEditProfileScreen = () => {
               onChangeText={(prev) => {
                 setState({ ...state, firstname: prev });
               }}
-              label={i18n.t("profile-tabs.profile.firstname")}
+              label={i18n.t("profile-tabs.profile.firstname") + "*"}
             />
             <Spacer position={"top"} size="medium" />
             <CustomTextInput
@@ -324,7 +383,7 @@ export const AuthEditProfileScreen = () => {
               onChangeText={(prev) => {
                 setState({ ...state, middlename: prev });
               }}
-              label={i18n.t("profile-tabs.profile.middlename")}
+              label={i18n.t("profile-tabs.profile.middlename") + "*"}
             />
             <Spacer position={"top"} size="medium" />
             <CustomTextInput
@@ -332,7 +391,7 @@ export const AuthEditProfileScreen = () => {
               onChangeText={(prev) => {
                 setState({ ...state, lastname: prev });
               }}
-              label={i18n.t("profile-tabs.profile.lastname")}
+              label={i18n.t("profile-tabs.profile.lastname") + "*"}
             />
             <Spacer position={"top"} size="medium" />
 
@@ -350,7 +409,7 @@ export const AuthEditProfileScreen = () => {
                       : i18n.t("gender.female")
                     : "---"
                 }
-                label={i18n.t("gender.title")}
+                label={i18n.t("gender.title") + "*"}
                 style={{
                   width: "100%",
                   maxHeight: 58,
@@ -393,7 +452,7 @@ export const AuthEditProfileScreen = () => {
               <CustomTextInput
                 value={moment(state.birthdate).format("DD.MMM YYYY")}
                 // onChangeText={setBirthdate}
-                label={i18n.t("profile-tabs.profile.birthdate")}
+                label={i18n.t("profile-tabs.profile.birthdate") + "*"}
                 style={{
                   width: "100%",
                   maxHeight: 60,
@@ -403,7 +462,7 @@ export const AuthEditProfileScreen = () => {
               <DatePicker
                 value={state.birthdate}
                 onDateChange={(date) => setState({ ...state, birthdate: date })}
-                title={i18n.t("profile-tabs.profile.birthdate")}
+                title={i18n.t("profile-tabs.profile.birthdate") + "*"}
                 isNullable={false}
                 iosMode="date"
                 androidMode="date"
@@ -428,7 +487,7 @@ export const AuthEditProfileScreen = () => {
             >
               <CustomTextInput
                 value={state.nationality}
-                label={i18n.t("profile-tabs.profile.nationality")}
+                label={i18n.t("profile-tabs.profile.nationality") + "*"}
                 style={{
                   width: "100%",
                   height: 58,
@@ -476,7 +535,7 @@ export const AuthEditProfileScreen = () => {
               </View>
             </View>
             <Spacer position={"top"} size="medium" />
-            {!user.member && (
+            {userData && !userData.member && (
               <>
                 <PartnerPicker
                   data={partnerList}
@@ -497,18 +556,15 @@ export const AuthEditProfileScreen = () => {
               </>
             )}
             <Spacer position={"top"} size="medium" />
-            <AnimatedButton
-              onPress={handleSubmit}
-              buttonColorFrom={disableButton ? "#999" : "rgba(230,135,0,1)"}
-              buttonColorTo={"rgba(210,115,0,1)"}
-              iconName={"content-save-edit-outline"}
-              iconSize={30}
-              textColor={"#fff"}
-              textSize={"title"}
-              textWeight={"medium"}
-              label={i18n.t("update")}
-              disabled={disableButton}
-            ></AnimatedButton>
+            <CustomTextInput
+              value={state.cardNumber}
+              onChangeText={(prev) => {
+                setState({ ...state, cardNumber: prev });
+              }}
+              keyboardType="numeric"
+              label={"GEC Card Number *"}
+              error={isSubmitted && state.cardNumber.trim() === ""}
+            />
           </KeyboardAwareScrollView>
         </View>
       </SafeArea>

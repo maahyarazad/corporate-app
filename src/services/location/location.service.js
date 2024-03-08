@@ -3,17 +3,21 @@ import * as Location from "expo-location";
 import { config, typeEnum, typeEnumString } from "../../utils/constants";
 
 export const getUserLocation = async () => {
-  return new Promise(async (resolve, reject) => {
-    const { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") {
-      reject("Permission to access location was denied");
-    }
+  try {
+    return new Promise(async (resolve, reject) => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        reject("Permission to access location was denied");
+      }
 
-    const location = await Location.getCurrentPositionAsync({
-      accuracy: Location.Accuracy.Lowest,
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Lowest,
+      });
+      resolve(location);
     });
-    resolve(location);
-  });
+  } catch (error) {
+    console.error("Failed to get user location:", error);
+  }
 };
 
 export const getCoords = (limit) => {
@@ -46,6 +50,7 @@ export const getLocations = (data) => {
 };
 
 export const getOneLocation = (id, lang) => {
+  alert("peste");
   return new Promise((resolve, reject) => {
     axiosInstance
       .get(`location/${id}?app=${config.APP_ID}&lang=${lang}`)

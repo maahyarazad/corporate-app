@@ -34,24 +34,35 @@ axiosInstance.interceptors.response.use(
     });
   },
   (error) => {
+    const _title =
+      (error &&
+        error.response &&
+        error.response.data &&
+        error.response.data.title) ??
+      "Alert";
+    const _message =
+      (error &&
+        error.response &&
+        error.response.data &&
+        error.response.data.message) ??
+      "Error Occured";
+
     if (!error.response) {
       return new Promise((resolve, reject) => {
         // console.log(error.response);
         // console.log(error);
         // navigate("Logout");
-        console.log("interceptor error response");
-        console.log("hhmmm HERE");
         reject({
           status: error.response.status,
-          title: error.response.data.title ?? "Alert",
-          message: error.response.data.message ?? "Error Occurred",
+          title: _title,
+          message: _message,
         });
       });
     }
 
     if (error.response.status === 403) {
       return new Promise((resolve, reject) => {
-        navigate("Logout");
+        // navigate("Logout");
         alert(error.response.data.message);
         reject(error.response.data.message);
       });
@@ -62,20 +73,11 @@ axiosInstance.interceptors.response.use(
         reject(error.response);
       });
     } else {
-      // return new Promise((resolve, reject) => {
-      //   // const { title = "Error" } = error.response.data;
-
-      //   // console.log(error.response.data);
-      //   // Alert.alert(title, error.response.data.message);
-      //   // Alert.alert(title, "Something went wrong");
-      //   reject("Something went wrong");
-      // });
       return new Promise((resolve, reject) => {
-        // alert("IN HERE");
         reject({
           status: error.response.status,
-          title: error.response.data.title ?? "Alert",
-          message: error.response.data.message ?? "Error Occurred",
+          title: _title,
+          message: _message,
         });
         // reject(error.response.status);
       });

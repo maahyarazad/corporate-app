@@ -59,6 +59,7 @@ export const SpecialTags = ({ data, handlePress }) => {
     overflow: hidden;
     justify-content: center;
     align-items: center;
+    background-color: black;
     padding: 10px;
   `;
 
@@ -69,6 +70,7 @@ export const SpecialTags = ({ data, handlePress }) => {
           <View
             style={{
               elevation: 6,
+              backgroundColor: "black",
               shadowColor: "black",
               shadowOpacity: Platform.OS === "ios" ? 0.3 : 1,
               shadowOffset: { width: 3, height: 4 },

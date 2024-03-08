@@ -79,7 +79,7 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
   };
 
   return (
-    <View>
+    <View style={{ gap: 8 }}>
       <CustomModal showModal={showModal}>
         <OfferModalInfo
           offerInfo={selectedOffer}

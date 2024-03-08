@@ -14,12 +14,13 @@ import {
 } from "./category.styles";
 import { NavigationContext } from "@react-navigation/native";
 import { SectionContext } from "../../../services/section/section.context";
-import { categorylogo, typeEnum } from "../../../utils/constants";
+import { categorylogo, config, typeEnum } from "../../../utils/constants";
 import { Skeleton } from "../../../components/skeleton";
 import { itemSeparatorHM } from "../../../components/styles";
 import { PartnerService } from "../../../services/location/location.service";
 import { AuthContext } from "../../../services/auth/auth.context";
 import { TranslationContext } from "../../../services/translation/translation.context";
+import useRequest from "../../../../hooks/useRequest";
 
 const renderCategory = ({ item, navigation }) => {
   const handleOnPress = () => {
@@ -109,31 +110,10 @@ const SkeletonCategoryHome = () => {
   );
 };
 
-export const HomeCategory = ({ size }) => {
+export const HomeCategory = ({ size, categoryData }) => {
   const navigation = useContext(NavigationContext);
   const { i18n, lang } = useContext(TranslationContext);
   const { setSectionTitle } = useContext(SectionContext);
-  const [categoryList, setCategoryList] = useState();
-  const { isLogout } = useContext(AuthContext);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const getCategories = async () => {
-      console.log("category");
-      const categories = await PartnerService.getAvailableCategories({ lang });
-      if (isMounted && categories) {
-        setCategoryList(categories);
-      }
-    };
-    if (!isLogout.current) {
-      getCategories();
-    }
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   return (
     <>
@@ -153,12 +133,12 @@ export const HomeCategory = ({ size }) => {
           </Spacer>
         </CategoryHeaderView>
         <CategoryContentView>
-          {categoryList ? (
+          {categoryData ? (
             <>
               <FlatList
                 horizontal
                 pagingEnabled
-                data={categoryList}
+                data={categoryData}
                 fadingEdgeLength={100}
                 snapToAlignment="start"
                 snapToInterval={100 + 16}

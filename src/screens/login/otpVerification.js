@@ -22,34 +22,74 @@ import { Label } from "../../components/typography/label.component";
 import { AuthContext } from "../../services/auth/auth.context";
 import { TranslationContext } from "../../services/translation/translation.context";
 import { config } from "../../utils/constants";
+import useRequest from "../../../hooks/useRequest";
+import useAuth from "../../../hooks/useAuth";
+import useUser from "../../../hooks/useUser";
+import { navigate } from "../../navigation/navigate";
 
 export const OtpVerification = ({ route, navigation }) => {
   const MAX_CODE_LENGTH = 4;
   const OTP_COOLDOWN = 120;
-  const { isLoading, verify, resendOTP, user } = useContext(AuthContext);
+  const { resendOTP } = useContext(AuthContext);
   const { i18n } = useContext(TranslationContext);
   const [otpCooldown, setOtpCooldown] = useState(OTP_COOLDOWN);
-  const mobileNum = route.params.hiddenNumber;
+  const hiddenNum2 = route.params.hiddenNumber;
   const [code, setCode] = useState("");
   const [pinReady, setPinReady] = useState(false);
   const { colors } = useTheme();
-  const { user_id, device_id } = user;
   const [resendStatus, setResendStatus] = useState(true);
   const [resendMsg, setResendMsg] = useState(i18n.t("auth.code-sent"));
+  const request = useRequest();
+  const { verifyOTP } = useAuth();
+  const { userData, getUserInfo } = useUser();
+  const [isLoading, setIsLoading] = useState(false);
+  const [hiddenNum, setHiddenNum] = useState(false);
+
+  useEffect(() => {
+    if (userData && userData.area_code && userData.phone_number) {
+      console.log("OTP", userData);
+      const mobileNum = `${userData.area_code}${userData.phone_number}`;
+      const _hiddenNum = mobileNum.replace(/\d(?=(?:\D*\d){4})/g, "*");
+
+      console.log("hiddenNum", _hiddenNum);
+      console.log("hiddenNum2", hiddenNum2);
+
+      setHiddenNum(_hiddenNum);
+    } else {
+      setHiddenNum(hiddenNum2);
+    }
+
+    return () => {};
+  }, [userData?.phone_number, userData?.area_code]);
 
   const handleVerify = async () => {
     try {
-      const otp_details = { otp: code, user_id, app_id: config.APP_ID };
-      const response = await verify(otp_details);
+      setIsLoading(true);
+      const otp_details = { otp: code, app_id: config.APP_ID };
+
+      const response = await request(
+        "/v2/auth/verify",
+        "post",
+        otp_details
+      ).catch(() => {
+        console.log("OTP Failed", response);
+      });
+
+      if (response.success) {
+        await getUserInfo();
+        await verifyOTP();
+      }
       if (!response) {
         handleCodeChange("");
       }
-    } catch (error) {}
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
     let isMounted = true;
-
     let subInterval = setInterval(() => {
       cooldownTimer(subInterval);
     }, 1000);
@@ -78,7 +118,7 @@ export const OtpVerification = ({ route, navigation }) => {
   };
 
   const handleResend = () => {
-    resendOTP(user_id).then((response) => {
+    resendOTP(userData.user_id).then((response) => {
       setResendMsg(i18n.t("auth.code-sent2"));
       setResendStatus(true);
     });
@@ -86,6 +126,10 @@ export const OtpVerification = ({ route, navigation }) => {
 
   const handleCodeChange = (value) => {
     setCode(value);
+  };
+
+  const handleMobileChange = () => {
+    navigate("MobileChange");
   };
 
   return (
@@ -106,7 +150,7 @@ export const OtpVerification = ({ route, navigation }) => {
           >
             <Spacer position={"top"} size={"large"} />
             <IconBg>
-              <StatusBar style="dark" />
+              <StatusBar style="light" />
               <MaterialCommunityIcons
                 color={colors.ui.secondary}
                 size={width * 0.4}
@@ -132,7 +176,7 @@ export const OtpVerification = ({ route, navigation }) => {
                 >
                   {i18n.t("auth.message", {
                     codeLength: MAX_CODE_LENGTH,
-                    mobileNumber: `+${mobileNum}`,
+                    mobileNumber: `+${hiddenNum}`,
                   })}
                 </Label>
                 {/* <Label
@@ -142,6 +186,15 @@ export const OtpVerification = ({ route, navigation }) => {
                   +{mobileNum}
                 </Label> */}
               </View>
+              <Spacer position={"top"} size={"medium"} />
+              <TouchableOpacity onPress={handleMobileChange}>
+                <Label
+                  style={{ color: "white", textDecorationLine: "underline" }}
+                  size={"title"}
+                >
+                  {i18n.t("update-mobile-number.header")}
+                </Label>
+              </TouchableOpacity>
               <Spacer position={"top"} size={"medium"} />
 
               <CodeInputField

@@ -3,7 +3,7 @@ import { View, StyleSheet, FlatList } from "react-native";
 import { SpecialTags } from "../features/home/components/specialtags";
 import { navigate } from "../navigation/navigate";
 import { PartnerService } from "../services/location/location.service";
-import { typeEnum } from "../utils/constants";
+import { config, typeEnum } from "../utils/constants";
 import { Skeleton } from "../components/skeleton";
 import { width } from "../components/styles";
 import { Label } from "../components/typography/label.component";
@@ -11,24 +11,33 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { UserContext } from "../services/user/user.context";
 import { SearchButton } from "../components/searchbutton";
 import { TranslationContext } from "../services/translation/translation.context";
+import useRequest from "../../hooks/useRequest";
 
 const OffersStack = createStackNavigator();
 
 export const SpecialsScreen = ({ navigation }) => {
   const [specialTagList, setSpecialTagList] = useState([]);
-  const { userInfo } = useContext(UserContext);
   const { i18n, lang } = useContext(TranslationContext);
+  const request = useRequest();
 
   useEffect(() => {
     let isMounted = true;
 
-    PartnerService.getAvailableTags(lang)
-      .then((response) => {
-        if (isMounted) setSpecialTagList(response);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    const getAvailableTags = async () => {
+      try {
+        const response = await request(
+          `/v2/partner/tags-available?app_id=${config.APP_ID}&lang=${lang}`,
+          "get"
+        );
+        if (response && isMounted) {
+          setSpecialTagList(response.result);
+        }
+      } catch (error) {
+        console.error("Failed to get available tags: ", error);
+      }
+    };
+
+    getAvailableTags();
 
     return () => {
       isMounted = false;
@@ -68,12 +77,6 @@ export const SpecialsScreen = ({ navigation }) => {
           height: 80,
         }}
       >
-        {/* <Searchbar
-          style={{ flexDirection: "row" }}
-          onPressIn={handleSearch}
-          editable={false}
-          placeholder="Search"
-        /> */}
         <SearchButton onPress={handleSearch} />
       </View>
       {/* {false ? ( */}

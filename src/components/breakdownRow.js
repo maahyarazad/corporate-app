@@ -170,6 +170,8 @@ export const BreakdownRow = ({ item }) => {
                 color={theme.colors.icons.active}
                 onPress={handleCloseModal}
                 mode="contained"
+                style={{ borderRadius: 10 }}
+                buttonColor={theme.colors.icons.active}
               >
                 {i18n.t("close")}
               </Button>

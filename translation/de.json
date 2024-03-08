@@ -1,10 +1,27 @@
 {
     "de": 
         {
+        "update-mobile-number" : {
+            "header": "Handynummer aktualisieren",
+            "success": "Erfolgreich",
+            "failed": "Fehlgeschlagen",
+            "success-msg": "Handynummer erfolgreich aktualisiert",
+            "failed-msg": "Aktualisierung der Handynummer fehlgeschlagen",
+            "confirm": "Bestätigen"
+        },
+        "update-email" : {
+            "header": "E-Mail-Adresse aktualisieren",
+            "success": "Erfolgreich",
+            "failed": "Fehlgeschlagen",
+            "success-msg": "E-Mail-Adresse erfolgreich aktualisiert",
+            "failed-msg": "Aktualisierung der E-Mail-Adresse fehlgeschlagen",
+            "confirm": "Bestätigen"
+        },
         "bottom-tabs": {
             "home": "Home",
             "offers": "Angebote",
             "events": "Events",
+            "feed": "Feed",
             "profile": "Profil"
         },
         "profile-tabs": {
@@ -45,6 +62,9 @@
                 
             },
             "settings-menu": {
+                "login-face-id" : "Anmeldung mit Face ID",
+                "login-face-recognition" : "Anmeldung mit Gesichtserkennung",
+                "login-fingerprint" : "Anmeldung mit Fingerabdruck",
                 "settings-permission": "App Einstellungen & Rechte",
                 "legal": "EULA & Datenschutz",
                 "contact-us": "Kontakt",
@@ -89,12 +109,12 @@
         "close": "Schließen",
         "cancel": "Absagen",
         "redemption-success": {
-            "transaction-summary": "Transaktionsüberblick",
-            "success": "Einlösung erfolgreich",
-            "text1": "Sie haben gesparrt",
-            "text2": "Sie haben insgesamt %{amount} %{currency} an %{partner} gezahlt",
-            "text3": "Bitte zeigen Sie den Referenzcode an der Kasse bei %{partner}",
-            "done": "Fertig"
+            "transaction-summary": "Transaction Summary",
+            "success": "Redemption Successful",
+            "text1": "You saved",
+            "text2": "You paid a total of %{amount} %{currency} to %{partner}",
+            "text3": "Please present this reference code to %{partner}'s Cashier",
+            "done": "Done"
         },
         "events": {
             "title": "Nächste Veranstaltungen",
@@ -124,7 +144,7 @@
                 "registration-success-msg": "Ihre Teilnahme mit Gästen ist bestätigt."
             }
         },
-        "read-more": "Mehr...",
+        "read-more": "Weiterlesen",
         "proceed": "Bestätigen",
         "auth": {
             "account-verification": "Account bestätigen",

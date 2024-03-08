@@ -1,38 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { FlatList, StyleSheet, View } from "react-native";
 import { LocationCards } from "../../../components/locationcards";
 import { Skeleton } from "../../../components/skeleton";
 import { Spacer } from "../../../components/spacer/spacer.component";
-import { AuthContext } from "../../../services/auth/auth.context";
-import { PartnerService } from "../../../services/location/location.service";
-import { TranslationContext } from "../../../services/translation/translation.context";
 
-export const TopPartners = () => {
-  const [topPartners, setTopPartners] = useState();
-  const { isLogout } = useContext(AuthContext);
-  const { lang } = useContext(TranslationContext);
+const MemoizedLocationCard = React.memo(LocationCards);
 
-  useEffect(() => {
-    let isMounted = true;
-
-    const getTopPartners = async () => {
-      const result = await PartnerService.getTopPerCategories({
-        count: 5,
-        lang,
-      });
-      if (isMounted && result) {
-        setTopPartners(result);
-      }
-    };
-    if (!isLogout.current) {
-      getTopPartners();
-    }
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
+const TopPartners = ({ topPartnersData }) => {
   const RenderSkeleton = () => {
     return (
       <>
@@ -61,21 +35,21 @@ export const TopPartners = () => {
 
   return (
     <>
-      {/* {topPartners ? ( */}
       <View removeClippedSubviews={true}>
-        {topPartners ? (
-          Object.keys(topPartners).map((key) => {
-            {
-              /* console.log(topPartners[key]); */
-            }
-            return (
+        {topPartnersData ? (
+          <FlatList
+            scrollEnabled={false}
+            data={Object.values(topPartnersData)}
+            renderItem={({ item, index }) => (
               <LocationCards
-                key={key}
-                locationList={topPartners[key]}
-                label={key}
+                key={item.id}
+                locationList={
+                  topPartnersData[Object.keys(topPartnersData)[index]]
+                }
+                label={Object.keys(topPartnersData)[index]}
               />
-            );
-          })
+            )}
+          />
         ) : (
           <RenderSkeleton />
         )}
@@ -87,3 +61,5 @@ export const TopPartners = () => {
 const styles = StyleSheet.create({
   container: {},
 });
+
+export default React.memo(TopPartners);

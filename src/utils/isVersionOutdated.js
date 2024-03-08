@@ -1,7 +1,7 @@
 import * as Constants from "expo-constants";
 
 export const isVersionOutdated = (latestVersion) => {
-  const appVersion = Constants.default.manifest.version;
+  const appVersion = Constants.default.expoConfig.version;
 
   const arrayA = appVersion.split(".");
   const arrayB = latestVersion.split(".");

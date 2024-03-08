@@ -1,64 +1,118 @@
 import { createStackNavigator } from "@react-navigation/stack";
 import React, { useContext, useState } from "react";
-import { Dimensions, Image, View } from "react-native";
+import {
+  Dimensions,
+  Image,
+  SafeAreaView,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeArea } from "../../components/safearea.component";
 import { ProfTabs } from "../../features/profile/profTabs";
 import { UserContext } from "../../services/user/user.context";
 import { config } from "../../utils/constants";
 import { ContactUsScreen } from "./contactUs.screen";
 import { PrivacyPolicyScreen } from "./privacyPolicy.screen";
+import useUser from "../../../hooks/useUser";
+import useAuth from "../../../hooks/useAuth";
+import { Label } from "../../components/typography/label.component";
+import CustomButton from "../../components/customButton.component";
+import { theme } from "../../infrastructure/theme";
+import { goback } from "../../navigation/navigate";
+import { Ionicons } from "@expo/vector-icons";
+import { TranslationContext } from "../../services/translation/translation.context";
+import { CacheImage } from "../../components/cacheImage";
 
 const ProfileStack = createStackNavigator();
 
 const ProfilePrimaryScreen = () => {
-  const { userInfo } = useContext(UserContext);
+  const { userData } = useUser();
+  const { isSkip, goToVerification } = useAuth();
   const { width } = Dimensions.get("window");
-  const [height, setHeight] = useState(100);
+
+  const { i18n } = useContext(TranslationContext);
 
   return (
     <>
-      {userInfo != undefined && (
+      {
         <SafeArea style={{ backgroundColor: "#efefef" }}>
+          <View style={{ paddingHorizontal: 12 }}>
+            <TouchableOpacity
+              onPress={goback}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+              activeOpacity={0.5}
+            >
+              <Ionicons name="arrow-back" size={35} color={"#555"} />
+              <Label
+                size={"body"}
+                weight="bold"
+                style={{ color: "#555", justifyContent: "center" }}
+              >
+                {i18n.t("return")}
+              </Label>
+            </TouchableOpacity>
+          </View>
+          <View style={{ paddingHorizontal: 14, paddingBottom: 6 }}>
+            <Label weight={"bold"} size={"h5"}>
+              Profil
+            </Label>
+          </View>
           {/* Main Container */}
           <View
             style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
-            onLayout={(e) => {
-              setHeight(e.nativeEvent.layout.height);
-            }}
           >
             {/* Image Container */}
-            <View
-              style={{
-                // height: "40%",
-                // width: width,
-                height: height,
-                width: height * (800 / 550),
-                padding: 16,
-                justifyContent: "center",
-                alignItems: "center",
-                borderRadius: 10,
-                // backgroundColor: "#ccc",
-              }}
-            >
-              <Image
+            {!isSkip ? (
+              <View
                 style={{
-                  width: "100%",
-                  height: "100%",
-                  resizeMode: "cover",
+                  // height: "40%",
+                  // width: width,
+                  width: "90%",
+                  aspectRatio: 1.45,
+                  padding: 16,
+                  justifyContent: "center",
+                  alignItems: "center",
                   borderRadius: 10,
-                  backgroundColor: "#ccc",
+                  // backgroundColor: "#ccc",
                 }}
-                source={{
-                  uri: `${config.SERVER_HOST}/uploads/app/card_images/${userInfo.photo}`,
+              >
+                <CacheImage
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    borderRadius: 10,
+                    backgroundColor: "#ccc",
+                  }}
+                  resizeMode={"cover"}
+                  uri={`${config.SERVER_HOST}/uploads/app/card_images/${userData?.card_image}`}
+                />
+              </View>
+            ) : (
+              <View
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: 12,
                 }}
-              />
-            </View>
+              >
+                <Label>Sie haben keine Karte hochgeladen.</Label>
+                <CustomButton
+                  onPress={goToVerification}
+                  style={{ backgroundColor: theme.colors.icons.active }}
+                  label={"Zur Upload-Seite gehen"}
+                  labelStyle={{ color: "white" }}
+                />
+              </View>
+            )}
           </View>
           <View style={{ flex: 2 }}>
             <ProfTabs />
           </View>
         </SafeArea>
-      )}
+      }
     </>
   );
 };
@@ -70,199 +124,21 @@ export const ProfileScreen = ({ theme, ...props }) => {
 
   return (
     <>
-      <ProfileStack.Navigator
-        screenOptions={{ headerShown: false, gestureEnabled: false }}
-      >
-        <ProfileStack.Screen
-          name="MainProfile"
-          component={ProfilePrimaryScreen}
-        />
-        <ProfileStack.Screen name="ContactUs" component={ContactUsScreen} />
-        <ProfileStack.Screen
-          name="Privacy Policy"
-          component={PrivacyPolicyScreen}
-        />
-      </ProfileStack.Navigator>
+      <SafeAreaView style={{ flex: 1 }}>
+        <ProfileStack.Navigator
+          screenOptions={{ headerShown: false, gestureEnabled: false }}
+        >
+          <ProfileStack.Screen
+            name="MainProfile"
+            component={ProfilePrimaryScreen}
+          />
+          <ProfileStack.Screen name="ContactUs" component={ContactUsScreen} />
+          <ProfileStack.Screen
+            name="Privacy Policy"
+            component={PrivacyPolicyScreen}
+          />
+        </ProfileStack.Navigator>
+      </SafeAreaView>
     </>
   );
 };
-
-{
-  /* <SafeArea style={{ backgroundColor: "#DDD" }}>
-      <View
-        style={{
-          width: 200,
-          height: 200,
-          backgroundColor: "#EEE",
-          alignSelf: "center",
-          overflow: "hidden",
-          borderWidth: 5,
-          borderColor: "#CCC",
-          borderRadius: 200 / 2,
-          marginTop: 10,
-          elevation: 5,
-          zIndex: 100,
-        }}
-      >
-        <TouchableOpacity
-          activeOpacity={0.5}
-          style={{
-            flex: 1,
-          }}
-        >
-          <Image
-            style={{ flex: 1 }}
-            source={{ uri: "https://picsum.photos/700" }}
-          />
-        </TouchableOpacity>
-      </View>
-      <View
-        style={{
-          width: Dimensions.get("window").width - 32,
-          height: "auto",
-          backgroundColor: "#EEE",
-          alignSelf: "center",
-          borderRadius: 10,
-          marginTop: -100,
-          elevation: 10,
-          zIndex: 10,
-          justifyContent: "space-between",
-          alignItems: "center",
-          shadowOffset: {
-            width: 3,
-            height: 4,
-          },
-          shadowRadius: 5,
-          shadowColor: "black",
-          shadowOpacity: 0.3,
-        }}
-      >
-        <View style={{ marginTop: 120, alignItems: "center" }}>
-          <Label size={"heading"} weight={"bold"}>
-            Miguel Iñaki William Paday
-          </Label>
-          <Label style={{ color: "#999" }} size={"title"} weight={"medium"}>
-            Software Engineer
-          </Label>
-        </View>
-        <Spacer position={"bottom"} size={"medium"}>
-          <View style={{ padding: 16 }}>
-            <View style={{ flexDirection: "row" }}>
-              <Label>Works at </Label>
-              <Label weight={"bold"}>German Emirates Club </Label>
-            </View>
-            <View style={{ flexDirection: "row" }}>
-              <Label>Studied at </Label>
-              <Label weight={"bold"}>University of Cebu </Label>
-            </View>
-            <View style={{ flexDirection: "row" }}>
-              <Label>Lived in </Label>
-              <Label weight={"bold"}>Dubai, United Arab Emirates </Label>
-            </View>
-            <View style={{ flexDirection: "row" }}>
-              <Label>Joined since </Label>
-              <Label weight={"bold"}>May 2022 </Label>
-            </View>
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              paddingHorizontal: 16,
-              alignSelf: "flex-end",
-            }}
-          >
-            <TouchableOpacity
-              style={{
-                flex: 1,
-                width: "auto",
-                height: 50,
-                elevation: 10,
-                shadowOffset: {
-                  width: 3,
-                  height: 4,
-                },
-                shadowRadius: 3,
-                shadowColor: "black",
-                shadowOpacity: 0.3,
-              }}
-            >
-              <View
-                style={{
-                  borderRadius: 5,
-                  overflow: "hidden",
-                  flex: 1,
-                }}
-              >
-                <LinearGradient
-                  style={{
-                    flex: 1,
-                    width: "auto",
-                    height: 50,
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                  colors={["#2C82F9", "#2C82F9"]}
-                >
-                  <Label
-                    style={{ color: "white" }}
-                    size={"body"}
-                    weight={"bold"}
-                  >
-                    Add Friend
-                  </Label>
-                </LinearGradient>
-              </View>
-            </TouchableOpacity>
-            <Spacer position={"right"} size="medium" />
-
-            <TouchableOpacity
-              style={{
-                flex: 1,
-                width: "auto",
-                height: 50,
-                elevation: 10,
-                borderRadius: 5,
-                shadowOffset: {
-                  width: 3,
-                  height: 4,
-                },
-                shadowRadius: 3,
-                shadowColor: "black",
-                shadowOpacity: 0.3,
-              }}
-              onPress={handleLogout}
-            >
-              <View
-                style={{
-                  borderRadius: 5,
-                  overflow: "hidden",
-                  flex: 1,
-                }}
-              >
-                <LinearGradient
-                  style={{
-                    flex: 1,
-                    width: "auto",
-                    height: 50,
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                  colors={["#2C82F9", "#2C82F9"]}
-                >
-                  <Label
-                    style={{ color: "white" }}
-                    size={"body"}
-                    weight={"bold"}
-                  >
-                    Message
-                  </Label>
-                </LinearGradient>
-              </View>
-            </TouchableOpacity>
-          </View>
-        </Spacer>
-      </View>
-    </SafeArea> */
-}
-
-//V2

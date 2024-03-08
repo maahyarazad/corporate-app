@@ -18,9 +18,11 @@ import { SupportService } from "../../services/support/support.service";
 import { TranslationContext } from "../../services/translation/translation.context";
 import { UserContext } from "../../services/user/user.context";
 import { config } from "../../utils/constants";
+import useUser from "../../../hooks/useUser";
+import useRequest from "../../../hooks/useRequest";
 
 export const ContactUsScreen = () => {
-  const { userInfo } = useContext(UserContext);
+  const { userData } = useUser();
   const { i18n } = useContext(TranslationContext);
   const [disableButton, setDisableButton] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,16 +32,17 @@ export const ContactUsScreen = () => {
     mobile: ".",
     message: "",
   });
+  const request = useRequest();
 
   useLayoutEffect(() => {
     let isMounted = true;
 
-    if (userInfo != undefined && isMounted) {
+    if (userData != undefined && isMounted) {
       setState({
         ...state,
-        name: `${userInfo.first_name} ${userInfo.last_name}`,
-        email: userInfo.email,
-        mobile: `+${userInfo.area_code} ${userInfo.phone_number}`,
+        name: `${userData.first_name} ${userData.last_name}`,
+        email: userData.email,
+        mobile: `+${userData.area_code} ${userData.phone_number}`,
       });
     }
 
@@ -52,9 +55,8 @@ export const ContactUsScreen = () => {
     const empty = Object.keys(state).find((key) => {
       // console.log('There is Empty', key)
       // console.log(state[key])
-      return state[key].trim() === ``;
+      return state[key]?.trim() === ``;
     });
-
     if (empty) {
       setDisableButton(true);
     } else {
@@ -83,7 +85,8 @@ export const ContactUsScreen = () => {
       setIsLoading(true);
       const data = { ...state, app: config.APP_ID };
 
-      const response = await SupportService.sendFeedbackMsg(data);
+      const response = await request(`/v2/support/message`, "post", data);
+      // const response = await SupportService.sendFeedbackMsg(data);
       if (response.success) {
         Alert.alert(
           "Sent Successfully",
@@ -110,36 +113,26 @@ export const ContactUsScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <View
+    <View style={[styles.container, { gap: 16 }]}>
+      <TouchableOpacity
+        onPress={goback}
         style={{
           flexDirection: "row",
-          marginVertical: 16,
-          justifyContent: "space-between",
           alignItems: "center",
-          alignSelf: "stretch",
         }}
+        activeOpacity={0.5}
       >
-        <TouchableOpacity
-          onPress={goback}
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-          }}
-          activeOpacity={0.5}
+        <Ionicons name="arrow-back" size={35} color={"#555"} />
+        <Label
+          size={"body"}
+          weight="bold"
+          style={{ color: "#555", justifyContent: "center" }}
         >
-          <Ionicons name="arrow-back" size={35} color={"#555"} />
-          <Label
-            size={"body"}
-            weight="bold"
-            style={{ color: "#555", justifyContent: "center" }}
-          >
-            {i18n.t("return")}
-          </Label>
-        </TouchableOpacity>
-      </View>
+          {i18n.t("return")}
+        </Label>
+      </TouchableOpacity>
       <View style={styles.contactContainer}>
-        <View style={{ marginBottom: 24, paddingHorizontal: 16 }}>
+        <View style={{ marginBottom: 24 }}>
           <Label
             size={"h5"}
             weight="bold"
@@ -155,7 +148,7 @@ export const ContactUsScreen = () => {
           keyboardDismissMode={
             Platform.OS === "ios" ? "interactive" : "on-drag"
           }
-          style={{ paddingHorizontal: 16 }}
+          style={[styles.container, { marginHorizontal: -16 }]}
           contentContainerStyle={{ paddingVertical: 12 }}
         >
           <View>
@@ -245,6 +238,7 @@ export const ContactUsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingHorizontal: 16,
   },
   contactContainer: {
     flex: 1,

@@ -21,6 +21,10 @@ import {
 } from "../../services/translation/translation.context";
 import { UserService } from "../../services/user/user.service";
 import { config } from "../../utils/constants";
+import useRequest from "../../../hooks/useRequest";
+import useUser from "../../../hooks/useUser";
+import { useTranslation } from "../../../hooks/useTranslation";
+import useMath from "../../../hooks/useMath";
 
 const TOGGLE_BUTTON_BREAKDOWN_HEIGHT = 40;
 
@@ -29,21 +33,24 @@ export const ProfRedeemHistory = () => {
   const [headerList, setHeaderList] = useState();
   const [data, setData] = useState();
   const [overall, setOverall] = useState(null);
+  const request = useRequest();
+  const { userData } = useUser();
+  const { lang } = useContext(TranslationContext);
 
   useEffect(() => {
     let isMounted = true;
-    UserService.getRedemptionHistory(user.user_id)
-      .then((response) => {
-        if (isMounted) {
-          setData(response.rows);
-          setHeaderList(response.headers);
-          setOverall(response.overall);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
 
+    const getUserTransactions = async () => {
+      const response = await request(`/v2/user/history?lang=${lang}`, "get");
+
+      if (response.success) {
+        setData(response.data.rows);
+        setHeaderList(response.data.headers);
+        setOverall(response.data.overall);
+      }
+    };
+
+    getUserTransactions();
     return () => {
       isMounted = false;
     };
@@ -122,6 +129,7 @@ export const ProfRedeemHistory = () => {
   const animatedValue = useRef(new Animated.Value(viewHeight)).current;
 
   const [displayBreakdown, setDisplayBreakdown] = useState(false);
+  const { limitToTwoDecimalPlaces } = useMath();
 
   const showBreakdown = () => {
     Animated.timing(animatedValue, {
@@ -181,7 +189,7 @@ export const ProfRedeemHistory = () => {
                     color: theme.colors.icons.active,
                   }}
                 >
-                  {overall}
+                  {limitToTwoDecimalPlaces(overall)}
                 </Label>
                 <Label
                   weight={"bold"}

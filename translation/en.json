@@ -1,10 +1,27 @@
 {
     "en": 
         {
+        "update-mobile-number" : {
+            "header": "Update mobile number",
+            "success": "Success",
+            "failed": "Failed",
+            "success-msg": "Mobile number updated successfully",
+            "failed-msg": "Failed to update mobile number",
+            "confirm": "Confirm"
+        },
+        "update-email" : {
+            "header": "Update E-mail address",
+            "success": "Success",
+            "failed": "Failed",
+            "success-msg": "E-mail address updated successfully",
+            "failed-msg": "Failed to update E-mail address",
+            "confirm": "Confirm"
+        },
         "bottom-tabs": {
             "home": "Home",
             "offers": "Offers",
             "events": "Events",
+            "feed": "Feed",
             "profile": "Profile"
         },
         "profile-tabs": {
@@ -44,6 +61,9 @@
                 "savings": "Total Savings"
             },
             "settings-menu": {
+                "login-face-id" : "Login using Face ID",
+                "login-face-recognition" : "Login using Face Recognition",
+                "login-fingerprint" : "Login using Fingerprint",
                 "settings-permission": "App Settings & Permissions",
                 "legal": "EULA & Privacy Policy",
                 "contact-us": "Contact Us",
@@ -157,7 +177,7 @@
         "yes": "Yes",
         "free": "Free",
         "offer-restriction": {
-            "title": "Incomplete Profile",
+            "title": "Update Card",
             "message": "You need to upload your member card to use any offers or you can also call us to order a card",
             "order-now": "Order Card",
             "upload-card": "Upload Card"

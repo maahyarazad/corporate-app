@@ -17,12 +17,13 @@ const StyledText = styled(Text)`
   }}
 `;
 
-const getVariant = (size, weight, theme) => {
+const getVariant = (size, weight, color, theme) => {
   return `
         font-weight: ${theme.fontWeights[weight]};
         font-size: ${
           typeof size === "string" ? theme.fontSizes[size] : `${size}px`
         };
+        color: ${color};
     `;
 };
 
@@ -35,9 +36,10 @@ export const Label = ({
   numberOfLines,
   ellipsizeMode,
   onPress,
+  color,
 }) => {
   const theme = useTheme();
-  const variant = getVariant(size, weight, theme);
+  const variant = getVariant(size, weight, color, theme);
   return (
     <StyledText
       // allowFontScaling={false}
@@ -56,4 +58,5 @@ export const Label = ({
 Label.defaultProps = {
   size: "body",
   weight: "regular",
+  color: "black",
 };

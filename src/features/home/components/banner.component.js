@@ -22,6 +22,7 @@ import Carousel from "react-native-reanimated-carousel";
 import { CacheImage } from "../../../components/cacheImage";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import * as Linking2 from "expo-linking";
+import useRequest from "../../../../hooks/useRequest";
 
 const SIZE_RATIO = 9 / 16;
 // const SIZE_RATIO = 9 / 16;
@@ -55,19 +56,21 @@ const Pressable = styled(TouchableOpacity)`
   border-left-width: 0px;
   border-right-width: 0px;
   border-color: rgba(0, 0, 0, 0.05);
-  box-shadow: 4px 4px 4px rgba(0, 0, 0, ${Platform.OS === "ios" ? 0.3 : 1});
+
   justify-content: center;
   padding-left: 16px;
   padding-right: 16px;
+  background: #eee;
   /* elevation: 6; */
 `;
 
 const BannerContainer = styled(View)`
-  overflow: hidden;
+  /* overflow: hidden; */
   /* padding-right: 30px; */
   border-radius: 10px;
   flex: 1;
   background-color: grey;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, ${Platform.OS === "ios" ? 0.4 : 1});
 `;
 
 const renderBanner = ({ item, screenWidth, setLoading, loading }) => {
@@ -109,6 +112,7 @@ const renderBanner = ({ item, screenWidth, setLoading, loading }) => {
             style={{
               width: "100%",
               height: "100%",
+              borderRadius: 10,
               // resizeMode: "cover",
             }}
             uri={`${config.SERVER_HOST}/banners/${item.banner_image}`}
@@ -119,46 +123,22 @@ const renderBanner = ({ item, screenWidth, setLoading, loading }) => {
   );
 };
 
-export const FeaturedBanner = ({ bannerData }) => {
+const FeaturedBanner = ({ bannerData }) => {
   const [loading, setLoading] = useState(true);
   const screenWidth = Math.floor(Dimensions.get("window").width);
-  const [bannerList, setBannerList] = useState();
-  const { isLogout, user } = useContext(AuthContext);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const getBanners = async (count) => {
-      const banners = await AppServices.getBanners({
-        id: config.APP_ID,
-        status: 1,
-        user_id: user.user_id,
-      });
-
-      if (isMounted && banners.success) {
-        setBannerList(banners.data);
-      }
-    };
-    if (!isLogout.current) {
-      getBanners();
-    }
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   return (
     <>
-      {bannerList && bannerList.length > 0 ? (
+      {bannerData && bannerData.length > 0 ? (
         <>
           <Spacer position={"top"} size={"medium"} />
           <ListContainer>
             <Carousel
               width={Dimensions.get("screen").width}
               height={Dimensions.get("screen").width * (9 / 16)}
-              data={bannerList}
-              autoPlay={true}
+              data={bannerData}
+              autoPlay={bannerData.length > 1 ? true : false}
+              loop={bannerData.length > 1 ? true : false}
               panGestureHandlerProps={{
                 activeOffsetX: [-10, 10],
               }}
@@ -175,3 +155,5 @@ export const FeaturedBanner = ({ bannerData }) => {
     </>
   );
 };
+
+export default React.memo(FeaturedBanner);

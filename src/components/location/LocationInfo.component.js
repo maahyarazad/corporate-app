@@ -105,11 +105,11 @@ export const LocationInfo = ({
                           <View key={`${phone}${index}`}>
                             <Label
                               onPress={async () => {
-                                Linking.openURL(`tel:${phone.trim()}`).catch(
-                                  (err) => {
-                                    alert("Unable to call this number");
-                                  }
-                                );
+                                Linking.openURL(
+                                  `tel:${encodeURIComponent(phone.trim())}`
+                                ).catch((err) => {
+                                  alert("Unable to call this number");
+                                });
                               }}
                               style={{ color: "#006EFF" }}
                               size={"caption"}
