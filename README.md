@@ -27,7 +27,7 @@ It is written in **React Native** Framework using **Expo** Tools.
     - [6. Running the App Development Server](#6-running-the-app-development-server)
     - [7. Opening the App](#7-opening-the-app)
   - [Production](#production)
-    - [1. Create a Production Build](#1-create-a-production-build)
+    - [1. Creating a Production Build](#1-creating-a-production-build)
     - [2. Submitting to App Publishers](#2-submitting-to-app-publishers)
     - [3. Publishing the new app version](#3-publishing-the-new-app-version)
 
@@ -183,13 +183,13 @@ It is written in **React Native** Framework using **Expo** Tools.
   
   ![Expo Development Build Download](./docs/expo-build-download.png)
 
-  If the build is for Android, it will download the **APK** once scanned. If it's for iOS, it will be installed automatically to your phone using iTunes.
-
-  For Android, you need to manually install the APK downloaded from Expo.
+  If the build is for Android, it will download the **APK** once scanned. 
+  - For iOS, it will be installed automatically to your phone using iTunes once scanned.
+  - For Android, you need to manually install the APK downloaded from Expo.
 
   ### 5. Preparing the App for the App Development Server
 
-  Once the development build app is installed in your mobile device, it's time to run the development server.
+  Once the development-build app is installed in your mobile device, it's time to run the development server.
 
   - ### Local Web Server
 
@@ -251,11 +251,11 @@ It is written in **React Native** Framework using **Expo** Tools.
 
 ## Production
 
-  ### 1. Create a Production Build
+  ### 1. Creating a Production Build
 
-  Submitting to the app publishers requires app binary.
+  Submitting to the app publishers requires an app binary.
 
-  Before building the production app, there are some properties to be updated in the `app.json` file:
+  Always increment the versions of the following properties below in the `app.json` file before building the Production App:
     
   - **expo.version**
   - **expo.ios.buildNumber**
@@ -297,11 +297,11 @@ It is written in **React Native** Framework using **Expo** Tools.
 
   After selecting an option, the code will be uploaded to the EAS server to be built on the cloud.
 
-  ***Note: Sometimes the Terminal would ask for the login credentials to the appstore connection, google play console or the OTP sent to the assigned mobile number.***
+  ***Note: Sometimes the Terminal asks for the login credentials to the appstore connection, google play console or the OTP sent to the assigned mobile number.***
 
   Once the build has started, it will be shown in the [Expo Builds](https://expo.dev/accounts/buenapublica/projects/GEC-Rewards/builds) page.
 
-  Since we are using EAS Free tier, build time can vary. If the build server is not full, building would start immediately otherwise building would be queued.
+  Since we are using EAS Free tier, build time can vary. If the build server is not full, building process starts immediately otherwise it will be queued.
 
 
   ### 2. Submitting to App Publishers
@@ -320,7 +320,7 @@ It is written in **React Native** Framework using **Expo** Tools.
 
   ![EAS Build Selection](./docs/eas-build-selection-2.png)
 
-  After selecting, submission process will now start. The respective app publishers will email you once submission is done.
+  After selecting the build, submission process will now start. The respective app publishers will email you once submission is done.
 
   ### 3. Publishing the new app version
 
@@ -418,7 +418,7 @@ It is written in **React Native** Framework using **Expo** Tools.
 
        ![Google Play Console Build List](./docs/google-play-build-list.png)    
     
-    7. Type in the release notes (chaneglogs) and Click '**Next**'
+    7. Type in the release notes (changelogs) and Click '**Next**'
 
         The release notes should be in this format:
         
@@ -440,7 +440,7 @@ It is written in **React Native** Framework using **Expo** Tools.
 
         Press '**Send 1 change for review**' and you just need to wait for the reviewing process to finish.
 
-        if the `Managed publishing` setting is off for the Publishing overview, once the app is approved, it will then be rolled out to the stores (propagation may take time)
+        If the `Managed publishing` setting is off for the Publishing overview, once the app is approved, it will then be rolled out to the playstore (propagation may take time)
 
        ![Google Play Console Release Details](./docs/google-play-publishing-overview.png)
 

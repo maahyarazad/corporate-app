@@ -552,7 +552,6 @@ export default function PostProvider({ children }) {
         ).unix()}`,
         "get"
       );
-      if (response.success) console.log("MORE", response.data);
       if (response.success) {
         setRootPosts((prev) => {
           // if (prev.length > 20) {
