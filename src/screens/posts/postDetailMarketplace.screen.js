@@ -90,10 +90,10 @@ const PostDetailMarketplace = ({ item }) => {
   };
 
   const handlePressSMS = () => {
-    const phoneNumber = "+971543839091";
+    const phoneNumber = state.mobile;
     const link = `https://www.german-emirates-club.com/Marketplace/${state.id}`;
     const message = `Hello, I am interested in your post about the ${state.title}. Is it still available?\n\n${link}`;
-    const url = `sms:+971543839091&body=${encodeURIComponent(message)}`; // The 'sms:' scheme followed by the phone number
+    const url = `sms:${phoneNumber}&body=${encodeURIComponent(message)}`; // The 'sms:' scheme followed by the phone number
     Linking.canOpenURL(url)
       .then((supported) => {
         if (!supported) {
@@ -106,7 +106,7 @@ const PostDetailMarketplace = ({ item }) => {
   };
 
   const handlePressCall = () => {
-    const phoneNumber = "+971543839091";
+    const phoneNumber = state.mobile;
     const url = `tel:${phoneNumber}`; // The 'sms:' scheme followed by the phone number
     Linking.canOpenURL(url)
       .then((supported) => {

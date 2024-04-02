@@ -121,7 +121,7 @@ const PostCard = ({
   }, [data.liked, data.likeCount, data.commentCount]);
 
   useEffect(() => {
-    console.log("PostCard Renders");
+    // console.log("PostCard Renders");
     // if (commentCount > 0 && true) {
     // if (commentCount > 0 && userData.old_user_id === data.user_id) {
 

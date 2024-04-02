@@ -61,7 +61,7 @@ const PostCardMarketplace = ({ item }) => {
 
       getImages();
     }
-    console.log("PostCardMarketplace", item.id);
+    // console.log("PostCardMarketplace", item.id);
     return () => {};
   }, []);
 
@@ -119,7 +119,7 @@ const PostCardMarketplace = ({ item }) => {
               >
                 <CacheImage
                   uri={images[0].uri}
-                  style={{ width: "100%", aspectRatio: 1 }}
+                  style={{ width: "100%", aspectRatio: 1.77 }}
                   resizeMode="cover"
                 />
                 <View

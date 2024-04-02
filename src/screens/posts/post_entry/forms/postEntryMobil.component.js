@@ -191,7 +191,6 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
         return true;
       }
 
-      alert("success");
       return false;
     } else {
       console.log("mode", state.price_to);
