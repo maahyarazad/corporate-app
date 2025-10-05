@@ -28,7 +28,11 @@
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
         }
       ],
-      "react-native-compressor"
+      "react-native-compressor",
+      "expo-asset",
+      "expo-secure-store",
+      "expo-web-browser",
+      "expo-font"
     ],
     "updates": {
       "fallbackToCacheTimeout": 0,
