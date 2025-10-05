@@ -94,13 +94,31 @@ export default function useRequest() {
       });
 
       return Promise.resolve(response.data);
+      
     } catch (error) {
+
       if (error.code === "ECONNABORTED") {
-        Alert.alert(
-          "Request Timeout Error",
-          "The request took too long to complete. Please check your network connection and try again."
+
+        if (retry >= MAX_RETRY) {
+          Alert.alert(
+            "Request Timeout Error",
+            "The request took too long to complete. Please check your network connection and try again."
+          );
+          return;
+        }
+
+        //retry
+        return await httpRequest(
+          url,
+          method,
+          body,
+          header,
+          signal,
+          token,
+          ++retry
         );
-        return;
+  
+
       }
       // Alert.alert(
       //   "Error",
