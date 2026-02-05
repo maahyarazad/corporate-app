@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 // import { TabItems } from "../utils/routes";
-import { useTheme } from "styled-components";
+import { useTheme } from "styled-components/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { Alert, Image, Platform, TouchableOpacity, View } from "react-native";

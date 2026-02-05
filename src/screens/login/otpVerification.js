@@ -5,7 +5,7 @@ import { TouchableOpacity, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { ActivityIndicator } from "react-native-paper";
 import { sub } from "react-native-reanimated";
-import { useTheme } from "styled-components";
+import { useTheme } from "styled-components/native";
 import Background from "../../components/background/background.component";
 import { CodeInputField } from "../../components/codeInputField";
 import { SafeArea } from "../../components/safearea.component";

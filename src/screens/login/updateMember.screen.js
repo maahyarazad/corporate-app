@@ -18,7 +18,7 @@ import { SafeArea } from "../../components/safearea.component";
 import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";
 import { goback, navigate } from "../../navigation/navigate";
-import { useTheme } from "styled-components";
+import { useTheme } from "styled-components/native";
 import PhoneInput from "react-native-phone-number-input";
 import { useEffect } from "react";
 import { useRoute } from "@react-navigation/native";

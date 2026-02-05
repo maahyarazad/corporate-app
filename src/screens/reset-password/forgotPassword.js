@@ -17,7 +17,7 @@ import { CustomTextInput } from "../../components/customTextInput";
 import { SafeArea } from "../../components/safearea.component";
 import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";
-import { useTheme } from "styled-components";
+import { useTheme } from "styled-components/native";
 import { Ionicons } from "@expo/vector-icons";
 import { navigate } from "../../navigation/navigate";
 import { UserService } from "../../services/user/user.service";

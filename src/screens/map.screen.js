@@ -4,7 +4,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { Linking, Text, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { Button, TouchableRipple } from "react-native-paper";
-import styled from "styled-components";
+import styled from "styled-components/native";
 import { CacheImage } from "../components/cacheImage";
 import { LoadingOverlay } from "../components/loading/loading.component";
 import { SafeArea } from "../components/safearea.component";

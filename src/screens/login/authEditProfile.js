@@ -15,9 +15,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import CountryPicker, {
-  CountryCodeList,
-} from "react-native-country-picker-modal";
+import CountryPicker from "react-native-country-picker";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Button } from "react-native-paper";
 import { DatePicker } from "react-native-woodpicker";
@@ -515,7 +513,7 @@ export const AuthEditProfileScreen = () => {
                 }}
               >
                 <CountryPicker
-                  countryCodes={CountryCodeList}
+                  
                   onSelect={(country) => {
                     setState({ ...state, nationality: country.name });
                   }}

@@ -1,7 +1,10 @@
 const { getDefaultConfig } = require("expo/metro-config");
-const config = getDefaultConfig(__dirname);
 
-// Adds support for `mjs` files
-config.resolver.sourceExts.push("mjs");
+const defaultConfig = getDefaultConfig(__dirname);
 
-module.exports = config;
+defaultConfig.resolver.extraNodeModules = {
+  ...defaultConfig.resolver.extraNodeModules,
+  path: require.resolve("path-browserify"), // shim 'path' with browser-friendly module
+};
+
+module.exports = defaultConfig;

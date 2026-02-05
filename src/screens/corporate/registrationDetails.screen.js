@@ -13,7 +13,7 @@ import {
   Platform,
 } from "react-native";
 import { companyLogo, config, honorificList } from "../../utils/constants";
-import { useTheme } from "styled-components";
+import { useTheme } from "styled-components/native";
 import { Button, TextInput } from "react-native-paper";
 import { DatePicker } from "react-native-woodpicker";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -21,9 +21,7 @@ import { SafeArea } from "../../components/safearea.component";
 import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";
 import ModalDropdown from "react-native-modal-dropdown";
-import CountryPicker, {
-  CountryCodeList,
-} from "react-native-country-picker-modal";
+import CountryPicker from "react-native-country-picker";
 import Background from "../../components/background/background.component";
 import { goback, navigate } from "../../navigation/navigate";
 import { UserService } from "../../services/user/user.service";
@@ -376,7 +374,7 @@ export const RegistrationDetailsScreen = ({ route }) => {
                   }}
                 >
                   <CountryPicker
-                    countryCodes={CountryCodeList}
+                    
                     onSelect={handleNationalityChange}
                     withEmoji={true}
                     withFilter
