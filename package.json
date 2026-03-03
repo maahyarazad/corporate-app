@@ -29,7 +29,8 @@
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
     "@gorhom/bottom-sheet": "^4.6.4",
-    "@react-native-clipboard/clipboard": "1.12.1",
+    "@miblanchard/react-native-slider": "^2.6.0",
+    "@react-native-clipboard/clipboard": "^1.12.1",
     "@react-native-community/datetimepicker": "8.4.4",
     "@react-native-masked-view/masked-view": "0.3.2",
     "@react-native-picker/picker": "2.11.1",
@@ -75,6 +76,7 @@
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
     "react-native-compressor": "^1.16.0",
+    "react-native-country-picker-modal": "^2.0.0",
     "react-native-device-info": "^10.14.0",
     "react-native-dropdown-picker": "^5.4.6",
     "react-native-element-dropdown": "^2.12.4",
@@ -86,12 +88,16 @@
     "react-native-maps": "1.20.1",
     "react-native-markdown-display": "^7.0.2",
     "react-native-modal": "^13.0.1",
+    "react-native-modal-dropdown": "^1.0.2",
     "react-native-pager-view": "6.9.1",
     "react-native-paper": "^5.15.0",
+    "react-native-paper-dropdown": "^2.3.1",
     "react-native-pdf": "^7.0.3",
     "react-native-phone-number-input": "^2.1.0",
     "react-native-qrcode-svg": "^6.3.21",
     "react-native-reanimated": "~4.1.1",
+    "react-native-reanimated-carousel": "^4.0.3",
+    "react-native-recaptcha-that-works": "^2.0.0",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
     "react-native-svg": "15.12.1",
@@ -101,12 +107,15 @@
     "react-native-worklets": "0.5.1",
     "react-redux": "^9.2.0",
     "redux": "^5.0.1",
+    "shorthash": "^0.0.2",
+    "slugify": "^1.6.6",
+    "socket.io-client": "^4.8.3",
     "styled-components": "^6.3.8"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
-    "@react-native-community/cli": "^14.0.1",
     "@babel/eslint-parser": "^7.24.5",
+    "@react-native-community/cli": "^14.0.1",
     "eslint": "^8.57.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-plugin-import": "^2.29.1",
@@ -116,8 +125,9 @@
     "eslint-plugin-react-hooks": "^4.6.2",
     "metro": "^0.83.1",
     "patch-package": "^8.0.1",
+    "path-browserify": "1.0.1",
     "postinstall-postinstall": "^2.1.0",
-    "typescript": "^5.4.5",
-    "path-browserify": "1.0.1"
+    "react-native-codegen": "^0.70.7",
+    "typescript": "^5.4.5"
   }
 }

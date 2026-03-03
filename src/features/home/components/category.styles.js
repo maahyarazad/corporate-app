@@ -22,17 +22,29 @@ export const CategoryItemContainer = styled(View)`
   width: 100px;
   height: 140px;
   border-radius: 10px;
-  background-color: "white";
+  background-color: white;
 `;
 
 export const Pressable = styled(TouchableOpacity)`
-  elevation: 6;
   width: 100px;
   border-radius: 10px;
   background-color: white;
-  box-shadow: 3px 4px 5px rgba(0, 0, 0, ${Platform.OS === "ios" ? 0.3 : 1});
-`;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
 
+  /* Shadow for iOS */
+  ${Platform.OS === "ios" &&
+  `
+    shadow-color: #000;
+    shadow-offset: 0px 4px;
+    shadow-opacity: 0.3;
+    shadow-radius: 5px;
+  `}
+
+  /* Shadow for Android */
+  ${Platform.OS === "android" && `elevation: 6;`}
+`;
 export const CategoryItemImages = styled(Image)`
   flex: 1;
   width: 80px;

@@ -28,7 +28,10 @@ import { TranslationContext } from "../../services/translation/translation.conte
 import * as Application from "expo-application";
 import * as Network from "expo-network";
 import * as Constants from "expo-constants";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import LoginHeader from "./login.components/LoginHeader";
+import LoginForm from "./login.components/LoginForm";
+import BiometricLogin from "./login.components/BiometricLogin";
+import RegisterSection from "./login.components/RegisterSection";
 import useBiometrics from "../../../hooks/useBiometrics";
 import { useTranslation } from "../../../hooks/useTranslation";
 
@@ -104,8 +107,8 @@ export const LoginScreen = ({ navigation }) => {
           platform === "ios"
             ? await Application.getIosIdForVendorAsync()
             : platform === "android"
-            ? await Application.androidId
-            : "n/a";
+              ? await Application.androidId
+              : "n/a";
 
         const credentials = {
           app_id: config.APP_ID,
@@ -181,8 +184,8 @@ export const LoginScreen = ({ navigation }) => {
         platform === "ios"
           ? await Application.getIosIdForVendorAsync()
           : platform === "android"
-          ? await Application.androidId
-          : "n/a";
+            ? await Application.androidId
+            : "n/a";
 
       const credentials = {
         app_id: config.APP_ID,
@@ -310,254 +313,39 @@ export const LoginScreen = ({ navigation }) => {
 
   return (
     <>
-      {/* <LoadingOverlay display={loginLoading} /> */}
       <StatusBar style="light" />
       <View style={{ flex: 1, backgroundColor: "black" }}>
         <Background>
-          <SafeArea
-            style={{
-              height: "100%",
-              backgroundColor: "transparent",
-              justifyContent: "flex-end",
-            }}
-          >
+          <SafeArea style={{ flex: 1 }}>
             <KeyboardAwareScrollView
-              automaticallyAdjustKeyboardInsets={true}
-              keyboardShouldPersistTaps={"always"}
-              style={{ height: "100%" }}
+              automaticallyAdjustKeyboardInsets
+              keyboardShouldPersistTaps="always"
               contentContainerStyle={{ flexGrow: 1 }}
             >
-              <View
-                style={{
-                  height: "100%",
-                  justifyContent: "flex-end",
-                }}
-              >
-                <Image
-                  style={{
-                    width: 100,
-                    height: 50,
-                    resizeMode: "contain",
-                    marginLeft: 16,
-                    position: "relative",
-                    top: 0,
-                  }}
-                  source={companyLogo}
+              <View style={{ flex: 1, justifyContent: "space-between" }}>
+                <LoginHeader companyLogo={companyLogo} />
+
+                <LoginForm
+                  username={username}
+                  password={password}
+                  setUsername={setUsername}
+                  setPassword={setPassword}
+                  checked={checked}
+                  setChecked={setChecked}
+                  loginLoading={loginLoading}
+                  handleLogin={handleLogin}
+                  handleForgetPassword={handleForgetPassword}
+                  handleBrowser={handleBrowser}
+                /> 
+
+                <BiometricLogin
+                  biometric={biometric}
+                  handleBiometricLogin={handleBiometricLogin}
+                  i18n={i18n}
                 />
 
-                <View
-                  style={{
-                    flex: 1,
-                    justifyContent: "flex-end",
-                    margin: 16,
-                  }}
-                >
-                  <Label
-                    style={{
-                      color: "white",
-                    }}
-                    shadow={true}
-                    size={"h5"}
-                    weight={"medium"}
-                  >
-                    {/* Wilkommen! */}
-                    Welcome!
-                  </Label>
-                  <Spacer position={"top"} size={"small"} />
-                  <Label
-                    style={{ color: "white" }}
-                    size={"caption"}
-                    weight={"medium"}
-                    shadow={true}
-                  >
-                    Sign in with your username and password.
-                    {/* Melden Sie sich mit Ihrem Club-Benutzernamen und Passwort an. */}
-                  </Label>
-                  <Spacer position={"top"} size={"small"} />
-
-                  <CustomTextInput
-                    onChangeText={setUsername}
-                    label={"Username or Email"}
-                    value={username}
-                    autoFillPassword={true}
-                    textContentType={"username"}
-                    // label={"Nutzername"}
-                  />
-                  <Spacer position={"top"} size={"small"} />
-                  <CustomTextInput
-                    onChangeText={setPassword}
-                    secureTextEntry={true}
-                    showEye={true}
-                    textContentType={"password"}
-                    value={password}
-                    autoFillPassword={true}
-                    label={"Password"}
-                  />
-                  <Spacer position={"top"} size={"medium"} />
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={handleForgetPassword}
-                  >
-                    <Label
-                      shadow={true}
-                      style={{
-                        color: "white",
-                        textDecorationLine: "underline",
-                      }}
-                    >
-                      Forgot password?
-                      {/* Passwort vergessen? */}
-                    </Label>
-                  </TouchableOpacity>
-                  <Spacer position={"top"} size={"medium"} />
-                  <Spacer position={"right"} size={"large"}>
-                    <View style={{ flexDirection: "row" }}>
-                      <Checkbox.Android
-                        status={checked ? "checked" : "unchecked"}
-                        onPress={() => {
-                          setChecked(!checked);
-                        }}
-                        uncheckedColor="white"
-                        color="white"
-                      />
-                      <View style={{ flex: 0.98 }}>
-                        <Label
-                          elevation={10}
-                          shadow={true}
-                          style={{ color: "white", elevation: 9 }}
-                          size={"caption"}
-                        >
-                          {/* Ich akzeptiere die Endnutzer-Lizenzvereinbarung & die
-                        Datenschutz-Bestimmungen. */}
-                          {`I accept the `}
-                          <Label
-                            onPress={() => {
-                              // navigate("Login Privacy Policy");
-                              handleBrowser();
-                            }}
-                            style={{
-                              color: "white",
-                              textDecorationLine: "underline",
-                            }}
-                            size={"caption"}
-                          >
-                            End User License Agreement & the Privacy Policy.
-                          </Label>
-                        </Label>
-                      </View>
-                    </View>
-                  </Spacer>
-
-                  <Spacer position={"top"} size={"medium"} />
-                  <View style={{ gap: 22 }}>
-                    <LoginButton
-                      onPress={handleLogin}
-                      style={{ flex: 1 }}
-                      activeOpacity={0.8}
-                      disabled={!checked || loginLoading}
-                      checked={checked && !loginLoading}
-                    >
-                      {loginLoading ? (
-                        <ActivityIndicator color="white" />
-                      ) : (
-                        <Label style={{ color: "white" }} weight={"bold"}>
-                          Login
-                        </Label>
-                      )}
-                    </LoginButton>
-                    {biometric.available != null && biometric.type != null && (
-                      <TouchableWithoutFeedback onPress={handleBiometricLogin}>
-                        <View
-                          style={{
-                            flexDirection: "row",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            gap: 10,
-                          }}
-                        >
-                          <MaterialCommunityIcons
-                            color="white"
-                            name={
-                              biometric.type === "fingerprint"
-                                ? "fingerprint"
-                                : "face-recognition"
-                            }
-                            size={30}
-                          />
-                          <Label
-                            color={"white"}
-                            style={{ textDecorationLine: "underline" }}
-                          >
-                            {i18n.t(
-                              `profile-tabs.settings-menu.login-${biometric.type}`
-                            )}
-                          </Label>
-                        </View>
-                      </TouchableWithoutFeedback>
-                    )}
-                  </View>
-                </View>
                 {canRegister && (
-                  <View>
-                    <View
-                      style={{
-                        height: 50,
-                        justifyContent: "center",
-                      }}
-                    >
-                      <View
-                        style={{
-                          width: 50,
-                          height: 50,
-                          borderRadius: 25,
-                          backgroundColor: "white",
-                          position: "absolute",
-                          alignSelf: "center",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          zIndex: 20,
-                        }}
-                      >
-                        <Label size={"body"} weight={"bold"}>
-                          OR
-                        </Label>
-                      </View>
-                      <View
-                        style={{
-                          borderColor: "white",
-                          borderTopWidth: 2,
-                        }}
-                      ></View>
-                    </View>
-                    <View
-                      style={{
-                        margin: 16,
-                      }}
-                    >
-                      <TouchableOpacity
-                        activeOpacity={0.8}
-                        onPress={() => {
-                          // navigation.navigate("RegisterSuccess");
-                          navigation.navigate("Registration");
-                        }}
-                        style={{
-                          height: 60,
-                          backgroundColor: theme.colors.ui.button,
-                          borderRadius: 5,
-                          justifyContent: "center",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Label
-                          style={{ color: "white", textAlign: "center" }}
-                          size={"body"}
-                          weight={"bold"}
-                        >
-                          {`Create an Account \n(Corporate Cardholders Only)`}
-                        </Label>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
+                  <RegisterSection navigation={navigation} theme={theme} />
                 )}
               </View>
             </KeyboardAwareScrollView>

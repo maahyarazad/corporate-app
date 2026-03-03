@@ -165,8 +165,8 @@ const Hotpicks = ({ hotpickData }) => {
                 autoPlay={true}
                 snapEnabled={true}
                 autoPlayInterval={3000}
-                width={Dimensions.get("screen").width}
-                height={Dimensions.get("screen").width * 0.6}
+                width={Math.min(Dimensions.get("screen").width)}
+                height={Math.min(Dimensions.get("screen").width * 0.6)}
                 mode="parallax"
                 pagingEnabled={true}
                 onProgressChange={(_, absoluteProgress) => {
@@ -205,7 +205,7 @@ const Hotpicks = ({ hotpickData }) => {
                     size={"hotpick"}
                     width={"100%"}
                     imgWidth={"100%"}
-                    imgHeight={Dimensions.get("screen").width * 0.5}
+                    imgHeight={Math.min(Dimensions.get("screen").width * 0.5)}
                     stamp={offerStamps[hotpickData[0].premium_id - 1]}
                     offer_name={hotpickData[0].offer_name}
                     imgUrl={`${hotpickData[0].file}`}
@@ -233,8 +233,8 @@ const Hotpicks = ({ hotpickData }) => {
                   loop={false}
                   snapEnabled={true}
                   autoPlayInterval={3000}
-                  width={Dimensions.get("screen").width}
-                  height={Dimensions.get("screen").width * 0.64}
+                  width={Math.min(Dimensions.get("screen").width)}
+                  height={Math.min(Dimensions.get("screen").width * 0.64)}
                   mode="parallax"
                   pagingEnabled={true}
                   onProgressChange={(_, absoluteProgress) => {

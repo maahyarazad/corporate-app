@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "976192282751",
+    "project_id": "gec-rewards",
+    "storage_bucket": "gec-rewards.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:976192282751:android:a6b01dac4619a58c059f4a",
+        "android_client_info": {
+          "package_name": "com.buenapublica.GECRewards"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBdMYAFwnxqA6KI4AE31v8BWBsr1ZDRogQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

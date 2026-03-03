@@ -44,7 +44,9 @@ export const OtpVerification = ({ route, navigation }) => {
   const { userData, getUserInfo } = useUser();
   const [isLoading, setIsLoading] = useState(false);
   const [hiddenNum, setHiddenNum] = useState(false);
-
+const ICON_SIZE = Math.min(width * 0.4, 120);
+const scaleFont = (size) => (width / 375) * size;
+const INPUT_MAX_WIDTH = 400;
   useEffect(() => {
     if (userData && userData.area_code && userData.phone_number) {
       console.log("OTP", userData);
@@ -153,7 +155,7 @@ export const OtpVerification = ({ route, navigation }) => {
               <StatusBar style="light" />
               <MaterialCommunityIcons
                 color={colors.ui.secondary}
-                size={width * 0.4}
+                size={ICON_SIZE}
                 name="lock-open"
               />
             </IconBg>
@@ -203,7 +205,7 @@ export const OtpVerification = ({ route, navigation }) => {
                 code={code}
                 pinReady={pinReady}
                 maxLength={MAX_CODE_LENGTH}
-                containerStyle={{ width: width - 64 }}
+              containerStyle={{ width: Math.min(width - 64, INPUT_MAX_WIDTH) }}
                 inputBoxStyle={{ borderWidth: 4 }}
               />
               {/* <TouchableOpacity activeOpacity={} */}

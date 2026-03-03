@@ -603,6 +603,7 @@ export const AppNavigation = () => {
   const { isOutdated } = useContext(AppContext);
   const { phoneVerified, refreshToken, isSkip, noConnection, isAuthorized } =
     useAuth();
+    
   const { userData } = useUser();
   // const [skip, setSkip] = useState(0);
   // useEffect(() => {

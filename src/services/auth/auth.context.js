@@ -26,6 +26,7 @@ import { Alert } from "react-native";
 export const AuthContext = createContext();
 
 export const AuthContextProvider = ({ children }) => {
+    debugger;
   const { i18n } = useContext(TranslationContext);
   const [isLoading, setIsLoading] = useState(false);
   const [isRetrieving, setIsRetrieving] = useState(false);
@@ -38,7 +39,6 @@ export const AuthContextProvider = ({ children }) => {
 
   useEffect(() => {
     let isMounted = true;
-
     (async () => {
       const getSkip = parseInt(await SecureStore.getItemAsync("skip"));
       setSkip(getSkip);

@@ -25,7 +25,7 @@ export default function App() {
   Text.defaultProps.allowFontScaling = false;
   TextInput.defaultProps = TextInput.defaultProps || {};
   TextInput.defaultProps.allowFontScaling = false;
-
+    
   return (
     <>
       <ThemeProvider theme={theme}>

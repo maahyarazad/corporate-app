@@ -15,10 +15,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import CountryPicker from "react-native-country-picker";
+import CountryPicker from "react-native-country-picker-modal";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Button } from "react-native-paper";
-import { DatePicker } from "react-native-woodpicker";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { AnimatedButton } from "../../components/animatedButton";
 import Background from "../../components/background/background.component";
 import { CustomTextInput } from "../../components/customTextInput";
@@ -457,7 +457,24 @@ export const AuthEditProfileScreen = () => {
                   position: "absolute",
                 }}
               ></CustomTextInput>
-              <DatePicker
+
+
+   <DateTimePicker onChange={(date) => setState({ ...state, birthdate: date })}
+          value={state.birthdate || new Date()}
+          mode="date"
+         title={i18n.t("profile-tabs.profile.birthdate") + "*"}
+          display={Platform.OS === "ios" ? "spinner" : "default"}
+          maximumDate={dateLimit}
+          iosMode="date"
+           isNullable={false}
+           style={{
+                        width: "100%",
+                        height: 58,
+                        marginTop: 6,
+                      }}
+        />
+
+              {/* <DatePicker
                 value={state.birthdate}
                 onDateChange={(date) => setState({ ...state, birthdate: date })}
                 title={i18n.t("profile-tabs.profile.birthdate") + "*"}
@@ -473,7 +490,7 @@ export const AuthEditProfileScreen = () => {
                   height: 58,
                   marginTop: 6,
                 }}
-              />
+              /> */}
             </View>
             <Spacer position={"top"} size="medium" />
             <View

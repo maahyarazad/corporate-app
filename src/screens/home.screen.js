@@ -43,20 +43,31 @@ import { OrderCardModal } from "../features/offers/components/offerModalForm";
 import * as SecureStore from "expo-secure-store";
 import HomeHeader from "../features/home/components/header.component";
 import useRequest from "../../hooks/useRequest";
+import { Platform } from "react-native";
 
 const HomeContainer = styled(FlatList)`
   flex: 1;
 `;
 
-const NearMeButton = styled(TouchableHighlight)`
+export const NearMeButton = styled(TouchableHighlight)`
   background-color: white;
   padding: 10px 20px;
   justify-content: center;
   align-items: center;
   border-radius: 5px;
-  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.4);
-`;
 
+  /* Shadow for iOS */
+  ${Platform.OS === "ios" &&
+  `
+    shadow-color: #000;
+    shadow-offset: 2px 2px;
+    shadow-opacity: 0.4;
+    shadow-radius: 2px;
+  `}
+
+  /* Shadow for Android */
+  ${Platform.OS === "android" && `elevation: 3;`}
+`;
 const RenderHome = ({ handleSearch }) => {
   const [bannerData, setBannerData] = useState(null);
   const [hotpickData, setHotpickData] = useState(null);

@@ -52,7 +52,7 @@ export const UnverifiedEmailScreen = ({ route }) => {
           <View
             style={{
               backgroundColor: "white",
-              width: width * 0.1,
+              width: Math.min(width * 0.1),
               aspectRatio: 0.9,
               borderRadius: 6,
               justifyContent: "center",

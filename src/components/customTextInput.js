@@ -145,6 +145,7 @@ export const CustomTextInput = forwardRef(
               styles.input,
               { color: disable ? "#999" : "black" },
               inputStyle,
+
             ]}
             multiline={multiline}
             numberOfLines={numberOfLines}
@@ -229,7 +230,6 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     justifyContent: "center",
     position: "relative",
-    // overflow: "hidden",
   },
   input: {
     fontSize: 15,
@@ -237,6 +237,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 6,
     height: "100%",
+    marginBottom: 2,
+    marginTop: 2
   },
   label: {
     position: "absolute",

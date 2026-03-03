@@ -1,0 +1,107 @@
+import React from "react";
+import { View, TouchableOpacity } from "react-native";
+import { Checkbox, ActivityIndicator } from "react-native-paper";
+import {Spacer} from "../../../components/spacer/spacer.component";
+import { Label } from "../../../components/typography/label.component";
+import {CustomTextInput} from "../../../components/customTextInput";
+import styled from "styled-components/native";
+
+const LoginButton = styled(TouchableOpacity)`
+  min-height: 60px;
+  max-height: 60px;
+  background-color: ${({ checked }) => (checked ? "#207ede" : "#c7c7c7")};
+  border-radius: 5px;
+  justify-content: center;
+  align-items: center;
+`;
+
+const LoginForm = ({
+  username,
+  password,
+  setUsername,
+  setPassword,
+  checked,
+  setChecked,
+  loginLoading,
+  handleLogin,
+  handleForgetPassword,
+  handleBrowser,
+}) => {
+  return (
+    <View style={{ margin: 16 }}>
+      <CustomTextInput
+        value={username}
+        onChangeText={setUsername}
+        label="Username or Email"
+        textContentType="username"
+      />
+
+      <Spacer position="top" size="small" />
+
+      <CustomTextInput
+        value={password}
+        onChangeText={setPassword}
+        label="Password"
+        secureTextEntry
+        showEye
+        textContentType="password"
+      />
+
+      <Spacer position="top" size="medium" />
+
+      <TouchableOpacity onPress={handleForgetPassword}>
+        <Label
+          shadow
+          style={{
+            color: "white",
+            textDecorationLine: "underline",
+          }}
+        >
+          Forgot password?
+        </Label>
+      </TouchableOpacity>
+
+      <Spacer position="top" size="medium" />
+
+      {/* Checkbox */}
+      <View style={{ flexDirection: "row" }}>
+        <Checkbox.Android
+          status={checked ? "checked" : "unchecked"}
+          onPress={() => setChecked(!checked)}
+          uncheckedColor="white"
+          color="white"
+        />
+        <View style={{ flex: 0.98 }}>
+          <Label size="caption" shadow style={{ color: "white" }}>
+            I accept the{" "}
+            <Label
+              onPress={handleBrowser}
+              size="caption"
+              style={{ textDecorationLine: "underline", color: "white" }}
+            >
+              End User License Agreement & Privacy Policy
+            </Label>
+          </Label>
+        </View>
+      </View>
+
+      <Spacer position="top" size="medium" />
+
+      <LoginButton
+        onPress={handleLogin}
+        disabled={!checked || loginLoading}
+        checked={checked && !loginLoading}
+      >
+        {loginLoading ? (
+          <ActivityIndicator color="white" />
+        ) : (
+          <Label style={{ color: "white" }} weight="bold">
+            Login
+          </Label>
+        )}
+      </LoginButton>
+    </View>
+  );
+};
+
+export default LoginForm;

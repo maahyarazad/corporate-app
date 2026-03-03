@@ -15,13 +15,12 @@ import {
 import { companyLogo, config, honorificList } from "../../utils/constants";
 import { useTheme } from "styled-components/native";
 import { Button, TextInput } from "react-native-paper";
-import { DatePicker } from "react-native-woodpicker";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { SafeArea } from "../../components/safearea.component";
 import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";
-import ModalDropdown from "react-native-modal-dropdown";
-import CountryPicker from "react-native-country-picker";
+import DropDown from "react-native-paper-dropdown";
+import CountryPicker from "react-native-country-picker-modal";
 import Background from "../../components/background/background.component";
 import { goback, navigate } from "../../navigation/navigate";
 import { UserService } from "../../services/user/user.service";
@@ -297,7 +296,29 @@ export const RegistrationDetailsScreen = ({ route }) => {
                   error={!state.honorifics && isSubmitted}
                 />
 
-                <ModalDropdown
+            <View style={{ zIndex: 2, position: "relative", width: "100%" }}>
+                <DropDown
+                    label="Anrede" // German for Honorific
+                    mode="outlined"
+                    visible={true}
+                    showDropDown={() => setShowDropDown(true)}
+                    onDismiss={() => setShowDropDown(false)}
+                    value={honorific}
+                    setValue={(val) => {
+                        setHonorific(val);
+                        handleHonorificChange(val); // callback
+                    }}
+                    list={honorificList.map((item) => ({ label: item, value: item }))}
+                    inputProps={{
+                        style: { height: 58, flex: 1 }, // same height as old ModalDropdown
+                    }}
+                    dropDownContainerStyle={{
+                        maxHeight: 200, // optional: scroll if list is long
+                    }}
+                />
+                </View>
+
+                {/* <ModalDropdown
                   isFullWidth
                   keyboardShouldPersistTaps="always"
                   style={{
@@ -317,7 +338,7 @@ export const RegistrationDetailsScreen = ({ route }) => {
                   }}
                   options={honorificList}
                   onSelect={handleHonorificChange}
-                />
+                /> */}
               </View>
               <Spacer position={"top"} size={"small"} />
               <CustomTextInput
@@ -445,7 +466,24 @@ export const RegistrationDetailsScreen = ({ route }) => {
                       }}
                       error={!state.birthdate && isSubmitted}
                     ></CustomTextInput>
-                    <DatePicker
+
+                     <DateTimePicker onChange={handleBdayChangeAndroid}
+          value={state.birthdate || new Date()}
+          mode="date"
+          title="Birthdate"
+          display={Platform.OS === "ios" ? "spinner" : "default"}
+          maximumDate={dateLimit}
+          iosMode="date"
+           locale="en"
+           isNullable={false}
+           style={{
+                        width: "100%",
+                        height: 58,
+                        marginTop: 6,
+                      }}
+        />
+        
+                    {/* <DatePicker
                       value={state.birthdate}
                       onDateChange={handleBdayChangeAndroid}
                       title="Birthdate"
@@ -462,7 +500,7 @@ export const RegistrationDetailsScreen = ({ route }) => {
                         height: 58,
                         marginTop: 6,
                       }}
-                    />
+                    /> */}
                   </View>
                 )}
                 <Spacer position={"left"} size={"small"} />

@@ -6,7 +6,6 @@ import {
   Text,
   View,
 } from "react-native";
-import { DatePicker } from "react-native-woodpicker";
 import { SafeArea } from "../../components/safearea.component";
 import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";
@@ -119,7 +118,25 @@ export const VerifyInfo = ({ route, navigation }) => {
                 position: "absolute",
               }}
             ></TextInputForm>
-            <DatePicker
+
+               <DateTimePicker onChange={setBirthday}
+          value={birthday || new Date()}
+          mode="date"
+         title="Geburtsdatum"
+          display={Platform.OS === "ios" ? "spinner" : "default"}
+          maximumDate={dateLimit}
+          iosMode="date"
+           locale="de"
+           isNullable={false}
+           style={{
+                width: "100%",
+                height: 60,
+                marginTop: 6,
+              }}
+        />
+
+
+            {/* <DatePicker
               value={birthday}
               onDateChange={setBirthday}
               title="Geburtsdatum"
@@ -135,7 +152,7 @@ export const VerifyInfo = ({ route, navigation }) => {
                 height: 60,
                 marginTop: 6,
               }}
-            />
+            /> */}
           </View>
 
           <TextInputForm

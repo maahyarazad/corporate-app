@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View } from "react-native";
 import styled from "styled-components/native";
 import { LoadingOverlay } from "../components/loading/loading.component";
 
 const SplashScreenContainer = styled(View)`
   flex: 1;
-  background: #999;
+  background-color: #999;
   justify-content: center;
   align-items: center;
 `;
@@ -17,7 +17,12 @@ const LoadingContainer = styled(View)`
   overflow: hidden;
 `;
 
+
 export const SplashScreen = () => {
+    useEffect(()=>{
+        console.log('SplashScreen LOADED')
+},[])
+
   return (
     <SplashScreenContainer>
       <LoadingContainer>

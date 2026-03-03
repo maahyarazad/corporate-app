@@ -3,28 +3,32 @@ import styled from "styled-components/native";
 import { Text } from "react-native";
 import { useTheme } from "styled-components/native";
 
+// StyledText now receives numeric styles
 const StyledText = styled(Text)`
-  ${({ variant }) => {
-    return variant;
-  }}
-  ${({ shadow }) => {
-    if (shadow) {
-      return `
-              elevation: 10;
-              text-shadow: 1px 1.5px 3px rgba(0,0,0,0.8);
-              `;
-    }
-  }}
+  ${({ variant }) => variant};
+  ${({ shadow }) =>
+    shadow
+      ? `
+        elevation: 10;
+        text-shadow: 1px 1.5px 3px rgba(0,0,0,0.8);
+      `
+      : ""}
 `;
 
+// getVariant now ensures fontSize is a number
 const getVariant = (size, weight, color, theme) => {
-  return `
-        font-weight: ${theme.fontWeights[weight]};
-        font-size: ${
-          typeof size === "string" ? theme.fontSizes[size] : `${size}px`
-        };
-        color: ${color};
-    `;
+  const fontSize =
+    typeof size === "string" ? theme.fontSizes[size] : Number(size);
+
+  const fontWeight = theme.fontWeights[weight] || theme.fontWeights.regular;
+
+  const textColor = color || "black";
+
+  return {
+    fontWeight,
+    fontSize, // numeric!
+    color: textColor,
+  };
 };
 
 export const Label = ({
@@ -40,15 +44,14 @@ export const Label = ({
 }) => {
   const theme = useTheme();
   const variant = getVariant(size, weight, color, theme);
+
   return (
     <StyledText
-      // allowFontScaling={false}
       onPress={onPress}
       shadow={shadow}
       numberOfLines={numberOfLines}
       ellipsizeMode={ellipsizeMode}
-      style={[style, { includeFontPadding: false }]}
-      variant={variant}
+      style={[style, { includeFontPadding: false }, variant]} // variant merged as object
     >
       {children}
     </StyledText>

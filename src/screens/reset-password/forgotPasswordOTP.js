@@ -107,14 +107,14 @@ export const ForgotPasswordOTPScreen = ({ route }) => {
               <Label
                 style={{
                   color: "white",
-                  fontSize: width * 0.04,
+                  fontSize: Math.min(width * 0.04),
                   textAlign: "center",
                 }}
                 weight={"regular"}
               >
                 {`Please enter the ${MAX_CODE_LENGTH}-digit code sent to `}
                 <Label
-                  style={{ color: "white", fontSize: width * 0.04 }}
+                  style={{ color: "white", fontSize: Math.min(width * 0.04) }}
                   weight={"bold"}
                 >
                   +

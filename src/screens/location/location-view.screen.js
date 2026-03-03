@@ -129,13 +129,13 @@ export const LocationViewScreen = ({ route, navigation }) => {
   const navigateBack = () => {
     navigation.goBack();
   };
-
+const SLIDESHOW_HEIGHT = Math.floor(width * 9 / 16);
   const renderPartner = () => {
     return (
       <>
         <View style={{ backgroundColor: "#efefef" }}>
           <View>
-            <View style={{ height: width * (9 / 16) }}>
+            <View style={{ height: SLIDESHOW_HEIGHT }}>
               {width != undefined && location != undefined && (
                 <>
                   <Slideshow images={location.images} />
@@ -235,7 +235,6 @@ export const LocationViewScreen = ({ route, navigation }) => {
                           mode="contained"
                           labelStyle={{
                             color: "#1282FF",
-
                             fontWeight: "bold",
                           }}
                           contentStyle={{ height: 50 }}

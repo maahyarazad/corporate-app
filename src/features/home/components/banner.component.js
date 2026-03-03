@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   FlatList,
   Image,
@@ -13,145 +13,112 @@ import styled from "styled-components/native";
 import { LoadingOverlay } from "../../../components/loading/loading.component";
 import { Spacer } from "../../../components/spacer/spacer.component";
 import * as WebBrowser from "expo-web-browser";
-import { itemSeparatorHL } from "../../../components/styles";
 import { config } from "../../../utils/constants";
 import { isValidURL } from "../../../utils/isValidURL";
-import { AppServices } from "../../../services/app/app.services";
-import { AuthContext } from "../../../services/auth/auth.context";
-import Carousel from "react-native-reanimated-carousel";
 import { CacheImage } from "../../../components/cacheImage";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import * as Linking2 from "expo-linking";
-import useRequest from "../../../../hooks/useRequest";
 
 const SIZE_RATIO = 9 / 16;
-// const SIZE_RATIO = 9 / 16;
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const BANNER_HEIGHT = Math.floor(SCREEN_WIDTH * SIZE_RATIO);
 
-const BannerList = styled(FlatList)`
-  padding-top: 10px;
-  /* background-color: red; */
-`;
+// Styled Components
+const ListContainer = styled(View)({
+  height: BANNER_HEIGHT,
+});
 
-const ListContainerHeight = () => {
-  const screenWidth = Dimensions.get("window").width;
-  const imageHeight = screenWidth * SIZE_RATIO;
-  return imageHeight;
-};
+const BannerContainer = styled(View)({
+  flex: 1,
+  borderRadius: 10,
+  backgroundColor: "grey",
+  ...(Platform.OS === "ios"
+    ? {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.4,
+        shadowRadius: 4,
+      }
+    : { elevation: 6 }),
+});
 
-const ListContainer = styled(View)`
-  height: ${ListContainerHeight}px;
-  /* margin-top: 8px; */
-`;
+const BannerPressable = styled(TouchableOpacity)(({ screenWidth }) => ({
+  width: screenWidth,
+  height: BANNER_HEIGHT,
+  borderRadius: 10,
+  borderLeftWidth: 0,
+  borderRightWidth: 0,
+  borderColor: "rgba(0,0,0,0.05)",
+  justifyContent: "center",
+  paddingHorizontal: 16,
+  backgroundColor: "#eee",
+}));
 
-const BannerImage = styled(Image)`
-  border-radius: 10px;
-  flex: 1;
-  width: 100%;
-`;
+const BannerImageStyled = styled(CacheImage)({
+  width: "100%",
+  height: "100%",
+  borderRadius: 10,
+  resizeMode: "cover",
+});
 
-const Pressable = styled(TouchableOpacity)`
-  width: ${({ screenWidth }) => screenWidth}px;
-  height: ${({ screenWidth }) => (screenWidth - 20) * SIZE_RATIO}px;
-  border-radius: 10px;
-  border-left-width: 0px;
-  border-right-width: 0px;
-  border-color: rgba(0, 0, 0, 0.05);
-
-  justify-content: center;
-  padding-left: 16px;
-  padding-right: 16px;
-  background: #eee;
-  /* elevation: 6; */
-`;
-
-const BannerContainer = styled(View)`
-  /* overflow: hidden; */
-  /* padding-right: 30px; */
-  border-radius: 10px;
-  flex: 1;
-  background-color: grey;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, ${Platform.OS === "ios" ? 0.4 : 1});
-`;
-
-const renderBanner = ({ item, screenWidth, setLoading, loading }) => {
+// Render Banner Item
+const renderBanner = ({ item, screenWidth, loading, setLoading }) => {
   const bannerLoaded = () => setLoading(false);
 
   const handleClick = async () => {
     try {
-      if (item.withLink != undefined) {
-        switch (item.withLink) {
-          //Website Link
-          case 1:
-            if (isValidURL(item.url_link)) {
-              await WebBrowser.openBrowserAsync(item.url_link);
-            }
-            break;
-          case 2:
-            await Linking.openURL(item.url_link);
-            break;
-        }
+      if (!item.withLink) return;
+      if (item.withLink === 1 && isValidURL(item.url_link)) {
+        await WebBrowser.openBrowserAsync(item.url_link);
+      } else if (item.withLink === 2) {
+        await Linking.openURL(item.url_link);
       }
-    } catch (error) {
-      console.log("ERROR", error);
+    } catch (err) {
+      console.log("Banner click error:", err);
       Alert.alert("Banner Error", "Can't open the link");
     }
   };
 
   return (
-    <>
-      <Pressable
-        onPress={handleClick}
-        disabled={item.withLink === 0}
-        activeOpacity={0.5}
-        screenWidth={screenWidth}
-      >
-        <BannerContainer>
-          <LoadingOverlay display={loading} />
-          <CacheImage
-            onLoad={bannerLoaded}
-            style={{
-              width: "100%",
-              height: "100%",
-              borderRadius: 10,
-              // resizeMode: "cover",
-            }}
-            uri={`${config.SERVER_HOST}/banners/${item.banner_image}`}
-          />
-        </BannerContainer>
-      </Pressable>
-    </>
+    <BannerPressable
+      onPress={handleClick}
+      disabled={item.withLink === 0}
+      activeOpacity={0.5}
+      screenWidth={screenWidth}
+    >
+      <BannerContainer>
+        <LoadingOverlay display={loading} />
+        <BannerImageStyled
+          onLoad={bannerLoaded}
+          uri={`${config.SERVER_HOST}/banners/${item.banner_image}`}
+        />
+      </BannerContainer>
+    </BannerPressable>
   );
 };
 
+// Main Component
 const FeaturedBanner = ({ bannerData }) => {
   const [loading, setLoading] = useState(true);
-  const screenWidth = Math.floor(Dimensions.get("window").width);
+  const screenWidth = SCREEN_WIDTH;
+
+  if (!bannerData || bannerData.length === 0) return <View style={{ height: 16 }} />;
 
   return (
     <>
-      {bannerData && bannerData.length > 0 ? (
-        <>
-          <Spacer position={"top"} size={"medium"} />
-          <ListContainer>
-            <Carousel
-              width={Dimensions.get("screen").width}
-              height={Dimensions.get("screen").width * (9 / 16)}
-              data={bannerData}
-              autoPlay={bannerData.length > 1 ? true : false}
-              loop={bannerData.length > 1 ? true : false}
-              panGestureHandlerProps={{
-                activeOffsetX: [-10, 10],
-              }}
-              autoPlayInterval={5000}
-              renderItem={({ item }) =>
-                renderBanner({ item, screenWidth, setLoading, loading })
-              }
-            />
-          </ListContainer>
-        </>
-      ) : (
-        <View style={{ height: 16 }}></View>
-      )}
+      <Spacer position="top" size="medium" />
+      <ListContainer>
+        <Carousel
+          width={screenWidth}
+          height={BANNER_HEIGHT}
+          data={bannerData}
+          autoPlay={bannerData.length > 1}
+          loop={bannerData.length > 1}
+          panGestureHandlerProps={{ activeOffsetX: [-10, 10] }}
+          autoPlayInterval={5000}
+          renderItem={({ item }) =>
+            renderBanner({ item, screenWidth, loading, setLoading })
+          }
+        />
+      </ListContainer>
     </>
   );
 };

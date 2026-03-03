@@ -323,9 +323,9 @@ export const RequestApprovalScreen = () => {
                               : "center",
                             height: isCameraOpen
                               ? photo
-                                ? width * cardRatio
-                                : imageHeightRatio
-                              : width * cardRatio,
+                                ? Math.min(cardRatio)
+                                : Math.min(imageHeightRatio)
+                              : Math.min(width * cardRatio),
                           },
                         ]}
                         source={photo !== undefined ? { uri: photo.uri } : {}}
@@ -365,8 +365,8 @@ export const RequestApprovalScreen = () => {
                               style={{
                                 width: width,
                                 height: photo
-                                  ? width * cardRatio
-                                  : imageHeightRatio,
+                                  ? Math.min(width * cardRatio)
+                                  : Math.min(imageHeightRatio),
                                 zIndex: 1,
                               }}
                             >
