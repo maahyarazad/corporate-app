@@ -29,3 +29,25 @@ export const validateCardExpiryDate = (state, prev) => {
   }
   return prev;
 };
+
+
+export const isFutureExpiry = (expiry) => {
+  if (!expiry || expiry.length < 4) return false;
+
+  // Remove slash if exists (e.g. "02/26" → "0226")
+  
+
+  const month = parseInt(expiry.slice(0, 2), 10);
+  const year = parseInt("20" + expiry.slice(2, 4), 10); // YY → YYYY
+
+  if (month < 1 || month > 12) return false;
+
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1;
+  const currentYear = now.getFullYear();
+
+  if (year > currentYear) return true;
+  if (year === currentYear && month >= currentMonth) return true;
+
+  return false;
+};

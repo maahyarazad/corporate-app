@@ -10,12 +10,12 @@ export const offerChipColor = {
   2: "#9FD8FF",
 };
 
-const local_ip = "192.168.50.7";
+const local_ip = "192.168.1.93";
 // const local_ip = "192.168.0.198";
 
 export const config = {
-  BASE_URL: `http://${local_ip}:3300/v1/api/`, // Local
-  SERVER_HOST: `http://${local_ip}:3300`, // Local
+  BASE_URL: `http://${local_ip}:3299/v1/api/`, // Local
+  SERVER_HOST: `http://${local_ip}:3299`, // Local
 
   // BASE_URL: "https://www.german-emirates-club.com/api/v1/api", //Prod
   // SERVER_HOST: "https://www.german-emirates-club.com/api/", //Prod

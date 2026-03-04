@@ -3,63 +3,57 @@ import styled from "styled-components/native";
 import { Text } from "react-native";
 import { useTheme } from "styled-components/native";
 
-// StyledText now receives numeric styles
+/*
+  All typography styling is handled inside styled-components.
+  Inline `style` prop will ALWAYS override defaults.
+*/
+
 const StyledText = styled(Text)`
-  ${({ variant }) => variant};
+  font-size: ${({ theme, size }) =>
+    typeof size === "string" ? theme.fontSizes[size] : `${Number(size)}px`};
+
+  font-weight: ${({ theme, weight }) =>
+    theme.fontWeights[weight] || theme.fontWeights.regular};
+
+  color: ${({ color }) => color || "black"};
+
   ${({ shadow }) =>
     shadow
       ? `
         elevation: 10;
-        text-shadow: 1px 1.5px 3px rgba(0,0,0,0.8);
+        text-shadow-color: rgba(0,0,0,0.8);
+        text-shadow-offset: 1px 1.5px;
+        text-shadow-radius: 3px;
       `
       : ""}
 `;
 
-// getVariant now ensures fontSize is a number
-const getVariant = (size, weight, color, theme) => {
-  const fontSize =
-    typeof size === "string" ? theme.fontSizes[size] : Number(size);
-
-  const fontWeight = theme.fontWeights[weight] || theme.fontWeights.regular;
-
-  const textColor = color || "black";
-
-  return {
-    fontWeight,
-    fontSize, // numeric!
-    color: textColor,
-  };
-};
-
 export const Label = ({
-  size,
-  weight,
+  size = "body",
+  weight = "regular",
+  color = "black",
+  shadow = false,
   children,
-  shadow,
   style,
   numberOfLines,
   ellipsizeMode,
   onPress,
-  color,
 }) => {
   const theme = useTheme();
-  const variant = getVariant(size, weight, color, theme);
 
   return (
     <StyledText
-      onPress={onPress}
+      theme={theme}
+      size={size}
+      weight={weight}
+      color={color}
       shadow={shadow}
       numberOfLines={numberOfLines}
       ellipsizeMode={ellipsizeMode}
-      style={[style, { includeFontPadding: false }, variant]} // variant merged as object
+      onPress={onPress}
+      style={[{ includeFontPadding: false }, style]}
     >
       {children}
     </StyledText>
   );
-};
-
-Label.defaultProps = {
-  size: "body",
-  weight: "regular",
-  color: "black",
 };

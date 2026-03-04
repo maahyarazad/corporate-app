@@ -4,9 +4,7 @@ import { Label } from "../../../components/typography/label.component";
 import { Spacer } from "../../../components/spacer/spacer.component";
 
 const LoginHeader = ({ companyLogo }) => {
-    console.log('===============');
-    console.log(companyLogo);
-    console.log('===============');
+
   return (
     <>
       <Image

@@ -3,55 +3,103 @@ import { IUser, UserServiceType } from "../../@types/user";
 import { config } from "../../utils/constants";
 import { axiosInstance } from "../interceptor/axiosInstance";
 
-const API_URL = 'user'
-const success = (response: AxiosResponse) => {
-    return response.data.success}
-const result = (response: AxiosResponse) => {
-    return response.data.result}
-const response = (response: AxiosResponse) => {
-    return response.data}
-const resData = (response: AxiosResponse) => {
-    return response.data.data}
+const API_URL = "user";
+
+const success = (response: AxiosResponse) => response.data.success;
+const result = (response: AxiosResponse) => response.data.result;
+const responseData = (response: AxiosResponse) => response.data;
+const resData = (response: AxiosResponse) => response.data.data;
 
 export const UserService: UserServiceType = {
-    createUser(user): Promise<boolean> {
-        return axiosInstance.post<boolean>(`${API_URL}/register`, user).then(success);
-    },
-    updateUser(user): Promise<boolean> {
-        return axiosInstance.put<boolean>(`${API_URL}/update`, user).then(success);
-    },
-    getUserInfo(userId): Promise<IUser> {
-        return axiosInstance.get<IUser>(`${API_URL}/getInfo/${userId}`).then(result)
-    },
-    // getUserInfo(userId): Promise<IUser> {
-    //     return axiosInstance.post<IUser>(`${API_URL}/getInfo`, {userId, app_id: config.APP_ID}).then(result)
-    // },
-    validateDetails(data): Promise<boolean> {
-        return axiosInstance.post(`${API_URL}/validate-details`, data).then(response)
-    },
-    getRedemptionHistory(userId): Promise<any> {
-        return axiosInstance.get(`${API_URL}/history/${userId}`).then(resData)
-    },
-    requestForgetPass(data): Promise<any> {
-        return axiosInstance.post(`${API_URL}/request-forget-pass/`, data).then(response)
-    },
-    verifyForgetPass(data): Promise<any> {
-        return axiosInstance.post(`${API_URL}/verify-forget-pass/`, data).then(response)
-    },
-    changePassword(data): Promise<any>  {
-        return axiosInstance.put(`${API_URL}/change-password/`, data).then(response)
-    },
-    resendEmailVerification(userId): Promise<boolean> {
-        return axiosInstance.post(`${API_URL}/resend-confirmation/`, {userId, app_id: config.APP_ID}).then(success)
-    },
-    removeUser(userId): Promise<boolean>  {
-        return axiosInstance.delete(`${API_URL}/delete-user/${userId}`).then(response)
-    },
-    getMemberInfo(user_id): Promise<any> {
-        return axiosInstance.get(`${API_URL}/getMemberInfo/${user_id}`).then(response)
-    },
-    addMember(data): Promise<boolean> {
-        return axiosInstance.post(`${API_URL}/add-app-member/`, data).then(response)
-    }, 
-}
+  async createUser(user): Promise<boolean> {
+    const response = await axiosInstance.post<boolean>(
+      `${API_URL}/register`,
+      user
+    );
+    return success(response);
+  },
 
+  async updateUser(user): Promise<boolean> {
+    const response = await axiosInstance.put<boolean>(
+      `${API_URL}/update`,
+      user
+    );
+    return success(response);
+  },
+
+  async getUserInfo(userId): Promise<IUser> {
+    const response = await axiosInstance.get<IUser>(
+      `${API_URL}/getInfo/${userId}`
+    );
+    return result(response);
+  },
+
+  async validateDetails(data): Promise<boolean> {
+    const response = await axiosInstance.post(
+      `${API_URL}/validate-details`,
+      data
+    );
+    return responseData(response);
+  },
+
+  async getRedemptionHistory(userId): Promise<any> {
+    const response = await axiosInstance.get(
+      `${API_URL}/history/${userId}`
+    );
+    return resData(response);
+  },
+
+  async requestForgetPass(data): Promise<any> {
+    const response = await axiosInstance.post(
+      `${API_URL}/request-forget-pass/`,
+      data
+    );
+    return responseData(response);
+  },
+
+  async verifyForgetPass(data): Promise<any> {
+    const response = await axiosInstance.post(
+      `${API_URL}/verify-forget-pass/`,
+      data
+    );
+    return responseData(response);
+  },
+
+  async changePassword(data): Promise<any> {
+    const response = await axiosInstance.put(
+      `${API_URL}/change-password/`,
+      data
+    );
+    return responseData(response);
+  },
+
+  async resendEmailVerification(userId): Promise<boolean> {
+    const response = await axiosInstance.post(
+      `${API_URL}/resend-confirmation/`,
+      { userId, app_id: config.APP_ID }
+    );
+    return success(response);
+  },
+
+  async removeUser(userId): Promise<boolean> {
+    const response = await axiosInstance.delete(
+      `${API_URL}/delete-user/${userId}`
+    );
+    return responseData(response);
+  },
+
+  async getMemberInfo(user_id): Promise<any> {
+    const response = await axiosInstance.get(
+      `${API_URL}/getMemberInfo/${user_id}`
+    );
+    return responseData(response);
+  },
+
+  async addMember(data): Promise<boolean> {
+    const response = await axiosInstance.post(
+      `${API_URL}/add-app-member/`,
+      data
+    );
+    return responseData(response);
+  },
+};

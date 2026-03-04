@@ -34,6 +34,8 @@ export const CustomTextInput = forwardRef(
       numberOfLines,
       areaHeight = 137,
       onBlur,
+      labelLeftOffset = 5,
+      onSubmitEditing
     },
     ref
   ) => {
@@ -41,13 +43,52 @@ export const CustomTextInput = forwardRef(
     const [showText, setShowText] = useState(false);
     const [textAreaHeight, setTextAreaHeight] = useState(areaHeight);
     const { resetReply } = usePosts();
+    const styles = StyleSheet.create({
+      container: {
+        height: 55,
+        width: "100%",
+        borderRadius: 4,
+        backgroundColor: "white",
+        justifyContent: "center",
+        position: "relative",
+      },
+      input: {
+        fontSize: 15,
+        flex: 1,
+        paddingHorizontal: 14,
+        paddingVertical: 6,
+        height: "100%",
+        marginBottom: 2,
+        marginTop: 2,
+      },
+      label: {
+        position: "absolute",
+        paddingHorizontal: 14,
+        left: labelLeftOffset,
+        color: "#999",
+        fontSize: 16,
+        zIndex: 1,
+      },
+      eyeContainer: {
+        paddingHorizontal: 9,
+        zIndex: 3,
+      },
+    });
 
     const inputRef = useRef(null);
 
     useImperativeHandle(ref, () => ({
       focus: () => {
-        inputRef.current.focus();
+        inputRef.current?.focus();
       },
+      blur: () => {
+        inputRef.current?.blur();
+      },
+      clear: () => {
+        inputRef.current?.clear();
+      },
+      // expose the TextInput itself
+      getNativeInput: () => inputRef.current,
     }));
     const animatedValue = useRef(new Animated.Value(0)).current;
 
@@ -138,6 +179,7 @@ export const CustomTextInput = forwardRef(
             maxLength={maxLength}
             keyboardType={keyboardType}
             // autoComplete={false}
+            onSubmitEditing={onSubmitEditing}
             autoCorrect={false}
             textContentType={textContentType}
             secureTextEntry={!showText && secureTextEntry}
@@ -145,8 +187,8 @@ export const CustomTextInput = forwardRef(
               styles.input,
               { color: disable ? "#999" : "black" },
               inputStyle,
-
             ]}
+            
             multiline={multiline}
             numberOfLines={numberOfLines}
             onChangeText={onChangeText}
@@ -155,7 +197,7 @@ export const CustomTextInput = forwardRef(
             placeholder={placeholder}
             onFocus={floatUp}
             onBlur={onBlur ?? floatDown}
-            selectionColor="black"
+            selectionColor={disable ? "#ccc" : "#a6cdfb"} // visible highlight
             onContentSizeChange={({
               nativeEvent: {
                 contentSize: { width, height },
@@ -200,12 +242,12 @@ export const CustomTextInput = forwardRef(
               color: disable
                 ? "#999"
                 : focused
-                ? "#333"
-                : error
-                ? "red"
-                : isEmpty()
-                ? "#999"
-                : "#333",
+                  ? "#333"
+                  : error
+                    ? "red"
+                    : isEmpty()
+                      ? "#999"
+                      : "#333",
               transform: [
                 { scale: scaleInterpolation },
                 { translateX: transXInterpolation },
@@ -221,34 +263,3 @@ export const CustomTextInput = forwardRef(
     );
   }
 );
-
-const styles = StyleSheet.create({
-  container: {
-    height: 55,
-    width: "100%",
-    borderRadius: 4,
-    backgroundColor: "white",
-    justifyContent: "center",
-    position: "relative",
-  },
-  input: {
-    fontSize: 15,
-    flex: 1,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    height: "100%",
-    marginBottom: 2,
-    marginTop: 2
-  },
-  label: {
-    position: "absolute",
-    paddingHorizontal: 14,
-    color: "#999",
-    fontSize: 16,
-    zIndex: 1,
-  },
-  eyeContainer: {
-    paddingHorizontal: 9,
-    zIndex: 3,
-  },
-});

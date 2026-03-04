@@ -30,6 +30,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import moment from "moment";
 import { CustomModal } from "../../components/modal/customModal.component";
 import Recaptcha from "react-native-recaptcha-that-works";
+import DropDownPicker from "react-native-dropdown-picker";
 
 export const RegistrationDetailsScreen = ({ route }) => {
   const theme = useTheme();
@@ -49,6 +50,12 @@ export const RegistrationDetailsScreen = ({ route }) => {
     birthdate: null,
     gender: "",
   });
+
+  const [open, setOpen] = useState(false);
+  const [items, setItems] = useState([
+    { label: "Male", value: "male" },
+    { label: "Female", value: "female" },
+  ]);
 
   const animatedShake = useRef(new Animated.Value(0)).current;
 
@@ -181,10 +188,6 @@ export const RegistrationDetailsScreen = ({ route }) => {
     setState({ ...state, nationality: country.name });
   };
 
-  const handleGenderChange = (_, value) => {
-    setState({ ...state, gender: value });
-  };
-
   return (
     <>
       <CustomModal showModal={showBdayModal}>
@@ -296,26 +299,30 @@ export const RegistrationDetailsScreen = ({ route }) => {
                   error={!state.honorifics && isSubmitted}
                 />
 
-            <View style={{ zIndex: 2, position: "relative", width: "100%" }}>
-                <DropDown
+                <View
+                  style={{ zIndex: 2, position: "relative", width: "100%" }}
+                >
+                  <DropDown
                     label="Anrede" // German for Honorific
                     mode="outlined"
                     visible={true}
                     showDropDown={() => setShowDropDown(true)}
                     onDismiss={() => setShowDropDown(false)}
-                    value={honorific}
+                    value={state.honorifics}
                     setValue={(val) => {
-                        setHonorific(val);
-                        handleHonorificChange(val); // callback
+                      handleHonorificChange(val);
                     }}
-                    list={honorificList.map((item) => ({ label: item, value: item }))}
+                    list={honorificList.map((item) => ({
+                      label: item,
+                      value: item,
+                    }))}
                     inputProps={{
-                        style: { height: 58, flex: 1 }, // same height as old ModalDropdown
+                      style: { height: 58, flex: 1 }, // same height as old ModalDropdown
                     }}
                     dropDownContainerStyle={{
-                        maxHeight: 200, // optional: scroll if list is long
+                      maxHeight: 200, // optional: scroll if list is long
                     }}
-                />
+                  />
                 </View>
 
                 {/* <ModalDropdown
@@ -395,7 +402,6 @@ export const RegistrationDetailsScreen = ({ route }) => {
                   }}
                 >
                   <CountryPicker
-                    
                     onSelect={handleNationalityChange}
                     withEmoji={true}
                     withFilter
@@ -467,22 +473,23 @@ export const RegistrationDetailsScreen = ({ route }) => {
                       error={!state.birthdate && isSubmitted}
                     ></CustomTextInput>
 
-                     <DateTimePicker onChange={handleBdayChangeAndroid}
-          value={state.birthdate || new Date()}
-          mode="date"
-          title="Birthdate"
-          display={Platform.OS === "ios" ? "spinner" : "default"}
-          maximumDate={dateLimit}
-          iosMode="date"
-           locale="en"
-           isNullable={false}
-           style={{
+                    <DateTimePicker
+                      onChange={handleBdayChangeAndroid}
+                      value={state.birthdate || new Date()}
+                      mode="date"
+                      title="Birthdate"
+                      display={Platform.OS === "ios" ? "spinner" : "default"}
+                      maximumDate={dateLimit}
+                      iosMode="date"
+                      locale="en"
+                      isNullable={false}
+                      style={{
                         width: "100%",
                         height: 58,
                         marginTop: 6,
                       }}
-        />
-        
+                    />
+
                     {/* <DatePicker
                       value={state.birthdate}
                       onDateChange={handleBdayChangeAndroid}
@@ -522,17 +529,23 @@ export const RegistrationDetailsScreen = ({ route }) => {
                     right={<TextInput.Icon name="chevron-down" />}
                     error={!state.gender && isSubmitted}
                   ></CustomTextInput>
-                  <ModalDropdown
-                    textStyle={{
+                  <DropDownPicker
+                    open={open}
+                    value={state.gender}
+                    items={items}
+                    setOpen={setOpen}
+                    setValue={(value) => setState({ ...state, gender: value })}
+                    setItems={setItems}
+                    placeholder="Select Gender"
+                    style={{
                       height: 58,
-                      color: "transparent",
                     }}
-                    dropdownTextStyle={{
+                    textStyle={{
                       fontSize: 16,
                     }}
-                    dropdownStyle={{ height: 80, width: "46%" }}
-                    options={["Male", "Female"]}
-                    onSelect={handleGenderChange}
+                    dropDownContainerStyle={{
+                      width: "46%",
+                    }}
                   />
                 </View>
               </View>

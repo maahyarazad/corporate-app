@@ -1,9 +1,9 @@
 import React from "react";
-import { View, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity, Text } from "react-native";
 import { Checkbox, ActivityIndicator } from "react-native-paper";
-import {Spacer} from "../../../components/spacer/spacer.component";
+import { Spacer } from "../../../components/spacer/spacer.component";
 import { Label } from "../../../components/typography/label.component";
-import {CustomTextInput} from "../../../components/customTextInput";
+import { CustomTextInput } from "../../../components/customTextInput";
 import styled from "styled-components/native";
 
 const LoginButton = styled(TouchableOpacity)`
@@ -29,7 +29,7 @@ const LoginForm = ({
 }) => {
   return (
     <View style={{ margin: 16 }}>
-      <CustomTextInput
+      <CustomTextInput style={{marginTop: 8}}
         value={username}
         onChangeText={setUsername}
         label="Username or Email"
@@ -39,7 +39,7 @@ const LoginForm = ({
       <Spacer position="top" size="small" />
 
       <CustomTextInput
-        value={password}
+        value={password} style={{marginTop: 8}}
         onChangeText={setPassword}
         label="Password"
         secureTextEntry
@@ -49,14 +49,8 @@ const LoginForm = ({
 
       <Spacer position="top" size="medium" />
 
-      <TouchableOpacity onPress={handleForgetPassword}>
-        <Label
-          shadow
-          style={{
-            color: "white",
-            textDecorationLine: "underline",
-          }}
-        >
+      <TouchableOpacity onPress={handleForgetPassword} style={{padding: 4}}>
+        <Label shadow color="white" style={{ textDecorationLine: "underline"}}>
           Forgot password?
         </Label>
       </TouchableOpacity>
@@ -64,14 +58,14 @@ const LoginForm = ({
       <Spacer position="top" size="medium" />
 
       {/* Checkbox */}
-      <View style={{ flexDirection: "row" }}>
+      <View style={{ flexDirection: "row", justifyContent:"space-between", alignItems:'center' }}>
         <Checkbox.Android
           status={checked ? "checked" : "unchecked"}
           onPress={() => setChecked(!checked)}
           uncheckedColor="white"
           color="white"
         />
-        <View style={{ flex: 0.98 }}>
+        <View style={{ flex: 1 }}>
           <Label size="caption" shadow style={{ color: "white" }}>
             I accept the{" "}
             <Label
