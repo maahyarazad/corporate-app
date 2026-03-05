@@ -28,8 +28,22 @@ import { isValidEmail } from "../../utils/isEmailValid";
 import { PartnerPicker } from "../../components/partnerPicker";
 import { PartnerService } from "../../services/location/location.service";
 import { companyLogo, config } from "../../utils/constants";
-
+import { Dropdown } from "../../components/DropDown";
 export const RegistrationScreen = () => {
+
+    const _login = {
+  username: 'maahyarazad',
+  password: '398@AZad',
+  cpassword: '398@AZad',
+  email: 'maahyarazad@gmail.com',
+  mobile: '585831595',
+  mobileCode: '971',
+  mobileCountry: 'AE',
+  partner_id: 525,
+  app_id: 2,
+  card_valid_date: '0227'
+}; 
+
   const theme = useTheme();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [disable, setDisable] = useState(false);
@@ -167,7 +181,7 @@ export const RegistrationScreen = () => {
   };
 
   const handleEmailChange = (prev) => {
-    setState({ ...state, email: prev.trim().toLocaleLowerCase() });
+    setState({ ...state, email: prev });
   };
 
   const handleMobileCountryChange = (country) => {
@@ -228,6 +242,7 @@ export const RegistrationScreen = () => {
       const response = await PartnerService.getPartners();
 
       if (response.success) {
+        console.log(response.data);
         setPartnerList(response.data);
       }
     } catch (error) {
@@ -300,6 +315,23 @@ export const RegistrationScreen = () => {
                     style={{ color: "#dfdfdf", justifyContent: "center" }}
                   >
                     Login
+                  </Label>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={()=> navigate("RegisterDetails", { login: _login})}
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                  activeOpacity={0.5}
+                >
+                  <Ionicons name="arrow-back" size={35} color={"#eee"} />
+                  <Label
+                    size={"body"}
+                    weight="bold"
+                    style={{ color: "#dfdfdf", justifyContent: "center" }}
+                  >
+                    NEXT :D
                   </Label>
                 </TouchableOpacity>
               </View>
@@ -382,6 +414,15 @@ export const RegistrationScreen = () => {
                 style={{ marginTop: 8 }}
                 setPartner={handlePartnerChange}
                 error={!state.partner_id && isSubmitted}
+              />
+
+            <Dropdown
+                searchable={true}
+                items={partnerList}
+                style={{ marginTop: 8 }}
+                  onChange={handlePartnerChange}
+                  placeholder={"Partner *"}
+                
               />
               <Spacer position={"top"} size={"small"} />
               <CustomTextInput

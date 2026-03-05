@@ -19,7 +19,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { SafeArea } from "../../components/safearea.component";
 import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";
-import DropDown from "react-native-paper-dropdown";
+
 import CountryPicker from "react-native-country-picker-modal";
 import Background from "../../components/background/background.component";
 import { goback, navigate } from "../../navigation/navigate";
@@ -31,8 +31,11 @@ import moment from "moment";
 import { CustomModal } from "../../components/modal/customModal.component";
 import Recaptcha from "react-native-recaptcha-that-works";
 import DropDownPicker from "react-native-dropdown-picker";
+import { GenderPicker } from "../../components/GenderPicker";
 
 export const RegistrationDetailsScreen = ({ route }) => {
+
+    console.log({route})
   const theme = useTheme();
   const [showCountries, setShowCountries] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -51,6 +54,7 @@ export const RegistrationDetailsScreen = ({ route }) => {
     gender: "",
   });
 
+  const [openHorific, setOpenHorific] = useState(false);
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState([
     { label: "Male", value: "male" },
@@ -206,6 +210,8 @@ export const RegistrationDetailsScreen = ({ route }) => {
               borderRadius: 10,
             }}
           >
+           
+                          
             <DateTimePicker
               // style={{ flex: 1, height: 200, width: 200 }}
               themeVariant={"light"}
@@ -260,23 +266,23 @@ export const RegistrationDetailsScreen = ({ route }) => {
                   marginBottom: 16,
                 }}
               >
-                <TouchableOpacity
-                  onPress={goback}
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                  activeOpacity={0.5}
-                >
-                  <Ionicons name="arrow-back" size={35} color={"#eee"} />
-                  <Label
-                    size={"body"}
-                    weight="bold"
-                    style={{ color: "#dfdfdf", justifyContent: "center" }}
-                  >
-                    Return
-                  </Label>
-                </TouchableOpacity>
+                 <TouchableOpacity
+                              onPress={goback}
+                              style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                              }}
+                              activeOpacity={0.5}
+                            >
+                              <Ionicons name="arrow-back" size={35} color={"#eee"} />
+                              <Label
+                                size={"body"}
+                                weight="bold"
+                                style={{ color: "#dfdfdf", justifyContent: "center" }}
+                              >
+                                Go Back to Registration Data
+                              </Label>
+                            </TouchableOpacity>
               </View>
               <View
                 style={{
@@ -302,7 +308,9 @@ export const RegistrationDetailsScreen = ({ route }) => {
                 <View
                   style={{ zIndex: 2, position: "relative", width: "100%" }}
                 >
-                  <DropDown
+
+
+                  {/* <DropDown
                     label="Anrede" // German for Honorific
                     mode="outlined"
                     visible={true}
@@ -322,7 +330,7 @@ export const RegistrationDetailsScreen = ({ route }) => {
                     dropDownContainerStyle={{
                       maxHeight: 200, // optional: scroll if list is long
                     }}
-                  />
+                  /> */}
                 </View>
 
                 {/* <ModalDropdown
@@ -473,80 +481,27 @@ export const RegistrationDetailsScreen = ({ route }) => {
                       error={!state.birthdate && isSubmitted}
                     ></CustomTextInput>
 
-                    <DateTimePicker
-                      onChange={handleBdayChangeAndroid}
-                      value={state.birthdate || new Date()}
-                      mode="date"
-                      title="Birthdate"
-                      display={Platform.OS === "ios" ? "spinner" : "default"}
-                      maximumDate={dateLimit}
-                      iosMode="date"
-                      locale="en"
-                      isNullable={false}
-                      style={{
-                        width: "100%",
-                        height: 58,
-                        marginTop: 6,
-                      }}
-                    />
-
-                    {/* <DatePicker
-                      value={state.birthdate}
-                      onDateChange={handleBdayChangeAndroid}
-                      title="Birthdate"
-                      isNullable={false}
-                      iosMode="date"
-                      androidMode="date"
-                      androidDisplay="default"
-                      textColor="black"
-                      maximumDate={dateLimit}
-                      locale="en"
-                      iosDisplay="spinner"
-                      style={{
-                        width: "100%",
-                        height: 58,
-                        marginTop: 6,
-                      }}
-                    /> */}
+                  
                   </View>
                 )}
                 <Spacer position={"left"} size={"small"} />
-                <View
-                  style={{
-                    flex: 1,
-                    height: 58,
-                  }}
-                >
-                  <CustomTextInput
-                    value={state.gender}
-                    // onChangeText={setGender}
-                    label={"Gender *"}
-                    style={{
-                      width: "100%",
-                      maxHeight: 58,
-                      position: "absolute",
-                    }}
-                    right={<TextInput.Icon name="chevron-down" />}
+                <View  style={{
+                  flexDirection: "row",
+                  flex: 1,
+                  height: 60,
+                  maxHeight: 60,
+                }}>
+                <View style={{ flex: 1 }}>
+                    Birthdate input
+                </View>
+
+                <View style={{ flex: 1 }}>
+                    <GenderPicker
+                    state={state}
+                    setState={setState}
                     error={!state.gender && isSubmitted}
-                  ></CustomTextInput>
-                  <DropDownPicker
-                    open={open}
-                    value={state.gender}
-                    items={items}
-                    setOpen={setOpen}
-                    setValue={(value) => setState({ ...state, gender: value })}
-                    setItems={setItems}
-                    placeholder="Select Gender"
-                    style={{
-                      height: 58,
-                    }}
-                    textStyle={{
-                      fontSize: 16,
-                    }}
-                    dropDownContainerStyle={{
-                      width: "46%",
-                    }}
-                  />
+                    />
+                </View>
                 </View>
               </View>
               <Spacer size={"medium"} position={"top"} />

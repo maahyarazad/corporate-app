@@ -38,7 +38,7 @@ export const isFutureExpiry = (expiry) => {
   
 
   const month = parseInt(expiry.slice(0, 2), 10);
-  const year = parseInt("20" + expiry.slice(2, 4), 10); // YY → YYYY
+  const year = parseInt(expiry.slice(2, 4), 10);
 
   if (month < 1 || month > 12) return false;
 
