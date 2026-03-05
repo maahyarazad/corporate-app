@@ -7,7 +7,7 @@ import {
   Animated,
   Easing,
   Vibration,
-  Touchable,
+  Keyboard,
   Pressable,
   TouchableWithoutFeedback,
   Platform,
@@ -157,7 +157,6 @@ export const RegistrationDetailsScreen = ({ route }) => {
       });
   };
 
-
   const handleFirstNameChange = (value) => {
     setState({ ...state, firstname: value });
   };
@@ -170,8 +169,6 @@ export const RegistrationDetailsScreen = ({ route }) => {
     setState({ ...state, lastname: value });
   };
 
-
-
   return (
     <>
       <Background>
@@ -181,7 +178,7 @@ export const RegistrationDetailsScreen = ({ route }) => {
             <KeyboardAwareScrollView
               automaticallyAdjustKeyboardInsets
               keyboardDismissMode="interactive"
-              keyboardShouldPersistTaps="always"
+              keyboardShouldPersistTaps="handled"
               contentContainerStyle={{
                 flexGrow: 1,
                 justifyContent: "center",
@@ -202,7 +199,10 @@ export const RegistrationDetailsScreen = ({ route }) => {
                 }}
               >
                 <TouchableOpacity
-                  onPress={goback}
+                  onPress={() => {
+                    Keyboard.dismiss;
+                    goback();
+                  }}
                   style={{
                     flexDirection: "row",
                     alignItems: "center",
@@ -229,6 +229,7 @@ export const RegistrationDetailsScreen = ({ route }) => {
                   onChange={(e) =>
                     setState((prev) => ({ ...prev, honorifics: e }))
                   }
+                  openBelow={true}
                   placeholder={"Salutation *"}
                   error={!state.honorifics && isSubmitted}
                 />
@@ -238,7 +239,12 @@ export const RegistrationDetailsScreen = ({ route }) => {
                 ></View>
               </View>
 
-              <View style={styles.formControl}>
+              <View
+                style={{
+                  ...styles.formControl,
+                  marginTop: 2,
+                }}
+              >
                 <CustomTextInput
                   value={state.firstname}
                   onChangeText={handleFirstNameChange}
@@ -276,7 +282,7 @@ export const RegistrationDetailsScreen = ({ route }) => {
               <View
                 style={{
                   ...styles.formControl,
-                  marginTop: 4,
+                  marginTop: 2,
                   flexDirection: "row",
                   justifyContent: "space-between",
                 }}
@@ -303,17 +309,28 @@ export const RegistrationDetailsScreen = ({ route }) => {
                 </View>
               </View>
 
-              <Recaptcha
-                ref={recaptcha}
-                siteKey="6LfkGVAmAAAAALcsQxnK2wntbm2ccMfBCz0V81M9"
-                baseUrl="http://www.german-emirates-club.com"
-                onVerify={onVerify}
-                onError={(e) => {
-                  console.log("ERROR:", e);
+              <View
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  justifyContent: "center",
+                  alignItems: "center",
                 }}
-                onExpire={onExpire}
-                size="normal"
-              />
+              >
+                <Recaptcha
+                  ref={recaptcha}
+                  siteKey="6LfkGVAmAAAAALcsQxnK2wntbm2ccMfBCz0V81M9"
+                  baseUrl="http://www.german-emirates-club.com"
+                  onVerify={onVerify}
+                  onError={(e) => console.log("ERROR:", e)}
+                  onExpire={onExpire}
+                  size="small"
+                  
+                />
+              </View>
 
               <TouchableOpacity
                 activeOpacity={0.8}
@@ -355,6 +372,6 @@ const styles = StyleSheet.create({
     height: 58,
     justifyContent: "center",
     position: "relative",
-    marginBottom: 4,
+    marginBottom: 6,
   },
 });

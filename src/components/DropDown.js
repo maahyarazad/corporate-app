@@ -14,8 +14,8 @@ import {
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-const GAP = -20;
-const SCREEN_PADDING = 0;
+const GAP = -20; // nicer than negative
+const SCREEN_PADDING = 8;
 
 export function DropDown({
   items,
@@ -27,8 +27,7 @@ export function DropDown({
   placeholder = "Select...",
   disabled = false,
 
-  // error reflection like CustomTextInput
-  error = null, // string or boolean
+  error = null,
   showErrorBorder = true,
 
   searchable = false,
@@ -51,6 +50,10 @@ export function DropDown({
   closeOnSelect = true,
   maxMenuHeight = 360,
   title,
+
+  // ✅ NEW
+  openBelow = false, // boolean requested
+  openDirection = "auto", // "auto" | "up" | "down" (optional)
 }) {
   const isControlled = value !== undefined;
 
@@ -64,10 +67,9 @@ export function DropDown({
   const showError = showErrorBorder && hasError && !open;
 
   const buttonRef = useRef(null);
+  const { height: screenHeight } = Dimensions.get("window");
 
-  const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
-
-  // ---- positioning state (2-phase) ----
+  // ---- positioning state ----
   const [anchor, setAnchor] = useState(null); // {x,y,width,height}
   const [measuredMenuHeight, setMeasuredMenuHeight] = useState(0);
   const [menuTop, setMenuTop] = useState(0);
@@ -141,38 +143,61 @@ export function DropDown({
   const handlePress = () => {
     if (disabled) return;
 
-    // Measure the button position on screen
     buttonRef.current?.measureInWindow((x, y, width, height) => {
       setAnchor({ x, y, width, height });
       setOpen(true);
-      // menuReady stays false until menu height is measured
     });
   };
 
-  // When we have both anchor and menu height => compute final top
-  useEffect(() => {
-    if (!open || !anchor || !measuredMenuHeight) return;
+  const resolvedDirection = useMemo(() => {
+  // explicit boolean takes precedence
+  if (openBelow) return "down";
+  if (openDirection === "up" || openDirection === "down") return openDirection;
 
-    // Want menu above input: top = buttonY - menuHeight - GAP
-    let top = anchor.y - measuredMenuHeight - GAP;
+  // fallback to auto
+  if (!anchor) return "down";
 
-    // Clamp to screen
-    top = Math.max(SCREEN_PADDING, top);
-    const maxTop = screenHeight - measuredMenuHeight - SCREEN_PADDING;
-    top = Math.min(top, maxTop);
+  const spaceAbove = anchor.y - SCREEN_PADDING;
+  const spaceBelow = screenHeight - (anchor.y + anchor.height) - SCREEN_PADDING;
 
-    setMenuTop(top);
-    console.log(top);
-    setMenuReady(true);
-  }, [open, anchor, measuredMenuHeight, screenHeight]);
+  // pick direction with more space
+  return spaceBelow >= spaceAbove ? "down" : "up";
+}, [openBelow, openDirection, anchor, screenHeight]);
 
-  // Optional: dynamically cap menu height so it fits above anchor
-  // (If you want "always above", this helps a lot.)
-  const computedMaxHeight = useMemo(() => {
-    if (!anchor) return maxMenuHeight;
-    const availableAbove = anchor.y - GAP - SCREEN_PADDING; // space above button
-    return Math.max(120, Math.min(maxMenuHeight, availableAbove));
-  }, [anchor, maxMenuHeight]);
+const computedMaxHeight = useMemo(() => {
+  if (!anchor) return maxMenuHeight;
+
+  const availableAbove = anchor.y - GAP - SCREEN_PADDING;
+  const availableBelow =
+    screenHeight - (anchor.y + anchor.height) - GAP - SCREEN_PADDING;
+
+  const available = openBelow ? availableBelow : availableAbove;
+
+  return Math.max(120, Math.min(maxMenuHeight, available));
+}, [anchor, maxMenuHeight, screenHeight, openBelow]);
+
+useEffect(() => {
+  if (!open || !anchor || !measuredMenuHeight) return;
+
+  let top;
+
+  if (openBelow) {
+    // ✅ OPEN BELOW input
+    // NOTE: keep your original GAP behavior by mirroring logic
+    top = anchor.y + anchor.height + (GAP + 53) ;
+  } else {
+    // ✅ OPEN ABOVE input (your original logic)
+    top = anchor.y - measuredMenuHeight - GAP;
+  }
+
+  // Clamp to screen (keep your original clamping style)
+  top = Math.max(SCREEN_PADDING, top);
+  const maxTop = screenHeight - measuredMenuHeight - SCREEN_PADDING;
+  top = Math.min(top, maxTop);
+
+  setMenuTop(top);
+  setMenuReady(true);
+}, [open, anchor, measuredMenuHeight, screenHeight, openBelow]);
 
   return (
     <View style={[styles.wrap, style]}>
@@ -229,10 +254,7 @@ export function DropDown({
             onPress={() => setOpen(false)}
           />
 
-          {/* MENU (2-phase render) */}
           <View
-            // Phase A: invisible at a safe place until measured
-            // Phase B: positioned above input once measured
             style={[
               styles.menu,
               {
@@ -244,7 +266,6 @@ export function DropDown({
             ]}
             onLayout={(e) => {
               const h = e.nativeEvent.layout.height;
-              // only set once per open cycle (avoid loops)
               if (!measuredMenuHeight && h) setMeasuredMenuHeight(h);
             }}
           >
