@@ -1,7 +1,5 @@
 // Dropdown.js
-// Pure React Native (no UI libs). JavaScript only.
-
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -14,32 +12,33 @@ import {
   KeyboardAvoidingView,
   Dimensions,
 } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-/**
- * items: [{ label: string, value: any, disabled?: boolean }]
- */
-export function Dropdown({
+const GAP = -20;
+const SCREEN_PADDING = 0;
+
+export function DropDown({
   items,
 
-  // controlled / uncontrolled
-  value, // if provided => controlled
+  value,
   defaultValue = null,
   onChange,
 
   placeholder = "Select...",
   disabled = false,
 
-  // search
+  // error reflection like CustomTextInput
+  error = null, // string or boolean
+  showErrorBorder = true,
+
   searchable = false,
   searchPlaceholder = "Search...",
-  searchFilter, // (query, item) => boolean
+  searchFilter,
 
-  // customization
-  renderButtonLabel, // (selectedItemOrNull) => ReactNode
-  renderItem, // (item, { selected, disabled }) => ReactNode
+  renderButtonLabel,
+  renderItem,
   keyExtractor,
 
-  // styles
   style,
   buttonStyle,
   buttonTextStyle,
@@ -49,7 +48,6 @@ export function Dropdown({
   overlayStyle,
   searchInputStyle,
 
-  // behavior
   closeOnSelect = true,
   maxMenuHeight = 360,
   title,
@@ -62,9 +60,18 @@ export function Dropdown({
 
   const selectedValue = isControlled ? (value ?? null) : internalValue;
 
-  useEffect(() => {
-    if (!open) setQuery("");
-  }, [open]);
+  const hasError = !!error;
+  const showError = showErrorBorder && hasError && !open;
+
+  const buttonRef = useRef(null);
+
+  const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
+
+  // ---- positioning state (2-phase) ----
+  const [anchor, setAnchor] = useState(null); // {x,y,width,height}
+  const [measuredMenuHeight, setMeasuredMenuHeight] = useState(0);
+  const [menuTop, setMenuTop] = useState(0);
+  const [menuReady, setMenuReady] = useState(false);
 
   const selectedItem = useMemo(() => {
     return items.find((x) => Object.is(x.value, selectedValue)) || null;
@@ -72,6 +79,7 @@ export function Dropdown({
 
   const filteredItems = useMemo(() => {
     if (!searchable) return items;
+
     const q = String(query || "").trim().toLowerCase();
     if (!q) return items;
 
@@ -86,7 +94,7 @@ export function Dropdown({
     if (!item || item.disabled) return;
 
     if (!isControlled) setInternalValue(item.value);
-    if (onChange) onChange(item.value, item);
+    onChange?.(item.value, item);
 
     if (closeOnSelect) setOpen(false);
   };
@@ -97,15 +105,86 @@ export function Dropdown({
     return `${item?.label ?? "item"}-${index}`;
   };
 
+  const borderStateStyle = showError
+    ? styles.errorBorder
+    : open
+    ? styles.focusBorder
+    : styles.normalBorder;
+
+  const textStateStyle = showError
+    ? styles.textError
+    : open
+    ? styles.textFocus
+    : styles.textNormal;
+
+  const isPlaceholder = !selectedItem;
+  const placeholderStateStyle =
+    isPlaceholder && showError
+      ? styles.placeholderError
+      : isPlaceholder
+      ? styles.placeholder
+      : null;
+
+  const resetModalState = () => {
+    setMenuReady(false);
+    setMeasuredMenuHeight(0);
+    setMenuTop(0);
+    setAnchor(null);
+    setQuery("");
+  };
+
+  useEffect(() => {
+    if (!open) resetModalState();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  const handlePress = () => {
+    if (disabled) return;
+
+    // Measure the button position on screen
+    buttonRef.current?.measureInWindow((x, y, width, height) => {
+      setAnchor({ x, y, width, height });
+      setOpen(true);
+      // menuReady stays false until menu height is measured
+    });
+  };
+
+  // When we have both anchor and menu height => compute final top
+  useEffect(() => {
+    if (!open || !anchor || !measuredMenuHeight) return;
+
+    // Want menu above input: top = buttonY - menuHeight - GAP
+    let top = anchor.y - measuredMenuHeight - GAP;
+
+    // Clamp to screen
+    top = Math.max(SCREEN_PADDING, top);
+    const maxTop = screenHeight - measuredMenuHeight - SCREEN_PADDING;
+    top = Math.min(top, maxTop);
+
+    setMenuTop(top);
+    console.log(top);
+    setMenuReady(true);
+  }, [open, anchor, measuredMenuHeight, screenHeight]);
+
+  // Optional: dynamically cap menu height so it fits above anchor
+  // (If you want "always above", this helps a lot.)
+  const computedMaxHeight = useMemo(() => {
+    if (!anchor) return maxMenuHeight;
+    const availableAbove = anchor.y - GAP - SCREEN_PADDING; // space above button
+    return Math.max(120, Math.min(maxMenuHeight, availableAbove));
+  }, [anchor, maxMenuHeight]);
+
   return (
     <View style={[styles.wrap, style]}>
       <Pressable
+        ref={buttonRef}
         disabled={disabled}
-        onPress={() => setOpen(true)}
+        onPress={handlePress}
         style={({ pressed }) => [
           styles.button,
-          pressed && !disabled ? { opacity: 0.85 } : null,
+          borderStateStyle,
           disabled ? styles.buttonDisabled : null,
+          pressed && !disabled ? { opacity: 0.9 } : null,
           buttonStyle,
         ]}
       >
@@ -116,7 +195,8 @@ export function Dropdown({
             numberOfLines={1}
             style={[
               styles.buttonText,
-              !selectedItem ? styles.placeholder : null,
+              textStateStyle,
+              placeholderStateStyle,
               disabled ? { opacity: 0.6 } : null,
               buttonTextStyle,
             ]}
@@ -125,9 +205,13 @@ export function Dropdown({
           </Text>
         )}
 
-        <Text style={[styles.chevron, disabled ? { opacity: 0.5 } : null]}>
-          ▾
-        </Text>
+        <View style={styles.chevronWrap}>
+          <MaterialCommunityIcons
+            name="chevron-down"
+            size={25}
+            color={disabled ? "rgba(17,24,39,0.5)" : "#111827"}
+          />
+        </View>
       </Pressable>
 
       <Modal
@@ -140,14 +224,30 @@ export function Dropdown({
           behavior={Platform.OS === "ios" ? "padding" : undefined}
           style={{ flex: 1 }}
         >
-          {/* overlay */}
           <Pressable
             style={[styles.overlay, overlayStyle]}
             onPress={() => setOpen(false)}
           />
 
-          {/* menu */}
-          <View style={[styles.menu, menuStyle, { maxHeight: maxMenuHeight }]}>
+          {/* MENU (2-phase render) */}
+          <View
+            // Phase A: invisible at a safe place until measured
+            // Phase B: positioned above input once measured
+            style={[
+              styles.menu,
+              {
+                top: menuReady ? menuTop : SCREEN_PADDING,
+                opacity: menuReady ? 1 : 0,
+                maxHeight: computedMaxHeight,
+              },
+              menuStyle,
+            ]}
+            onLayout={(e) => {
+              const h = e.nativeEvent.layout.height;
+              // only set once per open cycle (avoid loops)
+              if (!measuredMenuHeight && h) setMeasuredMenuHeight(h);
+            }}
+          >
             {!!title && <Text style={styles.title}>{title}</Text>}
 
             {searchable && (
@@ -155,6 +255,7 @@ export function Dropdown({
                 value={query}
                 onChangeText={setQuery}
                 placeholder={searchPlaceholder}
+                placeholderTextColor={"#999"}
                 autoCorrect={false}
                 style={[styles.searchInput, searchInputStyle]}
               />
@@ -211,6 +312,10 @@ export function Dropdown({
           </View>
         </KeyboardAvoidingView>
       </Modal>
+
+      {typeof error === "string" && error.trim() !== "" ? (
+        <Text style={styles.errorMessage}>{error}</Text>
+      ) : null}
     </View>
   );
 }
@@ -219,45 +324,44 @@ const { width } = Dimensions.get("window");
 const MENU_WIDTH = Math.min(420, Math.round(width * 0.92));
 
 const styles = StyleSheet.create({
-  wrap: {
-    width: "100%",
-  },
+  wrap: { width: "100%" },
+
   button: {
-    minHeight: 56,
-    borderWidth: 1,
-    borderColor: "#d0d5dd",
-    backgroundColor: "#fff",
+    height: 56,
+    width: "100%",
     borderRadius: 4,
+    backgroundColor: "#fff",
     paddingHorizontal: 12,
-    paddingVertical: 10,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  buttonDisabled: {
-    backgroundColor: "#f4f4f5",
-  },
-  buttonText: {
-    flex: 1,
-    fontSize: 14,
-    color: "#111827",
-    marginRight: 10,
-  },
-  placeholder: {
-    color: "#6b7280",
-  },
-  chevron: {
-    fontSize: 16,
-    color: "#111827",
-  },
+
+  normalBorder: { borderWidth: 1, borderColor: "#d0d5dd" },
+  focusBorder: { borderWidth: 1, borderColor: "#333" },
+  errorBorder: { borderWidth: 2, borderColor: "red" },
+
+  buttonDisabled: { backgroundColor: "#f4f4f5" },
+
+  buttonText: { flex: 1, fontSize: 15, marginRight: 10 },
+
+  textNormal: { color: "#111827" },
+  textFocus: { color: "#111827" },
+  textError: { color: "#111827" },
+
+  placeholder: { paddingLeft: 8, color: "#999" },
+  placeholderError: { paddingLeft: 8, color: "red" },
+
+  chevronWrap: { alignItems: "center", justifyContent: "center" },
+
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(0,0,0,0.35)",
   },
+
   menu: {
     position: "absolute",
     alignSelf: "center",
-    top: 90,
     width: MENU_WIDTH,
     backgroundColor: "#fff",
     borderRadius: 4,
@@ -265,6 +369,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#e5e7eb",
   },
+
   title: {
     paddingHorizontal: 14,
     paddingTop: 14,
@@ -273,21 +378,21 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#111827",
   },
+
   searchInput: {
+    height: 56,
     marginHorizontal: 12,
     marginBottom: 10,
-    borderWidth: 1,
     marginTop: 8,
-    backgroundColor:"#fff",
+    backgroundColor: "#fff",
+    borderWidth: 1,
     borderColor: "#e5e7eb",
-   borderRadius: 4,
-    minheight: 56,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 14,
+    borderRadius: 4,
+    paddingHorizontal: 14,
+    fontSize: 15,
     color: "#111827",
-    placeholderTextColor:'#999'
   },
+
   itemRow: {
     paddingHorizontal: 14,
     paddingVertical: 12,
@@ -297,30 +402,15 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: "#f3f4f6",
   },
-  itemRowSelected: {
-    backgroundColor: "#f9fafb",
-  },
-  itemRowDisabled: {
-    backgroundColor: "#fff",
-  },
-  itemText: {
-    flex: 1,
-    fontSize: 14,
-    color: "#111827",
-    marginRight: 10,
-  },
-  itemTextSelected: {
-    fontWeight: "600",
-  },
-  check: {
-    fontSize: 16,
-    color: "#111827",
-  },
-  empty: {
-    padding: 18,
-    alignItems: "center",
-  },
-  emptyText: {
-    color: "#6b7280",
-  },
+  itemRowSelected: { backgroundColor: "#f9fafb" },
+  itemRowDisabled: { backgroundColor: "#fff" },
+
+  itemText: { flex: 1, fontSize: 14, color: "#111827", marginRight: 10 },
+  itemTextSelected: { fontWeight: "600" },
+  check: { fontSize: 16, color: "#111827" },
+
+  empty: { padding: 18, alignItems: "center" },
+  emptyText: { color: "#6b7280" },
+
+  errorMessage: { color: "red", marginTop: 6, fontSize: 12 },
 });

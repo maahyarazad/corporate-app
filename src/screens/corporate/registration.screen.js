@@ -19,7 +19,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { CustomTextInput } from "../../components/customTextInput";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { UserService } from "../../services/user/user.service";
-import PhoneInput from "react-native-phone-number-input";
+
 import {
   validateCardExpiryDate,
   isFutureExpiry,
@@ -28,21 +28,23 @@ import { isValidEmail } from "../../utils/isEmailValid";
 import { PartnerPicker } from "../../components/partnerPicker";
 import { PartnerService } from "../../services/location/location.service";
 import { companyLogo, config } from "../../utils/constants";
-import { Dropdown } from "../../components/DropDown";
-export const RegistrationScreen = () => {
+import { DropDown } from "../../components/DropDown";
+import { PhoneInput } from "../../components/PhoneInput";
+import { showToast } from "../../Toast";
 
-    const _login = {
-  username: 'maahyarazad',
-  password: '398@AZad',
-  cpassword: '398@AZad',
-  email: 'maahyarazad@gmail.com',
-  mobile: '585831595',
-  mobileCode: '971',
-  mobileCountry: 'AE',
-  partner_id: 525,
-  app_id: 2,
-  card_valid_date: '0227'
-}; 
+export const RegistrationScreen = () => {
+  const _login = {
+    username: "maahyarazad",
+    password: "398@AZad",
+    cpassword: "398@AZad",
+    email: "maahyarazad@gmail.com",
+    mobile: "585831595",
+    mobileCode: "971",
+    mobileCountry: "AE",
+    partner_id: 525,
+    app_id: 2,
+    card_valid_date: "0227",
+  };
 
   const theme = useTheme();
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -78,8 +80,6 @@ export const RegistrationScreen = () => {
     outputRange: [0, -10, 0, 10, 0],
   });
 
-
-  
   const shake = () => {
     Vibration.vibrate();
     Animated.loop(
@@ -104,14 +104,7 @@ export const RegistrationScreen = () => {
   };
 
   const validateInfo = () => {
-    if (!_isFutureExpiry) {
-      shake();
-      Alert.alert(
-        "Invalid Expiry Date",
-        "The expiry date must be in the future."
-      );
-      return false;
-    }
+    
 
     if (
       state.username.trim() === "" ||
@@ -123,13 +116,14 @@ export const RegistrationScreen = () => {
       state.card_valid_date === ""
     ) {
       shake();
-      Alert.alert("Empty Fields", "Some fields are empty.");
+      showToast("error", "Empty Fields", "Some fields are empty.");
       return false;
     }
 
     if (state.username.trim().length < 8) {
       shake();
-      Alert.alert(
+      showToast(
+        "error",
         "Username too short",
         "Username must be at least 8 characters long"
       );
@@ -141,7 +135,8 @@ export const RegistrationScreen = () => {
       !(state.cpassword.trim().length >= 8)
     ) {
       shake();
-      Alert.alert(
+      showToast(
+        "error",
         "Password too short",
         "Password must be at least 8 characters long!"
       );
@@ -150,16 +145,30 @@ export const RegistrationScreen = () => {
 
     if (state.password !== state.cpassword) {
       shake();
-      Alert.alert("Invalid Password", "Password does not match!");
+      showToast("error", "Invalid Password", "Password does not match!");
       return false;
     }
 
-    if (!isValidEmail(state.email.trim().toLocaleLowerCase())) {
+    if (!isValidEmail(state.email.trim().toLowerCase())) {
       shake();
-      Alert.alert("Invalid Email", "The email you have entered is invalid");
+      showToast(
+        "error",
+        "Invalid Email",
+        "The email you have entered is invalid"
+      );
       return false;
     }
 
+    if (!_isFutureExpiry) {
+      shake();
+      showToast(
+        "error",
+        "Invalid Expiry Date",
+        "The expiry date must be in the future."
+      );
+      return false;
+    }
+    
     setIsPasswordMatch(true);
     return true;
   };
@@ -196,11 +205,10 @@ export const RegistrationScreen = () => {
   };
 
   const handleValidityChange = (prev) => {
-      
-      const value = validateCardExpiryDate(state.card_valid_date, prev);
-      const expiryValue = isFutureExpiry(value);
-      setIsFutureExpiry(expiryValue);
-      
+    const value = validateCardExpiryDate(state.card_valid_date, prev);
+    const expiryValue = isFutureExpiry(value);
+    setIsFutureExpiry(expiryValue);
+
     setState({
       ...state,
       card_valid_date: value,
@@ -242,7 +250,6 @@ export const RegistrationScreen = () => {
       const response = await PartnerService.getPartners();
 
       if (response.success) {
-        console.log(response.data);
         setPartnerList(response.data);
       }
     } catch (error) {
@@ -318,7 +325,7 @@ export const RegistrationScreen = () => {
                   </Label>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={()=> navigate("RegisterDetails", { login: _login})}
+                  onPress={() => navigate("RegisterDetails", { login: _login })}
                   style={{
                     flexDirection: "row",
                     alignItems: "center",
@@ -409,20 +416,14 @@ export const RegistrationScreen = () => {
                 error={isSubmitted && state.card_number.trim() === ""}
               />
               <Spacer position={"top"} size={"small"} /> */}
-              <PartnerPicker
-                data={partnerList}
-                style={{ marginTop: 8 }}
-                setPartner={handlePartnerChange}
-                error={!state.partner_id && isSubmitted}
-              />
 
-            <Dropdown
+              <DropDown
                 searchable={true}
                 items={partnerList}
                 style={{ marginTop: 8 }}
-                  onChange={handlePartnerChange}
-                  placeholder={"Partner *"}
-                
+                onChange={handlePartnerChange}
+                placeholder={"Partner *"}
+                error={!state.partner_id && isSubmitted}
               />
               <Spacer position={"top"} size={"small"} />
               <CustomTextInput
@@ -441,11 +442,15 @@ export const RegistrationScreen = () => {
               <Spacer position={"top"} size={"small"} />
               <PhoneInput
                 defaultCode="AE"
-                layout="first"
                 placeholder="541234567"
-                selectionColor={"#a6cdfb"} // visible highlight
                 onChangeText={handleMobileChange}
                 onChangeCountry={handleMobileCountryChange}
+                onChangeFormattedText={(e164) => console.log("E164:", e164)}
+                error={
+                  isSubmitted && state.mobile.trim() === ""
+                    ? "Mobile is required"
+                    : null
+                }
                 containerStyle={{
                   borderRadius: 5,
                   width: "100%",
@@ -460,20 +465,15 @@ export const RegistrationScreen = () => {
                 textContainerStyle={{
                   borderTopRightRadius: 5,
                   borderBottomRightRadius: 5,
-                  backgroundColor: "white", // optional to make sure background is correct
+                  backgroundColor: "white",
                   paddingVertical: 0,
                 }}
                 textInputStyle={{
-                  color: "black", // THIS ensures typed text is black
+                  color: "black",
                   fontSize: 16,
                 }}
-                placeholderTextColor="#999"
-                countryPickerProps={{
-                  modalProps: {
-                    presentationStyle: "pageSheet", // or 'formSheet' on iOS
-                    animationType: "slide",
-                    statusBarTranslucent: true,
-                  },
+                textInputProps={{
+                  selectionColor: "#a6cdfb",
                 }}
               />
               <Spacer size={"medium"} position={"top"} />

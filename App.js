@@ -17,7 +17,8 @@ import PostProvider from "./src/services/post/post.context";
 import { Provider } from "react-redux";
 import configureStore from "./redux/store/postStore";
 import AlertContextProvider from "./src/services/alert/alert.context";
-
+import { toastConfig } from "./src/Toast";
+import Toast from "react-native-toast-message";
 
 const store = configureStore();
 
@@ -60,6 +61,8 @@ export default function App() {
           </AlertContextProvider>
         
       </ThemeProvider>
+        <Toast config={toastConfig} />
+
       <ExpoStatusBar style="dark" />
     </>
   );
