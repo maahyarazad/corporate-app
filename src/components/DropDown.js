@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
   wrap: { width: "100%" },
 
   button: {
-    height: 56,
+    height: 60,
     width: "100%",
     borderRadius: 4,
     backgroundColor: "#fff",

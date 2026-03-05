@@ -14,6 +14,7 @@ import usePosts from "../screens/posts/post_card/usePosts";
 export const CustomTextInput = forwardRef(
   (
     {
+        
       label = "",
       value,
       onChangeText,
@@ -189,13 +190,20 @@ export const CustomTextInput = forwardRef(
               inputStyle,
             ]}
             
+            onFocus={(e) => {
+    floatUp();           // keep the floating label animation
+    if (typeof onFocus === "function") {
+      onFocus(e);        // call parent-provided onFocus
+    }
+  }}
+            
             multiline={multiline}
             numberOfLines={numberOfLines}
             onChangeText={onChangeText}
             value={value}
             editable={!disable}
             placeholder={placeholder}
-            onFocus={floatUp}
+            
             onBlur={onBlur ?? floatDown}
             selectionColor={disable ? "#ccc" : "#a6cdfb"} // visible highlight
             onContentSizeChange={({

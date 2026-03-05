@@ -15,12 +15,11 @@ import {
 import { companyLogo, config, honorificList } from "../../utils/constants";
 import { useTheme } from "styled-components/native";
 import { Button, TextInput } from "react-native-paper";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { SafeArea } from "../../components/safearea.component";
-import { Spacer } from "../../components/spacer/spacer.component";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { Label } from "../../components/typography/label.component";
+import { showToast } from "../../Toast";
 
-import CountryPicker from "react-native-country-picker-modal";
 import Background from "../../components/background/background.component";
 import { goback, navigate } from "../../navigation/navigate";
 import { UserService } from "../../services/user/user.service";
@@ -30,12 +29,19 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import moment from "moment";
 import { CustomModal } from "../../components/modal/customModal.component";
 import Recaptcha from "react-native-recaptcha-that-works";
-import DropDownPicker from "react-native-dropdown-picker";
-import { GenderPicker } from "../../components/GenderPicker";
+
+import { DropDown } from "../../components/DropDown";
+import { BirthdatePicker } from "../../components/BirthdatePicker";
+import { NationalityInput } from "../../components/NationalityInput";
+
+const genderItems = [
+  { label: "Select Gender", value: "" },
+  { label: "Male", value: "Male" },
+  { label: "Female", value: "Female" },
+];
 
 export const RegistrationDetailsScreen = ({ route }) => {
-
-    console.log({route})
+  console.log({ route });
   const theme = useTheme();
   const [showCountries, setShowCountries] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -110,7 +116,7 @@ export const RegistrationDetailsScreen = ({ route }) => {
 
   const onExpire = () => {
     console.warn("expired!");
-    alert("NOT NICE");
+    showToast("error", "Expired", "NOT NICE");
   };
 
   const validateInfo = () => {
@@ -122,7 +128,7 @@ export const RegistrationDetailsScreen = ({ route }) => {
       state.gender === ""
     ) {
       shake();
-      alert("Some fields are empty.");
+      showToast("error", "Empty Fields", "Some fields are empty.");
       return false;
     }
 
@@ -147,30 +153,10 @@ export const RegistrationDetailsScreen = ({ route }) => {
         if (result) navigate("RegisterSuccess");
       })
       .catch((err) => {
-        alert(err.message);
+        showToast("error", "Error", err.message);
       });
   };
 
-  const openBdayModal = () => {
-    setShowBdayModal(true);
-  };
-
-  const closeBdayModal = () => {
-    setState({ ...state, birthdate: tempBday });
-    setShowBdayModal(false);
-  };
-
-  const handleBdayChange = (_, date) => {
-    setTempBday(date);
-  };
-
-  const handleBdayChangeAndroid = (date) => {
-    setState({ ...state, birthdate: date });
-  };
-
-  const handleHonorificChange = (_, value) => {
-    setState({ ...state, honorifics: value });
-  };
 
   const handleFirstNameChange = (value) => {
     setState({ ...state, firstname: value });
@@ -184,61 +170,10 @@ export const RegistrationDetailsScreen = ({ route }) => {
     setState({ ...state, lastname: value });
   };
 
-  const displayCountries = () => {
-    setShowCountries(true);
-  };
 
-  const handleNationalityChange = (country) => {
-    setState({ ...state, nationality: country.name });
-  };
 
   return (
     <>
-      <CustomModal showModal={showBdayModal}>
-        <View
-          style={{
-            backgroundColor: "#00000088",
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: "white",
-              width: "90%",
-              borderRadius: 10,
-            }}
-          >
-           
-                          
-            <DateTimePicker
-              // style={{ flex: 1, height: 200, width: 200 }}
-              themeVariant={"light"}
-              value={tempBday}
-              mode={"date"}
-              display={Platform.OS === "ios" ? "spinner" : "calendar"}
-              maximumDate={dateLimit}
-              onChange={handleBdayChange}
-            />
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "center",
-                paddingBottom: 16,
-              }}
-            >
-              <Button
-                onPress={closeBdayModal}
-                color={theme.colors.icons.active}
-                mode="contained"
-              >
-                Set Birthdate
-              </Button>
-            </View>
-          </View>
-        </View>
-      </CustomModal>
       <Background>
         <SafeArea style={styles.safeArea}>
           <Image style={styles.companyLogo} source={companyLogo} />
@@ -266,245 +201,108 @@ export const RegistrationDetailsScreen = ({ route }) => {
                   marginBottom: 16,
                 }}
               >
-                 <TouchableOpacity
-                              onPress={goback}
-                              style={{
-                                flexDirection: "row",
-                                alignItems: "center",
-                              }}
-                              activeOpacity={0.5}
-                            >
-                              <Ionicons name="arrow-back" size={35} color={"#eee"} />
-                              <Label
-                                size={"body"}
-                                weight="bold"
-                                style={{ color: "#dfdfdf", justifyContent: "center" }}
-                              >
-                                Go Back to Registration Data
-                              </Label>
-                            </TouchableOpacity>
-              </View>
-              <View
-                style={{
-                  height: 58,
-                  justifyContent: "center",
-                  position: "relative",
-                }}
-              >
-                <CustomTextInput
-                  value={state.honorifics}
-                  // onChangeText={handleHonorificChange}
-                  label={"Salutation *"}
+                <TouchableOpacity
+                  onPress={goback}
                   style={{
-                    width: "100%",
-                    maxHeight: 58,
-                    position: "absolute",
-                    zIndex: -1,
+                    flexDirection: "row",
+                    alignItems: "center",
                   }}
-                  right={<TextInput.Icon name="chevron-down" />}
+                  activeOpacity={0.5}
+                >
+                  <Ionicons name="arrow-back" size={35} color={"#eee"} />
+                  <Label
+                    size={"body"}
+                    weight="bold"
+                    style={{ color: "#dfdfdf", justifyContent: "center" }}
+                  >
+                    Go Back to Registration Data
+                  </Label>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.formControl}>
+                <DropDown
+                  items={honorificList.map((item) => ({
+                    label: item,
+                    value: item,
+                  }))}
+                  onChange={(e) =>
+                    setState((prev) => ({ ...prev, honorifics: e }))
+                  }
+                  placeholder={"Salutation *"}
                   error={!state.honorifics && isSubmitted}
                 />
 
                 <View
                   style={{ zIndex: 2, position: "relative", width: "100%" }}
-                >
-
-
-                  {/* <DropDown
-                    label="Anrede" // German for Honorific
-                    mode="outlined"
-                    visible={true}
-                    showDropDown={() => setShowDropDown(true)}
-                    onDismiss={() => setShowDropDown(false)}
-                    value={state.honorifics}
-                    setValue={(val) => {
-                      handleHonorificChange(val);
-                    }}
-                    list={honorificList.map((item) => ({
-                      label: item,
-                      value: item,
-                    }))}
-                    inputProps={{
-                      style: { height: 58, flex: 1 }, // same height as old ModalDropdown
-                    }}
-                    dropDownContainerStyle={{
-                      maxHeight: 200, // optional: scroll if list is long
-                    }}
-                  /> */}
-                </View>
-
-                {/* <ModalDropdown
-                  isFullWidth
-                  keyboardShouldPersistTaps="always"
-                  style={{
-                    flex: 1,
-                    position: "absolute",
-                    width: "100%",
-                    height: "100%",
-                    zIndex: 2,
-                  }}
-                  textStyle={{
-                    height: 58,
-                    color: "transparent",
-                  }}
-                  dropdownTextStyle={{ fontSize: 16 }}
-                  dropdownStyle={{
-                    height: "auto",
-                  }}
-                  options={honorificList}
-                  onSelect={handleHonorificChange}
-                /> */}
+                ></View>
               </View>
-              <Spacer position={"top"} size={"small"} />
-              <CustomTextInput
-                value={state.firstname}
-                onChangeText={handleFirstNameChange}
-                label={"First Name *"}
-                error={isSubmitted && state.firstname.trim() === ""}
-              ></CustomTextInput>
-              <Spacer position={"top"} size={"small"} />
-              <CustomTextInput
-                value={state.middlename}
-                onChangeText={handleMiddleNameChange}
-                label={"Middle Name"}
-              ></CustomTextInput>
-              <Spacer position={"top"} size={"small"} />
-              <CustomTextInput
-                value={state.lastname}
-                onChangeText={handleLastNameChange}
-                label={"Last Name *"}
-                error={isSubmitted && state.lastname.trim() === ""}
-              ></CustomTextInput>
-              <Spacer position={"top"} size={"small"} />
-              <View
-                style={{
-                  height: 58,
-                  justifyContent: "center",
-                  position: "relative",
-                }}
-              >
+
+              <View style={styles.formControl}>
                 <CustomTextInput
+                  value={state.firstname}
+                  onChangeText={handleFirstNameChange}
+                  label={"First Name *"}
+                  error={isSubmitted && state.firstname.trim() === ""}
+                />
+              </View>
+
+              <View style={styles.formControl}>
+                <CustomTextInput
+                  value={state.middlename}
+                  onChangeText={handleMiddleNameChange}
+                  label={"Middle Name"}
+                />
+              </View>
+
+              <View style={styles.formControl}>
+                <CustomTextInput
+                  value={state.lastname}
+                  onChangeText={handleLastNameChange}
+                  label={"Last Name *"}
+                  error={isSubmitted && state.lastname.trim() === ""}
+                />
+              </View>
+
+              <View style={styles.formControl}>
+                <NationalityInput
                   value={state.nationality}
-                  label={"Nationality"}
-                  style={{
-                    width: "100%",
-                    height: 58,
-                    position: "absolute",
-                    zIndex: -1,
-                  }}
-                  right={
-                    <TextInput.Icon
-                      name="chevron-down"
-                      onPress={displayCountries}
-                    />
+                  onChange={(value) =>
+                    setState((prev) => ({ ...prev, nationality: value }))
                   }
                 />
-                <View
-                  style={{
-                    flex: 1,
-                    paddingTop: 10,
-                    position: "absolute",
-                    width: "100%",
-                    height: "100%",
-                    zIndex: 1,
-                  }}
-                >
-                  <CountryPicker
-                    onSelect={handleNationalityChange}
-                    withEmoji={true}
-                    withFilter
-                    placeholder=""
-                    containerButtonStyle={{
-                      height: "100%",
-                      width: "100%",
-                      top: 0,
-                      right: 0,
-                      bottom: 0,
-                      left: 0,
-                    }}
-                    visible={showCountries}
+              </View>
+
+              <View
+                style={{
+                  ...styles.formControl,
+                  marginTop: 4,
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
+                <View style={{ flex: 1, marginRight: 8 }}>
+                  <BirthdatePicker
+                    value={state.birthdate}
+                    onChange={(date) =>
+                      setState((prev) => ({ ...prev, birthdate: date }))
+                    }
+                    error={!state.birthdate && isSubmitted}
+                  />
+                </View>
+
+                <View style={{ flex: 1, marginLeft: 8 }}>
+                  <DropDown
+                    items={genderItems}
+                    onChange={(e) =>
+                      setState((prev) => ({ ...prev, gender: e }))
+                    }
+                    placeholder={"Gender *"}
+                    error={!state.gender && isSubmitted}
                   />
                 </View>
               </View>
-              <Spacer position={"top"} size={"small"} />
-              {/* <DateTimePicker
-                value={new Date()}
-                mode={"date"}
-                display="spinner"
-              /> */}
 
-              <View
-                style={{
-                  flexDirection: "row",
-                  flex: 1,
-                  height: 60,
-                  maxHeight: 60,
-                }}
-              >
-                {Platform.OS === "ios" ? (
-                  <View style={{ marginBottom: 0, flex: 1 }}>
-                    <CustomTextInput
-                      value={
-                        state.birthdate
-                          ? moment(state.birthdate).format("DD.MMM YYYY")
-                          : ""
-                      }
-                      // onChangeText={setBirthdate}
-                      label={"Birthdate *"}
-                      style={{
-                        width: "100%",
-                        maxHeight: 60,
-                        position: "absolute",
-                      }}
-                      error={!state.birthdate && isSubmitted}
-                    ></CustomTextInput>
-                    <Pressable
-                      style={{ flex: 1 }}
-                      onPress={openBdayModal}
-                    ></Pressable>
-                  </View>
-                ) : (
-                  <View style={{ marginBottom: 0, flex: 1 }}>
-                    <CustomTextInput
-                      value={
-                        state.birthdate
-                          ? moment(state.birthdate).format("DD.MMM YYYY")
-                          : ""
-                      }
-                      // onChangeText={setBirthdate}
-                      label={"Birthdate *"}
-                      style={{
-                        width: "100%",
-                        maxHeight: 60,
-                        position: "absolute",
-                      }}
-                      error={!state.birthdate && isSubmitted}
-                    ></CustomTextInput>
-
-                  
-                  </View>
-                )}
-                <Spacer position={"left"} size={"small"} />
-                <View  style={{
-                  flexDirection: "row",
-                  flex: 1,
-                  height: 60,
-                  maxHeight: 60,
-                }}>
-                <View style={{ flex: 1 }}>
-                    Birthdate input
-                </View>
-
-                <View style={{ flex: 1 }}>
-                    <GenderPicker
-                    state={state}
-                    setState={setState}
-                    error={!state.gender && isSubmitted}
-                    />
-                </View>
-                </View>
-              </View>
-              <Spacer size={"medium"} position={"top"} />
               <Recaptcha
                 ref={recaptcha}
                 siteKey="6LfkGVAmAAAAALcsQxnK2wntbm2ccMfBCz0V81M9"
@@ -516,6 +314,7 @@ export const RegistrationDetailsScreen = ({ route }) => {
                 onExpire={onExpire}
                 size="normal"
               />
+
               <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={sendCaptcha}
@@ -551,5 +350,11 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
+  },
+  formControl: {
+    height: 58,
+    justifyContent: "center",
+    position: "relative",
+    marginBottom: 4,
   },
 });

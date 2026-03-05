@@ -168,7 +168,7 @@ export const RegistrationScreen = () => {
       );
       return false;
     }
-    
+
     setIsPasswordMatch(true);
     return true;
   };
@@ -324,6 +324,7 @@ export const RegistrationScreen = () => {
                     Login
                   </Label>
                 </TouchableOpacity>
+
                 <TouchableOpacity
                   onPress={() => navigate("RegisterDetails", { login: _login })}
                   style={{
@@ -342,7 +343,9 @@ export const RegistrationScreen = () => {
                   </Label>
                 </TouchableOpacity>
               </View>
+
               <Spacer position={"top"} size={"small"} />
+
               <CustomTextInput
                 ref={usernameRef}
                 value={state.username}
@@ -353,7 +356,9 @@ export const RegistrationScreen = () => {
                 returnKeyType="next"
                 onSubmitEditing={() => passwordRef.current?.focus()}
               />
+
               <Spacer position={"top"} size={"small"} />
+
               <CustomTextInput
                 ref={passwordRef}
                 value={state.password}
@@ -387,13 +392,16 @@ export const RegistrationScreen = () => {
                 returnKeyType="next"
                 onSubmitEditing={() => emailRef.current?.focus()}
               />
+
               <Spacer position={"top"} size={"small"} />
+
               {/* <CustomTextInput
                 label="Miscellaneous" 
                 value={state.miscellaneous}
                 onChangeText={handleMisc}
                 style={{ width: 0, height: 0, marginTop: 8 }}
               /> */}
+
               <CustomTextInput
                 label={"E-mail *"}
                 style={{ marginTop: 8 }}
@@ -405,6 +413,7 @@ export const RegistrationScreen = () => {
                 returnKeyType="next"
                 onSubmitEditing={() => expiryRef.current?.focus()}
               />
+              
               <Spacer position={"top"} size={"small"} />
               {/* <CustomTextInput
                 maxLength={12}
@@ -426,6 +435,7 @@ export const RegistrationScreen = () => {
                 error={!state.partner_id && isSubmitted}
               />
               <Spacer position={"top"} size={"small"} />
+
               <CustomTextInput
                 ref={expiryRef}
                 labelLeftOffset={60}
@@ -439,7 +449,9 @@ export const RegistrationScreen = () => {
                 onChangeText={handleValidityChange}
                 error={isSubmitted && state.card_valid_date.trim() === ""}
               />
+
               <Spacer position={"top"} size={"small"} />
+
               <PhoneInput
                 defaultCode="AE"
                 placeholder="541234567"
