@@ -32,22 +32,28 @@ export const validateCardExpiryDate = (state, prev) => {
 
 
 export const isFutureExpiry = (expiry) => {
-  if (!expiry || expiry.length < 4) return false;
-
-  // Remove slash if exists (e.g. "02/26" → "0226")
-  
+  if (!expiry || expiry.length < 5) return false;
 
   const month = parseInt(expiry.slice(0, 2), 10);
-  const year = parseInt(expiry.slice(2, 4), 10);
+  const year2Digits = parseInt(expiry.slice(3, 5), 10);
 
-  if (month < 1 || month > 12) return false;
+  if (isNaN(month) || isNaN(year2Digits)) return false;
 
   const now = new Date();
   const currentMonth = now.getMonth() + 1;
   const currentYear = now.getFullYear();
 
-  if (year > currentYear) return true;
-  if (year === currentYear && month >= currentMonth) return true;
+  // Convert 2-digit year to correct century
+  const century = Math.floor(currentYear / 100) * 100;
+  let fullYear = century + year2Digits;
+
+  // Handle rollover (e.g. 99 -> 2099 when current year is 2101)
+  if (fullYear < currentYear - 50) {
+    fullYear += 100;
+  }
+
+  if (fullYear > currentYear) return true;
+  if (fullYear === currentYear && month >= currentMonth) return true;
 
   return false;
 };

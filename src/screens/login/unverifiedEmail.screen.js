@@ -122,8 +122,10 @@ export const UnverifiedEmailScreen = ({ route }) => {
               color="red"
             />
           </View>
-          <Spacer position={"top"} size="large" />
-          <View style={{ width: "100%", paddingHorizontal: 32 }}>
+          
+          
+
+          <View style={styles.viewStyle}>
             <Label
               style={{ color: "white", textAlign: "center" }}
               size={"title"}
@@ -132,8 +134,10 @@ export const UnverifiedEmailScreen = ({ route }) => {
               {i18n.t("email-verification.text")}
             </Label>
           </View>
-          <Spacer position={"top"} size="large" />
-          <TouchableOpacity onPress={handleEmailChange}>
+
+          
+          
+          <TouchableOpacity onPress={handleEmailChange} style={styles.viewStyle}>
             <Label
               style={{ color: "white", textDecorationLine: "underline" }}
               size={"title"}
@@ -141,16 +145,17 @@ export const UnverifiedEmailScreen = ({ route }) => {
               {i18n.t("update-email.header")}
             </Label>
           </TouchableOpacity>
-          <Spacer position={"top"} size="large" />
+          
+          
           {useVerification && (
-            <>
+           <View style={styles.viewStyle}>
               <InputVerificationCode />
               <Spacer position={"top"} size="large" />
-            </>
+            </View>
           )}
           <Button
             onPress={goback}
-            style={{ borderRadius: 10 }}
+            style={styles.viewStyleButton}
             buttonColor={theme.colors.icons.active}
             contentStyle={{ paddingVertical: 8, paddingHorizontal: 16 }}
             mode="contained"
@@ -159,9 +164,9 @@ export const UnverifiedEmailScreen = ({ route }) => {
               {i18n.t("email-verification.button")}
             </Label>
           </Button>
-          <Spacer position={"top"} size="large" />
+        
           {!resendStatus ? (
-            <TouchableOpacity onPress={handleResend}>
+            <TouchableOpacity onPress={handleResend} style={styles.viewStyle}>
               <Label
                 style={{ color: "white", textDecorationLine: "underline" }}
                 size={"subtitle"}
@@ -180,7 +185,7 @@ export const UnverifiedEmailScreen = ({ route }) => {
             </Label>
           )}
           {false && !useVerification && (
-            <>
+            <View style={styles.viewStyle}>
               <Spacer position={"top"} size="medium" />
 
               <TouchableOpacity onPress={handleUseVerification}>
@@ -192,7 +197,7 @@ export const UnverifiedEmailScreen = ({ route }) => {
                   Use Verification Code
                 </Label>
               </TouchableOpacity>
-            </>
+            </View>
           )}
         </KeyboardAwareScrollView>
       </SafeArea>
@@ -206,4 +211,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  viewStyle:{ paddingHorizontal: 32, paddingBottom: 20, paddingTop: 20},
+  viewStyleButton:{  borderRadius: 10, paddingHorizontal: 32, marginBottom: 20}
 });

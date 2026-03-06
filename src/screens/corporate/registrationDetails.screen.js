@@ -60,13 +60,9 @@ export const RegistrationDetailsScreen = ({ route }) => {
     gender: "",
   });
 
-  const [openHorific, setOpenHorific] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [items, setItems] = useState([
-    { label: "Male", value: "male" },
-    { label: "Female", value: "female" },
-  ]);
-
+ const firstname = useRef(null);
+  const lastname = useRef(null);
+  const middlename = useRef(null);
   const animatedShake = useRef(new Animated.Value(0)).current;
 
   const shakeInterpolate = animatedShake.interpolate({
@@ -246,23 +242,28 @@ export const RegistrationDetailsScreen = ({ route }) => {
                 }}
               >
                 <CustomTextInput
+                ref={firstname}
                   value={state.firstname}
                   onChangeText={handleFirstNameChange}
                   label={"First Name *"}
                   error={isSubmitted && state.firstname.trim() === ""}
+                   onSubmitEditing={() => middlename.current?.focus()}
                 />
               </View>
 
               <View style={styles.formControl}>
                 <CustomTextInput
+                  ref={middlename}
                   value={state.middlename}
                   onChangeText={handleMiddleNameChange}
                   label={"Middle Name"}
+                     onSubmitEditing={() => lastname.current?.focus()}
                 />
               </View>
 
               <View style={styles.formControl}>
                 <CustomTextInput
+                   ref={lastname}
                   value={state.lastname}
                   onChangeText={handleLastNameChange}
                   label={"Last Name *"}
