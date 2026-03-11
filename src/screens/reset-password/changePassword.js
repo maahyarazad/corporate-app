@@ -6,17 +6,17 @@ import {
   Easing,
   StyleSheet,
   Vibration,
-  View,
+  Platform,
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Button } from "react-native-paper";
 import Background from "../../components/background/background.component";
 import { CustomTextInput } from "../../components/customTextInput";
 import { SafeArea } from "../../components/safearea.component";
-import { Spacer } from "../../components/spacer/spacer.component";
+
 import { Label } from "../../components/typography/label.component";
 import { theme } from "../../infrastructure/theme";
-import { navigate } from "../../navigation/navigate";
+import { showToast } from "../../Toast";
 import { UserService } from "../../services/user/user.service";
 
 export const ChangePasswordScreen = ({ route }) => {
@@ -70,26 +70,27 @@ export const ChangePasswordScreen = ({ route }) => {
 
     if (password.trim() === "" || cpassword.trim() === "") {
       shake();
-      Alert.alert("Invalid", "Some fields are empty.");
+      showToast("error", "Empty Fields", "Some fields are empty.");
       return;
     }
 
     if (!(password.length >= 8) || !(cpassword.length >= 8)) {
       shake();
-      Alert.alert(
-        "Password too short",
-        "Password must be at least 8 characters"
-      );
+      showToast(
+             "error",
+             "Password too short",
+             "Password must be at least 8 characters long!"
+           );
       return;
     }
 
     if (password !== cpassword) {
       shake();
-      Alert.alert("Invalid Password", "Password doesn't match");
+       showToast("error", "Invalid Password", "Password does not match!");
       return;
     }
 
-    console.log(route.params);
+    
 
     const data = {
       password,
@@ -99,12 +100,22 @@ export const ChangePasswordScreen = ({ route }) => {
     const response = await UserService.changePassword(data);
 
     if (isMounted.current) {
-      console.log(response);
+      
       if (response.success) {
-        Alert.alert(response.title, response.message);
+         showToast(
+                "success",
+               response.title,
+              response.message
+              );
+        
         navigation.reset({ routes: [{ name: "Login" }] });
       } else {
-        Alert.alert(response.title, response.message);
+         showToast(
+                "error",
+                 response.title,
+              response.message
+              );
+        
       }
     }
   };
@@ -125,11 +136,12 @@ export const ChangePasswordScreen = ({ route }) => {
           }}
         >
           <Animated.View style={[styles.container, shakeAnimatedStyle]}>
-            <Label style={{ color: "white" }} size="title" weight="bold">
+            <Label style={{ color: "white", marginBottom: 10 }} size="title" weight="bold">
               Enter your new password
             </Label>
-            <Spacer position={"top"} size="medium" />
+            
             <CustomTextInput
+            style={{marginBottom: 10}}
               label="New Password *"
               value={password}
               onChangeText={setPassword}
@@ -140,8 +152,9 @@ export const ChangePasswordScreen = ({ route }) => {
                 (password !== cpassword && isSubmitted)
               }
             />
-            <Spacer position={"top"} size="medium" />
+            
             <CustomTextInput
+            style={{marginBottom: 10}}
               label="Confirm New Password *"
               value={cpassword}
               onChangeText={setCpassword}
@@ -152,7 +165,7 @@ export const ChangePasswordScreen = ({ route }) => {
                 (password !== cpassword && isSubmitted)
               }
             />
-            <Spacer position={"top"} size="medium" />
+            
             <Button
               mode="contained"
               onPress={handleSubmit}

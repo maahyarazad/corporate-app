@@ -220,15 +220,15 @@ export const UpdateMemberScreen = ({ navigation }) => {
                 }}
               >
                 <View>
-                  <Label size={"h4"} weight={"bold"} style={{ color: "white" }}>
+                  <Label size={"h4"} weight={"bold"} style={{ color: "white" , ...styles.fixMargin}}>
                     Mitgliedsprofil aktualisieren
                   </Label>
 
-                  <Spacer position={"top"} size={"small"} />
-                  <Label
+                 
+                  <Label 
                     size={"title"}
                     weight={"bold"}
-                    style={{ color: "white" }}
+                    style={{ color: "white" , ...styles.fixMargin}}
                   >
                     {/* Keep your information up-to-date. */}
                     Halten Sie Ihre Informationen auf dem neuesten Stand.
@@ -237,29 +237,32 @@ export const UpdateMemberScreen = ({ navigation }) => {
                   ensure that you receive the latest news and benefits. */}
                   </Label>
 
-                  <Spacer position={"top"} size={"large"} />
-                  <CustomTextInput
+               
+                  <CustomTextInput style={styles.fixMargin}
                     value={state.firstname}
                     onChangeText={handleFirstNameChange}
                     label={"Vorname *"}
                     error={isSubmitted && state.firstname.trim() === ""}
                   ></CustomTextInput>
-                  <Spacer position={"top"} size={"medium"} />
+                  
                   <CustomTextInput
+                  style={styles.fixMargin}
                     value={state.middlename}
                     onChangeText={handleMiddleNameChange}
                     label={"zweiter Vorname"}
                   ></CustomTextInput>
-                  <Spacer position={"top"} size={"medium"} />
+                  
                   <CustomTextInput
+                  style={styles.fixMargin}
                     value={state.lastname}
                     onChangeText={handleLastNameChange}
                     label={"Nachname *"}
                     error={isSubmitted && state.lastname.trim() === ""}
                   ></CustomTextInput>
 
-                  <Spacer position={"top"} size={"medium"} />
+                  
                   <CustomTextInput
+                  style={styles.fixMargin}
                     label={"E-mail *"}
                     value={state.email}
                     // value={route.params.member_id}
@@ -336,4 +339,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-start",
   },
+
+  fixMargin: {
+    marginTop: 8
+  }
 });

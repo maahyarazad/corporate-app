@@ -6,7 +6,6 @@ import {
   StyleSheet,
   Animated,
   Easing,
-  Alert,
   Vibration,
 } from "react-native";
 import { useTheme } from "styled-components/native";
@@ -233,12 +232,14 @@ export const RegistrationScreen = () => {
           navigate("RegisterDetails", { login: data });
         } else {
           shake();
-          alert(response.message);
+          showToast("error", "Validation Error", response.message);
+          
         }
       } catch (error) {
         console.error("Validation Error:", error);
         shake();
-        alert("Something went wrong. Please try again.");
+        showToast("error", "Server Error",error);
+        
       }
     }
   };
@@ -254,7 +255,8 @@ export const RegistrationScreen = () => {
       }
     } catch (error) {
       console.error(error);
-      Alert.alert("Error Occurred", "There's a problem loading the partners");
+       showToast("error", "Server Error",error);
+      
     }
   }, []);
 
@@ -344,7 +346,7 @@ export const RegistrationScreen = () => {
                 </TouchableOpacity>
               </View>
 
-              <Spacer position={"top"} size={"small"} />
+           
 
               <CustomTextInput
                 ref={usernameRef}
@@ -357,7 +359,7 @@ export const RegistrationScreen = () => {
                 onSubmitEditing={() => passwordRef.current?.focus()}
               />
 
-              <Spacer position={"top"} size={"small"} />
+           
 
               <CustomTextInput
                 ref={passwordRef}
@@ -375,7 +377,7 @@ export const RegistrationScreen = () => {
                 returnKeyType="next"
                 onSubmitEditing={() => confirmPasswordRef.current?.focus()}
               />
-              <Spacer position={"top"} size={"small"} />
+           
               <CustomTextInput
                 ref={confirmPasswordRef}
                 value={state.cpassword}
@@ -393,7 +395,7 @@ export const RegistrationScreen = () => {
                 onSubmitEditing={() => emailRef.current?.focus()}
               />
 
-              <Spacer position={"top"} size={"small"} />
+           
 
               {/* <CustomTextInput
                 label="Miscellaneous" 
@@ -414,7 +416,7 @@ export const RegistrationScreen = () => {
                 onSubmitEditing={() => expiryRef.current?.focus()}
               />
               
-              <Spacer position={"top"} size={"small"} />
+              
               {/* <CustomTextInput
                 maxLength={12}
                 label={"IFZA Card Number *"}
@@ -424,7 +426,7 @@ export const RegistrationScreen = () => {
                 onChangeText={handleCardNumberChange}
                 error={isSubmitted && state.card_number.trim() === ""}
               />
-              <Spacer position={"top"} size={"small"} /> */}
+            */}
 
               <DropDown
                 searchable={true}
@@ -434,7 +436,7 @@ export const RegistrationScreen = () => {
                 placeholder={"Partner *"}
                 error={!state.partner_id && isSubmitted}
               />
-              <Spacer position={"top"} size={"small"} />
+              
 
               <CustomTextInput
                 ref={expiryRef}
@@ -450,7 +452,8 @@ export const RegistrationScreen = () => {
                 error={isSubmitted && state.card_valid_date.trim() === ""}
               />
 
-              <Spacer position={"top"} size={"small"} />
+              
+
 
               <PhoneInput
                 defaultCode="AE"
@@ -488,7 +491,7 @@ export const RegistrationScreen = () => {
                   selectionColor: "#a6cdfb",
                 }}
               />
-              <Spacer size={"medium"} position={"top"} />
+              
 
               <TouchableOpacity
                 activeOpacity={0.8}

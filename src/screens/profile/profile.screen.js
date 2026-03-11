@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
   View,
+  StyleSheet,
 } from "react-native";
 import { SafeArea } from "../../components/safearea.component";
 import { ProfTabs } from "../../features/profile/profTabs";
@@ -22,6 +23,7 @@ import { goback } from "../../navigation/navigate";
 import { Ionicons } from "@expo/vector-icons";
 import { TranslationContext } from "../../services/translation/translation.context";
 import { CacheImage } from "../../components/cacheImage";
+import { fontSizes } from "../../infrastructure/theme/fonts";
 
 const ProfileStack = createStackNavigator();
 
@@ -29,6 +31,7 @@ const ProfilePrimaryScreen = () => {
   const { userData } = useUser();
   const { isSkip, goToVerification } = useAuth();
   const { width } = Dimensions.get("window");
+  console.log(userData);
 
   const { i18n } = useContext(TranslationContext);
 
@@ -79,16 +82,26 @@ const ProfilePrimaryScreen = () => {
                   // backgroundColor: "#ccc",
                 }}
               >
-                <CacheImage
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    borderRadius: 10,
-                    backgroundColor: "#ccc",
-                  }}
-                  resizeMode={"cover"}
-                  uri={`${config.SERVER_HOST}/uploads/app/card_images/${userData?.card_image}`}
-                />
+                {userData.card_image &&
+                userData.card_image.startsWith("GEC-") ? (
+                  <View style={styles.card_style_blue}>
+                    <Image
+                      key={userData.card_image}
+                      source={require("../../../assets/GE-LOGO-GOLD.png")}
+                      style={styles.logo}
+                    />
+
+                    <Label style={styles.labelBottomRight}>
+                      {userData.card_image}
+                    </Label>
+                  </View>
+                ) : (
+                  <CacheImage
+                    style={styles.card_style}
+                    resizeMode={"cover"}
+                    uri={`${config.SERVER_HOST}/uploads/app/card_images/${userData?.card_image}`}
+                  />
+                )}
               </View>
             ) : (
               <View
@@ -142,3 +155,36 @@ export const ProfileScreen = ({ theme, ...props }) => {
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  card_style: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 10,
+    backgroundColor: "#ccc",
+  },
+  card_style_blue: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 10,
+    backgroundColor: "#0d1b2a",
+    justifyContent: "flex-start", // top
+    alignItems: "flex-start", // left
+  },
+
+  logo: {
+    position: "absolute",
+    top: 15,
+    left: 10,
+    width: 140,
+    height: 80,
+    resizeMode: "contain",
+  },
+  labelBottomRight: {
+    color: "#D9B144",
+    fontSize: fontSizes.title,
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+  },
+});

@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import {
-  Alert,
   Image,
   Platform,
   StyleSheet,
@@ -34,6 +33,14 @@ import BiometricLogin from "./login.components/BiometricLogin";
 import RegisterSection from "./login.components/RegisterSection";
 import useBiometrics from "../../../hooks/useBiometrics";
 import { useTranslation } from "../../../hooks/useTranslation";
+import { showToast } from "../../Toast";
+import { storeToken} from '../../services/auth/auth.service';
+import { CommonActions } from "@react-navigation/native";
+import { Keyboard } from "react-native";
+
+
+
+
 
 export const TextInputForm = styled(TextInput)`
   border-radius: 10px;
@@ -57,7 +64,9 @@ export const LoginScreen = ({ navigation }) => {
   const [loginLoading, setLoginLoading] = useState(false);
   const [canRegister, setCanRegister] = useState(true);
   const request = useRequest();
-  const { signin, loading } = useAuth();
+  
+const { signin, loading, verifyOTP , submittedCard, authorize} = useAuth();
+
   const { setLang } = useContext(TranslationContext);
   const [biometricType, setBiometricType] = useState(null);
   const theme = useTheme();
@@ -72,20 +81,22 @@ export const LoginScreen = ({ navigation }) => {
   const handleBiometricLogin = async () => {
     try {
       if (!biometric.enrolled) {
-        Alert.alert(
+        showToast(
+          "info",
           "Notice",
           `Please enable your ${biometric.type} in your device settings.`
         );
         return;
       }
 
-      //Check if biometric token is available
+      // Check if biometric token is available
       if (!biometric.token) {
-        Alert.alert(
+        showToast(
+          "info",
           "Notice",
           `Please enable '${i18n.t(
             `profile-tabs.settings-menu.login-${biometric.type}`
-          )}' in your device settings. \n\n` +
+          )}' in your device settings.\n\n` +
             `${i18n.t("bottom-tabs.profile")} > ${i18n.t(
               "profile-tabs.settings"
             )} > ${i18n.t(
@@ -123,6 +134,8 @@ export const LoginScreen = ({ navigation }) => {
 
         const response = await request("/v2/auth/login", "post", credentials);
 
+       
+        console.log(response);
         if (response.success) {
           setLang(response.member ? "de" : "en");
           if (response.member_id) {
@@ -144,7 +157,7 @@ export const LoginScreen = ({ navigation }) => {
             });
           }
         } else {
-          Alert.alert(response.title, response.message);
+          showToast("error", response.title, response.message);
         }
       } else {
       }
@@ -160,24 +173,26 @@ export const LoginScreen = ({ navigation }) => {
   const handleLogin = async () => {
     try {
       setLoginLoading(true);
-      if (
-        (!username || username.trim().match(/^\s+$|^$/)) &&
-        (!password || password.trim().match(/^\s+$|^$/))
-      ) {
-        Alert.alert("Invalid Login", "Please enter your username and password");
+      if (!username?.trim() && !password?.trim()) {
+        showToast(
+          "error",
+          "Invalid Login",
+          "Please enter your username and password"
+        );
         return;
       }
 
-      if (!username || username.trim().match(/^\s+$|^$/)) {
-        Alert.alert("Invalid Login", "Please enter your username");
+      if (!username?.trim()) {
+        showToast("error", "Invalid Login", "Please enter your username");
         return;
       }
 
-      if (!password || password.trim().match(/^\s+$|^$/)) {
-        Alert.alert("Invalid Login", "Please enter your password");
+      if (!password?.trim()) {
+        showToast("error", "Invalid Login", "Please enter your password");
         return;
       }
 
+      Keyboard.dismiss();
       const ip = await Network.getIpAddressAsync();
       const platform = Platform.OS;
       const deviceId =
@@ -187,11 +202,12 @@ export const LoginScreen = ({ navigation }) => {
             ? await Application.androidId
             : "n/a";
 
+          //Todo device id should be replaced  
       const credentials = {
         app_id: config.APP_ID,
         username,
         password,
-        device_id: deviceId,
+        device_id: 'R5CW411BPEA',
         ip_address: ip,
         platform: platform,
         version: Constants.default.expoConfig.version,
@@ -200,6 +216,28 @@ export const LoginScreen = ({ navigation }) => {
       // const response = await login(credentials, setLoading);
 
       const response = await request("/v2/auth/login", "post", credentials);
+
+      console.log(response);
+//       if(response.success){
+     
+
+//      storeToken(response.accessToken);
+
+//           console.log('==========================================================================================')
+//           console.log('==========================================================================================')
+//           console.log(navigate);
+//           console.log('==========================================================================================')
+//           console.log('==========================================================================================r')
+// navigate("RegisterSuccessByServices");
+// // navigate("Entertainer")
+         
+            
+//           return;
+//       }else{
+//         return;
+//       }
+      
+      
       if (response.success) {
         console.log("Response Login", response);
         setLang(response.member ? "de" : "en");
@@ -222,9 +260,9 @@ export const LoginScreen = ({ navigation }) => {
           });
         }
       } else {
-        Alert.alert(response.title, response.message);
+        showToast("error", response.title, response.message);
       }
-      setLoginLoading(false);
+      
 
       //   console.log("LOGIN:", response);
       //   if (response.status) {
@@ -248,6 +286,8 @@ export const LoginScreen = ({ navigation }) => {
       //   }
     } catch (err) {
       console.log("ERROR", err);
+    } finally {
+      setLoginLoading(false);
     }
   };
 
@@ -257,7 +297,8 @@ export const LoginScreen = ({ navigation }) => {
         await WebBrowser.openBrowserAsync(EULAPrivacyLink);
       }
     } catch (error) {
-      Alert.alert("Error Occured", "Cannot Open Document");
+         showToast("error", "Error Occured",  "Cannot Open Document");
+      
     }
   };
 
@@ -336,7 +377,7 @@ export const LoginScreen = ({ navigation }) => {
                   handleLogin={handleLogin}
                   handleForgetPassword={handleForgetPassword}
                   handleBrowser={handleBrowser}
-                /> 
+                />
 
                 <BiometricLogin
                   biometric={biometric}

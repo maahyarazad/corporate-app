@@ -54,7 +54,7 @@ export const CodeInputField = ({
             ) : (
               <View
                 style={{
-                  backgroundColor: "black",
+                  backgroundColor: "transparent",
                   width: 12,
                   height: 12,
                   borderRadius: 20,
@@ -92,11 +92,11 @@ export const CodeInputField = ({
 
   return (
     <>
-      <CodeInputContainer style={containerStyle}>
-        <CodeInputPressLayer onPress={handlePress}>
+      <CodeInputContainer style={{...containerStyle, backgroundColor: 'transparent'}}>
+        <CodeInputPressLayer onPress={handlePress} >
           {codeDigitArray.map(renderCodeInputBox)}
         </CodeInputPressLayer>
-        <View style={{ flexDirection: "row" }}>
+        <View style={{ flexDirection: "row" , backgroundColor: 'transparent'}}>
           <HiddenTextInput
             ref={textInputRef}
             allowFontScaling={false}

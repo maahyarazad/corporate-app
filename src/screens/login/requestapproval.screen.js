@@ -9,7 +9,6 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Text,
   TouchableHighlight,
   TouchableOpacity,
   View,
@@ -20,12 +19,10 @@ import { CompanyLogo, width } from "../../components/styles";
 import { Label } from "../../components/typography/label.component";
 import { companyLogo } from "../../utils/constants";
 import { AnimatedButton } from "../../components/animatedButton";
-import { Camera, CameraType } from "expo-camera";
-import * as MediaLibrary from "expo-media-library";
+import { CameraView, useCameraPermissions } from "expo-camera";
 import { UploadContext } from "../../services/upload/upload.context";
 import { manipulateAsync } from "expo-image-manipulator";
 import { navigate } from "../../navigation/navigate";
-import { AuthContext } from "../../services/auth/auth.context";
 import { PostCardUpload } from "../../components/postCardUpload";
 import { LoadingOverlay } from "../../components/loading/loading.component";
 import Background from "../../components/background/background.component";
@@ -33,65 +30,65 @@ import moment from "moment";
 import { TranslationContext } from "../../services/translation/translation.context";
 import useAuth from "../../../hooks/useAuth";
 import useUser from "../../../hooks/useUser";
+import { showToast } from "../../Toast";
 
 const imageHeightRatio = width * (1 / 1);
 const cardRatio = 2.125 / 3.375;
 
 export const RequestApprovalScreen = () => {
-  //useStates
   const [haveScrolled, setHaveScrolled] = useState(false);
-  const [hasCameraPermission, setHasCameraPermission] = useState();
-  const [hasMediaLibraryPermission, setHasMediaLibraryPermission] = useState();
   const [isCameraOpen, setIsCameraOpen] = useState(false);
-  const [type, setType] = useState(CameraType.back);
-  const [photo, setPhoto] = useState();
-  const { signout, skipAuth } = useAuth();
+  const [photo, setPhoto] = useState(null);
+
+  const [permission, requestPermission] = useCameraPermissions();
+
+  const { signout, skipAuth, hasSubmit } = useAuth();
   const { userData, setUserData } = useUser();
 
-  //useRefs
-  const scrollRef = useRef();
-  const cameraRef = useRef();
+  const scrollRef = useRef(null);
+  const cameraRef = useRef(null);
 
-  //context
   const { uploadCard, loading, setLoading, abortUpload } =
     useContext(UploadContext);
-
-  // const { user, setUser, setSkip } = useContext(AuthContext);
   const { i18n } = useContext(TranslationContext);
-  const { hasSubmit } = useAuth();
 
   const cameraContainerAnimated = useRef(
     new Animated.Value(width * cardRatio)
   ).current;
 
   useEffect(() => {
-    if (scrollRef.current) scrollRef.current.flashScrollIndicators();
+    if (scrollRef.current?.flashScrollIndicators) {
+      scrollRef.current.flashScrollIndicators();
+    }
   }, []);
 
   useEffect(() => {
     console.log("userData", userData);
-    return () => {};
-  }, [hasSubmit]);
+  }, [hasSubmit, userData]);
 
   const handleEdit = () => {
     navigate("AuthEditProfile");
   };
 
   const manipulateImage = async (image) => {
-    const manipResult = await manipulateAsync(
-      image.uri || image.localUri,
-      [
-        // { crop: { height: 100, originX: 10, originY: 90, width: 100 } },
-        { resize: { height: 1000, width: 1000 } },
-        { crop: { height: 550, originX: 100, originY: 220, width: 800 } },
-      ],
-      {
-        compress: 0.5,
-        format: "jpeg",
-      }
-    );
+    try {
+      const manipResult = await manipulateAsync(
+        image.uri || image.localUri,
+        [
+          { resize: { height: 1000, width: 1000 } },
+          { crop: { height: 550, originX: 100, originY: 220, width: 800 } },
+        ],
+        {
+          compress: 0.5,
+          format: "jpeg",
+        }
+      );
 
-    setPhoto(manipResult);
+      setPhoto(manipResult);
+    } catch (error) {
+      console.error("Failed to manipulate image:", error);
+      showToast("error", "Image Error", "Failed to process the captured image.");
+    }
   };
 
   const handleCancel = () => {
@@ -108,7 +105,7 @@ export const RequestApprovalScreen = () => {
           text: i18n.t("skip-auth-msg.button-order"),
           onPress: () => {
             Linking.openURL(`tel:${encodeURIComponent("+971562050066")}`).catch(
-              (err) => {
+              () => {
                 alert("Unable to call this number");
               }
             );
@@ -126,10 +123,14 @@ export const RequestApprovalScreen = () => {
 
   const handleUpload = async () => {
     try {
-      const formData = new FormData();
+      if (!photo?.uri) {
+        showToast("error", "No Image", "Please capture an image first.");
+        return;
+      }
 
+      const formData = new FormData();
       formData.append("card_image", {
-        name: new Date() + "_upload",
+        name: `${Date.now()}_upload.jpg`,
         uri: photo.uri,
         type: "image/jpeg",
       });
@@ -138,6 +139,8 @@ export const RequestApprovalScreen = () => {
       uploadCard(formData);
     } catch (error) {
       console.error("Failed to upload: ", error);
+      setLoading(false);
+      showToast("error", "Upload Error", "Failed to upload image.");
     }
   };
 
@@ -153,47 +156,71 @@ export const RequestApprovalScreen = () => {
     Animated.spring(cameraContainerAnimated, {
       toValue: width * cardRatio,
       speed: 40,
-      delay: 400,
+      delay: 200,
       useNativeDriver: false,
     }).start(() => {
       setIsCameraOpen(false);
     });
   };
 
-  const checkPermission = () => {
-    (async () => {
-      const cameraPermission = await Camera.requestCameraPermissionsAsync();
-      const mediaLibraryPermission =
-        await MediaLibrary.requestPermissionsAsync();
-      setHasCameraPermission(cameraPermission.status === "granted");
-      setHasMediaLibraryPermission(mediaLibraryPermission.status === "granted");
-
-      if (hasCameraPermission === undefined) {
-        <Text>Requesting camera permission</Text>;
-      } else if (hasCameraPermission === false) {
-        <Text>
-          Permission for camera not granted. Please change this in phone
-          settings.
-        </Text>;
+  const checkPermission = async () => {
+    try {
+      if (permission?.granted) {
+        return true;
       }
-    })();
+
+      const response = await requestPermission();
+      const granted = response?.granted === true;
+
+      if (!granted) {
+        showToast(
+          "error",
+          "Permission required",
+          "Permission for camera not granted. Please change this in phone settings."
+        );
+      }
+
+      return granted;
+    } catch (error) {
+      console.error("Camera permission error:", error);
+      showToast(
+        "error",
+        "Permission Error",
+        "Could not request camera permission."
+      );
+      return false;
+    }
+  };
+
+  const handleOpenCamera = async () => {
+    const granted = await checkPermission();
+    if (!granted) return;
+
+    setPhoto(null);
+    setIsCameraOpen(true);
+    openCamera();
   };
 
   const takePic = async () => {
-    const options = {
-      quality: 0.1,
-      base64: false,
-      exif: false,
-      skipProcessing: true,
-      fixOrientation: true,
-    };
+    try {
+      if (!cameraRef.current?.takePictureAsync) {
+        showToast("error", "Camera Error", "Camera is not ready yet.");
+        return;
+      }
 
-    const newPhoto = await cameraRef.current.takePictureAsync(options);
-    manipulateImage(newPhoto);
-    // setPhoto(newPhoto);
-  };
-  const cameraContainerAnimatedStyle = {
-    height: cameraContainerAnimated,
+      const newPhoto = await cameraRef.current.takePictureAsync({
+        quality: 0.1,
+        base64: false,
+        exif: false,
+        skipProcessing: true,
+        shutteSound: false
+      });
+
+      await manipulateImage(newPhoto);
+    } catch (error) {
+      console.error("takePictureAsync error:", error);
+      showToast("error", "Capture Error", "Failed to capture image.");
+    }
   };
 
   const handleScroll = () => {
@@ -201,25 +228,27 @@ export const RequestApprovalScreen = () => {
   };
 
   const handleLogout = () => {
-    // navigate("Logout");
     signout();
     setUserData(null);
   };
 
-  const handleUseImage = () => {
-    setPhoto();
+  const handleRetake = () => {
+    setPhoto(null);
+  };
+
+  const cameraContainerAnimatedStyle = {
+    height: cameraContainerAnimated,
   };
 
   return (
     <>
       <Background>
-        {
-          <LoadingOverlay
-            display={loading}
-            showCancel={true}
-            onCancel={() => handleCancel()}
-          />
-        }
+        <LoadingOverlay
+          display={loading}
+          showCancel={true}
+          onCancel={handleCancel}
+        />
+
         <SafeArea>
           <ScrollView
             contentInsetAdjustmentBehavior="automatic"
@@ -228,7 +257,7 @@ export const RequestApprovalScreen = () => {
             persistentScrollbar={true}
             ref={scrollRef}
             onScroll={handleScroll}
-            scrollEventThrottle={0}
+            scrollEventThrottle={16}
           >
             <View style={styles.headerView}>
               <CompanyLogo
@@ -246,6 +275,7 @@ export const RequestApprovalScreen = () => {
                 />
               </TouchableHighlight>
             </View>
+
             {userData?.remarks != undefined &&
               userData?.remarks.trim() !== "" &&
               !hasSubmit && (
@@ -258,8 +288,7 @@ export const RequestApprovalScreen = () => {
                     <Label size={"subtitle"} weight={"bold"}>
                       {`Rejected Previous Request `}
                     </Label>
-                    (
-                    {moment(userData.requestDate).format("DD.MMMM YYYY H:mm A")}
+                    ({moment(userData.requestDate).format("DD.MMMM YYYY H:mm A")}
                     ){"\n"}
                     <Label size={"subtitle"} weight={"bold"}>
                       Reason
@@ -268,7 +297,6 @@ export const RequestApprovalScreen = () => {
                   </Label>
 
                   <TouchableOpacity onPress={handleEdit}>
-                    {/* <Text style={{textDecorationLine}}></Text> */}
                     <Label
                       style={{
                         textDecorationLine: "underline",
@@ -281,6 +309,7 @@ export const RequestApprovalScreen = () => {
                   </TouchableOpacity>
                 </View>
               )}
+
             {hasSubmit ? (
               <PostCardUpload />
             ) : (
@@ -303,14 +332,7 @@ export const RequestApprovalScreen = () => {
                         justifyContent: "flex-start",
                         alignItems: "center",
                       }}
-                      onPress={async () => {
-                        openCamera();
-                        setTimeout(() => {
-                          setIsCameraOpen(true);
-
-                          checkPermission();
-                        }, 100);
-                      }}
+                      onPress={handleOpenCamera}
                       underlayColor={"#666"}
                       disabled={isCameraOpen}
                     >
@@ -323,27 +345,24 @@ export const RequestApprovalScreen = () => {
                               : "center",
                             height: isCameraOpen
                               ? photo
-                                ? Math.min(cardRatio)
-                                : Math.min(imageHeightRatio)
-                              : Math.min(width * cardRatio),
+                                ? width * cardRatio
+                                : imageHeightRatio
+                              : width * cardRatio,
                           },
                         ]}
-                        source={photo !== undefined ? { uri: photo.uri } : {}}
+                        source={photo ? { uri: photo.uri } : undefined}
                       >
                         <View
                           style={[
                             styles.cardOverlayContainer,
                             {
-                              display: isCameraOpen
-                                ? photo
-                                  ? "none"
-                                  : "flex"
-                                : "none",
+                              display: isCameraOpen && !photo ? "flex" : "none",
                             },
                           ]}
                         >
                           <View style={styles.cardOverlay}></View>
                         </View>
+
                         {!isCameraOpen ? (
                           <>
                             <MaterialCommunityIcons
@@ -365,27 +384,28 @@ export const RequestApprovalScreen = () => {
                               style={{
                                 width: width,
                                 height: photo
-                                  ? Math.min(width * cardRatio)
-                                  : Math.min(imageHeightRatio),
+                                  ? width * cardRatio
+                                  : imageHeightRatio,
                                 zIndex: 1,
                               }}
                             >
-                              {hasCameraPermission ? (
-                                photo === undefined && (
-                                  <Camera
-                                    ratio="1:1"
+                              {permission?.granted ? (
+                                !photo && (
+                                  <CameraView
                                     ref={cameraRef}
                                     style={styles.camera}
-                                    type={type}
-                                    // onCameraReady={async () => {}}
+                                    facing="back"
                                     onMountError={(err) => {
-                                      alert(
+                                      console.error("Camera mount error:", err);
+                                      showToast(
+                                        "error",
+                                        "Camera Error",
                                         "There is an error while loading the camera."
                                       );
                                       closeCamera();
                                       setIsCameraOpen(false);
                                     }}
-                                  ></Camera>
+                                  />
                                 )
                               ) : (
                                 <View
@@ -417,6 +437,7 @@ export const RequestApprovalScreen = () => {
                                 </View>
                               )}
                             </View>
+
                             <View
                               style={{
                                 height: photo ? "100%" : 150,
@@ -435,7 +456,7 @@ export const RequestApprovalScreen = () => {
                                 <Pressable
                                   onPress={() => {
                                     closeCamera();
-                                    setPhoto();
+                                    setPhoto(null);
                                   }}
                                 >
                                   <SimpleLineIcons
@@ -452,7 +473,7 @@ export const RequestApprovalScreen = () => {
                                   alignItems: "center",
                                 }}
                               >
-                                {photo === undefined ? (
+                                {!photo ? (
                                   <TouchableHighlight
                                     onPress={takePic}
                                     style={styles.takeShotButton}
@@ -473,15 +494,14 @@ export const RequestApprovalScreen = () => {
                                       justifyContent: "space-evenly",
                                     }}
                                   >
-                                    <TouchableHighlight
-                                      onPress={handleUseImage}
-                                    >
+                                    <TouchableHighlight onPress={handleRetake}>
                                       <View style={styles.cameraButtons}>
                                         <Label style={{ textAlign: "center" }}>
                                           {i18n.t("card-upload.retake")}
                                         </Label>
                                       </View>
                                     </TouchableHighlight>
+
                                     <TouchableHighlight onPress={closeCamera}>
                                       <View
                                         style={[
@@ -512,6 +532,7 @@ export const RequestApprovalScreen = () => {
                     </TouchableHighlight>
                   </Animated.View>
                 </View>
+
                 <View
                   style={{
                     paddingHorizontal: 26,
@@ -519,13 +540,17 @@ export const RequestApprovalScreen = () => {
                   }}
                 >
                   <Label
-                    style={{ color: "#fff", textAlign: "center" }}
+                    style={{
+                      color: "#fff",
+                      textAlign: "center",
+                      marginBottom: 8,
+                    }}
                     size={"heading"}
                     weight={"bold"}
                   >
                     {i18n.t("card-upload.heading")}
                   </Label>
-                  <Spacer position={"top"} size={"medium"} />
+
                   <View
                     style={{
                       flex: 1,
@@ -543,12 +568,13 @@ export const RequestApprovalScreen = () => {
                     >
                       {i18n.t("card-upload.text")}
                     </Label>
-                    <Spacer position={"top"} size={"large"} />
+
                     <View>
                       <Label
                         style={{
                           color: "#fff",
                           textAlign: "left",
+                          marginBottom: 20,
                         }}
                         size={"body"}
                         weight={"regular"}
@@ -558,14 +584,15 @@ export const RequestApprovalScreen = () => {
                     </View>
 
                     <Spacer position={"top"} size={"medium"} />
+
                     <View
                       style={{
                         flex: 1,
                         alignItems: "center",
+                        marginBottom: 8,
                       }}
                     >
                       <TouchableOpacity onPress={handleEdit}>
-                        {/* <Text style={{textDecorationLine}}></Text> */}
                         <Label
                           style={{
                             textDecorationLine: "underline",
@@ -577,14 +604,14 @@ export const RequestApprovalScreen = () => {
                         </Label>
                       </TouchableOpacity>
                     </View>
+
                     <Spacer position={"top"} size={"medium"} />
+
                     <AnimatedButton
                       onPress={handleUpload}
-                      disabled={
-                        photo !== undefined && !isCameraOpen ? false : true
-                      }
+                      disabled={!photo || isCameraOpen}
                       buttonColorFrom={
-                        photo !== undefined && !isCameraOpen
+                        photo && !isCameraOpen
                           ? "rgba(230,135,0,1)"
                           : "#aaa"
                       }
@@ -595,39 +622,37 @@ export const RequestApprovalScreen = () => {
                       textSize={"title"}
                       textWeight={"regular"}
                       label={i18n.t("submit")}
-                    ></AnimatedButton>
+                    />
                   </View>
                 </View>
+
                 {userData && userData.member ? (
-                  <>
-                    <View
-                      style={{
-                        flex: 1,
-                        alignItems: "center",
-                        marginTop: 15,
-                      }}
-                    >
-                      <TouchableOpacity onPress={handleSkip}>
-                        <Label
-                          style={{
-                            textDecorationLine: "underline",
-                            color: "white",
-                          }}
-                          size="title"
-                        >
-                          {i18n.t("card-upload.skip")}
-                        </Label>
-                      </TouchableOpacity>
-                    </View>
-                  </>
-                ) : (
-                  <></>
-                )}
+                  <View
+                    style={{
+                      flex: 1,
+                      alignItems: "center",
+                      marginTop: 15,
+                    }}
+                  >
+                    <TouchableOpacity onPress={handleSkip}>
+                      <Label
+                        style={{
+                          textDecorationLine: "underline",
+                          color: "white",
+                        }}
+                        size="title"
+                      >
+                        {i18n.t("card-upload.skip")}
+                      </Label>
+                    </TouchableOpacity>
+                  </View>
+                ) : null}
               </View>
             )}
           </ScrollView>
         </SafeArea>
       </Background>
+
       <StatusBar style="light" />
     </>
   );

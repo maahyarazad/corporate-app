@@ -3,16 +3,23 @@ import React, { useEffect, useRef } from "react";
 import { Animated, Easing, StyleSheet, Text, View } from "react-native";
 import { Button } from "react-native-paper";
 import Background from "../../components/background/background.component";
-import { Spacer } from "../../components/spacer/spacer.component";
+import useAuth from "../../../hooks/useAuth";
 import { Label } from "../../components/typography/label.component";
 import { theme } from "../../infrastructure/theme";
 import { navigate } from "../../navigation/navigate";
 
-export const RegistrationSuccessfulScreen = () => {
+import { retrieveToken} from '../../services/auth/auth.service';
+
+export const RegistrationSuccessByServices = () => {
   const bounceValue = useRef(new Animated.Value(0)).current;
   const fadeInValue = useRef(new Animated.Value(0)).current;
   const fadeInButton = useRef(new Animated.Value(0)).current;
+ 
+const { signin, loading, verifyOTP , submittedCard, authorize} = useAuth();
 
+
+
+ 
   const fadeInterpolation = bounceValue.interpolate({
     inputRange: [0, 1],
     outputRange: [-100, 0],
@@ -28,7 +35,7 @@ export const RegistrationSuccessfulScreen = () => {
       toValue: 1,
       useNativeDriver: true,
       //   bounciness: 200,
-      delay: 1000,
+      delay: 500,
       mass: 1,
     }).start();
 
@@ -36,14 +43,14 @@ export const RegistrationSuccessfulScreen = () => {
       toValue: 1,
       useNativeDriver: true,
       duration: 800,
-      delay: 1000,
+      delay: 500,
     }).start();
 
     Animated.timing(fadeInButton, {
       toValue: 1,
       useNativeDriver: true,
       duration: 700,
-      delay: 1500,
+      delay: 500,
     }).start();
   }, []);
 
@@ -55,6 +62,23 @@ export const RegistrationSuccessfulScreen = () => {
       },
     ],
   };
+
+  
+
+    const Continue = async () => {
+console.log("BUTTON PRESSED");
+        const token = await  retrieveToken();
+        console.log(token);
+    await verifyOTP(); // updates phoneVerified
+    await authorize(); // updates isAuthorized
+         
+          await verifyOTP(); await submittedCard();
+          await signin(token, token);  
+        navigate("Entertainer")
+
+    // AppNavigation will now render MainScreen automatically
+  };
+
 
   const fadeInAnimationStyle = {
     
@@ -103,8 +127,7 @@ export const RegistrationSuccessfulScreen = () => {
               weight={"medium"}
               style={{ color: "white", textAlign: "center" , ...styles.marginFix}}
             >
-              Before you can login, please activate your account by clicking the
-              verification link we have sent to your email.
+               Your account has already been verified with the provided email and mobile number previously.
             </Label>
           </Animated.View>
           <Animated.View style={fadeInButtonAnimationStyle}>
@@ -113,16 +136,15 @@ export const RegistrationSuccessfulScreen = () => {
               buttonColor={theme.colors.icons.active}
               labelStyle={{ paddingVertical: 14 }}
               style={{ marginBottom: 100, borderRadius: 10 }}
-              onPress={() => {
-                navigate("Login");
-              }}
+             onPress={() => {Continue()}}
             >
               <Label
                 size={"title"}
                 weight={"bold"}
+              
                 style={{ color: "black", textAlign: "center" }}
               >
-                Back to Login
+                Continues
               </Label>
             </Button>
           </Animated.View>

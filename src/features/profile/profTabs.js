@@ -8,6 +8,7 @@ import { ProfRedeemHistory } from "./profRedeemHistory";
 import { Fontisto, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Spacer } from "../../components/spacer/spacer.component";
 import { i18n } from "../../services/translation/translation.context";
+import { fontSizes } from "../../infrastructure/theme/fonts";
 
 const ProfileTab = createMaterialTopTabNavigator();
 
@@ -21,8 +22,8 @@ export const ProfTabs = () => {
         }}
       >
         {icon}
-        <Spacer position={"left"} size="small" />
-        <Label size={"caption"} weight={"bold"}>
+      
+        <Label size={"caption"} weight={"bold"} style={{marginLeft: 4, fontSize: fontSizes.tab_title}}>
           {label}
         </Label>
       </View>
@@ -40,7 +41,7 @@ export const ProfTabs = () => {
         tabBarPressColor: "transparent",
         lazy: true,
         tabBarIndicatorStyle: {
-          height: "130%",
+          height: "115%",
           backgroundColor: "white",
           borderTopLeftRadius: 20,
           borderTopRightRadius: 20,
@@ -49,7 +50,7 @@ export const ProfTabs = () => {
           // shadowOffset: {
           //   height: -5,
           // },
-          elevation: 10,
+          elevation: 5,
         },
         tabBarStyle: {
           backgroundColor: "#ccc",

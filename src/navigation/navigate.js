@@ -1,12 +1,17 @@
 import { CommonActions } from "@react-navigation/native";
 import React, { createRef } from "react";
+import { createNavigationContainerRef } from "@react-navigation/native";
 
-export const navigationRef = createRef(null);
+export const navigationRef = createNavigationContainerRef();
 
 export const navigate = (name, params) => {
-  if (navigationRef.current) navigationRef.current.navigate(name, params);
+  if (navigationRef.isReady()) {
+    navigationRef.navigate(name, params);
+  }
 };
 
 export const goback = () => {
-  if (navigationRef.current) navigationRef.current.goBack();
+  if (navigationRef.isReady()) {
+    navigationRef.goBack();
+  }
 };

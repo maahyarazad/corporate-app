@@ -1,8 +1,9 @@
 import React from "react";
 import { View, TouchableOpacity } from "react-native";
 import { Label } from "../../../components/typography/label.component";
+import { navigate } from "../../../navigation/navigate";
 
-const RegisterSection = ({ navigation, theme }) => {
+const RegisterSection = ({ theme }) => {
   return (
     <>
       <View style={{ height: 50, justifyContent: "center" }}>
@@ -27,7 +28,7 @@ const RegisterSection = ({ navigation, theme }) => {
 
       <View style={{ margin: 16 }}>
         <TouchableOpacity
-          onPress={() => navigation.navigate("Registration")}
+          onPress={() => navigate("Registration")}
           style={{
             height: 60,
             backgroundColor: theme.colors.ui.button,

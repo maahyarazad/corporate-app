@@ -31,7 +31,7 @@ export default function App() {
   return (
     <>
       <ThemeProvider theme={theme}>
-        
+        <Provider store={store}>
           <AlertContextProvider>
             <TranslationContextProvider>
               <AppContextProvider>
@@ -39,29 +39,27 @@ export default function App() {
                   {/* ^ to be removed*/}
                   <AuthProvider>
                     <UserProvider>
-                      <Provider store={store}>
-                        <PostProvider>
-                          {/* <UserContextProvider> */}
-                          {/* ^ to be removed*/}
-                          <UploadContextProvider>
-                            <LocationContextProvider>
-                              <SectionContextProvider>
-                                <AppNavigation />
-                              </SectionContextProvider>
-                            </LocationContextProvider>
-                          </UploadContextProvider>
-                          {/* </UserContextProvider> */}
-                        </PostProvider>
-                      </Provider>
+                      <PostProvider>
+                        {/* <UserContextProvider> */}
+                        {/* ^ to be removed*/}
+                        <UploadContextProvider>
+                          <LocationContextProvider>
+                            <SectionContextProvider>
+                              <AppNavigation />
+                            </SectionContextProvider>
+                          </LocationContextProvider>
+                        </UploadContextProvider>
+                        {/* </UserContextProvider> */}
+                      </PostProvider>
                     </UserProvider>
                   </AuthProvider>
                 </AuthContextProvider>
               </AppContextProvider>
             </TranslationContextProvider>
           </AlertContextProvider>
-        
+        </Provider>
       </ThemeProvider>
-        <Toast config={toastConfig} />
+      <Toast config={toastConfig} />
 
       <ExpoStatusBar style="dark" />
     </>

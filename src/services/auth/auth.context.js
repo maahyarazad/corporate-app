@@ -204,7 +204,9 @@ export const AuthContextProvider = ({ children }) => {
                 return;
               }
             }
+            console.log('===========================user_id===============================')
             await SecureStore.setItemAsync("user_id", res.user_id.toString());
+            console.log('===========================user_id===============================')
             resolve(res);
           } catch (err) {
             console.log(err);

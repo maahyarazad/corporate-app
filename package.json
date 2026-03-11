@@ -131,5 +131,10 @@
     "postinstall-postinstall": "^2.1.0",
     "react-native-codegen": "^0.70.7",
     "typescript": "^5.4.5"
+  },
+  "overrides": {
+  "react-native-tab-view": {
+    "use-latest-callback": "0.1.9"
   }
+}
 }

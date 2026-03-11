@@ -41,6 +41,8 @@ const UserProvider = ({ children }) => {
 
   const syncUserInfo = async () => {
     try {
+          
+      
       const response = await request(
         "/v2/auth/me",
         "get",
@@ -50,9 +52,12 @@ const UserProvider = ({ children }) => {
         accessToken
       );
       //Fetch user data from database and store in device
+     
 
-      console.log("user token", response);
-
+  console.log("=======================================syncUserInfo=============================================");
+     
+         console.log(response);
+      console.log("==========================================syncUserInfo==========================================");
       // console.log("bio token", response.data.biometric_token);
       // const bioToken = await SecureStorage.getItemAsync("biometric_token");
       // if (bioToken) {
@@ -99,6 +104,15 @@ const UserProvider = ({ children }) => {
       const response = await syncUserInfo();
       // const response = await request("/v2/auth/me", "get");
 
+      
+      console.log('=============================checkAuthorization=====================================');
+      console.log('==============================checkAuthorization====================================');
+      console.log('==============================checkAuthorization====================================');
+
+      console.log(response);
+      console.log('===============================checkAuthorization===================================');
+      console.log('===============================checkAuthorization===================================');
+      console.log('==============================checkAuthorization====================================');
       if (
         response?.expired === 1 &&
         response?.member === 0 &&

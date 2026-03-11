@@ -66,6 +66,9 @@ export default function useRequest() {
         isAuthorized === 1 &&
         hasSubmit === 1
       ) {
+
+        console.log('//Update user status to unauthorized in Server')
+        console.log(user)
         //Update user status to unauthorized in Server
         const unauth = await httpRequest("/v2/auth/unauthorize", "put");
         if (unauth.success) {
@@ -153,6 +156,9 @@ export default function useRequest() {
 
           case 401:
             console.log("401 ERROR", error.response.data);
+
+
+
             if (error.response.data.expired) {
               alert(
                 "Your card has expired, please upload a new one and change your card details in the profile page."

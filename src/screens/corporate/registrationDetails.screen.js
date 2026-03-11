@@ -33,7 +33,7 @@ import Recaptcha from "react-native-recaptcha-that-works";
 import { DropDown } from "../../components/DropDown";
 import { BirthdatePicker } from "../../components/BirthdatePicker";
 import { NationalityInput } from "../../components/NationalityInput";
-
+import {getDeviceInfo} from "../../services/auth/auth.service";
 const genderItems = [
   { label: "Select Gender", value: "" },
   { label: "Male", value: "Male" },
@@ -131,17 +131,22 @@ export const RegistrationDetailsScreen = ({ route }) => {
     return true;
   };
 
-  const submit = (token) => {
+  const submit = async (token) => {
     const register1 = route.params.login;
-
+    const platform = Platform.OS;
+    const deviceInfo = await getDeviceInfo();
+console.log(deviceInfo);
     const user = {
       ...register1,
       ...state,
       birthdate: state.birthdate.toDateString(),
       gender: state.gender.charAt(0),
       token,
+      device_info: deviceInfo,
+      platform
     };
 
+    
     console.log(user);
 
     UserService.createUser(user)

@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import React, { useContext, useEffect, useState } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View , StyleSheet} from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { ActivityIndicator } from "react-native-paper";
 import { sub } from "react-native-reanimated";
@@ -26,6 +26,20 @@ import useRequest from "../../../hooks/useRequest";
 import useAuth from "../../../hooks/useAuth";
 import useUser from "../../../hooks/useUser";
 import { navigate } from "../../navigation/navigate";
+import { showToast } from "../../Toast";
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    justifyContent: "flex-start",
+  },
+
+  fixMargin: {
+    marginTop: 8
+  }
+});
+
+
 
 export const OtpVerification = ({ route, navigation }) => {
   const MAX_CODE_LENGTH = 4;
@@ -47,6 +61,9 @@ export const OtpVerification = ({ route, navigation }) => {
 const ICON_SIZE = Math.min(width * 0.4, 120);
 const scaleFont = (size) => (width / 375) * size;
 const INPUT_MAX_WIDTH = 400;
+
+
+
   useEffect(() => {
     if (userData && userData.area_code && userData.phone_number) {
       console.log("OTP", userData);
@@ -148,6 +165,7 @@ const INPUT_MAX_WIDTH = 400;
             style={{
               height: "100%",
               alignItems: "center",
+              
             }}
           >
             <Spacer position={"top"} size={"large"} />
@@ -162,17 +180,17 @@ const INPUT_MAX_WIDTH = 400;
             <BottomHalf>
               <View style={{ alignItems: "center" }}>
                 <Label
-                  style={{ color: "white", fontSize: width * 0.08 }}
+                  style={{ color: "white", fontSize: width * 0.08 , ...styles.fixMargin}}
                   weight={"bold"}
                 >
                   {i18n.t("auth.account-verification")}
                 </Label>
-                <Spacer position={"top"} size={"medium"} />
+         
                 <Label
                   style={{
                     color: "white",
                     fontSize: width * 0.04,
-                    textAlign: "center",
+                    textAlign: "center", ...styles.fixMargin
                   }}
                   weight={"regular"}
                 >
@@ -188,16 +206,17 @@ const INPUT_MAX_WIDTH = 400;
                   +{mobileNum}
                 </Label> */}
               </View>
-              <Spacer position={"top"} size={"medium"} />
+          
               <TouchableOpacity onPress={handleMobileChange}>
                 <Label
-                  style={{ color: "white", textDecorationLine: "underline" }}
+                  style={{ color: "white", textDecorationLine: "underline" , ...styles.fixMargin}}
                   size={"title"}
                 >
                   {i18n.t("update-mobile-number.header")}
                 </Label>
               </TouchableOpacity>
-              <Spacer position={"top"} size={"medium"} />
+              
+<View style={{ backgroundColor: 'rgba(0,0,0,0)' }}>
 
               <CodeInputField
                 setPinReady={setPinReady}
@@ -205,10 +224,11 @@ const INPUT_MAX_WIDTH = 400;
                 code={code}
                 pinReady={pinReady}
                 maxLength={MAX_CODE_LENGTH}
-              containerStyle={{ width: Math.min(width - 64, INPUT_MAX_WIDTH) }}
+                containerStyle={{ width: Math.min(width - 64, INPUT_MAX_WIDTH) }}
                 inputBoxStyle={{ borderWidth: 4 }}
               />
-              {/* <TouchableOpacity activeOpacity={} */}
+</View>
+              
               <VerifyButton
                 disabled={!(pinReady && !isLoading)}
                 style={{
@@ -231,9 +251,9 @@ const INPUT_MAX_WIDTH = 400;
                   </Label>
                 )}
               </VerifyButton>
-              <Spacer position={"top"} size={"medium"} />
+              
               {resendStatus ? (
-                <Label style={{ color: "#aaa" }} size={"title"}>
+                <Label style={{ color: "#aaa" ,...styles.fixMargin}} size={"title"}>
                   {`${resendMsg} (${otpCooldown}s)`}
                 </Label>
               ) : (
@@ -250,3 +270,5 @@ const INPUT_MAX_WIDTH = 400;
     </Background>
   );
 };
+
+

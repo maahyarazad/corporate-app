@@ -11,11 +11,11 @@ import {
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Button } from "react-native-paper";
-import PhoneInput from "react-native-phone-number-input";
+
 import Background from "../../components/background/background.component";
 import { CustomTextInput } from "../../components/customTextInput";
 import { SafeArea } from "../../components/safearea.component";
-import { Spacer } from "../../components/spacer/spacer.component";
+
 import { Label } from "../../components/typography/label.component";
 import { useTheme } from "styled-components/native";
 import { Ionicons } from "@expo/vector-icons";
@@ -23,7 +23,7 @@ import { navigate } from "../../navigation/navigate";
 import { UserService } from "../../services/user/user.service";
 import { LoadingOverlay } from "../../components/loading/loading.component";
 import { config } from "../../utils/constants";
-
+import { PhoneInput } from "../../components/PhoneInput";
 export const ForgotPasswordScreen = () => {
   const [mobile, setMobile] = useState("");
   const [mobileCode, setMobileCode] = useState("971");
@@ -73,7 +73,7 @@ export const ForgotPasswordScreen = () => {
   }, []);
 
   const goback = () => {
-    navigate("Login");
+    navigate("ChangePassword");
   };
 
   const handleSubmit = async () => {
@@ -92,6 +92,8 @@ export const ForgotPasswordScreen = () => {
         mobile,
         app_id: config.APP_ID,
       };
+      console.log(data);
+
 
       setLoading(true);
       const result = await UserService.requestForgetPass(data);
@@ -99,7 +101,7 @@ export const ForgotPasswordScreen = () => {
         console.log(result);
         if (result.success) {
           setLoading(false);
-
+            
           navigate("ForgotPasswordOTP", {
             mobileCode,
             mobile,
@@ -154,38 +156,81 @@ export const ForgotPasswordScreen = () => {
                   <Label
                     size={"title"}
                     weight="bold"
-                    style={{ color: "#dfdfdf", justifyContent: "center" }}
+                    style={{ color: "#dfdfdf", justifyContent: "center" , ...styles.marginFix}}
                   >
                     Login
                   </Label>
                 </TouchableOpacity>
-                <Spacer position={"top"} size={"medium"} />
+                
 
                 <Label
                   size={"title"}
                   weight={"bold"}
-                  style={{ color: "white" }}
+                  style={{ color: "white" ,...styles.marginFix}}
                 >
                   Forgot Password
                 </Label>
-                <Spacer position={"top"} size={"small"} />
+                
                 <Label
                   size={"body"}
                   weight={"medium"}
-                  style={{ color: "white" }}
+                  style={{ color: "white",...styles.marginFix }}
                 >
                   Please provide the following information
                 </Label>
               </View>
             </View>
+
             <CustomTextInput
               value={login}
               onChangeText={setLogin}
-              style={{ width: "100%", height: 65 }}
+              style={{ width: "100%", height: 65,...styles.marginFix }}
               label="Username or Email *"
               error={login.trim() === "" && isSubmitted}
             ></CustomTextInput>
-            <Spacer position={"top"} size={"medium"} />
+            
+              <PhoneInput
+                            defaultCode="AE"
+                            placeholder="541234567"
+                            onChangeText={(prev) => {
+                setMobile(prev.replace(/[^0-9]/g, ``));
+              }}
+                            onChangeCountry={(country)=>{
+                                 setMobileCountry(country.cca2);
+                                setMobileCode(country.callingCode);
+                            }}
+                            onChangeFormattedText={(e164) => console.log("E164:", e164)}
+                            error={
+                              isSubmitted && mobile.trim() === ""
+                                ? "Mobile is required"
+                                : null
+                            }
+                            containerStyle={{
+                              borderRadius: 5,
+                              width: "100%",
+                              height: 60,
+                              borderWidth: 2,
+                              borderColor:
+                                isSubmitted && mobile.trim() === ""
+                                  ? "red"
+                                  : "#00000099",
+                              ...styles.marginFix
+                            }}
+                            textContainerStyle={{
+                              borderTopRightRadius: 5,
+                              borderBottomRightRadius: 5,
+                              backgroundColor: "white",
+                              paddingVertical: 0,
+                            }}
+                            textInputStyle={{
+                              color: "black",
+                              fontSize: 16,
+                            }}
+                            textInputProps={{
+                              selectionColor: "#a6cdfb",
+                            }}
+                          />
+{/* 
             <PhoneInput
               defaultCode="AE"
               layout="first"
@@ -209,8 +254,8 @@ export const ForgotPasswordScreen = () => {
                 borderTopRightRadius: 5,
                 borderBottomRightRadius: 5,
               }}
-            />
-            <Spacer position={"top"} size={"medium"} />
+            /> */}
+            
             <Button
               mode="contained"
               onPress={handleSubmit}
@@ -239,4 +284,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 16,
   },
+
+  marginFix:{
+    marginBottom:8
+  }
 });

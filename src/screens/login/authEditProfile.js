@@ -4,45 +4,38 @@ import React, {
   useCallback,
   useContext,
   useEffect,
-  useLayoutEffect,
   useRef,
   useState,
 } from "react";
 import {
-  Alert,
+  
   Platform,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
-import CountryPicker from "react-native-country-picker-modal";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Button } from "react-native-paper";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import { AnimatedButton } from "../../components/animatedButton";
+import { BirthdatePicker } from "../../components/BirthdatePicker";
 import Background from "../../components/background/background.component";
 import { CustomTextInput } from "../../components/customTextInput";
 import { SafeArea } from "../../components/safearea.component";
-import { Spacer } from "../../components/spacer/spacer.component";
 import { CompanyLogo } from "../../components/styles";
 import { Label } from "../../components/typography/label.component";
-import { goback, navigate } from "../../navigation/navigate";
-import { UserContext } from "../../services/user/user.context";
-import { companyLogo, genderEnum, honorificList } from "../../utils/constants";
-import ModalDropdown from "react-native-modal-dropdown";
+import { goback } from "../../navigation/navigate";
+import { companyLogo, honorificList } from "../../utils/constants";
 import DropDownPicker from "react-native-dropdown-picker";
-import { UserService } from "../../services/user/user.service";
-import { AuthContext } from "../../services/auth/auth.context";
 import { expiryToDate } from "../../utils/expiryToDate";
 import { LoadingOverlay } from "../../components/loading/loading.component";
-import { useNavigation } from "@react-navigation/native";
 import { validateCardExpiryDate } from "../../utils/validateCardExpiryDate";
-import { PartnerPicker } from "../../components/partnerPicker";
-import { PartnerService } from "../../services/location/location.service";
 import { TranslationContext } from "../../services/translation/translation.context";
 import useRequest from "../../../hooks/useRequest";
 import useUser from "../../../hooks/useUser";
 import { theme } from "../../infrastructure/theme";
+import { DropDown } from "../../components/DropDown";
+import { PartnerService } from "../../services/location/location.service";
+import { NationalityInput } from "../../components/NationalityInput";
+import { showToast } from "../../Toast";
 
 export const AuthEditProfileScreen = () => {
   const [showCountries, setShowCountries] = useState(false);
@@ -71,54 +64,44 @@ export const AuthEditProfileScreen = () => {
   dateLimit.setFullYear(dateLimit.getFullYear() - 18);
   const honorificLabelList = honorificList.map((x) => ({ label: x, value: x }));
   const isMounted = useRef(true);
-  const [partnerList, setPartnerList] = useState();
+
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { i18n, lang } = useContext(TranslationContext);
+  const genderItems = [
+    { label: i18n.t("gender.male"), value: "M" },
+    { label: i18n.t("gender.female"), value: "F" },
+  ];
+
   const { getUserInfo } = useUser();
   const request = useRequest();
   const [userData, setUserData] = useState(null);
 
-  useEffect(() => {
-    let isMounted = true;
-    const initialize = async () => {
-      try {
-        setIsLoading(true);
-        //Get partners
-        const response = await request("/v2/partner/active", "get");
-        const response_userInfo = await getUserInfo();
+  const [partnerList, setPartnerList] = useState([]);
 
-        if (isMounted) {
-          if (response_userInfo) {
-            setUserData(response_userInfo);
-          }
-
-          if (response.success) {
-            setPartnerList(response.data);
-          } else {
-            Alert.alert(
-              "Error Occured",
-              "There's a problem loading the partners"
-            );
-          }
-          setIsLoading(false);
-        }
-      } catch (err) {
-        setIsLoading(false);
-        console.err(err);
+  const getPartners = useCallback(async () => {
+    try {
+      const response = await PartnerService.getPartners();
+      const response_userInfo = await getUserInfo();
+      if (response_userInfo) {
+        console.log(response_userInfo)
+        setUserData(response_userInfo);
       }
-    };
 
-    initialize();
-
-    return () => {
-      isMounted = false;
-    };
+      if (response.success) {
+        setPartnerList(response.data);
+      }
+    } catch (error) {
+      console.error(error);
+      showToast("error", "Server Error", error);
+    }
   }, []);
 
   useEffect(() => {
-    let isMounted = true;
+    getPartners();
+  }, [getPartners]);
 
-    if (userData && partnerList && isMounted) {
+  useEffect(() => {
+    if (userData) {
       setState({
         ...state,
         username: userData.username,
@@ -132,22 +115,13 @@ export const AuthEditProfileScreen = () => {
         mobile: `+` + userData.area_code + ` ` + userData.phone_number,
         nationality: userData.nationality,
         partner_id: userData.partner_id,
-        partner_name:
-          !userData.member &&
-          partnerList.filter(
-            (partner) => partner.value === userData.partner_id
-          )[0].label,
         card_valid_date: moment(userData.card_valid_date)
           .format("MM/YY")
           .toString(),
         cardNumber: userData.card_number,
       });
     }
-
-    return () => {
-      isMounted = false;
-    };
-  }, [userData, partnerList]);
+  }, [userData]);
 
   useEffect(() => {
     if (JSON.stringify(state) === JSON.stringify(stateCopy)) {
@@ -171,7 +145,8 @@ export const AuthEditProfileScreen = () => {
         empty = true;
       }
     });
-    if (empty) Alert.alert("Notice", "Please fill in all the required fields");
+    
+    if (empty) showToast("error", "Empty Fields", "Please fill in all the required fields")
     return empty;
   };
 
@@ -190,22 +165,28 @@ export const AuthEditProfileScreen = () => {
       setIsLoading(true);
 
       const response = await request("/v2/user/update", "post", data);
-      // const response = await UserService.updateUser(data);
 
       if (response) {
         if (isMounted.current) {
           setIsLoading(false);
 
-          Alert.alert(
-            i18n.t("profile-tabs.profile.update.heading"),
-            i18n.t("profile-tabs.profile.update.text")
-          );
+          showToast(
+                  "success",
+                  i18n.t("profile-tabs.profile.update.heading"),
+                i18n.t("profile-tabs.profile.update.text")
+                );
+
           goback();
         }
       }
     } catch (error) {
       console.log(error);
-      alert(error.data.message);
+       showToast(
+              "error",
+              "Error",
+           error.data.message
+            );
+      
       setIsLoading(false);
     }
   };
@@ -269,18 +250,6 @@ export const AuthEditProfileScreen = () => {
                 width: 150,
               }}
             >
-              {/* <AnimatedButton
-                onPress={handleSubmit}
-                buttonColorFrom={disableButton ? "#999" : "rgba(230,135,0,1)"}
-                buttonColorTo={"rgba(210,115,0,1)"}
-                iconName={"content-save-edit-outline"}
-                iconSize={20}
-                textColor={"black"}
-                textSize={"title"}
-                textWeight={"medium"}
-                label={"update"}
-                disabled={disableButton}
-              ></AnimatedButton> */}
               <Button
                 mode="contained"
                 onPress={handleSubmit}
@@ -319,24 +288,28 @@ export const AuthEditProfileScreen = () => {
               value={state.username}
               disable={true}
               label={i18n.t("profile-tabs.profile.username") + "*"}
+              style={{ marginBottom: 8 }}
             />
-            <Spacer position={"top"} size="medium" />
+
             <CustomTextInput
               value={state.email}
               disable={true}
               label={i18n.t("profile-tabs.profile.email") + "*"}
+              style={{ marginBottom: 8 }}
             />
-            <Spacer position={"top"} size="medium" />
+
             <CustomTextInput
               value={state.mobile}
               disable={true}
               label={i18n.t("profile-tabs.profile.mobile") + "*"}
+              style={{ marginBottom: 8 }}
             />
-            <Spacer position={"top"} size="medium" />
+
             <View
               style={{
                 flex: 1,
                 height: 55,
+                marginBottom: 8,
               }}
             >
               <CustomTextInput
@@ -367,197 +340,91 @@ export const AuthEditProfileScreen = () => {
               }}
               listMode="SCROLLVIEW"
             />
-            <Spacer position={"top"} size="medium" />
+
             <CustomTextInput
               value={state.firstname}
               onChangeText={(prev) => {
                 setState({ ...state, firstname: prev });
               }}
               label={i18n.t("profile-tabs.profile.firstname") + "*"}
+              style={{ marginBottom: 8 }}
             />
-            <Spacer position={"top"} size="medium" />
+
             <CustomTextInput
               value={state.middlename}
               onChangeText={(prev) => {
                 setState({ ...state, middlename: prev });
               }}
               label={i18n.t("profile-tabs.profile.middlename") + "*"}
+              style={{ marginBottom: 8 }}
             />
-            <Spacer position={"top"} size="medium" />
+
             <CustomTextInput
               value={state.lastname}
               onChangeText={(prev) => {
                 setState({ ...state, lastname: prev });
               }}
               label={i18n.t("profile-tabs.profile.lastname") + "*"}
+              style={{ marginBottom: 8 }}
             />
-            <Spacer position={"top"} size="medium" />
+
+            <View style={{ flex: 1, marginBottom: 8 }}>
+              <DropDown
+                items={genderItems}
+                value={state.gender}
+                onChange={(value) =>
+                  setState((prev) => ({ ...prev, gender: value }))
+                }
+                placeholder={i18n.t("gender.title") + " *"}
+              />
+            </View>
 
             <View
               style={{
-                flex: 1,
                 height: 55,
+                flex: 1,
+                marginBottom: 8,
               }}
             >
-              <CustomTextInput
-                value={
-                  state.gender.toLowerCase() != undefined
-                    ? state.gender.toLowerCase() === "m"
-                      ? i18n.t("gender.male")
-                      : i18n.t("gender.female")
-                    : "---"
-                }
-                label={i18n.t("gender.title") + "*"}
-                style={{
-                  width: "100%",
-                  maxHeight: 58,
-                  position: "absolute",
-                }}
-                right={
-                  <MaterialCommunityIcons
-                    name="chevron-down"
-                    size={25}
-                    onPress={() => {
-                      setShowCountries(true);
-                    }}
-                  />
-                }
-              ></CustomTextInput>
-              <Button
-                style={{ opacity: 0 }}
-                contentStyle={{ height: "100%" }}
-                onPress={toggleDropDownGender}
-              ></Button>
-            </View>
-            <DropDownPicker
-              style={{
-                display: "none",
-              }}
-              items={[
-                { label: i18n.t("gender.male"), value: "m" },
-                { label: i18n.t("gender.female"), value: "f" },
-              ]}
-              open={isOpenGender}
-              setOpen={setIsOpenGender}
-              onSelectItem={({ value }) => {
-                setState({ ...state, gender: value });
-              }}
-              listMode="SCROLLVIEW"
-            />
-            <Spacer position={"top"} size="medium" />
-
-            <View style={{ height: 55, flex: 1 }}>
-              <CustomTextInput
-                value={moment(state.birthdate).format("DD.MMM YYYY")}
-                // onChangeText={setBirthdate}
-                label={i18n.t("profile-tabs.profile.birthdate") + "*"}
-                style={{
-                  width: "100%",
-                  maxHeight: 60,
-                  position: "absolute",
-                }}
-              ></CustomTextInput>
-
-
-   <DateTimePicker onChange={(date) => setState({ ...state, birthdate: date })}
-          value={state.birthdate || new Date()}
-          mode="date"
-         title={i18n.t("profile-tabs.profile.birthdate") + "*"}
-          display={Platform.OS === "ios" ? "spinner" : "default"}
-          maximumDate={dateLimit}
-          iosMode="date"
-           isNullable={false}
-           style={{
-                        width: "100%",
-                        height: 58,
-                        marginTop: 6,
-                      }}
-        />
-
-              {/* <DatePicker
+              <BirthdatePicker
+                
                 value={state.birthdate}
-                onDateChange={(date) => setState({ ...state, birthdate: date })}
-                title={i18n.t("profile-tabs.profile.birthdate") + "*"}
-                isNullable={false}
-                iosMode="date"
-                androidMode="date"
-                androidDisplay="default"
-                textColor="black"
-                locale={lang}
-                iosDisplay="spinner"
-                style={{
-                  width: "100%",
-                  height: 58,
-                  marginTop: 6,
-                }}
-              /> */}
-            </View>
-            <Spacer position={"top"} size="medium" />
-            <View
-              style={{
-                height: 58,
-                justifyContent: "center",
-                position: "relative",
-              }}
-            >
-              <CustomTextInput
-                value={state.nationality}
-                label={i18n.t("profile-tabs.profile.nationality") + "*"}
-                style={{
-                  width: "100%",
-                  height: 58,
-                  position: "absolute",
-                  zIndex: -1,
-                }}
-                right={
-                  <MaterialCommunityIcons
-                    name="chevron-down"
-                    size={25}
-                    onPress={() => {
-                      setShowCountries(true);
-                    }}
-                  />
+                onChange={(date) =>
+                  setState((prev) => ({ ...prev, birthdate: date }))
                 }
               />
-              <View
-                style={{
-                  flex: 1,
-                  paddingTop: 10,
-                  position: "absolute",
-                  width: "100%",
-                  height: "100%",
-                  zIndex: 1,
-                }}
-              >
-                <CountryPicker
-                  
-                  onSelect={(country) => {
-                    setState({ ...state, nationality: country.name });
-                  }}
-                  withEmoji={true}
-                  withFilter
-                  placeholder=""
-                  containerButtonStyle={{
-                    height: "100%",
-                    width: "100%",
-                    top: 0,
-                    right: 0,
-                    bottom: 0,
-                    left: 0,
-                  }}
-                  visible={showCountries}
-                />
-              </View>
             </View>
-            <Spacer position={"top"} size="medium" />
+
+            <View
+              style={{
+                height: 55,
+                flex: 1,
+                marginBottom: 8,
+                marginTop: 4,
+              }}
+            >
+              <NationalityInput
+                value={state.nationality}
+                onChange={(e) => {
+                  console.log(e);
+                  setState({ ...state, nationality: e });
+                }}
+              />
+            </View>
+
             {userData && !userData.member && (
               <>
-                <PartnerPicker
-                  data={partnerList}
-                  selectedPartnerName={state.partner_name}
-                  setPartner={handlePartnerChange}
+
+                <DropDown
+                  value={state.partner_id}
+                  searchable={true}
+                  items={partnerList}
+                  style={{ marginBottom: 8 }}
+                  onChange={handlePartnerChange}
+                  placeholder={"Partner"}
+                  
                 />
-                <Spacer position={"top"} size="medium" />
+
                 <CustomTextInput
                   maxLength={5}
                   label={"GEC Card Expiry Date *"}
@@ -566,11 +433,12 @@ export const AuthEditProfileScreen = () => {
                   keyboardType="numeric"
                   placeholder={"mm/yy"}
                   onChangeText={handleValidityChange}
-                  error={isSubmitted && state.card_valid_date.trim() === ""}
+                  error={isSubmitted && state.card_valid_date?.trim() === ""}
+                  style={{ marginBottom: 8 }}
                 />
               </>
             )}
-            <Spacer position={"top"} size="medium" />
+
             <CustomTextInput
               value={state.cardNumber}
               onChangeText={(prev) => {
@@ -578,7 +446,7 @@ export const AuthEditProfileScreen = () => {
               }}
               keyboardType="numeric"
               label={"GEC Card Number *"}
-              error={isSubmitted && state.cardNumber.trim() === ""}
+              error={isSubmitted && state.cardNumber?.trim() === ""}
             />
           </KeyboardAwareScrollView>
         </View>

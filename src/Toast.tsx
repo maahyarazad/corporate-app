@@ -19,7 +19,7 @@ function BaseToast({ text1, text2, variant }: Props & { variant: "success" | "er
 export const toastConfig: ToastConfig = {
   success: (props) => <BaseToast {...props} variant="success" />,
   error: (props) => <BaseToast {...props} variant="error" />,
-  info: (props) => <BaseToast {...props} variant="info" />,
+  info: (props) => <BaseToast {...props} variant="info" />
 };
 
 const styles = StyleSheet.create({
@@ -51,6 +51,6 @@ export const showToast = (type: "success" | "error" | "info", title: string, mes
     text2: message,
     position: "top",
     topOffset: 56,
-    visibilityTime: 2500,
+    visibilityTime: 5000,
   });
 };

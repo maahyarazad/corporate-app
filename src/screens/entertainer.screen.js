@@ -35,7 +35,9 @@ const Tab = createMaterialTopTabNavigator();
 // const Tab = createBottomTabNavigator();
 
 export const EntertainerScreen = () => {
+
   const { i18n } = useContext(TranslationContext);
+  console.log(i18n);
   const { userData } = useUser();
   const navigation = useNavigation();
   const [hasNotification, setHasNotification] = useState(false);

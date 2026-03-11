@@ -5,13 +5,13 @@ import {
   Dimensions,
   StyleSheet,
   TouchableOpacity,
-  View,
+  View,Platform
 } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import Background from "../../components/background/background.component";
 import { CodeInputField } from "../../components/codeInputField";
 import { SafeArea } from "../../components/safearea.component";
-import { Spacer } from "../../components/spacer/spacer.component";
+
 import { BottomHalf, VerifyButton } from "../../components/styles";
 import { Label } from "../../components/typography/label.component";
 import { colors } from "../../infrastructure/theme/colors";
@@ -97,24 +97,24 @@ export const ForgotPasswordOTPScreen = ({ route }) => {
           >
             <View style={{ alignItems: "center" }}>
               <Label
-                style={{ color: "white" }}
+                style={{ color: "white", marginBottom:10}}
                 size={"heading"}
                 weight={"bold"}
               >
                 Verification Code Sent
               </Label>
-              <Spacer position={"top"} size={"medium"} />
+              
               <Label
                 style={{
                   color: "white",
                   fontSize: Math.min(width * 0.04),
-                  textAlign: "center",
+                  textAlign: "center", lineHeight: Math.min(width * 0.04) * 1.4, marginBottom: 10
                 }}
                 weight={"regular"}
               >
                 {`Please enter the ${MAX_CODE_LENGTH}-digit code sent to `}
                 <Label
-                  style={{ color: "white", fontSize: Math.min(width * 0.04) }}
+                  style={{ color: "white", fontSize: Math.min(width * 0.04) ,marginBottom:8}}
                   weight={"bold"}
                 >
                   +
@@ -123,7 +123,7 @@ export const ForgotPasswordOTPScreen = ({ route }) => {
                 to proceed
               </Label>
             </View>
-            <Spacer position={"top"} size={"medium"} />
+            
 
             <CodeInputField
               setPinReady={setPinReady}
@@ -150,6 +150,7 @@ export const ForgotPasswordOTPScreen = ({ route }) => {
                 backgroundColor: pinReady
                   ? colors.ui.green
                   : colors.ui.lightGreen,
+                  marginBottom:8
               }}
               onPress={handleVerify}
               activeOpacity={0.6}
@@ -166,7 +167,7 @@ export const ForgotPasswordOTPScreen = ({ route }) => {
                 </Label>
               )}
             </VerifyButton>
-            <Spacer position={"top"} size={"medium"} />
+            
             <TouchableOpacity onPress={handleResend}>
               <Label style={{ color: "white" }} size={"title"}>
                 Resend Code

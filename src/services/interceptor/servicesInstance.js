@@ -5,8 +5,8 @@ import { config } from "../../utils/constants";
 import { showToast } from "../../Toast"; 
 
 export const axiosInstance = axios.create({
-  baseURL: config.BASE_URL,
-  timeout: 600000,
+  baseURL: config.SERVICES_BASE_URL,
+  timeout: 15000,
   timeoutErrorMessage: "Server Error, Please contact the developer!",
 });
 
