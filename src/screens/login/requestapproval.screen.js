@@ -583,7 +583,7 @@ export const RequestApprovalScreen = () => {
                       </Label>
                     </View>
 
-                    <Spacer position={"top"} size={"medium"} />
+                    <View style={{marginTop: 8}} />
 
                     <View
                       style={{
@@ -605,7 +605,7 @@ export const RequestApprovalScreen = () => {
                       </TouchableOpacity>
                     </View>
 
-                    <Spacer position={"top"} size={"medium"} />
+                    <View style={{marginTop: 8}} />
 
                     <AnimatedButton
                       onPress={handleUpload}

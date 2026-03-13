@@ -254,7 +254,8 @@ export const OfferRedeemForm = ({
         >
           {i18n.t("close")}
         </Button>
-        <Spacer position={"left"} size={"small"} />
+        <View style={{marginLeft: 6}} />
+        
         <Button
           disabled={!pinReady}
           style={{

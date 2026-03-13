@@ -54,8 +54,8 @@ export const LocationList = ({
             size={100}
             color="#aaa"
           />
-          <Spacer position={"top"} size="medium" />
-          <Label size={"title"} weight="medium" style={{ color: "#aaa" }}>
+          
+          <Label size={"title"} weight="medium" style={{ color: "#aaa", marginTop: 8 }}>
             No results found
           </Label>
         </View>
@@ -121,9 +121,12 @@ export const LocationList = ({
                 uri={`${adminFileBaseURL}${item.file}`}
               />
             </View>
-            <Spacer position={"left"} size={"small"} />
+
+            
+
             <View
               style={{
+                marginLeft: 8,
                 height: "auto",
                 justifyContent: "space-between",
                 width: "70%",

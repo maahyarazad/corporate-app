@@ -104,7 +104,7 @@ const FeaturedBanner = ({ bannerData }) => {
 
   return (
     <>
-      <Spacer position="top" size="medium" />
+       <View style={{marginTop: 8}} />
       <ListContainer>
         <Carousel
           width={screenWidth}

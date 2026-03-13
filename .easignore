@@ -43,7 +43,6 @@ yarn-error.*
 
 # @end expo-cli
 
-google-services.json
+
 /ios
 /android
-gec-rewards-26313-firebase-adminsdk-fbsvc-37aed17c8c.json

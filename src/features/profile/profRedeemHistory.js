@@ -89,7 +89,8 @@ export const ProfRedeemHistory = () => {
         >
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <Label weight={"bold"}>{item.title}</Label>
-            <Spacer position={"left"} size="small" />
+            <View style={{marginLeft: 6}} />
+            
             <MaterialCommunityIcons
               name={
                 item.total > 0 ? "emoticon-outline" : "emoticon-sad-outline"

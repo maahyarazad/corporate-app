@@ -480,8 +480,8 @@ const PostCard = ({
                       </Label>
                     </View>
                   </View>
-                  {/* <Spacer position={"right"} size={"large"} /> */}
-                  {/* {true && ( */}
+                  
+                  
                   {userData.old_user_id === data.user_id && (
                     <View>
                       <View

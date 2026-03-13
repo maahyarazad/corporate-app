@@ -68,7 +68,7 @@ const PostCardModified = ({ item, ...props }) => {
             <Label>21 UNREAD POSTS</Label>
             <MaterialCommunityIcons name="arrow-up" size={24} color="black" />
           </View>
-          <Spacer size={"medium"} position={"top"} />
+          <View style={{marginTop: 8}}/>
         </>
       )} */}
       <PostCard data={item} {...props} />

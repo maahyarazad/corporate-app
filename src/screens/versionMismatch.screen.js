@@ -32,11 +32,11 @@ export const VersionMismatchScreen = () => {
         <Label size={"title"} weight={"bold"}>
           Outdated Version
         </Label>
-        <Spacer position={"top"} size={"small"} />
+        <View style={{marginTop: 6}}/>
         <Label style={styles.message} size={"subtitle"}>
           Your app is running on an outdated version. Please update your app.
         </Label>
-        <Spacer position={"top"} size={"medium"} />
+        <View style={{marginTop: 8}} />
         <Button
           onPress={onPressPublisher}
           contentStyle={{

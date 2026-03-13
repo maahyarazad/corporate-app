@@ -52,7 +52,7 @@ const renderCategory = ({ item, navigation }) => {
           >
             <CategoryItemImages
               resizeMode="contain"
-              style={{ tintColor: "white" }}
+              style={{ tintColor: "white"}}
               source={categorylogo[item.id]}
             />
           </CategoryImageContainer>
@@ -117,20 +117,13 @@ export const HomeCategory = ({ size, categoryData }) => {
 
   return (
     <>
-      <View
-        style={{
-          flex: 1,
-          // justifyContent: "flex-start",
-          // backgroundColor: "green",
-          // marginTop: 12,
-        }}
-      >
+      <View>
         <CategoryHeaderView>
-          <Spacer position="left" size="medium">
-            <Label size="heading" weight="bold">
+          
+            <Label size="heading" weight="bold" style={{marginLeft: 16}}>
               {i18n.t("categories")}
             </Label>
-          </Spacer>
+          
         </CategoryHeaderView>
         <CategoryContentView>
           {categoryData ? (

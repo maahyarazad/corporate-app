@@ -188,7 +188,7 @@ const PostEntryScreen = () => {
                   Vervollständigen Sie die Details und schon kann es losgehen!
                 </Label>
               </View>
-              <Spacer size={"large"} position={"top"} />
+              <View style={{marginTop: 10}}/>
               <View style={{ alignSelf: "stretch", gap: 10, flex: 1 }}>
                 <View>
                   <Label

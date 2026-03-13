@@ -36,7 +36,7 @@ const LoginForm = ({
         textContentType="username"
       />
 
-      <Spacer position="top" size="small" />
+      
 
       <CustomTextInput
         value={password} style={{marginTop: 8}}
@@ -47,7 +47,7 @@ const LoginForm = ({
         textContentType="password"
       />
 
-      <Spacer position="top" size="medium" />
+      
 
       <TouchableOpacity onPress={handleForgetPassword} style={{padding: 4}}>
         <Label shadow color="white" style={{ textDecorationLine: "underline"}}>
@@ -55,7 +55,7 @@ const LoginForm = ({
         </Label>
       </TouchableOpacity>
 
-      <Spacer position="top" size="medium" />
+      
 
       {/* Checkbox */}
       <View style={{ flexDirection: "row", justifyContent:"space-between", alignItems:'center' }}>
@@ -79,7 +79,7 @@ const LoginForm = ({
         </View>
       </View>
 
-      <Spacer position="top" size="medium" />
+      
 
       <LoginButton
         onPress={handleLogin}

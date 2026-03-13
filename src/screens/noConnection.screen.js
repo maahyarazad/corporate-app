@@ -20,11 +20,15 @@ export const NoConnectionScreen = () => {
         <Label size={"heading"} style={styles.label}>
           Connection Error
         </Label>
-        <Spacer size={"small"} position={"top"} />
+        
+        <View style={{marginTop: 6}}/>
         <Label size={"title"} style={styles.label}>
           Couldn't connect to Server
         </Label>
-        <Spacer size={"medium"} position={"top"} />
+        
+
+                <View style={{marginTop: 8}}/>
+
         <Button
           mode="outlined"
           color="grey"

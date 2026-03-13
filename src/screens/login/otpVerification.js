@@ -168,7 +168,7 @@ const INPUT_MAX_WIDTH = 400;
               
             }}
           >
-            <Spacer position={"top"} size={"large"} />
+            
             <IconBg>
               <StatusBar style="light" />
               <MaterialCommunityIcons

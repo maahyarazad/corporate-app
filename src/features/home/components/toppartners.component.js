@@ -19,7 +19,7 @@ const TopPartners = ({ topPartnersData }) => {
             opacityMin={0.1}
             opacityMax={0.2}
           />
-          <Spacer position={"top"} size="medium" />
+           <View style={{marginTop: 8}} />
           <Skeleton
             variant={"square"}
             borderRadius={10}

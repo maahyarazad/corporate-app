@@ -88,8 +88,10 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
           distance={distance}
         />
       </CustomModal>
+      
       <Label
         style={{
+            
           paddingHorizontal: 16,
         }}
         size={"heading"}

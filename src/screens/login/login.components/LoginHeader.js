@@ -22,7 +22,7 @@ const LoginHeader = ({ companyLogo }) => {
           Welcome!
         </Label>
 
-        <Spacer position="top" size="small" />
+        <View style={{marginTop: 6}}/>
 
         <Label color="white" size="caption" weight="medium" shadow>
           Sign in with your username and password.

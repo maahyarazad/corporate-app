@@ -156,7 +156,7 @@ const PostEntrySelect = () => {
               </View>
             </TouchableOpacity>
           </View>
-          <Spacer size={"large"} position={"top"} />
+          <View style={{marginTop: 10}}/>
 
           {/* Body */}
           <View style={styles.body}>

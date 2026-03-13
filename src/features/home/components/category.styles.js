@@ -32,6 +32,7 @@ export const Pressable = styled(TouchableOpacity)`
   justify-content: center;
   align-items: center;
   padding: 10px;
+  paddingTop:0;
 
   /* Shadow for iOS */
   ${Platform.OS === "ios" &&

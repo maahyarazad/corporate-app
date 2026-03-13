@@ -45,7 +45,9 @@ export const SoleilScreen = () => {
               />
             </View>
           </View>
-          <Spacer position={"right"} size="medium"></Spacer>
+          
+          <View style={{marginRight: 8}}/>
+
           <View>
             <Label size={"body"}>{item.username.toUpperCase()}</Label>
             <Label size={"caption"}>{item.email}</Label>
@@ -83,7 +85,7 @@ export const SoleilScreen = () => {
           renderItem={renderMembers}
           keyExtractor={(item) => item.id}
           ItemSeparatorComponent={() => {
-            return <Spacer position={"bottom"} size={"medium"}></Spacer>;
+            return <View style={{marginBottom: 6}}/>;
           }}
         ></FlatList>
       </View>

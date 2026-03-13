@@ -271,7 +271,7 @@ export const UpdateMemberScreen = ({ navigation }) => {
                     error={isSubmitted && state.email.trim() === ""}
                   />
 
-                  <Spacer size={"medium"} position={"top"} />
+                  <View style={{marginTop: 8}}/>
 
                   {state.mobileCountry || state.mobileNumber ? (
                     <>
@@ -298,7 +298,7 @@ export const UpdateMemberScreen = ({ navigation }) => {
                         }}
                       />
 
-                      <Spacer size={"medium"} position={"top"} />
+                      <View style={{marginTop: 8}}/>
                     </>
                   ) : (
                     <></>

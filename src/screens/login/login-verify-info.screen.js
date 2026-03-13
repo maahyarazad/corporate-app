@@ -173,7 +173,7 @@ export const VerifyInfo = ({ route, navigation }) => {
             label={"Mobilnummer"}
           ></TextInputForm>
 
-          <Spacer position={"top"} size={"medium"} />
+          <View style={{marginTop: 8}} />
           <LoginButton
             onPress={handleUpdate}
             activeOpacity={0.8}

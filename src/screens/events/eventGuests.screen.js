@@ -233,7 +233,7 @@ export const EventGuestsScreen = () => {
                         />
                       </TouchableOpacity>
                     </View>
-                    <Spacer position={"top"} size={"medium"} />
+                    <View style={{marginTop: 8}} />
                     <View style={{ flexDirection: "row" }}>
                       <View style={styles.guestLabel}>
                         <Label size={"title"} weight={"bold"}>
@@ -252,7 +252,7 @@ export const EventGuestsScreen = () => {
                         </Label>
                       </View>
                     </View>
-                    <Spacer position={"top"} size={"small"} />
+                    <View style={{marginTop: 6}}/>
 
                     {/* <Text>{guest.first_name}</Text>
                     <Text>{guest.last_name}</Text> */}
@@ -266,7 +266,7 @@ export const EventGuestsScreen = () => {
                     guestList.length + 1 ?? 1
                   }`}
                 </Label>
-                <Spacer position={"top"} size={"small"} />
+                <View style={{marginTop: 6}}/>
                 <CustomTextInput
                   label={i18n.t("events.guest-list.firstname")}
                   value={newGuest.first_name}
@@ -274,7 +274,7 @@ export const EventGuestsScreen = () => {
                   // placeholder={i18n.t("events.guest-list.firstname")}
                   style={{ borderWidth: 1, borderColor: "#ccc" }}
                 />
-                <Spacer position={"top"} size={"small"} />
+                <View style={{marginTop: 6}}/>
                 <CustomTextInput
                   label={i18n.t("events.guest-list.lastname")}
                   value={newGuest.last_name}
@@ -282,7 +282,7 @@ export const EventGuestsScreen = () => {
                   // placeholder={i18n.t("events.guest-list.lastname")}
                   style={{ borderWidth: 1, borderColor: "#ccc" }}
                 />
-                <Spacer position={"top"} size={"small"} />
+                <View style={{marginTop: 6}}/>
                 <Button
                   mode="contained"
                   contentStyle={{ paddingVertical: 8 }}
@@ -293,7 +293,7 @@ export const EventGuestsScreen = () => {
                 >
                   {i18n.t("events.guest-list.confirm-guest")}
                 </Button>
-                <Spacer position={"top"} size={"small"} />
+                <View style={{marginTop: 6}}/>
                 <Button
                   mode="contained"
                   contentStyle={{ paddingVertical: 8 }}
@@ -337,11 +337,11 @@ export const EventGuestsScreen = () => {
                 >
                   {i18n.t("events.guest-list.add-more")}
                 </Button>
-                <Spacer position={"top"} size={"small"} />
+                <View style={{marginTop: 6}}/>
               </>
             )}
           </KeyboardAwareScrollView>
-          <Spacer position={"top"} size={"small"} />
+          <View style={{marginTop: 6}}/>
           <Button
             mode="contained"
             style={[{ borderRadius: 10 }, styles.buttonShadow]}

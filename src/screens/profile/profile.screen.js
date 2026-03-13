@@ -60,7 +60,7 @@ const ProfilePrimaryScreen = () => {
           </View>
           <View style={{ paddingHorizontal: 14, paddingBottom: 6 }}>
             <Label weight={"bold"} size={"h5"}>
-              Profil
+               {i18n.t("profile-tabs.page-title")}
             </Label>
           </View>
           {/* Main Container */}

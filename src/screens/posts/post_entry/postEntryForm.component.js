@@ -53,7 +53,7 @@ const PostEntryForm = ({ setValue, value, category_id = 1 }) => {
               value={title}
               onChangeText={handleTitleChange}
             />
-            <Spacer size={"small"} position={"top"} />
+            <View style={{marginTop: 6}}/>
             <TextInput
               placeholder="Content"
               placeholderTextColor={"#ccc"}
@@ -91,7 +91,7 @@ const PostEntryForm = ({ setValue, value, category_id = 1 }) => {
               value={title}
               onChangeText={handleTitleChange}
             />
-            <Spacer size={"small"} position={"top"} />
+            <View style={{marginTop: 6}}/>
             <TextInput
               placeholder="Price"
               placeholderTextColor={"#ccc"}

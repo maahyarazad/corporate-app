@@ -28,7 +28,7 @@ export const ProfInfo = () => {
             {label}
           </Label>
         </View>
-        <Spacer position={"left"} size={"small"} />
+        <View style={{marginLeft: 6}} />
         <View style={styles.value}>
           <Label size={"body"} weight={"medium"}>
             {value}

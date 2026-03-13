@@ -25,6 +25,7 @@
             "profile": "Profile"
         },
         "profile-tabs": {
+            "page-title": "Profile",
             "user-profile": "User Profile",
             "savings": "Savings",
             "settings": "Settings",

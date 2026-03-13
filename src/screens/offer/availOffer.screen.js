@@ -420,7 +420,7 @@ export const AvailOfferScreen = ({ route }) => {
                   >
                     {i18n.t("redeem-offer.redeem")}
                   </Button>
-                  <Spacer position={"left"} size={"small"} />
+                  <View style={{marginLeft: 6}} />
                   <Button
                     onPress={() => {
                       Linking.openURL(

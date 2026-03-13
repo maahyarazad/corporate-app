@@ -372,7 +372,7 @@ export default function PostDetailScreen() {
                       {`Replying to `}
                       <Label weight={"bold"}>{replyTo.name}</Label>
                     </Label>
-                    <Spacer position={"bottom"} size={"small"} />
+                    <View style={{marginBottom: 6}}/>
                   </>
                 )}
                 <View
@@ -418,7 +418,9 @@ export default function PostDetailScreen() {
                       ></View>
                     }
                   </View>
-                  <Spacer position={"right"} size={"small"} />
+
+                  <View style={{marginRight: 6}}/>
+
                   <View>
                     <Button
                       mode="contained"

@@ -275,7 +275,8 @@ export const OrderCardModal = ({ onClose }) => {
         <Label size={"heading"} weight={"bold"}>
           {i18n.t("offer-restriction.title")}
         </Label>
-        <Spacer position={"top"} size={"medium"} />
+        <View style={{marginTop: 8}} />
+        <View style={{marginTop: 8}} />
         <Label>{i18n.t("offer-restriction.message")}</Label>
         <View style={{ flexDirection: "row", marginTop: 20, gap: 12 }}>
           <Button

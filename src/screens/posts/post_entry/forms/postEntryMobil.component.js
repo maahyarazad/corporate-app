@@ -838,7 +838,7 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
             gap: 10,
           }}
           ItemSeparatorComponent={() => {
-            return <Spacer position={"top"} size={"small"} />;
+            return <View style={{marginTop: 6}}/>;
           }}
         />
       </View>

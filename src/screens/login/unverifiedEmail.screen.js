@@ -150,7 +150,7 @@ export const UnverifiedEmailScreen = ({ route }) => {
           {useVerification && (
            <View style={styles.viewStyle}>
               <InputVerificationCode />
-              <Spacer position={"top"} size="large" />
+              <View style={{marginTop: 10}}/>
             </View>
           )}
           <Button
@@ -186,7 +186,7 @@ export const UnverifiedEmailScreen = ({ route }) => {
           )}
           {false && !useVerification && (
             <View style={styles.viewStyle}>
-              <Spacer position={"top"} size="medium" />
+              <View style={{marginTop: 8}}/>
 
               <TouchableOpacity onPress={handleUseVerification}>
                 <Label

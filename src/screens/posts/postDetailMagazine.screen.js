@@ -174,7 +174,7 @@ const PostDetailMagazine = () => {
               <Label size={"heading"} weight={"bold"}>
                 {article.title}
               </Label>
-              <Spacer position={"top"} size={"small"} />
+              <View style={{marginTop: 6}}/>
               <View style={styles.row}>
                 <View style={styles.avatarContainer}>
                   <View

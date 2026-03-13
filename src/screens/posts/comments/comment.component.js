@@ -329,7 +329,9 @@ export default function Comment({
                         </Label>
                       </View>
                     </TouchableWithoutFeedback>
-                    <Spacer size={"medium"} position={"right"} />
+                    <View style={{marginRight: 8}}/>
+
+
                     {!disableReply && (
                       <TouchableOpacity onPress={() => onReply(data.id)}>
                         <View style={[styles.inline, { gap: 4 }]}>

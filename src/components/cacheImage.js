@@ -22,7 +22,7 @@ export const CacheImage = ({
   defaultImage = require("../../assets/icon.png"),
 }) => {
   const [source, setSource] = useState(defaultImage);
-
+    
   useEffect(() => {
     let isMounted = true;
 

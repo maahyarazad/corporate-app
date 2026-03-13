@@ -95,7 +95,7 @@ const OfferItemImageContainer = styled(ImageBackground)`
               />
             </OfferItemImageContainer>
           </View>
-          <Spacer position={"top"} size={"small"}>
+           <View style={{marginTop: 6}} />
             <OffersItemLabelContainer>
               <Label
                 style={{ textAlign: "center", textAlignVertical: "center" }}
@@ -104,7 +104,7 @@ const OfferItemImageContainer = styled(ImageBackground)`
               </Label>
               <Text></Text>
             </OffersItemLabelContainer>
-          </Spacer>
+          
         </OfferItemContainer>
       </TouchableOpacity>
     );
@@ -113,11 +113,11 @@ const OfferItemImageContainer = styled(ImageBackground)`
   return (
     <View>
       <OffersHeaderView>
-        <Spacer position="left" size="medium">
-          <Label size="heading" weight="bold">
+         
+          <Label size="heading" weight="bold" style={{marginLeft: 16}}>
             {i18n.t("offer-details.offers")}
           </Label>
-        </Spacer>
+        
       </OffersHeaderView>
       <OffersContentView>
         <FlatList

@@ -114,9 +114,9 @@ export const CompanyLogo = styled(Image)({
 });
 
 // Spacer Helpers
-export const itemSeparatorHS = () => <Spacer position="left" size="small" />;
-export const itemSeparatorVS = () => <Spacer position="top" size="small" />;
-export const itemSeparatorHM = () => <Spacer position="left" size="medium" />;
-export const itemSeparatorVM = () => <Spacer position="top" size="medium" />;
-export const itemSeparatorHL = () => <Spacer position="left" size="large" />;
-export const itemSeparatorVL = () => <Spacer position="top" size="large" />;
+export const itemSeparatorHS = () => <View  style={{marginLeft: 6}}/>;
+export const itemSeparatorVS = () => <View style={{marginTop: 6}} />;
+export const itemSeparatorHM = () => <View  style={{marginLeft: 8}} />;
+export const itemSeparatorVM = () => <View style={{marginTop: 8}}/>;
+export const itemSeparatorHL = () => <View style={{marginLeft: 10}}/>;
+export const itemSeparatorVL = () => <View style={{marginTop: 10}} />;

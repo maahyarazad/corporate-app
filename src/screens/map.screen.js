@@ -1,7 +1,7 @@
 // Import required libraries and components
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { Linking, Text, View } from "react-native";
+import { Linking, Platform, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { Button, TouchableRipple } from "react-native-paper";
 import styled from "styled-components/native";
@@ -411,9 +411,9 @@ export const MapScreen = ({ navigation }) => {
                       borderRadius: 10,
                     }}
                   />
-                  <Spacer size={"medium"} position={"top"} />
+                 
                   {/* Location name and distance */}
-                  <Label size={"title"} weight={"bold"}>
+                  <Label size={"title"} weight={"bold"} style={{marginTop: 10}}>
                     {locationState.locationName}
                   </Label>
                   <Label
@@ -423,7 +423,7 @@ export const MapScreen = ({ navigation }) => {
                   >
                     {distance} KM
                   </Label>
-                  <Spacer size={"medium"} position={"top"} />
+                  <View style={{marginTop: 10}} />
 
                   {/* Action buttons */}
                   <View style={{ flexDirection: "row" }}>
@@ -442,7 +442,7 @@ export const MapScreen = ({ navigation }) => {
                     >
                       {i18n.t("offer-details.get-directions").toUpperCase()}
                     </Button>
-                    <Spacer size={"small"} position={"left"} />
+                      <View style={{marginLeft: 6}} />
                     <Button
                       style={{ borderRadius: 10, flex: 1, height: 40 }}
                       labelStyle={{ fontSize: 12, width: "100%" }}
