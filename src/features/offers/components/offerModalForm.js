@@ -45,16 +45,22 @@ export const OfferModalInfo = ({
         return;
       }
       setLoading(true);
+
+    
       const data = {
         user_id: userData.user_id,
         offer_id: offerInfo.id,
         category: offerInfo.category,
       };
-
+      
+            
       const response = await request(`/v2/offer/generate`, "post", data);
 
+      
       if (response && response.result) {
-        setLoading(false);
+         
+
+        
         const _initials = response.result.initials;
         const _series = response.result.series;
         let _leadZeroes = "";
@@ -62,15 +68,19 @@ export const OfferModalInfo = ({
           _leadZeroes += "0";
         }
         const offerCode = `${_initials}${_leadZeroes}${_series}`;
+   
 
         onCloseModal();
         navigate("AvailOffer", {
-          state: { location, distance, offerInfo, offerCode },
+            state: { location, distance, offerInfo, offerCode },
         });
+        return;
       }
     } catch (error) {
       setLoading(false);
       console.log("Failed to generate offer:", error);
+    }finally{
+        setLoading(false);
     }
   };
 

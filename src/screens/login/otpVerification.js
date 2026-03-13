@@ -27,6 +27,7 @@ import useAuth from "../../../hooks/useAuth";
 import useUser from "../../../hooks/useUser";
 import { navigate } from "../../navigation/navigate";
 import { showToast } from "../../Toast";
+import { fontSizes } from "../../infrastructure/theme/fonts";
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -218,14 +219,15 @@ const INPUT_MAX_WIDTH = 400;
               
 <View style={{ backgroundColor: 'rgba(0,0,0,0)' }}>
 
-              <CodeInputField
+              <CodeInputField 
+              codeInputBoxStyle={{width: 60, height: 60}} codeInputTextStyle={{fontSize: 30}}
                 setPinReady={setPinReady}
                 setCode={handleCodeChange}
                 code={code}
                 pinReady={pinReady}
                 maxLength={MAX_CODE_LENGTH}
                 containerStyle={{ width: Math.min(width - 64, INPUT_MAX_WIDTH) }}
-                inputBoxStyle={{ borderWidth: 4 }}
+                inputBoxStyle={{ borderWidth: 4 , borderRadius: 50}}
               />
 </View>
               

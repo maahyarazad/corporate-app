@@ -42,6 +42,8 @@
     <string>40</string>
     <key>GMSApiKey</key>
     <string>AIzaSyARBZ-ZBNWxmlP8sTXqeqFJuBkkQm6zuKE</string>
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
     <key>LSMinimumSystemVersion</key>
     <string>12.0</string>
     <key>LSRequiresIPhoneOS</key>

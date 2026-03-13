@@ -17,12 +17,12 @@ export const CacheImage = ({
   onLoad,
   onLoadStart,
   pointerEvents,
-  resizeMode,
+  resizeMode = "cover",
   local = false,
   defaultImage = require("../../assets/icon.png"),
 }) => {
-  const [source, setSource] = useState(defaultImage);
-    
+  const [source, setSource] = useState(null);
+
   useEffect(() => {
     let isMounted = true;
 
@@ -105,6 +105,7 @@ export const CacheImage = ({
       onLoadStart={onLoadStart}
       onError={handleOnError}
       pointerEvents={pointerEvents}
+      fadeDuration={150}
     />
   );
 };

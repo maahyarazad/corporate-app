@@ -108,7 +108,8 @@ export const EntertainerScreen = () => {
 
   useEffect(() => {
     if (!userData) return;
-    changeHeaderRight(userData?.member === 1 ? "Feed" : "Home");
+    // changeHeaderRight(userData?.member === 1 ? "Feed" : "Home");
+    changeHeaderRight(userData?.member === 1 ? "Home" : "Home");
   }, [userData, hasNotification]);
 
   useEffect(() => {
@@ -341,13 +342,13 @@ export const EntertainerScreen = () => {
 
 const TabItems = React.useMemo(
   () => [
-    {
-      route: "Feed",
-      component: PostTabsNavigationScreen,
-      activeIcon: " ",
-      inactiveIcon: "post",
-      name: i18n.t("bottom-tabs.feed"),
-    },
+    // {
+    //   route: "Feed",
+    //   component: PostTabsNavigationScreen,
+    //   activeIcon: " ",
+    //   inactiveIcon: "post",
+    //   name: i18n.t("bottom-tabs.feed"),
+    // },
     {
       route: "Home",
       component: HomeNavigation,
@@ -375,7 +376,7 @@ const TabItems = React.useMemo(
 
 const visibleTabs = TabItems.filter((tab) => {
   if (tab.route === "Events" && !eventList.length) return false;
-  if (tab.route === "Feed" && userData && !userData.member) return false;
+//   if (tab.route === "Feed" && userData && !userData.member) return false;
   return true;
 });
 

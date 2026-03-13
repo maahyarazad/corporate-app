@@ -230,7 +230,7 @@ export const OfferRedeemForm = ({
                     maxLength={6}
                     hidden={true}
                     inputBoxStyle={{
-                      borderRadius: 6,
+                      borderRadius: 20,
                       width: 40,
                       height: 40,
                       borderColor: "#aaa",

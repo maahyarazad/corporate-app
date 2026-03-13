@@ -1,26 +1,27 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
-import { Image, Linking, StyleSheet, View } from "react-native";
+import { Image, Linking, StyleSheet, Text, View } from "react-native";
 import { adminFileBaseURL } from "../../utils/constants";
-import { CacheImage } from "../cacheImage";
 import { Label } from "../typography/label.component";
 
 export const LocationInfo = ({
   location,
   distance,
-  headerSize,
-  subheaderSize,
-  infoSize,
   imageW = 100,
   imageH = 100,
   color = "#888",
   headerColor = "#000",
   showContact = true,
 }) => {
+  const phoneList =
+    location?.phone && typeof location.phone === "string"
+      ? location.phone.split("|").map((phone) => phone.trim()).filter(Boolean)
+      : [];
+    console.log(phoneList);
   return (
     <View style={styles.container}>
-      <View style={{ flexDirection: "row" }}>
-        {location && (
+      <View style={styles.row}>
+        {!!location && (
           <View
             style={{
               backgroundColor: "white",
@@ -32,100 +33,75 @@ export const LocationInfo = ({
               padding: 5,
             }}
           >
-            <CacheImage
+            <Image
+              source={{ uri: `${adminFileBaseURL}${location.logo}` }}
               style={{
-                resizeMode: "contain",
                 flex: 1,
                 width: imageW - 12,
                 height: imageH - 10,
                 backgroundColor: "white",
               }}
-              uri={`${adminFileBaseURL}${location.logo}`}
+              resizeMode="contain"
             />
           </View>
         )}
-        <View
-          style={{
-            marginLeft: 16,
-            flex: 1,
-            justifyContent: "center",
-          }}
-        >
-          <Label
-            size={headerSize}
-            weight={"bold"}
+
+        <View style={styles.infoContainer}>
+          <Text
             numberOfLines={1}
-            style={{ color: headerColor }}
+            style={{ color: headerColor, fontWeight: "bold", fontSize: 18 }}
           >
-            {location?.name}
-          </Label>
-          {location != undefined && location.main != undefined && (
-            <Label
-              size={subheaderSize}
-              weight={"bold"}
+            {location?.name || ""}
+          </Text>
+
+          {location?.main !== undefined && location?.main !== null && (
+            <Text
               numberOfLines={1}
-              style={{ color: color }}
+              style={{ color, fontWeight: "bold", fontSize: 16 }}
             >
               {location.main}
-            </Label>
-          )}
-          {location && location.region && distance && (
-            <Label style={{ color: color }} size={infoSize} weight={"medium"}>
-              {`${location.region} ${
-                distance != undefined ? `• ${distance} km` : ""
-              }`}
-            </Label>
+            </Text>
           )}
 
-          <Label style={{ color: color }} size={infoSize} weight={"bold"}>
-            {location?.category}
-          </Label>
-          {showContact && (
-            <View
-              style={{
-                width: "100%",
-                justifyContent: "flex-start",
-                alignItems: "flex-start",
-                flexDirection: "row",
-              }}
-            >
-              {location != undefined && location.phone != undefined && (
-                <>
-                  <Ionicons
-                    name="call"
-                    size={17}
-                    color={"#888"}
-                    style={{ paddingRight: 4 }}
-                  />
-                  <View>
-                    {location != undefined &&
-                      location.phone != undefined &&
-                      location.phone.split("|").map((phone, index) => {
-                        return (
-                          <View key={`${phone}${index}`}>
-                            <Label
-                              onPress={async () => {
-                                Linking.openURL(
-                                  `tel:${encodeURIComponent(phone.trim())}`
-                                ).catch((err) => {
-                                  alert("Unable to call this number");
-                                });
-                              }}
-                              style={{ color: "#006EFF" }}
-                              size={"caption"}
-                              weight={"bold"}
-                            >
-                              {phone.trim()}
-                              {index < location.phone.split("|").length - 1 && (
-                                <Label>{` | `}</Label>
-                              )}
-                            </Label>
-                          </View>
+          {location?.region && distance !== undefined && distance !== null && (
+            <Text style={{ color, fontWeight: "500", fontSize: 14 }}>
+              {`${location.region} • ${distance} km`}
+            </Text>
+          )}
+
+          <Text style={{ color, fontWeight: "bold", fontSize: 14 }}>
+            {location?.category || ""}
+          </Text>
+
+          {phoneList && phoneList.length > 0 && (
+              <View style={{...styles.contactRow}}>
+                
+              <Ionicons
+                name="call"
+                size={17}
+                color={"#888"}
+                style={{ paddingRight: 4 }}
+              />
+              <View>
+                {phoneList.map((phone, index) => (
+                  <Text
+                    key={`${phone}${index}`}
+                    onPress={async () => {
+                      try {
+                        await Linking.openURL(
+                          `tel:${encodeURIComponent(phone)}`
                         );
-                      })}
-                  </View>
-                </>
-              )}
+                      } catch (err) {
+                        alert("Unable to call this number");
+                      }
+                    }}
+                    style={{ color: "#006EFF", fontWeight: "bold", fontSize: 12 }}
+                  >
+                    {phone}
+                    {index < phoneList.length - 1 ? " | " : ""}
+                  </Text>
+                ))}
+              </View>
             </View>
           )}
         </View>
@@ -135,5 +111,23 @@ export const LocationInfo = ({
 };
 
 const styles = StyleSheet.create({
-  container: {},
+  container: {
+    
+  },
+  row: {
+    flexDirection: "row",
+  },
+  infoContainer: {
+    marginLeft: 16,
+    paddingTop: 0,
+    flex: 1,
+    justifyContent: "center",
+  },
+  contactRow: {
+    width: "100%",
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
+    flexDirection: "row",
+    
+  },
 });

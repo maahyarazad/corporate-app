@@ -327,23 +327,7 @@ export const RegistrationScreen = () => {
                   </Label>
                 </TouchableOpacity>
 
-                <TouchableOpacity
-                  onPress={() => navigate("RegisterDetails", { login: _login })}
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                  activeOpacity={0.5}
-                >
-                  <Ionicons name="arrow-back" size={35} color={"#eee"} />
-                  <Label
-                    size={"body"}
-                    weight="bold"
-                    style={{ color: "#dfdfdf", justifyContent: "center" }}
-                  >
-                    NEXT :D
-                  </Label>
-                </TouchableOpacity>
+               
               </View>
 
            
