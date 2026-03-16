@@ -294,6 +294,7 @@ console.log(deviceInfo);
                 }}
               >
                 <View style={{ flex: 1, marginRight: 8 }}>
+                    
                   <BirthdatePicker
                     value={state.birthdate}
                     onChange={(date) =>

@@ -12,7 +12,8 @@
     "eject": "expo eject",
     "test": "NODE_ENV=test jest",
     "lint": "eslint app/",
-    "lint:fix": "eslint app/ --fix"
+    "lint:fix": "eslint app/ --fix",
+    "build:ios": " npx eas build -p ios --profile development"
   },
   "expo": {
     "sdkVersion": "54.0.0",

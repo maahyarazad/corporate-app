@@ -73,7 +73,7 @@ export const ForgotPasswordScreen = () => {
   }, []);
 
   const goback = () => {
-    navigate("ChangePassword");
+    navigate("Login");
   };
 
   const handleSubmit = async () => {

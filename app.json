@@ -43,6 +43,11 @@
       "**/*"
     ],
     "ios": {
+        "provisioningProfilePath": "./profile.mobileprovision",
+    "distributionCertificate": {
+      "path": "./DevCertificates.p12",
+      "password": "YOUR_P12_PASSWORD"
+    },
       "associatedDomains": [
         "applinks:buenapublica.com",
         "applinks:buenapublica.com"

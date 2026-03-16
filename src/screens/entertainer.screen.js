@@ -133,78 +133,85 @@ export const EntertainerScreen = () => {
     };
   }, [userData?.user_id]);
 
-  const registerForPushNotificationsAsync = async () => {
-    try {
-      if (Platform.OS === "android") {
-        await Notifications.setNotificationChannelAsync("default", {
-          name: "default",
-          importance: Notifications.AndroidImportance.MAX,
-          vibrationPattern: [0, 250, 250, 250],
-          lightColor: "#FF231F7C",
-        });
+
+
+const registerForPushNotificationsAsync = async () => {
+  try {
+    if (Platform.OS === "android") {
+      await Notifications.setNotificationChannelAsync("default", {
+        name: "default",
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: "#FF231F7C",
+      });
+    }
+
+    if (!Device.isDevice) {
+      throw new Error("Push notifications require a physical device");
+    }
+
+    const { status: existingStatus } =
+      await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+
+    if (existingStatus !== "granted") {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+
+    if (finalStatus !== "granted") {
+      throw new Error("Permission not granted for push notifications");
+    }
+
+    const projectId =
+      Constants?.expoConfig?.extra?.eas?.projectId ??
+      Constants?.easConfig?.projectId;
+
+    if (!projectId) {
+      throw new Error("Missing EAS projectId");
+    }
+
+    const expoPushToken = await Notifications.getExpoPushTokenAsync({
+      projectId,
+    });
+
+    const token = expoPushToken?.data;
+
+    if (!token) {
+      throw new Error("Failed to obtain Expo push token");
+    }
+
+    console.log("Expo push token:", token);
+    console.log("User Id:", userData.user_id);
+
+    const response = await NotificationsService.storePushToken(
+      userData.user_id,
+      {
+        token,
+        provider: "expo",
+        platform: Platform.OS,
       }
+    );
 
-      if (!Device.isDevice) {
-        throw new Error("Push notifications require a physical device");
-      }
-
-      const { status: existingStatus } = await Notifications.getPermissionsAsync();
-      let finalStatus = existingStatus;
-
-      if (existingStatus !== "granted") {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-      }
-
-      if (finalStatus !== "granted") {
-        throw new Error("Permission not granted for push notifications");
-      }
-
-      const projectId =
-        Constants?.expoConfig?.extra?.eas?.projectId ??
-        Constants?.easConfig?.projectId;
-
-      console.log("EAS projectId:", projectId);
-
-      let token;
-      const devicePushToken = await Notifications.getDevicePushTokenAsync();
-      token = devicePushToken?.data;
-
-      if (!token) {
-        throw new Error("Failed to obtain native push token");
-      }
-
-      console.log("Native push token:", token);
-      console.log("User Id:", userData.user_id);
-
-      if (userData?.fcmToken === token) {
-        return token;
-      }
-
-      const response = await NotificationsService.storeFcmToken(
-        userData.user_id,
-        token
-      );
-
-      if (!response?.success) {
-        Alert.alert(
-          response?.title || "Error",
-          response?.message || "Failed to store push token"
-        );
-        return null;
-      }
-
-      await SecureStore.setItemAsync("pushtoken", token);
-      return token;
-    } catch (error) {
-      console.error("Failed to register for push notifications:", error);
+    if (!response?.success) {
       Alert.alert(
-        "Push notification setup failed",
-        error?.message || "Unknown error"
+        response?.title || "Error",
+        response?.message || "Failed to store push token"
       );
       return null;
     }
-  };
+
+    await SecureStore.setItemAsync("pushtoken", token);
+    return token;
+  } catch (error) {
+    console.error("Failed to register for push notifications:", error);
+    Alert.alert(
+      "Push notification setup failed",
+      error?.message || "Unknown error"
+    );
+    return null;
+  }
+};
 
   const changeHeaderRight = (route) => {
     const handleSearch = () => {

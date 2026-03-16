@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Image } from "react-native";
-import * as FileSystem from "expo-file-system/legacy";
+import * as FileSystem from "expo-file-system";
 import shorthash from "shorthash";
 
-const getFileExtension = (url = "") => {
+const getSafeExtension = (url = "") => {
   const cleanUrl = url.split("?")[0];
-  const lastDot = cleanUrl.lastIndexOf(".");
-  if (lastDot === -1) return ".jpg";
-  return cleanUrl.slice(lastDot);
+  const match = cleanUrl.match(/\.(jpg|jpeg|png|webp|gif)$/i);
+  return match ? `.${match[1]}` : ".jpg";
 };
 
 export const CacheImage = ({
@@ -21,7 +20,7 @@ export const CacheImage = ({
   local = false,
   defaultImage = require("../../assets/icon.png"),
 }) => {
-  const [source, setSource] = useState(null);
+  const [source, setSource] = useState(defaultImage);
 
   useEffect(() => {
     let isMounted = true;
@@ -40,11 +39,12 @@ export const CacheImage = ({
           return;
         }
 
-        const name = shorthash.unique(uri);
-        const extension = getFileExtension(uri);
-        const path = `${FileSystem.cacheDirectory}${name}${extension}`;
+        const encodedUri = encodeURI(uri);
+        const extension = getSafeExtension(encodedUri);
+        const fileName = `${shorthash.unique(encodedUri)}${extension}`;
+        const fileUri = `${FileSystem.cacheDirectory}${fileName}`;
 
-        const fileInfo = await FileSystem.getInfoAsync(path);
+        const fileInfo = await FileSystem.getInfoAsync(fileUri);
 
         if (fileInfo.exists) {
           if (isMounted) {
@@ -53,15 +53,21 @@ export const CacheImage = ({
           return;
         }
 
-        const downloaded = await FileSystem.downloadAsync(uri, path);
+        const downloadResult = await FileSystem.downloadAsync(encodedUri, fileUri);
+
+        if (downloadResult.status !== 200) {
+          throw new Error(`Image download failed with status ${downloadResult.status}`);
+        }
 
         if (isMounted) {
-          setSource({ uri: downloaded.uri });
+          setSource({ uri: downloadResult.uri });
         }
       } catch (error) {
-        console.log("cache image error:", error);
+        console.log("cache image error:", error, "uri:", uri);
+
         if (isMounted) {
-          setSource(defaultImage);
+          // fallback to remote image first, then local placeholder if remote also fails
+          setSource(uri ? { uri: encodeURI(uri) } : defaultImage);
         }
       }
     };
@@ -71,19 +77,21 @@ export const CacheImage = ({
     return () => {
       isMounted = false;
     };
-  }, [uri, local]);
+  }, [uri, local, defaultImage]);
 
   const deleteCachedImage = async (_uri) => {
     try {
       if (!_uri || local) return;
 
-      const name = shorthash.unique(_uri);
-      const extension = getFileExtension(_uri);
-      const path = `${FileSystem.cacheDirectory}${name}${extension}`;
+      const encodedUri = encodeURI(_uri);
+      const extension = getSafeExtension(encodedUri);
+      const fileName = `${shorthash.unique(encodedUri)}${extension}`;
+      const fileUri = `${FileSystem.cacheDirectory}${fileName}`;
 
-      const fileInfo = await FileSystem.getInfoAsync(path);
+      const fileInfo = await FileSystem.getInfoAsync(fileUri);
+
       if (fileInfo.exists) {
-        await FileSystem.deleteAsync(path, { idempotent: true });
+        await FileSystem.deleteAsync(fileUri, { idempotent: true });
       }
     } catch (error) {
       console.log("Failed to delete cached image:", error);

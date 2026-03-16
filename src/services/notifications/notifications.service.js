@@ -5,9 +5,12 @@ const API_URL = `notification`;
 const res = (response) => response.data;
 
 export const NotificationsService = {
-  storeFcmToken(user_id, token) {
+  storePushToken(user_id, tokenData) {
     return axiosInstance
-      .post(`${API_URL}/save-push-token`, { user_id, token })
+      .post(`${API_URL}/save-push-token`, { 
+        user_id, 
+        ...tokenData 
+      })
       .then(res);
   },
 };
