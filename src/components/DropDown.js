@@ -176,21 +176,17 @@ const computedMaxHeight = useMemo(() => {
   return Math.max(120, Math.min(maxMenuHeight, available));
 }, [anchor, maxMenuHeight, screenHeight, openBelow]);
 
+const IOS_TOP_ADJUST = Platform.OS === "ios" ? 25 : 0;
+
 useEffect(() => {
   if (!open || !anchor || !measuredMenuHeight) return;
 
-  let top;
+  const baseTop = openBelow
+    ? anchor.y + anchor.height + (GAP + 53)
+    : anchor.y - measuredMenuHeight - GAP;
 
-  if (openBelow) {
-    // ✅ OPEN BELOW input
-    // NOTE: keep your original GAP behavior by mirroring logic
-    top = anchor.y + anchor.height + (GAP + 53) ;
-  } else {
-    // ✅ OPEN ABOVE input (your original logic)
-    top = anchor.y - measuredMenuHeight - GAP;
-  }
+  let top = baseTop - IOS_TOP_ADJUST;
 
-  // Clamp to screen (keep your original clamping style)
   top = Math.max(SCREEN_PADDING, top);
   const maxTop = screenHeight - measuredMenuHeight - SCREEN_PADDING;
   top = Math.min(top, maxTop);
