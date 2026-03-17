@@ -68,10 +68,10 @@ const RenderNotification = memo(({ item, index }) => {
     };
 
     read();
-    console.log("lenk", item.href);
+    
     switch (link[0]) {
       case "forum":
-        console.log("item", item);
+        
         navigate("post-detail", {
           id: link[1],
           showPrompt: item.msg_id === 3 || item.msg_id === 4,

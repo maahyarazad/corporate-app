@@ -23,15 +23,15 @@ export const LocationContextProvider = ({ children }) => {
   useEffect(() => {
     let isMounted = true;
     (async () => {
-      console.log("LOCATION");
+    //   console.log("LOCATION");
       if (userData) {
         getUserLocation()
           .then((response) => {
             if (isMounted) setUserLocation(response);
-            console.log("CORRECT"), response;
+            // console.log("CORRECT"), response;
           })
           .catch((err) => {
-            console.error("Location Context Error: ", err);
+            console.log("Location Context Error: ", err);
           });
 
         getEventsList();
@@ -48,7 +48,7 @@ export const LocationContextProvider = ({ children }) => {
       user_id: userData.user_id,
       lang,
     };
-    console.log("CHECKING EVENTS LIST");
+    // console.log("CHECKING EVENTS LIST");
     const response = await EventService.getEvents(data);
     setEventList(response.data);
   };

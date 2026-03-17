@@ -72,7 +72,7 @@ const renderBanner = ({ item, screenWidth, loading, setLoading }) => {
         await Linking.openURL(item.url_link);
       }
     } catch (err) {
-      console.log("Banner click error:", err);
+      console.err("Banner click error:", err);
       Alert.alert("Banner Error", "Can't open the link");
     }
   };

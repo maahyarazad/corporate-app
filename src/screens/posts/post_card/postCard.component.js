@@ -256,7 +256,7 @@ const PostCard = ({
         ]);
       });
     } catch (error) {
-      console.error("Failed to get thumbnail", error);
+      console.log("Failed to get thumbnail", error);
     }
   };
 

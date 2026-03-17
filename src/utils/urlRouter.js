@@ -30,7 +30,7 @@ export const UrlListener = () => {
             event.id === params.id;
           });
 
-          console.log(eventFound);
+        //   console.log(eventFound);
           navigate("Event Detail", {
             id: params.id,
           });

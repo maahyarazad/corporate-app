@@ -25,7 +25,7 @@ const postsReducer = (state = initialState, action) => {
         (post) => post.id === action.payload
       );
 
-      console.log("POST INDEX FOUND", postIndex);
+    //   console.log("POST INDEX FOUND", postIndex);
       //Abort when post cant be found
 
       if (postIndex === -1) return;

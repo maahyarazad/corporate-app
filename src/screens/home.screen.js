@@ -111,11 +111,11 @@ export const RenderHome = () => {
         if (bannerResult.value?.success) {
           setBannerData(bannerResult.value?.data ?? []);
         } else {
-          console.log("Banner request unsuccessful:", bannerResult.value);
+        //   console.log("Banner request unsuccessful:", bannerResult.value);
           setBannerData([]);
         }
       } else {
-        console.log("Banner request failed:", bannerResult.reason);
+        // console.log("Banner request failed:", bannerResult.reason);
         setBannerData([]);
       }
 
@@ -123,11 +123,11 @@ export const RenderHome = () => {
         if (hotpickResult.value?.success) {
           setHotpickData(hotpickResult.value?.data ?? []);
         } else {
-          console.log("Hotpicks request unsuccessful:", hotpickResult.value);
+        //   console.log("Hotpicks request unsuccessful:", hotpickResult.value);
           setHotpickData([]);
         }
       } else {
-        console.log("Hotpicks request failed:", hotpickResult.reason);
+        // console.log("Hotpicks request failed:", hotpickResult.reason);
         setHotpickData([]);
       }
 
@@ -135,11 +135,11 @@ export const RenderHome = () => {
         if (categoryResult.value?.success) {
           setCategoryData(categoryResult.value?.result ?? []);
         } else {
-          console.log("Category request unsuccessful:", categoryResult.value);
+        //   console.log("Category request unsuccessful:", categoryResult.value);
           setCategoryData([]);
         }
       } else {
-        console.log("Category request failed:", categoryResult.reason);
+        // console.log("Category request failed:", categoryResult.reason);
         setCategoryData([]);
       }
 
@@ -147,14 +147,14 @@ export const RenderHome = () => {
         if (topPartnersResult.value?.success) {
           setTopPartnersData(topPartnersResult.value?.result ?? []);
         } else {
-          console.log(
-            "Top partners request unsuccessful:",
-            topPartnersResult.value
-          );
+        //   console.log(
+        //     "Top partners request unsuccessful:",
+        //     topPartnersResult.value
+        //   );
           setTopPartnersData([]);
         }
       } else {
-        console.log("Top partners request failed:", topPartnersResult.reason);
+        // console.log("Top partners request failed:", topPartnersResult.reason);
         setTopPartnersData([]);
       }
     } catch (error) {
@@ -236,7 +236,7 @@ export const HomeScreen = (props) => {
       const value = await SecureStore.getItemAsync("expireWarning");
       return parseInt(value ?? "0", 10);
     } catch (error) {
-      console.error("Failed to get local storage [Home]:", error);
+      console.log("Failed to get local storage [Home]:", error);
       return 0;
     }
   };
@@ -245,7 +245,7 @@ export const HomeScreen = (props) => {
     try {
       await SecureStore.setItemAsync("expireWarning", value.toString());
     } catch (error) {
-      console.error("Failed to save local storage [Home]:", error);
+      console.log("Failed to save local storage [Home]:", error);
     }
   };
 

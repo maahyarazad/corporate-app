@@ -16,7 +16,7 @@ export const validateCardExpiryDate = (state, prev) => {
     const currentYear = new Date().getFullYear().toString().slice(2);
     const currentMonth = new Date().getMonth().toString().padStart(2, "0");
     const value = prev.split("/");
-    console.log(currentMonth, currentYear);
+    // console.log(currentMonth, currentYear);
     if (
       parseInt(value[0]) < parseInt(currentMonth) &&
       parseInt(value[1]) <= parseInt(currentYear)

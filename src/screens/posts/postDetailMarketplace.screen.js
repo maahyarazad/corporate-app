@@ -74,7 +74,7 @@ const PostDetailMarketplace = ({ item }) => {
           }
         }
       } catch (error) {
-        console.error("Failed to get post", error);
+        console.log("Failed to get post", error);
       } finally {
         setLoading(false);
       }
@@ -102,7 +102,7 @@ const PostDetailMarketplace = ({ item }) => {
           return Linking.openURL(url);
         }
       })
-      .catch((err) => console.error("An error occurred", err));
+      .catch((err) => console.log("An error occurred", err));
   };
 
   const handlePressCall = () => {
@@ -116,7 +116,7 @@ const PostDetailMarketplace = ({ item }) => {
           return Linking.openURL(url);
         }
       })
-      .catch((err) => console.error("An error occurred", err));
+      .catch((err) => console.log("An error occurred", err));
   };
 
   const ModeChip = () => {

@@ -236,7 +236,7 @@ export const RegistrationScreen = () => {
           
         }
       } catch (error) {
-        console.error("Validation Error:", error);
+        console.log("Validation Error:", error);
         shake();
         showToast("error", "Server Error",error);
         
@@ -254,7 +254,7 @@ export const RegistrationScreen = () => {
         setPartnerList(response.data);
       }
     } catch (error) {
-      console.error(error);
+      console.log(error);
        showToast("error", "Server Error",error);
       
     }

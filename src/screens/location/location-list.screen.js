@@ -152,7 +152,7 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
         }
       }
     } catch (error) {
-      console.error("Failed to load location list:", error);
+      console.log("Failed to load location list:", error);
     } finally {
       setIsLoading(false);
       setIsLoadingMore(false);

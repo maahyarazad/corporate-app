@@ -11,7 +11,7 @@ export const DeliveryScreen = ({ navigation }) => {
     }
 
     return () => {
-      console.log("destroyed");
+    //   console.log("destroyed");
     };
   }, []);
 

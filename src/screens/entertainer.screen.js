@@ -21,7 +21,11 @@ import { navigate } from "../navigation/navigate";
 import { NotificationsService } from "../services/notifications/notifications.service";
 import { CacheImage } from "../components/cacheImage";
 import { typeEnum } from "../utils/constants";
+import { LogBox } from 'react-native';
 
+LogBox.ignoreLogs([
+  'A props object containing a "key" prop is being spread into JSX'
+]);
 const Tab = createMaterialTopTabNavigator();
 
 /**
@@ -48,10 +52,10 @@ export const EntertainerScreen = () => {
   const [hasNotification, setHasNotification] = useState(false);
 
   const handleNotificationResponse = useCallback((response) => {
-    console.log("CHECKING NOTIF RESPONSE");
+    // console.log("CHECKING NOTIF RESPONSE");
 
     const notificationData = response?.notification?.request?.content?.data || {};
-    console.log("NOTIFICATION DATA:", notificationData);
+    // console.log("NOTIFICATION DATA:", notificationData);
 
     const path = notificationData?.path;
     const id = notificationData?.id;
@@ -75,7 +79,7 @@ export const EntertainerScreen = () => {
         break;
 
       default:
-        console.log("Unhandled notification path:", path);
+        // console.log("Unhandled notification path:", path);
         break;
     }
   }, []);
@@ -88,7 +92,7 @@ export const EntertainerScreen = () => {
 
     const receivedSubscription =
       Notifications.addNotificationReceivedListener((notification) => {
-        console.log("incoming foreground notification", notification);
+        // console.log("incoming foreground notification", notification);
         setHasNotification(true);
       });
 
@@ -181,8 +185,8 @@ const registerForPushNotificationsAsync = async () => {
       throw new Error("Failed to obtain Expo push token");
     }
 
-    console.log("Expo push token:", token);
-    console.log("User Id:", userData.user_id);
+    // console.log("Expo push token:", token);
+    // console.log("User Id:", userData.user_id);
 
     const response = await NotificationsService.storePushToken(
       userData.user_id,
@@ -204,7 +208,7 @@ const registerForPushNotificationsAsync = async () => {
     await SecureStore.setItemAsync("pushtoken", token);
     return token;
   } catch (error) {
-    console.error("Failed to register for push notifications:", error);
+    console.log("Failed to register for push notifications:", error);
     Alert.alert(
       "Push notification setup failed",
       error?.message || "Unknown error"

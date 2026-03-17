@@ -92,13 +92,13 @@ export const ForgotPasswordScreen = () => {
         mobile,
         app_id: config.APP_ID,
       };
-      console.log(data);
+      
 
 
       setLoading(true);
       const result = await UserService.requestForgetPass(data);
       if (isMounted.current) {
-        console.log(result);
+        
         if (result.success) {
           setLoading(false);
             

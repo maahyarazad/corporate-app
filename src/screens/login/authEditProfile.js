@@ -83,7 +83,7 @@ export const AuthEditProfileScreen = () => {
       const response = await PartnerService.getPartners();
       const response_userInfo = await getUserInfo();
       if (response_userInfo) {
-        console.log(response_userInfo)
+        
         setUserData(response_userInfo);
       }
 
@@ -91,7 +91,7 @@ export const AuthEditProfileScreen = () => {
         setPartnerList(response.data);
       }
     } catch (error) {
-      console.error(error);
+      console.log(error);
       showToast("error", "Server Error", error);
     }
   }, []);
@@ -156,7 +156,7 @@ export const AuthEditProfileScreen = () => {
         ...state,
         cardValidity: expiryToDate(state.card_valid_date),
       };
-      console.log("LOG", data);
+      
 
       setIsSubmitted(true);
 
@@ -406,7 +406,7 @@ export const AuthEditProfileScreen = () => {
               <NationalityInput
                 value={state.nationality}
                 onChange={(e) => {
-                  console.log(e);
+                  
                   setState({ ...state, nationality: e });
                 }}
               />

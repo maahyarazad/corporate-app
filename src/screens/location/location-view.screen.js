@@ -100,7 +100,7 @@ export const LocationViewScreen = ({ route, navigation }) => {
         }
       }
     } catch (error) {
-      console.error("Failed to get location:", error);
+      console.log("Failed to get location:", error);
     }
   };
 
@@ -324,7 +324,7 @@ const SLIDESHOW_HEIGHT = Math.floor(width * 9 / 16);
 
   useEffect(() => {
     if (animatedValue > 2) {
-      console.log("yey");
+    //   console.log("yey");
     }
   }, [animatedValue]);
 

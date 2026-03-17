@@ -552,6 +552,7 @@ const ApprovalScreen = () => {
 
 export const AppNavigation = () => {
   const { isOutdated } = useContext(AppContext);
+  
   const { phoneVerified, refreshToken, isSkip, noConnection, isAuthorized } =
     useAuth();
 

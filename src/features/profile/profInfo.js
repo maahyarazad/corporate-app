@@ -73,7 +73,7 @@ export const ProfInfo = () => {
           label={i18n.t("profile-tabs.profile.mobile")}
           value={`+${userData?.area_code} ${userData?.phone_number}`}
         />
-        {/* {console.log("CARD NUMBER:", userInfo.card_number)} */}
+        
         {!!userData?.card_number &&
           userData?.card_number.trim() != "" &&
           userData?.card_number != "" && (

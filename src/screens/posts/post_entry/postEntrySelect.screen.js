@@ -76,12 +76,12 @@ const PostEntrySelect = () => {
             responseForum.success &&
             isMounted
           ) {
-            console.log("SAVING CATEGORIES");
+            
             setCategories([responseForum.data, responseMarketplace.data]);
             setLoading(false);
           }
         } catch (error) {
-          console.error("Failed to preload categories: ", error);
+          console.log("Failed to preload categories: ", error);
         }
       };
 

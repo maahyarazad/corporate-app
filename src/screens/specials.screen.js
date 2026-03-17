@@ -33,7 +33,7 @@ export const SpecialsScreen = ({ navigation }) => {
           setSpecialTagList(response.result);
         }
       } catch (error) {
-        console.error("Failed to get available tags: ", error);
+        console.log("Failed to get available tags: ", error);
       }
     };
 

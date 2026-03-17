@@ -74,7 +74,7 @@ const { signin, loading, verifyOTP , submittedCard, authorize} = useAuth();
   const { i18n } = useTranslation();
 
   useEffect(() => {
-    console.log("biometric", biometric);
+    // console.log("biometric", biometric);
     return () => {};
   }, [biometric.available]);
 
@@ -110,7 +110,7 @@ const { signin, loading, verifyOTP , submittedCard, authorize} = useAuth();
       const status = await biometric.authenticate();
 
       if (status) {
-        console.log("Biometric Token:", biometric.token);
+        // console.log("Biometric Token:", biometric.token);
 
         const ip = await Network.getIpAddressAsync();
         const platform = Platform.OS;
@@ -135,7 +135,7 @@ const { signin, loading, verifyOTP , submittedCard, authorize} = useAuth();
         const response = await request("/v2/auth/login", "post", credentials);
 
        
-        console.log(response);
+        
         if (response.success) {
           setLang(response.member ? "de" : "en");
           if (response.member_id) {
@@ -162,7 +162,7 @@ const { signin, loading, verifyOTP , submittedCard, authorize} = useAuth();
       } else {
       }
     } catch (error) {
-      console.error("Failed to login using biometrics:", error);
+      console.log("Failed to login using biometrics:", error);
     }
   };
 
@@ -217,29 +217,9 @@ const { signin, loading, verifyOTP , submittedCard, authorize} = useAuth();
 
       const response = await request("/v2/auth/login", "post", credentials);
 
-      console.log(response);
-//       if(response.success){
-     
-
-//      storeToken(response.accessToken);
-
-//           console.log('==========================================================================================')
-//           console.log('==========================================================================================')
-//           console.log(navigate);
-//           console.log('==========================================================================================')
-//           console.log('==========================================================================================r')
-// navigate("RegisterSuccessByServices");
-// // navigate("Entertainer")
-         
-            
-//           return;
-//       }else{
-//         return;
-//       }
-      
       
       if (response.success) {
-        console.log("Response Login", response);
+        // console.log("Response Login", response);
         setLang(response.member ? "de" : "en");
         if (response.member_id) {
           navigate("UpdateMember", {
@@ -263,27 +243,6 @@ const { signin, loading, verifyOTP , submittedCard, authorize} = useAuth();
         showToast("error", response.title, response.message);
       }
       
-
-      //   console.log("LOGIN:", response);
-      //   if (response.status) {
-      //     setUser((prev) => ({
-      //       ...prev,
-      //       user_id: response.user_id,
-      //       isAuthorized: response.isAuthorized,
-      //       submitCard: response.hasSubmit,
-      //       member: response.member,
-      //     }));
-
-      //     getUserInfo(response.user_id);
-
-      //     navigation.navigate("VerifyOTP", {
-      //       hiddenNumber: response.phone_number,
-      //     });
-      //   } else {
-      //     navigation.navigate("Unverified Email", {
-      //       userId: response.user_id,
-      //     });
-      //   }
     } catch (err) {
       console.log("ERROR", err);
     } finally {

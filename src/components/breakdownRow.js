@@ -23,7 +23,7 @@ export const BreakdownRow = ({ item }) => {
       setShowModal(true);
       setIsLoading(true);
       const response = await TransactionService.getTransaction(id);
-      console.log(response);
+    //   console.log(response);
       if (response.success) {
         setIsLoading(false);
         setTransaction(response.data);

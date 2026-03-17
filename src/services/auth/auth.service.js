@@ -15,12 +15,12 @@ export const verifyOTP = (otp_details) => {
       .then((response) => {
         const res = response.data;
         if (res.success) {
-          console.log("---------res---------");
-          console.log(res);
+        //   console.log("---------res---------");
+        //   console.log(res);
           storeToken(res.token);
           resolve(res);
         } else {
-          console.log(res);
+        //   console.log(res);
           reject(res.message);
         }
       })
@@ -119,7 +119,7 @@ export const resendOTP = async (user_id) => {
 export const checkAuthorization = async () => {
   return new Promise((resolve, reject) => {
     try {
-      console.log("CHECKING");
+      
       axiosInstance
         .post(`user/check-authorization/`)
         .then((response) => {
@@ -127,7 +127,7 @@ export const checkAuthorization = async () => {
           resolve(response.data.result);
         })
         .catch((err) => {
-          console.log("eehhh", err);
+          console.log("ERR", err);
           // navigate("Logout");
           reject(err);
         });

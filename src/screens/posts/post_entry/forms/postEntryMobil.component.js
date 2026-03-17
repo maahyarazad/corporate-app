@@ -200,7 +200,7 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
   };
 
   useEffect(() => {
-    console.log("State", state);
+    
 
     return () => {};
   }, [state]);
@@ -341,7 +341,7 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
     }, phase1);
 
     setState((prev) => ({ ...prev, ...phase2 }));
-    console.log(state);
+    
   };
 
   const selectAllInclusions = () => {
@@ -353,7 +353,7 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
             return acc;
           }, {});
           setState((prev) => ({ ...prev, ..._select }));
-          console.log(state);
+          
         }
         break;
       case "bike":
@@ -364,7 +364,7 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
           }, {});
 
           setState((prev) => ({ ...prev, ..._select }));
-          console.log(state);
+          
         }
         break;
     }

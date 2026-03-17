@@ -49,6 +49,7 @@ const Hotpicks = ({ hotpickData }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const request = useRequest();
 
+
   const PaginationItem = ({
     animValue,
     index,

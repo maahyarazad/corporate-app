@@ -21,11 +21,11 @@ const useBiometrics = () => {
 
   const checkBiometricStatus = async () => {
     try {
-      console.log("Checking Biometric...s");
+    //   console.log("Checking Biometric...s");
 
       //Check if device has biometrics
       const isBiometricAvailable = await LocalAuthentication.hasHardwareAsync();
-      console.log("bio", isBiometricAvailable);
+    //   console.log("bio", isBiometricAvailable);
       setAvailable(isBiometricAvailable);
 
       //Check what type of biometrics is available
@@ -46,7 +46,7 @@ const useBiometrics = () => {
       const isEnrolled = await LocalAuthentication.isEnrolledAsync();
       setEnrolled(isEnrolled);
     } catch (error) {
-      console.error("Failed to check biometrics:", error);
+      console.log("Failed to check biometrics:", error);
     }
   };
 
@@ -89,7 +89,7 @@ const useBiometrics = () => {
       user_id: userData?.user_id,
       device_id: userData?.device_id,
     });
-    console.log("Remove Token", removeToken);
+    // console.log("Remove Token", removeToken);
     await SecureStore.deleteItemAsync("biometric_token");
     Alert.alert("Erfolg!", "Biometrische Authentifizierung deaktiviert.");
   };

@@ -45,7 +45,7 @@ export default function PostProvider({ children }) {
   //     }
   //     return null;
   //   } catch (error) {
-  //     console.error("Failed to get posts:", error);
+  //     console.log("Failed to get posts:", error);
   //   }
   // };
 
@@ -64,7 +64,7 @@ export default function PostProvider({ children }) {
   //     // setTestComment(response.data);
   //     return response;
   //   } catch (error) {
-  //     console.error("Failed to get comments:", error);
+  //     console.log("Failed to get comments:", error);
   //   }
   // };
 
@@ -74,7 +74,7 @@ export default function PostProvider({ children }) {
   //     // const _comments = posts.filter((comment) => comment.orderId === postId);
   //     return response;
   //   } catch (error) {
-  //     console.error("Failed to get post:", error);
+  //     console.log("Failed to get post:", error);
   //   }
   // };
 
@@ -126,7 +126,7 @@ export default function PostProvider({ children }) {
   //     }
   //     return response;
   //   } catch (error) {
-  // //     console.error("Failed to add comment:", error);
+  // //     console.log("Failed to add comment:", error);
   // //   }
   // };
 
@@ -213,7 +213,7 @@ export default function PostProvider({ children }) {
 
   const getLatestMagazines = async () => {
     try {
-      console.log("Test");
+    //   console.log("Test");
       const response = await request(
         `/v2/post/magazine/latest?limit=10`,
         "get"
@@ -224,7 +224,7 @@ export default function PostProvider({ children }) {
         setMagazines(response.data);
       }
     } catch (error) {
-      console.error("Failed to get magazines:", error);
+      console.log("Failed to get magazines:", error);
     }
   };
 
@@ -234,14 +234,14 @@ export default function PostProvider({ children }) {
       const status = 1;
       const start = performance.now();
       const testing = debounce(async () => {
-        console.log("last", last);
+        // console.log("last", last);
         const response = await request(
           `/v2/post/old?last=${last}&limit=${limit}&status=${status}`,
           "get"
         );
 
-        console.log("Magazine 1", magazines);
-        console.log("Number of results", response.data.length);
+        // console.log("Magazine 1", magazines);
+        // console.log("Number of results", response.data.length);
         setRootPosts([...rootPosts, ...response.data]);
         const end = performance.now();
         // }
@@ -253,7 +253,7 @@ export default function PostProvider({ children }) {
       }, 1000);
       testing();
     } catch (error) {
-      console.error("Failed to get posts:", error);
+      console.log("Failed to get posts:", error);
     }
   };
 
@@ -267,7 +267,7 @@ export default function PostProvider({ children }) {
 
       return response;
     } catch (error) {
-      console.error("Failed to get post:", error);
+      console.log("Failed to get post:", error);
     }
   };
 
@@ -282,7 +282,7 @@ export default function PostProvider({ children }) {
       // setTestComment(response.data);
       return response;
     } catch (error) {
-      console.error("Failed to get comments:", error);
+      console.log("Failed to get comments:", error);
     }
   };
 
@@ -397,7 +397,7 @@ export default function PostProvider({ children }) {
           (post) => post.post_id === post_id
         );
 
-        console.log("POST INDEX FOUND", postIndex);
+        // console.log("POST INDEX FOUND", postIndex);
         //Abort when post cant be found
 
         if (postIndex === -1) return;
@@ -518,7 +518,7 @@ export default function PostProvider({ children }) {
       }
       return response;
     } catch (error) {
-      console.error("Failed to add comment:", error);
+      console.log("Failed to add comment:", error);
     }
   };
 

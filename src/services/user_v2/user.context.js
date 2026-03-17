@@ -28,7 +28,7 @@ const UserProvider = ({ children }) => {
       try {
         await checkAuthorization();
       } catch (error) {
-        console.error("Failed to retrieve user data: ", error);
+        console.log("Failed to retrieve user data: ", error);
       }
     };
 
@@ -54,23 +54,20 @@ const UserProvider = ({ children }) => {
       //Fetch user data from database and store in device
      
 
-  console.log("=======================================syncUserInfo=============================================");
-     
-         console.log(response);
-      console.log("==========================================syncUserInfo==========================================");
-      // console.log("bio token", response.data.biometric_token);
-      // const bioToken = await SecureStorage.getItemAsync("biometric_token");
-      // if (bioToken) {
-      //   console.log(
-      //     "bio token match",
-      //     bioToken === response.data.biometric_token
-      //   );
-      //   if (bioToken !== response.data.biometric_token) {
-      //   }
-      // }
-      console.log("overriding biotoken");
+  
+    //   console.log("bio token", response.data.biometric_token);
+      const bioToken = await SecureStorage.getItemAsync("biometric_token");
+      if (bioToken) {
+        console.log(
+          "bio token match",
+          bioToken === response.data.biometric_token
+        );
+        if (bioToken !== response.data.biometric_token) {
+        }
+      }
+    //   console.log("overriding biotoken");
       if (response.data.biometric_token != null) {
-        console.log("biometric_token", response.data.biometric_token);
+        // console.log("biometric_token", response.data.biometric_token);
         await SecureStorage.setItemAsync(
           "biometric_token",
           response.data.biometric_token
@@ -83,36 +80,26 @@ const UserProvider = ({ children }) => {
         setUserData(response.data);
 
         SecureStorage.setItemAsync("userData", JSON.stringify(response.data));
-        console.log("USER DATA");
+        // console.log("USER DATA");
         return response.data;
       } else {
         const lastSuccessfulUserData = await SecureStorage.getItemAsync(
           "userData"
         );
-        console.log("USER BACK UP");
+        // console.log("USER BACK UP");
         setUserData(JSON.parse(lastSuccessfulUserData));
         return null;
         // return lastSuccessfulUserData;
       }
     } catch (error) {
-      console.error("Failed to get user info: ", error);
+      console.log("Failed to get user info: ", error);
     }
   };
 
   const checkAuthorization = async () => {
     try {
       const response = await syncUserInfo();
-      // const response = await request("/v2/auth/me", "get");
-
       
-      console.log('=============================checkAuthorization=====================================');
-      console.log('==============================checkAuthorization====================================');
-      console.log('==============================checkAuthorization====================================');
-
-      console.log(response);
-      console.log('===============================checkAuthorization===================================');
-      console.log('===============================checkAuthorization===================================');
-      console.log('==============================checkAuthorization====================================');
       if (
         response?.expired === 1 &&
         response?.member === 0 &&
@@ -135,7 +122,7 @@ const UserProvider = ({ children }) => {
         authorize();
       }
     } catch (error) {
-      console.error("Failed to check user status:", error);
+      console.log("Failed to check user status:", error);
     }
   };
 

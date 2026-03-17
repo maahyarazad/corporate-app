@@ -110,7 +110,7 @@ const PostEntryScreen = () => {
         );
       }
     } catch (error) {
-      console.error("Failed to create post", error);
+      console.log("Failed to create post", error);
     }
   };
 

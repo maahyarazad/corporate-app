@@ -51,11 +51,11 @@ export const EventDetailScreen = () => {
           id,
           lang,
         };
-        console.log(data);
+        
         const response = await request("/v1/api/event/detail", "post", data);
         // const response = await EventService.getOneEvent(data);
         if (response.success && isMounted) {
-          console.log(response.data);
+          
           setEventDetails(response.data);
         }
       } catch (err) {
@@ -209,7 +209,7 @@ export const EventDetailScreen = () => {
       });
       await Linking.openURL(url);
     } catch (error) {
-      console.error("Failed to get directions:", error);
+      console.log("Failed to get directions:", error);
     }
   };
 

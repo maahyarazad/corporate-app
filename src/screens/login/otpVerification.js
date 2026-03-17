@@ -67,12 +67,11 @@ const INPUT_MAX_WIDTH = 400;
 
   useEffect(() => {
     if (userData && userData.area_code && userData.phone_number) {
-      console.log("OTP", userData);
+      
       const mobileNum = `${userData.area_code}${userData.phone_number}`;
       const _hiddenNum = mobileNum.replace(/\d(?=(?:\D*\d){4})/g, "*");
 
-      console.log("hiddenNum", _hiddenNum);
-      console.log("hiddenNum2", hiddenNum2);
+      
 
       setHiddenNum(_hiddenNum);
     } else {

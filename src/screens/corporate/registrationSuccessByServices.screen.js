@@ -66,9 +66,9 @@ const { signin, loading, verifyOTP , submittedCard, authorize} = useAuth();
   
 
     const Continue = async () => {
-console.log("BUTTON PRESSED");
+
         const token = await  retrieveToken();
-        console.log(token);
+
     await verifyOTP(); // updates phoneVerified
     await authorize(); // updates isAuthorized
          

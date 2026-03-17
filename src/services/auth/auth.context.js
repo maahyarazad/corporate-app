@@ -96,10 +96,10 @@ export const AuthContextProvider = ({ children }) => {
         const token = await retrieveToken();
         const result = await isAuthorized(token);
 
-        console.log("-------------");
+        // console.log("-------------");
         if (result) {
-          console.log(result);
-          console.log("Authorized: ", result.isAuthorized);
+        //   console.log(result);
+        //   console.log("Authorized: ", result.isAuthorized);
           setUser((prev) => ({
             ...prev,
             isAuthorized: result?.isAuthorized ?? 0,
@@ -127,7 +127,7 @@ export const AuthContextProvider = ({ children }) => {
           setNoConnection(true);
           setNoConnectionRetry({
             fn: () => {
-              console.log("aw");
+            //   console.log("aw");
               retrieve();
             },
           });
@@ -192,7 +192,7 @@ export const AuthContextProvider = ({ children }) => {
           try {
             const res = response.data;
             setLang(res.member ? "de" : "en");
-            console.log("MEMBER", res);
+            // console.log("MEMBER", res);
             if (res.member) {
               // alert(res.member_id);
               if (res.member_id) {
@@ -204,9 +204,9 @@ export const AuthContextProvider = ({ children }) => {
                 return;
               }
             }
-            console.log('===========================user_id===============================')
+            
             await SecureStore.setItemAsync("user_id", res.user_id.toString());
-            console.log('===========================user_id===============================')
+            
             resolve(res);
           } catch (err) {
             console.log(err);

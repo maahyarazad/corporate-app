@@ -22,7 +22,7 @@ import { useTranslation } from "../../../../hooks/useTranslation";
 const PostCardMagazine = ({ item }) => {
   const { i18n } = useTranslation();
   useEffect(() => {
-    console.log("magazine rendered", item.post_id);
+    // console.log("magazine rendered", item.post_id);
 
     return () => {};
   }, []);

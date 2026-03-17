@@ -31,7 +31,8 @@ const ProfilePrimaryScreen = () => {
   const { userData } = useUser();
   const { isSkip, goToVerification } = useAuth();
   const { width } = Dimensions.get("window");
-  console.log(userData);
+  
+  
 
   const { i18n } = useContext(TranslationContext);
 

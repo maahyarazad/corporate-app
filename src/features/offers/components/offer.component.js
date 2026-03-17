@@ -111,9 +111,7 @@ export const Offer = ({ offer, onPress, backgroundColor = "#efefef" }) => {
                     </Label>
                   </View>
                   <Label style={styles.expiryDate} size={"caption"}>
-                    {/* {console.log(
-                    new Date(Date.parse(offer.date_end)).toLocaleDateString()
-                  )} */}
+                   
                     {`${i18n.t("offer-details.valid-until")} ${moment(
                       new Date(Date.parse(offer.date_end))
                     ).format("DD.MMM YYYY")}`}

@@ -52,7 +52,7 @@ const PostDetailMagazine = () => {
         setArticle(response.data);
       }
     } catch (error) {
-      console.error("Failed to get magazine: ", error);
+      console.log("Failed to get magazine: ", error);
     }
   };
 

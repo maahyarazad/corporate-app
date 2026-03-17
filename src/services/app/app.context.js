@@ -29,6 +29,7 @@ export const AppContextProvider = ({ children }) => {
         platform: Platform.OS,
       };
       const response = await AppServices.getLatestVersion(data);
+
       setAppState(response.data);
 
       if (response.success && isMounted) {
@@ -42,6 +43,6 @@ export const AppContextProvider = ({ children }) => {
   };
 
   const values = { isOutdated, appState };
-
+ 
   return <AppContext.Provider value={values}>{children}</AppContext.Provider>;
 };

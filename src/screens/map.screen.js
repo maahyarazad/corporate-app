@@ -78,7 +78,7 @@ export const MapScreen = ({ navigation }) => {
           setPartnerLocations(response);
         }
       } catch (error) {
-        console.error("Failed to get coordinates:", error);
+        console.log("Failed to get coordinates:", error);
       }
     };
 

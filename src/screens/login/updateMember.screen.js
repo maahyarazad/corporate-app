@@ -99,11 +99,11 @@ export const UpdateMemberScreen = ({ navigation }) => {
       mobileCode: country.callingCode[0],
       mobileCountry: country.cca2,
     });
-    console.log("Country: ", country);
+    // console.log("Country: ", country);
   };
 
   const handleMobileChange = (prev) => {
-    console.log("number: ", prev);
+    // console.log("number: ", prev);
     setState({ ...state, mobileNumber: prev.replace(/[^0-9]/g, ``) });
   };
 
@@ -133,7 +133,7 @@ export const UpdateMemberScreen = ({ navigation }) => {
 
       const response = await UserService.addMember(user);
 
-      console.log("add member: ", response);
+    //   console.log("add member: ", response);
       if (response.status) {
         setUser((prev) => ({
           ...prev,
@@ -155,7 +155,7 @@ export const UpdateMemberScreen = ({ navigation }) => {
         });
       }
 
-      console.log(response);
+    //   console.log(response);
     }
   };
 
@@ -166,8 +166,8 @@ export const UpdateMemberScreen = ({ navigation }) => {
       const response = await UserService.getMemberInfo(member_id);
       if (isMounted) {
         if (response.success) {
-          console.log("success");
-          console.log(response);
+        //   console.log("success");
+        //   console.log(response);
           setState({
             ...state,
             firstname: response.data.first_name ?? "",
@@ -179,14 +179,14 @@ export const UpdateMemberScreen = ({ navigation }) => {
               country.findByPhoneNbr(response.data.phone[0]).code.iso2 ?? "",
             mobileNumber: `${response.data.phone[1]}${response.data.phone[2]}`,
           });
-          console.log(state);
-          console.log(country.findByPhoneNbr(response.data.phone[0]).code.iso2);
+        //   console.log(state);
+        //   console.log(country.findByPhoneNbr(response.data.phone[0]).code.iso2);
           // console.log(response.data.phone[0]);
         } else {
           Alert(response.title, response.message);
         }
       }
-      console.log("Member Response: ", state);
+    //   console.log("Member Response: ", state);
     };
 
     fetchMember();

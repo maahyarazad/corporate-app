@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Image } from "react-native";
 import * as FileSystem from "expo-file-system";
 import shorthash from "shorthash";
@@ -17,10 +17,12 @@ export const CacheImage = ({
   onLoadStart,
   pointerEvents,
   resizeMode = "cover",
+  defaultResizeMode = "contain",
   local = false,
   defaultImage = require("../../assets/icon.png"),
 }) => {
   const [source, setSource] = useState(defaultImage);
+  const [isFallback, setIsFallback] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
@@ -28,13 +30,17 @@ export const CacheImage = ({
     const cacheImage = async () => {
       try {
         if (!uri) {
-          if (isMounted) setSource(defaultImage);
+          if (isMounted) {
+            setSource(defaultImage);
+            setIsFallback(true);
+          }
           return;
         }
 
         if (local) {
           if (isMounted) {
             setSource({ uri });
+            setIsFallback(false);
           }
           return;
         }
@@ -49,6 +55,7 @@ export const CacheImage = ({
         if (fileInfo.exists) {
           if (isMounted) {
             setSource({ uri: fileInfo.uri });
+            setIsFallback(false);
           }
           return;
         }
@@ -61,13 +68,14 @@ export const CacheImage = ({
 
         if (isMounted) {
           setSource({ uri: downloadResult.uri });
+          setIsFallback(false);
         }
       } catch (error) {
         console.log("cache image error:", error, "uri:", uri);
 
         if (isMounted) {
-          // fallback to remote image first, then local placeholder if remote also fails
           setSource(uri ? { uri: encodeURI(uri) } : defaultImage);
+          setIsFallback(!uri);
         }
       }
     };
@@ -101,14 +109,30 @@ export const CacheImage = ({
   const handleOnError = async () => {
     await deleteCachedImage(uri);
     setSource(defaultImage);
+    setIsFallback(true);
   };
+
+  const appliedResizeMode = isFallback ? defaultResizeMode : resizeMode;
+
+  const appliedStyle = useMemo(() => {
+    if (!isFallback) return style;
+
+    return [
+      style,
+      {
+        maxWidth: "100%",
+        maxHeight: "100%",
+        alignSelf: "center",
+      },
+    ];
+  }, [style, isFallback]);
 
   return (
     <Image
       key={imgKey}
       source={source}
-      style={style}
-      resizeMode={resizeMode}
+      style={appliedStyle}
+      resizeMode={appliedResizeMode}
       onLoad={onLoad}
       onLoadStart={onLoadStart}
       onError={handleOnError}

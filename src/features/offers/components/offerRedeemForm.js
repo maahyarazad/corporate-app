@@ -127,7 +127,7 @@ export const OfferRedeemForm = ({
         Alert("Transaction Failed", consumed.message);
       }
 
-      // console.log(te);
+      
     } else {
       setIsLoading(false);
 

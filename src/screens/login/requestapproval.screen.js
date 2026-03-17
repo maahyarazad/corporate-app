@@ -63,7 +63,7 @@ export const RequestApprovalScreen = () => {
   }, []);
 
   useEffect(() => {
-    console.log("userData", userData);
+    // console.log("userData", userData);
   }, [hasSubmit, userData]);
 
   const handleEdit = () => {
@@ -86,7 +86,7 @@ export const RequestApprovalScreen = () => {
 
       setPhoto(manipResult);
     } catch (error) {
-      console.error("Failed to manipulate image:", error);
+      console.log("Failed to manipulate image:", error);
       showToast("error", "Image Error", "Failed to process the captured image.");
     }
   };
@@ -138,7 +138,7 @@ export const RequestApprovalScreen = () => {
       setLoading(true);
       uploadCard(formData);
     } catch (error) {
-      console.error("Failed to upload: ", error);
+      console.log("Failed to upload: ", error);
       setLoading(false);
       showToast("error", "Upload Error", "Failed to upload image.");
     }
@@ -182,7 +182,7 @@ export const RequestApprovalScreen = () => {
 
       return granted;
     } catch (error) {
-      console.error("Camera permission error:", error);
+      console.log("Camera permission error:", error);
       showToast(
         "error",
         "Permission Error",
@@ -218,7 +218,7 @@ export const RequestApprovalScreen = () => {
 
       await manipulateImage(newPhoto);
     } catch (error) {
-      console.error("takePictureAsync error:", error);
+      console.log("takePictureAsync error:", error);
       showToast("error", "Capture Error", "Failed to capture image.");
     }
   };
@@ -396,7 +396,7 @@ export const RequestApprovalScreen = () => {
                                     style={styles.camera}
                                     facing="back"
                                     onMountError={(err) => {
-                                      console.error("Camera mount error:", err);
+                                      console.log("Camera mount error:", err);
                                       showToast(
                                         "error",
                                         "Camera Error",

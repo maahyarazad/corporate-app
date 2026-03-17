@@ -20,7 +20,7 @@ export const getUserLocation = async () => {
 
     return location;
   } catch (error) {
-    console.error("Failed to get user location:", error);
+    console.log("Failed to get user location:", error);
     throw error;
   }
 };
@@ -30,7 +30,7 @@ export const getCoords = async (limit) => {
     const response = await axiosInstance.get(`location/coordinates/${limit}`);
     return response.data;
   } catch (error) {
-    console.error(error);
+    console.log(error);
     throw error;
   }
 };
@@ -40,7 +40,7 @@ export const getLocations = async (data) => {
     const response = await axiosInstance.post(`location`, data);
     return response.data;
   } catch (error) {
-    console.error(error);
+    console.log(error);
     throw error;
   }
 };
@@ -52,7 +52,7 @@ export const getOneLocation = async (id, lang) => {
     );
     return response.data;
   } catch (error) {
-    console.error(error);
+    console.log(error);
     throw error;
   }
 };
@@ -75,7 +75,7 @@ export const PartnerService = {
       );
       return response.data.result;
     } catch (error) {
-      console.error(error);
+      console.log(error);
       throw error;
     }
   },
@@ -87,7 +87,7 @@ export const PartnerService = {
       );
       return response.data.result;
     } catch (error) {
-      console.error(error);
+      console.log(error);
       throw error;
     }
   },
@@ -99,7 +99,7 @@ export const PartnerService = {
       );
       return response.data.result;
     } catch (error) {
-      console.error(error);
+      console.log(error);
       throw error;
     }
   },
@@ -115,7 +115,7 @@ export const PartnerService = {
       );
       return response.data.result;
     } catch (error) {
-      console.error(error);
+      console.log(error);
       throw error;
     }
   },
@@ -128,7 +128,7 @@ export const PartnerService = {
       );
       return response.data;
     } catch (error) {
-      console.error(error);
+      console.log(error);
       throw error;
     }
   },

@@ -38,7 +38,7 @@ const PreviewPhoto = React.memo(({ onPress, item, removeItem }) => {
         onPress={onPress}
         key={item.uri}
         onLongPress={() => {
-          console.log("long press");
+        //   console.log("long press");
         }}
       >
         <View style={styles.photoContainer}>
@@ -110,16 +110,16 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
           const resizedImage = await Picture.compress(item.uri);
           const finalSize = await getImageFileSize(resizedImage);
           //Compression Stats
-          console.log(`----------------[${index + 1}]--------------`);
-          console.log(`Initial Size[2]: ${initialSize.toFixed(2)}`);
-          console.log(`Final Size: ${finalSize.toFixed(2)}`);
+        //   console.log(`----------------[${index + 1}]--------------`);
+        //   console.log(`Initial Size[2]: ${initialSize.toFixed(2)}`);
+        //   console.log(`Final Size: ${finalSize.toFixed(2)}`);
           const perc = (finalSize / initialSize) * 100;
-          console.log(
-            `% Reduction: (${finalSize > initialSize ? "UP" : "DOWN"}) ${(
-              perc - 100
-            ).toFixed(2)}%`
-          );
-          console.log(`-----------------------------------`);
+        //   console.log(
+        //     `% Reduction: (${finalSize > initialSize ? "UP" : "DOWN"}) ${(
+        //       perc - 100
+        //     ).toFixed(2)}%`
+        //   );
+        //   console.log(`-----------------------------------`);
           setCompressProgress(index / result.assets.length);
           return {
             uri: resizedImage,
@@ -156,14 +156,14 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
             alert("Video darf nicht länger als 90 Sekunden sein");
             return;
           }
-          console.log("Starting Compression");
+        //   console.log("Starting Compression");
           setCompressDone(false);
           const r2 = await Video.compress(
             item.uri,
             {
               progressDivider: 2,
               downloadProgress: (progress) => {
-                console.log("downloadProgress: ", progress);
+                // console.log("downloadProgress: ", progress);
               },
             },
             (progress) => {
@@ -215,7 +215,7 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
       );
       return result;
     } catch (error) {
-      console.error("Failed to resize image: ", error);
+      console.log("Failed to resize image: ", error);
     }
   };
 
@@ -227,7 +227,7 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
       //Return file size in MB
       return file["_bodyBlob"]["_data"].size / mb;
     } catch (error) {
-      console.error("Failed to get the size", error);
+      console.log("Failed to get the size", error);
     }
   };
 

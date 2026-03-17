@@ -41,7 +41,7 @@ const genderItems = [
 ];
 
 export const RegistrationDetailsScreen = ({ route }) => {
-  console.log({ route });
+  
   const theme = useTheme();
   const [showCountries, setShowCountries] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -105,7 +105,7 @@ export const RegistrationDetailsScreen = ({ route }) => {
   };
 
   const onVerify = (token) => {
-    console.log("success!", token);
+    
     submit(token);
     // nextPage();
   };
@@ -135,7 +135,7 @@ export const RegistrationDetailsScreen = ({ route }) => {
     const register1 = route.params.login;
     const platform = Platform.OS;
     const deviceInfo = await getDeviceInfo();
-console.log(deviceInfo);
+
     const user = {
       ...register1,
       ...state,
@@ -147,7 +147,7 @@ console.log(deviceInfo);
     };
 
     
-    console.log(user);
+    
 
     UserService.createUser(user)
       .then((result) => {

@@ -26,7 +26,7 @@ export const VerifyInfo = ({ route, navigation }) => {
     birthday.getDate(),
     birthday.getFullYear(),
   ].join(".");
-  console.log(birthdayDate);
+  
 
   const birthdayString = new Date(birthday.getTime()).toDateString();
 
@@ -39,7 +39,7 @@ export const VerifyInfo = ({ route, navigation }) => {
   }, []);
 
   const handleUpdate = () => {
-    console.log({ firstname, lastname, birthdayDate, email, mobile });
+    // console.log({ firstname, lastname, birthdayDate, email, mobile });
   };
 
   return (

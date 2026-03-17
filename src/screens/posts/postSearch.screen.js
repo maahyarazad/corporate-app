@@ -110,17 +110,17 @@ const PostSearch = () => {
         setIsLoading(false);
         setIsEmpty(response.data?.length === 0 ? true : false);
         setRemaining(response.remaining);
-        console.log("remaining0", response.remaining);
+        // console.log("remaining0", response.remaining);
       }
     } catch (error) {
       setIsLoading(false);
-      console.error("Failed to get posts", error);
+    //   console.log("Failed to get posts", error);
     }
   };
 
   const renderResults = ({ item }) => {
     const handleCommentPress = () => {
-      console.log("POST Pressed: ", item);
+    //   console.log("POST Pressed: ", item);
       navigate("post-detail", {
         author: `${item.first_name} ${item.last_name}`,
         post: item,
@@ -157,12 +157,12 @@ const PostSearch = () => {
           setIsLoading(false);
           setIsEmpty(response.data?.length === 0 ? true : false);
           setRemaining(response.remaining);
-          console.log("remaining", response.remaining);
+        //   console.log("remaining", response.remaining);
         }
       }
     } catch (error) {
       setIsLoading(false);
-      console.error("Failed to get posts", error);
+      console.log("Failed to get posts", error);
     }
   };
 
@@ -183,11 +183,11 @@ const PostSearch = () => {
           setIsLoading(false);
           setIsEmpty(response.data?.length === 0 ? true : false);
           setRemaining(response.remaining);
-          console.log("remaining2", response.remaining);
+        //   console.log("remaining2", response.remaining);
         }
       } catch (error) {
         setIsLoading(false);
-        console.error("Failed to get posts", error);
+        console.log("Failed to get posts", error);
       }
     };
     return (

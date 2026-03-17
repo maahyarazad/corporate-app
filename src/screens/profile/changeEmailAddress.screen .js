@@ -63,7 +63,7 @@ const ChangeEmailAddressScreen = () => {
         );
       }
     } catch (error) {
-      console.error("Failed to change mobile number", error);
+      console.log("Failed to change mobile number", error);
     }
   };
 

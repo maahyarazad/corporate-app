@@ -182,7 +182,7 @@ export default function PostDetailScreen() {
       // console.log("update", JSON.stringify(postComments.data));
       const response = await addComment(post.id, newComment);
       if (!response.success) {
-        console.log(response.success);
+        // console.log(response.success);
         const revert = localComments.filter(
           (comment) => comment.id !== response.id
         );

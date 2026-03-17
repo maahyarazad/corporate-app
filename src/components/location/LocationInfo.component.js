@@ -17,7 +17,7 @@ export const LocationInfo = ({
     location?.phone && typeof location.phone === "string"
       ? location.phone.split("|").map((phone) => phone.trim()).filter(Boolean)
       : [];
-    console.log(phoneList);
+    
   return (
     <View style={styles.container}>
       <View style={styles.row}>
