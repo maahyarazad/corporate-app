@@ -24,15 +24,13 @@ import { TranslationContext } from "../../services/translation/translation.conte
 import { CacheImage } from "../../components/cacheImage";
 import { fontSizes } from "../../infrastructure/theme/fonts";
 
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 const ProfileStack = createStackNavigator();
 
-const CARD_ICON_SIZE = 45;
+const CARD_BOX_SIZE = 50;
+const CARD_ICON_SIZE = 40;
 const CARD_ICON_COLOR = "#fba918";
 
 const ProfilePrimaryScreen = () => {
@@ -48,9 +46,9 @@ const ProfilePrimaryScreen = () => {
           style={styles.backButton}
           activeOpacity={0.5}
         >
-          <Ionicons name="arrow-back" size={35} color={"#555"} />
+          <Ionicons name="arrow-back" size={35} color="#555" />
           <Label
-            size={"body"}
+            size="body"
             weight="bold"
             style={{ color: "#555", justifyContent: "center" }}
           >
@@ -60,7 +58,7 @@ const ProfilePrimaryScreen = () => {
       </View>
 
       <View style={{ paddingHorizontal: 14, paddingBottom: 6 }}>
-        <Label weight={"bold"} size={"h5"}>
+        <Label weight="bold" size="h5">
           {i18n.t("profile-tabs.page-title")}
         </Label>
       </View>
@@ -76,17 +74,23 @@ const ProfilePrimaryScreen = () => {
                   style={styles.logo}
                 />
 
-                <Label style={styles.cardLabel}>CORPRATE CARD </Label>
+                <Label style={styles.cardLabel}>CORPORATE CARD</Label>
+
+                <View pointerEvents="none" style={styles.glowOverlay} />
+                <View pointerEvents="none" style={styles.textureOverlay} />
+                <LinearGradient
+                  pointerEvents="none"
+                  colors={[
+                    "rgba(255,255,255,0.12)",
+                    "rgba(255,255,255,0.04)",
+                    "rgba(0,0,0,0.08)",
+                  ]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.glareOverlay}
+                />
 
                 <View style={styles.iconsRow}>
-                  <View style={styles.iconCircle}>
-                    <MaterialCommunityIcons
-                      name="gift-outline"
-                      size={CARD_ICON_SIZE}
-                      color={CARD_ICON_COLOR}
-                    />
-                  </View>
-
                   <View style={styles.iconCircle}>
                     <Ionicons
                       name="airplane-outline"
@@ -98,6 +102,14 @@ const ProfilePrimaryScreen = () => {
                   <View style={styles.iconCircle}>
                     <Ionicons
                       name="fast-food-outline"
+                      size={CARD_ICON_SIZE}
+                      color={CARD_ICON_COLOR}
+                    />
+                  </View>
+
+                  <View style={styles.iconCircle}>
+                    <Ionicons
+                      name="gift-outline"
                       size={CARD_ICON_SIZE}
                       color={CARD_ICON_COLOR}
                     />
@@ -121,8 +133,8 @@ const ProfilePrimaryScreen = () => {
 
                   <LinearGradient
                     colors={["#704505", "#fba918", "#704505"]}
-                    start={{ x: 1, y: 0 }}
-                    end={{ x: 1, y: 1 }}
+                    start={{ x: 0, y: 0.5 }}
+                    end={{ x: 1, y: 0.5 }}
                     style={styles.withGradientBackground}
                   >
                     <Label style={styles.gecLabel}>GEC</Label>
@@ -181,7 +193,7 @@ const ProfilePrimaryScreen = () => {
             ) : (
               <CacheImage
                 style={styles.card_style}
-                resizeMode={"cover"}
+                resizeMode="cover"
                 uri={`${config.SERVER_HOST}/uploads/app/card_images/${userData?.card_image}`}
               />
             )}
@@ -192,7 +204,7 @@ const ProfilePrimaryScreen = () => {
             <CustomButton
               onPress={goToVerification}
               style={{ backgroundColor: theme.colors.icons.active }}
-              label={"Zur Upload-Seite gehen"}
+              label="Zur Upload-Seite gehen"
               labelStyle={{ color: "white" }}
             />
           </View>
@@ -245,6 +257,20 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 10,
+    overflow: "visible",
+    transform: [
+      { perspective: 1000 },
+      { rotateX: "2deg" },
+      { rotateY: "-5deg" },
+      { rotateZ: "-0.8deg" },
+      { scaleX: 0.985 },
+      { scaleY: 1.01 },
+    ],
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    elevation: 8,
   },
 
   emptyState: {
@@ -271,6 +297,34 @@ const styles = StyleSheet.create({
     position: "relative",
   },
 
+  glowOverlay: {
+    position: "absolute",
+    inset: 0,
+    borderRadius: 10,
+    shadowColor: "#fba918",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.22,
+    shadowRadius: 10,
+  },
+
+  textureOverlay: {
+    position: "absolute",
+    top: -20,
+    right: -20,
+    width: "75%",
+    height: "85%",
+    opacity: 0.08,
+    borderRadius: 999,
+    backgroundColor: "#fff",
+    transform: [{ rotate: "-25deg" }, { scaleX: 1.2 }],
+  },
+
+  glareOverlay: {
+    position: "absolute",
+    inset: 0,
+    borderRadius: 10,
+  },
+
   logo: {
     position: "absolute",
     top: 15,
@@ -283,12 +337,12 @@ const styles = StyleSheet.create({
   iconsRow: {
     position: "absolute",
     left: 10,
-    right: "8%",
+    right: 10,
     top: "60%",
     transform: [{ translateY: -20 }],
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "",
+    justifyContent: "space-between",
   },
 
   cardLabel: {
@@ -300,15 +354,29 @@ const styles = StyleSheet.create({
   },
 
   iconCircle: {
-    width: 50,
-    height: 50,
-    borderRadius: 5,
+    width: CARD_BOX_SIZE,
+    height: CARD_BOX_SIZE,
+    borderRadius: 6,
     borderWidth: 1.5,
-    marginEnd: 5,
-    color: "#fba918",
     borderColor: CARD_ICON_COLOR,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "rgba(251,169,24,0.04)",
+  },
+
+  withGradientBackground: {
+    width: CARD_BOX_SIZE,
+    height: CARD_BOX_SIZE,
+    borderRadius: 6,
+    justifyContent: "center",
+    alignItems: "center",
+    overflow: "hidden",
+  },
+
+  gecLabel: {
+    color: "#f7df9b",
+    fontSize: fontSizes.body,
+    fontWeight: "700",
   },
 
   nameBlock: {
@@ -366,19 +434,5 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: fontSizes.caption,
     textAlign: "right",
-  },
-  withGradientBackground: {
-    width: 52,
-    height: 52,
-    borderRadius: 5,
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-
-    borderRadius: 6,
-  },
-  gecLabel: {
-    color: "#fba918",
-    fontSize: fontSizes.heading,
   },
 });
