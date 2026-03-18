@@ -1,7 +1,7 @@
 import { createStackNavigator } from "@react-navigation/stack";
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
+import moment from "moment";
 import {
-  Dimensions,
   Image,
   SafeAreaView,
   TouchableOpacity,
@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import { SafeArea } from "../../components/safearea.component";
 import { ProfTabs } from "../../features/profile/profTabs";
-import { UserContext } from "../../services/user/user.context";
 import { config } from "../../utils/constants";
 import { ContactUsScreen } from "./contactUs.screen";
 import { PrivacyPolicyScreen } from "./privacyPolicy.screen";
@@ -20,172 +19,366 @@ import { Label } from "../../components/typography/label.component";
 import CustomButton from "../../components/customButton.component";
 import { theme } from "../../infrastructure/theme";
 import { goback } from "../../navigation/navigate";
-import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { TranslationContext } from "../../services/translation/translation.context";
 import { CacheImage } from "../../components/cacheImage";
 import { fontSizes } from "../../infrastructure/theme/fonts";
 
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import Ionicons from "@expo/vector-icons/Ionicons";
+
 const ProfileStack = createStackNavigator();
+
+const CARD_ICON_SIZE = 45;
+const CARD_ICON_COLOR = "#fba918";
 
 const ProfilePrimaryScreen = () => {
   const { userData } = useUser();
   const { isSkip, goToVerification } = useAuth();
-  const { width } = Dimensions.get("window");
-  
-  
-
   const { i18n } = useContext(TranslationContext);
 
   return (
-    <>
-      {
-        <SafeArea style={{ backgroundColor: "#efefef" }}>
-          <View style={{ paddingHorizontal: 12 }}>
-            <TouchableOpacity
-              onPress={goback}
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-              }}
-              activeOpacity={0.5}
-            >
-              <Ionicons name="arrow-back" size={35} color={"#555"} />
-              <Label
-                size={"body"}
-                weight="bold"
-                style={{ color: "#555", justifyContent: "center" }}
-              >
-                {i18n.t("return")}
-              </Label>
-            </TouchableOpacity>
-          </View>
-          <View style={{ paddingHorizontal: 14, paddingBottom: 6 }}>
-            <Label weight={"bold"} size={"h5"}>
-               {i18n.t("profile-tabs.page-title")}
-            </Label>
-          </View>
-          {/* Main Container */}
-          <View
-            style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+    <SafeArea style={{ backgroundColor: "#efefef" }}>
+      <View style={{ paddingHorizontal: 12 }}>
+        <TouchableOpacity
+          onPress={goback}
+          style={styles.backButton}
+          activeOpacity={0.5}
+        >
+          <Ionicons name="arrow-back" size={35} color={"#555"} />
+          <Label
+            size={"body"}
+            weight="bold"
+            style={{ color: "#555", justifyContent: "center" }}
           >
-            {/* Image Container */}
-            {!isSkip ? (
-              <View
-                style={{
-                  // height: "40%",
-                  // width: width,
-                  width: "90%",
-                  aspectRatio: 1.45,
-                  padding: 16,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  borderRadius: 10,
-                  // backgroundColor: "#ccc",
-                }}
-              >
-                {userData.card_image &&
-                userData.card_image.startsWith("GEC-") ? (
-                  <View style={styles.card_style_blue}>
-                    <Image
-                      key={userData.card_image}
-                      source={require("../../../assets/GE-LOGO-GOLD.png")}
-                      style={styles.logo}
-                    />
+            {i18n.t("return")}
+          </Label>
+        </TouchableOpacity>
+      </View>
 
-                    <Label style={styles.labelBottomRight}>
-                      {userData.card_image}
-                    </Label>
+      <View style={{ paddingHorizontal: 14, paddingBottom: 6 }}>
+        <Label weight={"bold"} size={"h5"}>
+          {i18n.t("profile-tabs.page-title")}
+        </Label>
+      </View>
+
+      <View style={styles.cardWrapper}>
+        {!isSkip ? (
+          <View style={styles.cardContainer}>
+            {userData?.card_image && userData.card_image.startsWith("GEC-") ? (
+              <View style={styles.card_style_blue}>
+                <Image
+                  key={userData.card_image}
+                  source={require("../../../assets/GE-LOGO-GOLD.png")}
+                  style={styles.logo}
+                />
+
+                <Label style={styles.cardLabel}>CORPRATE CARD </Label>
+
+                <View style={styles.iconsRow}>
+                  <View style={styles.iconCircle}>
+                    <MaterialCommunityIcons
+                      name="gift-outline"
+                      size={CARD_ICON_SIZE}
+                      color={CARD_ICON_COLOR}
+                    />
                   </View>
-                ) : (
-                  <CacheImage
-                    style={styles.card_style}
-                    resizeMode={"cover"}
-                    uri={`${config.SERVER_HOST}/uploads/app/card_images/${userData?.card_image}`}
-                  />
-                )}
+
+                  <View style={styles.iconCircle}>
+                    <Ionicons
+                      name="airplane-outline"
+                      size={CARD_ICON_SIZE}
+                      color={CARD_ICON_COLOR}
+                    />
+                  </View>
+
+                  <View style={styles.iconCircle}>
+                    <Ionicons
+                      name="fast-food-outline"
+                      size={CARD_ICON_SIZE}
+                      color={CARD_ICON_COLOR}
+                    />
+                  </View>
+
+                  <View style={styles.iconCircle}>
+                    <Ionicons
+                      name="beer-outline"
+                      size={CARD_ICON_SIZE}
+                      color={CARD_ICON_COLOR}
+                    />
+                  </View>
+
+                  <View style={styles.iconCircle}>
+                    <AntDesign
+                      name="shopping-cart"
+                      size={CARD_ICON_SIZE}
+                      color={CARD_ICON_COLOR}
+                    />
+                  </View>
+
+                  <LinearGradient
+                    colors={["#704505", "#fba918", "#704505"]}
+                    start={{ x: 1, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.withGradientBackground}
+                  >
+                    <Label style={styles.gecLabel}>GEC</Label>
+                  </LinearGradient>
+                </View>
+
+                <View style={styles.nameBlock}>
+                  <Label
+                    style={styles.nameLabel}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    Name
+                  </Label>
+                  <Label
+                    style={styles.nameValue}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {`${userData?.honorifics || ""} ${userData?.first_name || ""} ${
+                      userData?.last_name || ""
+                    }`.trim()}
+                  </Label>
+                </View>
+
+                <View style={styles.partnerBlock}>
+                  <Label
+                    style={styles.partnerLabel}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    Corporate Partner
+                  </Label>
+                  <Label
+                    style={styles.partnerValue}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    Nathan & Nathan
+                  </Label>
+                </View>
+
+                <View style={styles.expiryBlock}>
+                  <Label style={styles.expiryLabel}>Expiry</Label>
+                  <Label
+                    style={styles.expiryValue}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {userData?.expiry
+                      ? moment(userData.expiry).format("MM/YY")
+                      : "--/--"}
+                  </Label>
+                </View>
               </View>
             ) : (
-              <View
-                style={{
-                  justifyContent: "center",
-                  alignItems: "center",
-                  gap: 12,
-                }}
-              >
-                <Label>Sie haben keine Karte hochgeladen.</Label>
-                <CustomButton
-                  onPress={goToVerification}
-                  style={{ backgroundColor: theme.colors.icons.active }}
-                  label={"Zur Upload-Seite gehen"}
-                  labelStyle={{ color: "white" }}
-                />
-              </View>
+              <CacheImage
+                style={styles.card_style}
+                resizeMode={"cover"}
+                uri={`${config.SERVER_HOST}/uploads/app/card_images/${userData?.card_image}`}
+              />
             )}
           </View>
-          <View style={{ flex: 2 }}>
-            <ProfTabs />
+        ) : (
+          <View style={styles.emptyState}>
+            <Label>Sie haben keine Karte hochgeladen.</Label>
+            <CustomButton
+              onPress={goToVerification}
+              style={{ backgroundColor: theme.colors.icons.active }}
+              label={"Zur Upload-Seite gehen"}
+              labelStyle={{ color: "white" }}
+            />
           </View>
-        </SafeArea>
-      }
-    </>
+        )}
+      </View>
+
+      <View style={{ flex: 2 }}>
+        <ProfTabs />
+      </View>
+    </SafeArea>
   );
 };
 
-export const ProfileScreen = ({ theme, ...props }) => {
-  // const RenderProfile = () => {
-  //   return
-  // }
-
+export const ProfileScreen = () => {
   return (
-    <>
-      <SafeAreaView style={{ flex: 1 }}>
-        <ProfileStack.Navigator
-          screenOptions={{ headerShown: false, gestureEnabled: false }}
-        >
-          <ProfileStack.Screen
-            name="MainProfile"
-            component={ProfilePrimaryScreen}
-          />
-          <ProfileStack.Screen name="ContactUs" component={ContactUsScreen} />
-          <ProfileStack.Screen
-            name="Privacy Policy"
-            component={PrivacyPolicyScreen}
-          />
-        </ProfileStack.Navigator>
-      </SafeAreaView>
-    </>
+    <SafeAreaView style={{ flex: 1 }}>
+      <ProfileStack.Navigator
+        screenOptions={{ headerShown: false, gestureEnabled: false }}
+      >
+        <ProfileStack.Screen
+          name="MainProfile"
+          component={ProfilePrimaryScreen}
+        />
+        <ProfileStack.Screen name="ContactUs" component={ContactUsScreen} />
+        <ProfileStack.Screen
+          name="Privacy Policy"
+          component={PrivacyPolicyScreen}
+        />
+      </ProfileStack.Navigator>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  backButton: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  cardWrapper: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  cardContainer: {
+    width: "90%",
+    aspectRatio: 1.45,
+    padding: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+  },
+
+  emptyState: {
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 12,
+  },
+
   card_style: {
     width: "100%",
     height: "100%",
     borderRadius: 10,
     backgroundColor: "#ccc",
   },
+
   card_style_blue: {
     width: "100%",
     height: "100%",
     borderRadius: 10,
-    backgroundColor: "#0d1b2a",
-    justifyContent: "flex-start", // top
-    alignItems: "flex-start", // left
+    backgroundColor: "#9d1d1d",
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
+    overflow: "hidden",
+    position: "relative",
   },
 
   logo: {
     position: "absolute",
     top: 15,
     left: 10,
-    width: 140,
-    height: 80,
+    width: 120,
+    height: 70,
     resizeMode: "contain",
   },
-  labelBottomRight: {
-    color: "#D9B144",
-    fontSize: fontSizes.title,
+
+  iconsRow: {
     position: "absolute",
-    bottom: 20,
-    right: 20,
+    left: 10,
+    right: "8%",
+    top: "60%",
+    transform: [{ translateY: -20 }],
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "",
+  },
+
+  cardLabel: {
+    position: "absolute",
+    color: "#fba918",
+    fontSize: fontSizes.title,
+    right: 10,
+    top: "28%",
+  },
+
+  iconCircle: {
+    width: 50,
+    height: 50,
+    borderRadius: 5,
+    borderWidth: 1.5,
+    marginEnd: 5,
+    color: "#fba918",
+    borderColor: CARD_ICON_COLOR,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  nameBlock: {
+    position: "absolute",
+    left: 10,
+    bottom: 10,
+    width: "42%",
+  },
+
+  partnerBlock: {
+    position: "absolute",
+    left: "46%",
+    bottom: 10,
+    width: "30%",
+  },
+
+  expiryBlock: {
+    position: "absolute",
+    right: 10,
+    bottom: 10,
+    width: "18%",
+    alignItems: "flex-end",
+  },
+
+  nameLabel: {
+    color: "#fba918",
+    fontSize: fontSizes.caption,
+    marginBottom: 2,
+  },
+
+  nameValue: {
+    color: "white",
+    fontSize: fontSizes.caption,
+  },
+
+  partnerLabel: {
+    color: "#fba918",
+    fontSize: fontSizes.caption,
+    marginBottom: 2,
+  },
+
+  partnerValue: {
+    color: "white",
+    fontSize: fontSizes.caption,
+  },
+
+  expiryLabel: {
+    color: "#fba918",
+    fontSize: fontSizes.caption,
+    marginBottom: 2,
+    textAlign: "right",
+  },
+
+  expiryValue: {
+    color: "white",
+    fontSize: fontSizes.caption,
+    textAlign: "right",
+  },
+  withGradientBackground: {
+    width: 52,
+    height: 52,
+    borderRadius: 5,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+
+    borderRadius: 6,
+  },
+  gecLabel: {
+    color: "#fba918",
+    fontSize: fontSizes.heading,
   },
 });

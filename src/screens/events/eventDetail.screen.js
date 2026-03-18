@@ -1,7 +1,7 @@
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
 import moment from "moment";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Image,
@@ -21,7 +21,6 @@ import { Label } from "../../components/typography/label.component";
 import { theme } from "../../infrastructure/theme";
 import { goback, navigate } from "../../navigation/navigate";
 import { AuthContext } from "../../services/auth/auth.context";
-import { EventService } from "../../services/event/event.service";
 import { LocationContext } from "../../services/location/location.context";
 import { TranslationContext } from "../../services/translation/translation.context";
 import useRequest from "../../../hooks/useRequest";
@@ -29,48 +28,76 @@ import useRequest from "../../../hooks/useRequest";
 export const EventDetailScreen = () => {
   const route = useRoute();
   const { id } = route.params;
+
   const [isLoading, setIsLoading] = useState(false);
   const [attendLoading, setAttendLoading] = useState(false);
-  const [eventDetails, setEventDetails] = useState();
+  const [eventDetails, setEventDetails] = useState(null);
   const [includeGuests, setIncludeGuests] = useState(false);
-  const { user } = useContext(AuthContext);
-  const { getEventsList } = useContext(LocationContext);
-  const { i18n, lang } = useContext(TranslationContext);
   const [showModal, setShowModal] = useState(false);
   const [actions, setActions] = useState(false);
   const [confirmationMSG, setConfirmationMSG] = useState("");
+
+  const { user } = useContext(AuthContext);
+  const { getEventsList } = useContext(LocationContext);
+  const { i18n, lang } = useContext(TranslationContext);
+
   const request = useRequest();
 
   useEffect(() => {
-    let isMounted = true;
+    let cancelled = false;
 
-    const getEvent = async () => {
+    const fetchEventData = async () => {
       try {
         setIsLoading(true);
+
         const data = {
           id,
           lang,
         };
-        
+
         const response = await request("/v1/api/event/detail", "post", data);
-        // const response = await EventService.getOneEvent(data);
-        if (response.success && isMounted) {
-          
+        console.log("=============================================================================")
+        console.log("=============================================================================")
+        console.log("=============================================================================")
+        if (!cancelled && response?.success) {
+          console.log("event detail:", response.data);
           setEventDetails(response.data);
         }
       } catch (err) {
-        Alert.alert("Error Occurred", "Could not get the event");
+        if (!cancelled) {
+          Alert.alert("Error Occurred", "Could not get the event");
+        }
       } finally {
-        setIsLoading(false);
+        if (!cancelled) {
+          setIsLoading(false);
+        }
       }
     };
 
-    getEvent();
+    fetchEventData();
 
     return () => {
-      isMounted = false;
+      cancelled = true;
     };
-  }, [actions]);
+  }, [id, lang, actions]);
+
+  const eventDescription = useMemo(() => {
+    const raw =
+      eventDetails?.eventDescription ??
+      eventDetails?.event_description ??
+      eventDetails?.description ??
+      "";
+
+    if (typeof raw !== "string") return String(raw || "");
+
+    return raw
+      .replace(/<[^>]*>/g, "")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/\r\n/g, "\n")
+      .replace(/\r/g, "\n")
+      .trim();
+  }, [eventDetails]);
 
   const confirmAttendance = () => {
     Alert.alert(
@@ -138,20 +165,20 @@ export const EventDetailScreen = () => {
       setAttendLoading(true);
 
       const data = {
-        eventId: eventId,
+        eventId,
       };
 
-      // const response = await EventService.cancelAttend(data);
-      const response = await request("/v1/api/event/cancel", "post", data);
+      await request("/v1/api/event/cancel", "post", data);
 
-      //Refresh Page
       setConfirmationMSG(i18n.t("events.cancellation-msg"));
       setShowModal(true);
+
       setTimeout(() => {
         setShowModal(false);
       }, 1500);
+
       getEventsList();
-      setActions(!actions);
+      setActions((prev) => !prev);
     } catch (err) {
       console.log(err);
       Alert.alert(
@@ -166,24 +193,24 @@ export const EventDetailScreen = () => {
   const handleAttend = async (eventId) => {
     try {
       setAttendLoading(true);
+
       const data = {
         user_id: user.user_id,
-        eventId: eventId,
+        eventId,
         guest_type: 1,
       };
 
-      // const response = await EventService.attendEvent(data);
+      await request("/v1/api/event/attend", "post", data);
 
-      const response = await request("/v1/api/event/attend", "post", data);
-
-      //Refresh Page
       setConfirmationMSG(i18n.t("events.participation-msg"));
       setShowModal(true);
+
       setTimeout(() => {
         setShowModal(false);
       }, 1500);
+
       getEventsList();
-      setActions(!actions);
+      setActions((prev) => !prev);
     } catch (err) {
       console.log(err);
       Alert.alert(
@@ -198,15 +225,18 @@ export const EventDetailScreen = () => {
   const getDirections = async () => {
     try {
       const scheme = Platform.select({
-        ios: `maps:0,0?q=`,
+        ios: "maps:0,0?q=",
         android: "geo:0,0?q=",
       });
+
       const latLng = `${eventDetails?.lat},${eventDetails?.lng}`;
-      const label = eventDetails?.eventPlace;
+      const label = eventDetails?.eventPlace || "Event Location";
+
       const url = Platform.select({
         ios: `${scheme}${encodeURIComponent(label)}@${latLng}`,
         android: `${scheme}${latLng}(${encodeURIComponent(label)})`,
       });
+
       await Linking.openURL(url);
     } catch (error) {
       console.log("Failed to get directions:", error);
@@ -214,53 +244,32 @@ export const EventDetailScreen = () => {
   };
 
   const GuestCheckbox = () => {
+    if (!eventDetails || eventDetails.guests !== 1 || eventDetails.registered) {
+      return null;
+    }
+
     return (
-      <>
-        {eventDetails &&
-          eventDetails.guests === 1 &&
-          !eventDetails.registered && (
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginTop: 8,
-                marginHorizontal: -8,
-              }}
-            >
-              <Checkbox.Android
-                status={includeGuests ? "checked" : "unchecked"}
-                onPress={() => {
-                  setIncludeGuests(!includeGuests);
-                }}
-                uncheckedColor="black"
-                color={theme.colors.icons.active}
-              />
-              <Label
-                onPress={() => {
-                  setIncludeGuests(!includeGuests);
-                }}
-              >
-                {i18n.t("events.include-guests")}
-              </Label>
-            </View>
-          )}
-      </>
+      <View style={styles.guestRow}>
+        <Checkbox.Android
+          status={includeGuests ? "checked" : "unchecked"}
+          onPress={() => setIncludeGuests((prev) => !prev)}
+          uncheckedColor="black"
+          color={theme.colors.icons.active}
+        />
+        <Label onPress={() => setIncludeGuests((prev) => !prev)}>
+          {i18n.t("events.include-guests")}
+        </Label>
+      </View>
     );
   };
 
   const RegisterButton = () => {
+    if (!eventDetails) return null;
+
     return (
       <Button
         mode="contained"
-        style={{
-          marginVertical: 8,
-          borderRadius: 10,
-          shadowOffset: { width: 0, height: 4 },
-          shadowColor: "#000",
-          shadowOpacity: 0.2,
-          shadowRadius: 4,
-          elevation: 12,
-        }}
+        style={styles.registerButton}
         buttonColor={
           eventDetails.registered ? "#842323" : theme.colors.icons.active
         }
@@ -286,9 +295,11 @@ export const EventDetailScreen = () => {
   };
 
   const EventDetails = () => {
+    if (!eventDetails) return null;
+
     return (
-      <View style={{ gap: 4 }}>
-        <View style={{ flexDirection: "row", gap: 8 }}>
+      <View style={styles.eventMetaContainer}>
+        <View style={styles.metaRow}>
           <MaterialCommunityIcons
             color={theme.colors.ui.lightGray}
             size={18}
@@ -298,7 +309,8 @@ export const EventDetailScreen = () => {
             {moment(eventDetails.eventTime).format("DD.MMMM YYYY h:mm A")}
           </Label>
         </View>
-        <View style={{ flexDirection: "row", gap: 8 }}>
+
+        <View style={styles.metaRow}>
           <MaterialCommunityIcons
             color={theme.colors.ui.lightGray}
             size={18}
@@ -314,18 +326,7 @@ export const EventDetailScreen = () => {
     return (
       <CustomModal type="fade" showModal={showModal}>
         <View style={styles.modalContainer}>
-          <View
-            style={{
-              backgroundColor: "white",
-              width: "80%",
-              height: "15%",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              padding: 25,
-              borderRadius: 15,
-            }}
-          >
+          <View style={styles.modalCard}>
             <Label weight={"bold"} size="heading">
               {message}
             </Label>
@@ -338,49 +339,36 @@ export const EventDetailScreen = () => {
   return (
     <View style={styles.container}>
       <SafeArea>
-        <KeyboardAwareScrollView>
+        <KeyboardAwareScrollView
+          enableOnAndroid
+          extraScrollHeight={20}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={styles.scrollContent}
+        >
           <StatusModal message={confirmationMSG} />
+
           {eventDetails && (
             <View>
-              <View
-                style={{
-                  flexDirection: "row",
-                  paddingLeft: 12,
-                }}
-              >
+              <View style={styles.headerRow}>
                 <TouchableOpacity
                   onPress={goback}
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
+                  style={styles.backButton}
                   activeOpacity={0.5}
                 >
                   <Ionicons name="arrow-back" size={35} color={"#111"} />
-                  <Label
-                    // size={"title"}
-                    weight="bold"
-                    style={{
-                      fontSize: 16,
-                      color: "#111",
-                      justifyContent: "center",
-                    }}
-                  >
+                  <Label weight="bold" style={styles.backLabel}>
                     {i18n.t("bottom-tabs.events")}
                   </Label>
                 </TouchableOpacity>
               </View>
+
               <Image
-                style={{
-                  height: 130,
-                  alignSelf: "stretch",
-                  marginHorizontal: 18,
-                  borderRadius: 10,
-                }}
+                style={styles.coverImage}
                 source={{
                   uri: `https://www.german-emirates-club.com/uploads/sys/${eventDetails?.file}`,
                 }}
               />
+
               <View style={styles.innerContainer}>
                 <Label
                   size={"heading"}
@@ -389,29 +377,23 @@ export const EventDetailScreen = () => {
                 >
                   {eventDetails.eventName}
                 </Label>
+
                 <EventDetails />
 
                 <GuestCheckbox />
                 <RegisterButton />
 
-                <View style={{ marginVertical: 16 }}>
+                <View style={styles.mapSection}>
                   <Map
                     lat={eventDetails.lat}
                     lng={eventDetails.lng}
                     zoom={13}
                   />
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      flex: 1,
-                    }}
-                  >
+
+                  <View style={{ flexDirection: "row", flex: 1 }}>
                     <Button
                       mode="contained"
-                      labelStyle={{
-                        color: "#1282FF",
-                        fontWeight: "bold",
-                      }}
+                      labelStyle={styles.directionLabel}
                       contentStyle={{ height: 50 }}
                       style={styles.mapButtons}
                       onPress={getDirections}
@@ -421,7 +403,13 @@ export const EventDetailScreen = () => {
                   </View>
                 </View>
 
-                <Label>{eventDetails.eventDescription}</Label>
+                <View style={styles.descriptionContainer}>
+                  <Text style={styles.descriptionText}>
+                    {eventDescription || "No description available"}
+                  </Text>
+                </View>
+               
+
                 <GuestCheckbox />
                 <RegisterButton />
               </View>
@@ -437,8 +425,34 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 32,
+  },
   innerContainer: {
     paddingHorizontal: 16,
+  },
+  headerRow: {
+    flexDirection: "row",
+    paddingLeft: 12,
+  },
+  backButton: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  backLabel: {
+    fontSize: 16,
+    color: "#111",
+    justifyContent: "center",
+  },
+  coverImage: {
+    height: 130,
+    alignSelf: "stretch",
+    marginHorizontal: 18,
+    borderRadius: 10,
+  },
+  mapSection: {
+    marginVertical: 16,
   },
   mapButtons: {
     flex: 1,
@@ -446,10 +460,55 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 0,
     borderTopRightRadius: 0,
   },
+  directionLabel: {
+    color: "#1282FF",
+    fontWeight: "bold",
+  },
+  registerButton: {
+    marginVertical: 8,
+    borderRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 12,
+  },
+  guestRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 8,
+    marginHorizontal: -8,
+  },
+  eventMetaContainer: {
+    gap: 4,
+  },
+  metaRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  descriptionContainer: {
+    marginTop: 8,
+    marginBottom: 12,
+  },
+  descriptionText: {
+    fontSize: 15,
+    lineHeight: 22,
+    color: "#111",
+    flexWrap: "wrap",
+  },
   modalContainer: {
     flex: 1,
     backgroundColor: "#00000044",
     justifyContent: "center",
     alignItems: "center",
+  },
+  modalCard: {
+    backgroundColor: "white",
+    width: "80%",
+    minHeight: 100,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 25,
+    borderRadius: 15,
   },
 });
