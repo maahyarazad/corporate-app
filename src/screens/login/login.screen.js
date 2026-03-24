@@ -195,19 +195,15 @@ const { signin, loading, verifyOTP , submittedCard, authorize} = useAuth();
       Keyboard.dismiss();
       const ip = await Network.getIpAddressAsync();
       const platform = Platform.OS;
-      const deviceId =
-        platform === "ios"
-          ? await Application.getIosIdForVendorAsync()
-          : platform === "android"
-            ? await Application.androidId
-            : "n/a";
+      
 
-          //Todo device id should be replaced  
+        //Todo device id should be replaced  
       const credentials = {
         app_id: config.APP_ID,
         username,
         password,
-        device_id: 'R5CW411BPEA',
+        // device_id: platform.device_id,
+        device_id: "R5CW411BPEA",
         ip_address: ip,
         platform: platform,
         version: Constants.default.expoConfig.version,
