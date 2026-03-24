@@ -6,6 +6,7 @@ import {
   Text,
   TextInput,
   View,
+  Platform,
 } from "react-native";
 import { theme } from "../infrastructure/theme";
 
@@ -14,17 +15,24 @@ export const CodeInputField = ({
   code = "",
   setCode,
   setPinReady,
+  onFulfill,
   inputBoxStyle,
   containerStyle,
-  codeInputBoxStyle,codeInputTextStyle,
+  codeInputBoxStyle,
+  codeInputTextStyle,
   hidden = false,
 }) => {
   const codeDigitArray = new Array(maxLength).fill(0);
   const textInputRef = useRef(null);
   const [focused, setFocused] = useState(false);
+  const hasTriggeredFulfillRef = useRef(false);
 
   useEffect(() => {
     setPinReady(code.length === maxLength);
+
+    if (code.length < maxLength) {
+      hasTriggeredFulfillRef.current = false;
+    }
 
     return () => {
       setPinReady(false);
@@ -43,14 +51,7 @@ export const CodeInputField = ({
   }, []);
 
   const handlePress = () => {
-    const input = textInputRef.current;
-    if (!input) return;
-
-    input.blur();
-
-    setTimeout(() => {
-      input.focus();
-    }, 50);
+    textInputRef.current?.focus();
   };
 
   const handleFocus = () => {
@@ -63,31 +64,44 @@ export const CodeInputField = ({
 
   const handleChangeText = (text) => {
     const sanitized = String(text || "").replace(/\D/g, "").slice(0, maxLength);
+
     setCode(sanitized);
+
+    if (sanitized.length === maxLength && !hasTriggeredFulfillRef.current) {
+      hasTriggeredFulfillRef.current = true;
+      onFulfill?.(sanitized);
+      Keyboard.dismiss();
+    }
   };
 
   const renderCodeInputBox = (_, index) => {
-    const hasValue = code[index] !== undefined;
-    const isActive = focused && index <= code.length;
+    const digit = code[index];
+    const hasValue = digit !== undefined;
+    const isCurrent = index === code.length;
+    const isLastFilled = code.length === maxLength && index === maxLength - 1;
+    const isActive = focused && (isCurrent || isLastFilled);
 
     return (
       <View
         key={`otp_${index}`}
-        style={[ 
+        style={[
           styles.codeInputBox,
           !hasValue && styles.emptyBox,
           isActive && styles.focusedBox,
-          inputBoxStyle, codeInputBoxStyle
+          inputBoxStyle,
+          codeInputBoxStyle,
         ]}
       >
         {hasValue ? (
           hidden ? (
             <View style={styles.dot} />
           ) : (
-            <Text style={[styles.codeInputText, codeInputTextStyle]}>{code[index]}</Text>
+            <Text style={[styles.codeInputText, codeInputTextStyle]}>
+              {digit}
+            </Text>
           )
         ) : (
-          <Text style={[styles.codeInputText, codeInputTextStyle]}></Text>
+          <Text style={[styles.codeInputText, codeInputTextStyle]} />
         )}
       </View>
     );
@@ -109,6 +123,7 @@ export const CodeInputField = ({
         ref={textInputRef}
         allowFontScaling={false}
         textContentType="oneTimeCode"
+        autoComplete={Platform.OS === "android" ? "sms-otp" : "one-time-code"}
         importantForAutofill="yes"
         autoCorrect={false}
         autoCapitalize="none"
@@ -132,7 +147,7 @@ const styles = StyleSheet.create({
   container: {
     paddingTop: 10,
     justifyContent: "center",
-    alignItems:"center",
+    alignItems: "center",
     position: "relative",
   },
   pressLayer: {

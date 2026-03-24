@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import React, { useContext, useEffect, useState } from "react";
-import { TouchableOpacity, View , StyleSheet} from "react-native";
+import { TouchableOpacity, View, StyleSheet } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { ActivityIndicator } from "react-native-paper";
 import { sub } from "react-native-reanimated";
@@ -36,11 +36,10 @@ const styles = StyleSheet.create({
   },
 
   fixMargin: {
-    marginTop: 8
-  }
+    marginTop: 8,
+    marginBottom: 20,
+  },
 });
-
-
 
 export const OtpVerification = ({ route, navigation }) => {
   const MAX_CODE_LENGTH = 4;
@@ -59,19 +58,14 @@ export const OtpVerification = ({ route, navigation }) => {
   const { userData, getUserInfo } = useUser();
   const [isLoading, setIsLoading] = useState(false);
   const [hiddenNum, setHiddenNum] = useState(false);
-const ICON_SIZE = Math.min(width * 0.4, 120);
-const scaleFont = (size) => (width / 375) * size;
-const INPUT_MAX_WIDTH = 400;
-
-
+  const ICON_SIZE = Math.min(width * 0.4, 120);
+  const scaleFont = (size) => (width / 375) * size;
+  const INPUT_MAX_WIDTH = 400;
 
   useEffect(() => {
     if (userData && userData.area_code && userData.phone_number) {
-      
       const mobileNum = `${userData.area_code}${userData.phone_number}`;
       const _hiddenNum = mobileNum.replace(/\d(?=(?:\D*\d){4})/g, "*");
-
-      
 
       setHiddenNum(_hiddenNum);
     } else {
@@ -81,10 +75,10 @@ const INPUT_MAX_WIDTH = 400;
     return () => {};
   }, [userData?.phone_number, userData?.area_code]);
 
-  const handleVerify = async () => {
+  const handleVerify = async (value) => {
     try {
       setIsLoading(true);
-      const otp_details = { otp: code, app_id: config.APP_ID };
+      const otp_details = { otp: value, app_id: config.APP_ID };
 
       const response = await request(
         "/v2/auth/verify",
@@ -138,6 +132,7 @@ const INPUT_MAX_WIDTH = 400;
 
   const handleResend = () => {
     resendOTP(userData.user_id).then((response) => {
+      setCode("");
       setResendMsg(i18n.t("auth.code-sent2"));
       setResendStatus(true);
     });
@@ -165,10 +160,8 @@ const INPUT_MAX_WIDTH = 400;
             style={{
               height: "100%",
               alignItems: "center",
-              
             }}
           >
-            
             <IconBg>
               <StatusBar style="light" />
               <MaterialCommunityIcons
@@ -180,17 +173,22 @@ const INPUT_MAX_WIDTH = 400;
             <BottomHalf>
               <View style={{ alignItems: "center" }}>
                 <Label
-                  style={{ color: "white", fontSize: width * 0.08 , ...styles.fixMargin}}
+                  style={{
+                    color: "white",
+                    fontSize: width * 0.08,
+                    ...styles.fixMargin,
+                  }}
                   weight={"bold"}
                 >
                   {i18n.t("auth.account-verification")}
                 </Label>
-         
+
                 <Label
                   style={{
                     color: "white",
                     fontSize: width * 0.04,
-                    textAlign: "center", ...styles.fixMargin
+                    textAlign: "center",
+                    ...styles.fixMargin,
                   }}
                   weight={"regular"}
                 >
@@ -206,31 +204,53 @@ const INPUT_MAX_WIDTH = 400;
                   +{mobileNum}
                 </Label> */}
               </View>
-          
+
               <TouchableOpacity onPress={handleMobileChange}>
                 <Label
-                  style={{ color: "white", textDecorationLine: "underline" , ...styles.fixMargin}}
+                  style={{
+                    color: "white",
+                    textDecorationLine: "underline",
+                    ...styles.fixMargin,
+                  }}
                   size={"title"}
                 >
                   {i18n.t("update-mobile-number.header")}
                 </Label>
               </TouchableOpacity>
-              
-<View style={{ backgroundColor: 'rgba(0,0,0,0)' }}>
 
-              <CodeInputField 
-              codeInputBoxStyle={{width: 60, height: 60}} codeInputTextStyle={{fontSize: 30}}
-                setPinReady={setPinReady}
-                setCode={handleCodeChange}
-                code={code}
-                pinReady={pinReady}
-                maxLength={MAX_CODE_LENGTH}
-                containerStyle={{ width: Math.min(width - 64, INPUT_MAX_WIDTH) }}
-                inputBoxStyle={{ borderWidth: 4 , borderRadius: 50}}
-              />
-</View>
-              
-              <VerifyButton
+              <View
+                style={{ backgroundColor: "rgba(0,0,0,0)", marginBottom: 20 }}
+              >
+                <CodeInputField
+                  codeInputBoxStyle={{ width: 60, height: 60 }}
+                  codeInputTextStyle={{ fontSize: 30 }}
+                  setPinReady={setPinReady}
+                  setCode={handleCodeChange}
+                  code={code}
+                  pinReady={pinReady}
+                  maxLength={MAX_CODE_LENGTH}
+                  containerStyle={{
+                    width: Math.min(width - 64, INPUT_MAX_WIDTH),
+                  }}
+                  inputBoxStyle={{ borderWidth: 4, borderRadius: 50 }}
+                  onFulfill={(value) => {
+                    handleVerify(value);
+                  }}
+                />
+              </View>
+
+              {isLoading ? (
+                <ActivityIndicator animating={true} color="white" />
+              ) : (
+                <Label
+                  style={{ color: pinReady ? "white" : colors.ui.lightGray }}
+                  size={"heading"}
+                  weight={"medium"}
+                >
+                  {i18n.t("auth.verify-code")}
+                </Label>
+              )}
+              {/* <VerifyButton
                 disabled={!(pinReady && !isLoading)}
                 style={{
                   backgroundColor: pinReady
@@ -240,21 +260,14 @@ const INPUT_MAX_WIDTH = 400;
                 onPress={handleVerify}
                 activeOpacity={0.6}
               >
-                {isLoading ? (
-                  <ActivityIndicator animating={true} color="white" />
-                ) : (
-                  <Label
-                    style={{ color: pinReady ? "white" : colors.ui.lightGray }}
-                    size={"heading"}
-                    weight={"medium"}
-                  >
-                    {i18n.t("auth.verify-code")}
-                  </Label>
-                )}
-              </VerifyButton>
-              
+               
+              </VerifyButton> */}
+
               {resendStatus ? (
-                <Label style={{ color: "#aaa" ,...styles.fixMargin}} size={"title"}>
+                <Label
+                  style={{ color: "#aaa", ...styles.fixMargin }}
+                  size={"title"}
+                >
                   {`${resendMsg} (${otpCooldown}s)`}
                 </Label>
               ) : (
@@ -271,5 +284,3 @@ const INPUT_MAX_WIDTH = 400;
     </Background>
   );
 };
-
-
