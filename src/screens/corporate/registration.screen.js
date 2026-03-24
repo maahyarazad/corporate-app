@@ -16,9 +16,9 @@ import Background from "../../components/background/background.component";
 import { goback, navigate } from "../../navigation/navigate";
 import { Ionicons } from "@expo/vector-icons";
 import { CustomTextInput } from "../../components/customTextInput";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { UserService } from "../../services/user/user.service";
 
+import { UserService } from "../../services/user/user.service";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import {
   validateCardExpiryDate,
   isFutureExpiry,
@@ -103,16 +103,12 @@ export const RegistrationScreen = () => {
   };
 
   const validateInfo = () => {
-    
-
     if (
       state.username.trim() === "" ||
       state.password.trim() === "" ||
       state.cpassword.trim() === "" ||
       state.email.trim() === "" ||
-      state.mobile.trim() === "" ||
-      state.partner_id == undefined ||
-      state.card_valid_date === ""
+      state.mobile.trim() === ""
     ) {
       shake();
       showToast("error", "Empty Fields", "Some fields are empty.");
@@ -158,15 +154,7 @@ export const RegistrationScreen = () => {
       return false;
     }
 
-    if (!_isFutureExpiry) {
-      shake();
-      showToast(
-        "error",
-        "Invalid Expiry Date",
-        "The expiry date must be in the future."
-      );
-      return false;
-    }
+    // if (!_isFutureExpiry) {
 
     setIsPasswordMatch(true);
     return true;
@@ -227,19 +215,17 @@ export const RegistrationScreen = () => {
           ...state,
         };
         const response = await UserService.validateDetails(data);
-
+        console.log(response);
         if (response.success) {
           navigate("RegisterDetails", { login: data });
         } else {
           shake();
           showToast("error", "Validation Error", response.message);
-          
         }
       } catch (error) {
         console.log("Validation Error:", error);
         shake();
-        showToast("error", "Server Error",error);
-        
+        showToast("error", "Server Error", error);
       }
     }
   };
@@ -255,8 +241,7 @@ export const RegistrationScreen = () => {
       }
     } catch (error) {
       console.log(error);
-       showToast("error", "Server Error",error);
-      
+      showToast("error", "Server Error", error);
     }
   }, []);
 
@@ -272,41 +257,27 @@ export const RegistrationScreen = () => {
 
           <Animated.View style={[styles.safeArea, shakeAnimatedStyle]}>
             <KeyboardAwareScrollView
-              // behavior={Platform.OS === "ios" ? "position" : ""}
-              // behavior={Platform.OS === "ios" ? "height" : ""}
-              automaticallyAdjustKeyboardInsets
-              keyboardDismissMode="interactive"
-              keyboardShouldPersistTaps="always"
+              enableOnAndroid
+              extraScrollHeight={20}
+              extraHeight={120}
+              keyboardShouldPersistTaps="handled"
+              keyboardDismissMode="on-drag"
+              showsVerticalScrollIndicator={false}
               contentContainerStyle={{
                 flexGrow: 1,
-                justifyContent: "center",
+                paddingHorizontal: 16,
+                paddingBottom: 40,
               }}
-              style={[
-                {
-                  paddingHorizontal: 16,
-                  flexDirection: "column",
-                  flex: 1,
-                },
-              ]}
+              style={{ flex: 1 }}
             >
-              {/* <ScrollView
-                keyboardShouldPersistTaps="always"
-                // keyboardDismissMode="on-drag"
-                showsVerticalScrollIndicator={false}
-                style={{
-                  height: "100%",
-                  // flex: 1,
-                }}
-                contentContainerStyle={
-                  {
-                    // backgroundColor: "palegreen",
-                  }
-                }
-              > */}
+                <View style={{flex: 1, justifyContent:'center'}}>
+
               <View
                 style={{
                   flexDirection: "row",
+                  
                   marginBottom: 16,
+                  marginTop: 10,
                 }}
               >
                 <TouchableOpacity
@@ -326,11 +297,7 @@ export const RegistrationScreen = () => {
                     Login
                   </Label>
                 </TouchableOpacity>
-
-               
               </View>
-
-           
 
               <CustomTextInput
                 ref={usernameRef}
@@ -342,8 +309,6 @@ export const RegistrationScreen = () => {
                 returnKeyType="next"
                 onSubmitEditing={() => passwordRef.current?.focus()}
               />
-
-           
 
               <CustomTextInput
                 ref={passwordRef}
@@ -361,7 +326,7 @@ export const RegistrationScreen = () => {
                 returnKeyType="next"
                 onSubmitEditing={() => confirmPasswordRef.current?.focus()}
               />
-           
+
               <CustomTextInput
                 ref={confirmPasswordRef}
                 value={state.cpassword}
@@ -379,15 +344,6 @@ export const RegistrationScreen = () => {
                 onSubmitEditing={() => emailRef.current?.focus()}
               />
 
-           
-
-              {/* <CustomTextInput
-                label="Miscellaneous" 
-                value={state.miscellaneous}
-                onChangeText={handleMisc}
-                style={{ width: 0, height: 0, marginTop: 8 }}
-              /> */}
-
               <CustomTextInput
                 label={"E-mail *"}
                 style={{ marginTop: 8 }}
@@ -397,47 +353,7 @@ export const RegistrationScreen = () => {
                 keyboardType={"email-address"}
                 error={isSubmitted && state.email.trim() === ""}
                 returnKeyType="next"
-                onSubmitEditing={() => expiryRef.current?.focus()}
               />
-              
-              
-              {/* <CustomTextInput
-                maxLength={12}
-                label={"IFZA Card Number *"}
-                value={state.card_number}
-                returnKeyType={"done"}
-                keyboardType="numeric"
-                onChangeText={handleCardNumberChange}
-                error={isSubmitted && state.card_number.trim() === ""}
-              />
-            */}
-
-              <DropDown
-                searchable={true}
-                items={partnerList}
-                style={{ marginTop: 8 }}
-                onChange={handlePartnerChange}
-                placeholder={"Partner *"}
-                error={!state.partner_id && isSubmitted}
-              />
-              
-
-              <CustomTextInput
-                ref={expiryRef}
-                labelLeftOffset={60}
-                maxLength={5}
-                style={{ marginTop: 8 }}
-                label={"GEC Card Expiry Date *"}
-                value={state.card_valid_date}
-                returnKeyType={"done"}
-                keyboardType="numeric"
-                placeholder={"mm/yy"}
-                onChangeText={handleValidityChange}
-                error={isSubmitted && state.card_valid_date.trim() === ""}
-              />
-
-              
-
 
               <PhoneInput
                 defaultCode="AE"
@@ -475,7 +391,6 @@ export const RegistrationScreen = () => {
                   selectionColor: "#a6cdfb",
                 }}
               />
-              
 
               <TouchableOpacity
                 activeOpacity={0.8}
@@ -493,7 +408,7 @@ export const RegistrationScreen = () => {
                   Next
                 </Label>
               </TouchableOpacity>
-              {/* </ScrollView> */}
+                </View>
             </KeyboardAwareScrollView>
           </Animated.View>
         </SafeArea>

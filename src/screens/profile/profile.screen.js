@@ -1,5 +1,5 @@
 import { createStackNavigator } from "@react-navigation/stack";
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useCallback, useState } from "react";
 import moment from "moment";
 import {
   Image,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
   StyleSheet,
+  Platform,
 } from "react-native";
 import { SafeArea } from "../../components/safearea.component";
 import { ProfTabs } from "../../features/profile/profTabs";
@@ -23,24 +24,46 @@ import { LinearGradient } from "expo-linear-gradient";
 import { TranslationContext } from "../../services/translation/translation.context";
 import { CacheImage } from "../../components/cacheImage";
 import { fontSizes } from "../../infrastructure/theme/fonts";
-
+import useRequest from "../../../hooks/useRequest";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 const ProfileStack = createStackNavigator();
 
-const CARD_BOX_SIZE = 50;
-const CARD_ICON_SIZE = 40;
+const CARD_BOX_SIZE = 55;
+const CARD_ICON_SIZE = 45;
 const CARD_ICON_COLOR = "#fba918";
 
 const ProfilePrimaryScreen = () => {
+  const request = useRequest();
   const { userData } = useUser();
+  const [partnerTitle, setPartnerTitle] = useState("");
+  
+
+  const getPartnerTitle = useCallback(async () => {
+    try {
+      const response = await request(
+        `/partners/partner-title/${userData.partner_id}`,
+        "get"
+      );
+      if (response && response.success) {
+        setPartnerTitle(response.data.title);
+      }
+    } catch (error) {
+      console.log("Failed to get partner title", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    getPartnerTitle();
+  }, [userData]);
+
   const { isSkip, goToVerification } = useAuth();
   const { i18n } = useContext(TranslationContext);
 
   return (
     <SafeArea style={{ backgroundColor: "#efefef" }}>
-      <View style={{ paddingHorizontal: 12 }}>
+      <View style={{ paddingHorizontal: 12, marginBottom: 20 }}>
         <TouchableOpacity
           onPress={goback}
           style={styles.backButton}
@@ -57,7 +80,7 @@ const ProfilePrimaryScreen = () => {
         </TouchableOpacity>
       </View>
 
-      <View style={{ paddingHorizontal: 14, paddingBottom: 6 }}>
+      <View style={{ paddingHorizontal: 14, marginBottom: 20 }}>
         <Label weight="bold" size="h5">
           {i18n.t("profile-tabs.page-title")}
         </Label>
@@ -173,7 +196,7 @@ const ProfilePrimaryScreen = () => {
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
-                    Nathan & Nathan
+                    {partnerTitle}
                   </Label>
                 </View>
 
@@ -248,28 +271,30 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    marginBottom: 20,
   },
 
   cardContainer: {
     width: "90%",
     aspectRatio: 1.45,
-    padding: 16,
+
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 10,
     overflow: "visible",
-    transform: [
-      { perspective: 1000 },
-      { rotateX: "2deg" },
-      { rotateY: "-5deg" },
-      { rotateZ: "-0.8deg" },
-      { scaleX: 0.985 },
-      { scaleY: 1.01 },
-    ],
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
+    // transform: [
+    //   { perspective: 1000 },
+    //   { rotateX: "2deg" },
+    //   { rotateY: "-5deg" },
+    //   { rotateZ: "-0.8deg" },
+    //   { scaleX: 0.985 },
+    //   { scaleY: 1.01 },
+    // ],
+    shadowColor: Platform.OS === "ios" ? "#000" : "none",
+    shadowOffset:
+      Platform.OS === "ios" ? { width: 0, height: 8 } : { width: 0, height: 0 },
     shadowOpacity: 0.18,
-    shadowRadius: 12,
+    shadowRadius: Platform.OS === "ios" ? 12 : 0,
     elevation: 8,
   },
 
@@ -348,9 +373,9 @@ const styles = StyleSheet.create({
   cardLabel: {
     position: "absolute",
     color: "#fba918",
-    fontSize: fontSizes.title,
+    fontSize: fontSizes.large_title,
     right: 10,
-    top: "28%",
+    top: "24%",
   },
 
   iconCircle: {
@@ -409,7 +434,7 @@ const styles = StyleSheet.create({
 
   nameValue: {
     color: "white",
-    fontSize: fontSizes.caption,
+    fontSize: fontSizes.subtitle,
   },
 
   partnerLabel: {
@@ -420,7 +445,7 @@ const styles = StyleSheet.create({
 
   partnerValue: {
     color: "white",
-    fontSize: fontSizes.caption,
+    fontSize: fontSizes.subtitle,
   },
 
   expiryLabel: {
@@ -432,7 +457,7 @@ const styles = StyleSheet.create({
 
   expiryValue: {
     color: "white",
-    fontSize: fontSizes.caption,
+    fontSize: fontSizes.subtitle,
     textAlign: "right",
   },
 });

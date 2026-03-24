@@ -177,22 +177,20 @@ export const RegistrationDetailsScreen = ({ route }) => {
           <Image style={styles.companyLogo} source={companyLogo} />
           <Animated.View style={[styles.safeArea, shakeAnimatedStyle]}>
             <KeyboardAwareScrollView
-              automaticallyAdjustKeyboardInsets
-              keyboardDismissMode="interactive"
-              keyboardShouldPersistTaps="handled"
-              contentContainerStyle={{
-                flexGrow: 1,
-                justifyContent: "center",
-                flexDirection: "column",
-              }}
-              style={[
-                {
-                  paddingHorizontal: 16,
-                  flexDirection: "column",
-                  flex: 1,
-                },
-              ]}
-            >
+                         enableOnAndroid
+                         extraScrollHeight={20}
+                         extraHeight={120}
+                         keyboardShouldPersistTaps="handled"
+                         keyboardDismissMode="on-drag"
+                         showsVerticalScrollIndicator={false}
+                         contentContainerStyle={{
+                           flexGrow: 1,
+                           paddingHorizontal: 16,
+                           paddingBottom: 40,
+                         }}
+                         style={{ flex: 1 }}
+                       >
+                         <View style={{flex: 1, justifyContent:'center'}}>
               <View
                 style={{
                   flexDirection: "row",
@@ -271,6 +269,7 @@ export const RegistrationDetailsScreen = ({ route }) => {
                    ref={lastname}
                   value={state.lastname}
                   onChangeText={handleLastNameChange}
+                      onSubmitEditing={Keyboard.dismiss}
                   label={"Last Name *"}
                   error={isSubmitted && state.lastname.trim() === ""}
                 />
@@ -355,6 +354,7 @@ export const RegistrationDetailsScreen = ({ route }) => {
                   Next
                 </Label>
               </TouchableOpacity>
+              </View>
             </KeyboardAwareScrollView>
           </Animated.View>
         </SafeArea>

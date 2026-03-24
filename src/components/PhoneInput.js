@@ -1,32 +1,35 @@
 // PhoneInput.js
-// Rewritten PhoneInput using YOUR Dropdown component (no new UI libs).
-// Uses react-native-country-picker-modal only for the country data (and optional Flag rendering).
-
 import React, { useEffect, useMemo, useState } from "react";
-import { View, Text, TextInput, StyleSheet } from "react-native";
-import CountryPicker, {
+import {
+  Platform,
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  Keyboard,
+  InputAccessoryView,
+  TouchableOpacity,
+} from "react-native";
+import {
   getAllCountries,
   getCallingCodeAsync,
 } from "react-native-country-picker-modal";
-import { DropDown } from "../components/DropDown"; // <- adjust path
-
+import { DropDown } from "../components/DropDown";
+import { useTheme } from "styled-components/native";
+import { BlurView } from 'expo-blur';
 // --- helpers ---------------------------------------------------------------
 
 function normalizeDigits(input) {
-  // keep digits only
   return String(input || "").replace(/[^\d]/g, "");
 }
 
 function formatE164(countryCode, callingCode, nationalNumber) {
-  // +<callingCode><nationalNumber> (no spaces)
   const cc = String(callingCode || "").replace(/[^\d]/g, "");
   const nn = normalizeDigits(nationalNumber);
   if (!cc || !nn) return "";
   return `+${cc}${nn}`;
 }
 
-// NOTE: Without libphonenumber-js, we can't do real validation by country.
-// We'll provide basic heuristics and let you override validation externally.
 function basicValid(numberDigits, min = 6, max = 15) {
   const n = normalizeDigits(numberDigits);
   return n.length >= min && n.length <= max;
@@ -52,82 +55,84 @@ export function PhoneInput({
   flagButtonStyle,
   countryPickerButtonStyle,
 
-  // passthrough
   textInputProps,
   filterProps,
   countryPickerProps,
 
-  // NEW (optional, to match your error patterns)
-  error = null, // string|boolean
+  error = null,
   showErrorBorder = true,
 
-  // Dropdown props passthrough (optional)
   searchable = true,
   searchPlaceholder = "Search country...",
 }) {
+  const theme = useTheme();
+  const inputAccessoryViewID = "phonePadAccessory";
   const isControlled = value !== undefined;
 
   const [number, setNumber] = useState(defaultValue);
   const [countryCode, setCountryCode] = useState(defaultCode);
-  const [callingCode, setCallingCode] = useState("971"); // default AE
-
-  // load countries once
+  const [callingCode, setCallingCode] = useState("971");
   const [countries, setCountries] = useState([]);
+
   useEffect(() => {
     let mounted = true;
+
     (async () => {
-      const all = await getAllCountries(countryPickerProps);
-      if (!mounted) return;
-      setCountries(all || []);
+      try {
+        const all = await getAllCountries(countryPickerProps);
+        if (mounted) {
+          setCountries(all || []);
+        }
+      } catch (err) {
+        if (mounted) {
+          setCountries([]);
+        }
+      }
     })();
+
     return () => {
       mounted = false;
     };
   }, [countryPickerProps]);
 
-  // update calling code when country changes
   useEffect(() => {
     let mounted = true;
+
     (async () => {
       try {
         const cc = await getCallingCodeAsync(countryCode);
-        if (!mounted) return;
-        setCallingCode(String(cc || ""));
+        if (mounted) {
+          setCallingCode(String(cc || ""));
+        }
       } catch {
-        if (!mounted) return;
-        setCallingCode("");
+        if (mounted) {
+          setCallingCode("");
+        }
       }
     })();
+
     return () => {
       mounted = false;
     };
   }, [countryCode]);
 
-  // controlled/uncontrolled number
   const currentNumber = isControlled ? value : number;
 
   const hasError = !!error;
   const showError = showErrorBorder && hasError;
 
-  // Build dropdown items from countries
   const items = useMemo(() => {
     const arr = (countries || [])
-      .filter((c) => {
-        // apply optional filterProps similar to country modal (basic)
-        // you can extend this later; leaving open for your filters
-        return true;
-      })
+      .filter(() => true)
       .map((c) => {
         const cc = (c.callingCode && c.callingCode[0]) || "";
-        const label = `${c.name} (+${cc})`;
         return {
-          label,
-          value: c.cca2, // CountryCode
+          label: `${c.name} (+${cc})`,
+          value: c.cca2,
           _country: c,
         };
       });
 
-    // optional: prioritize defaultCode on top
     arr.sort((a, b) => {
       if (a.value === defaultCode) return -1;
       if (b.value === defaultCode) return 1;
@@ -144,97 +149,124 @@ export function PhoneInput({
   const handlePickCountry = (cca2, item) => {
     setCountryCode(cca2);
 
-    // resolve country object from stored metadata
     const c = item?._country;
-    if (c && onChangeCountry) onChangeCountry(c);
+    if (c && onChangeCountry) {
+      onChangeCountry(c);
+    }
   };
 
   const handleNumberChange = (text) => {
     const digits = normalizeDigits(text);
 
-    if (!isControlled) setNumber(digits);
-    if (onChangeText) onChangeText(digits);
+    if (!isControlled) {
+      setNumber(digits);
+    }
+
+    if (onChangeText) {
+      onChangeText(digits);
+    }
 
     const formatted = formatE164(countryCode, callingCode, digits);
-    if (onChangeFormattedText) onChangeFormattedText(formatted);
+    if (onChangeFormattedText) {
+      onChangeFormattedText(formatted);
+    }
   };
 
   const formattedValue = useMemo(() => {
     return formatE164(countryCode, callingCode, currentNumber);
   }, [countryCode, callingCode, currentNumber]);
 
-  // This mimics your red border logic: you can still pass containerStyle externally
   const computedContainerStyle = useMemo(() => {
-    const base = [
+    return [
       styles.container,
       containerStyle,
       showError ? styles.containerError : null,
       disabled ? styles.containerDisabled : null,
     ];
-    return base;
   }, [containerStyle, showError, disabled]);
 
   return (
-    <View style={computedContainerStyle}>
-      {/* LEFT: country dropdown */}
-      <View style={[styles.left, flagButtonStyle, countryPickerButtonStyle]}>
-        <DropDown
-          items={items}
-          value={countryCode}
-          onChange={handlePickCountry}
-          disabled={disabled}
-          searchable={searchable}
-          searchPlaceholder={searchPlaceholder}
-          error={showError ? true : null}
-          showErrorBorder={false} // border handled by wrapper container
-          placeholder="Country"
-          // button styles: compact to fit left side
-          buttonStyle={[styles.countryButton]}
-          buttonTextStyle={[styles.countryButtonText, codeTextStyle]}
-          menuStyle={styles.countryMenu}
-          // show only +code (or short) in button:
-          renderButtonLabel={() => {
-            const cc =
-              (selectedCountryItem?._country?.callingCode &&
-                selectedCountryItem._country.callingCode[0]) ||
-              callingCode ||
-              "";
-            // Use CountryPicker's Flag component (from same library) if you want:
-            // <CountryPicker .../> isn't needed; but Flag is rendered by CountryPicker internally.
-            // We'll keep it simple text-only.
-            return (
-              <View style={styles.countryButtonInner}>
-                <Text style={[styles.countryCodeText, codeTextStyle]}>
-                  +{cc}
-                </Text>
-              </View>
-            );
-          }}
-        />
+    <View>
+      <View style={computedContainerStyle}>
+        <View style={[styles.left, flagButtonStyle, countryPickerButtonStyle]}>
+          <DropDown
+            items={items}
+            value={countryCode}
+            onChange={handlePickCountry}
+            disabled={disabled}
+            searchable={searchable}
+            searchPlaceholder={searchPlaceholder}
+            error={showError ? true : null}
+            showErrorBorder={false}
+            placeholder="Country"
+            buttonStyle={styles.countryButton}
+            buttonTextStyle={[styles.countryButtonText, codeTextStyle]}
+            menuStyle={styles.countryMenu}
+            renderButtonLabel={() => {
+              const cc =
+                (selectedCountryItem?._country?.callingCode &&
+                  selectedCountryItem._country.callingCode[0]) ||
+                callingCode ||
+                "";
+
+              return (
+                <View style={styles.countryButtonInner}>
+                  <Text style={[styles.countryCodeText, codeTextStyle]}>
+                    +{cc}
+                  </Text>
+                </View>
+              );
+            }}
+          />
+        </View>
+
+        <View style={[styles.right, textContainerStyle]}>
+          <TextInput
+            value={String(currentNumber || "")}
+            onChangeText={handleNumberChange}
+            inputAccessoryViewID={
+              Platform.OS === "ios" ? inputAccessoryViewID : undefined
+            }
+            editable={!disabled}
+            placeholder={placeholder}
+            placeholderTextColor={showError && !currentNumber ? "red" : "#999"}
+            keyboardType={Platform.OS === "ios" ? "number-pad" : "phone-pad"}
+            returnKeyType="done"
+            style={[
+              styles.input,
+              textInputStyle,
+              disabled ? { color: "#999" } : null,
+            ]}
+            selectionColor={textInputProps?.selectionColor ?? "#a6cdfb"}
+            {...textInputProps}
+          />
+        </View>
       </View>
 
-      {/* RIGHT: phone number input */}
-      <View style={[styles.right, textContainerStyle]}>
-        <TextInput
-          value={String(currentNumber || "")}
-          onChangeText={handleNumberChange}
-          editable={!disabled}
-          placeholder={placeholder}
-          placeholderTextColor={showError && !currentNumber ? "red" : "#999"}
-          keyboardType="phone-pad"
-          style={[styles.input, textInputStyle, disabled ? { color: "#999" } : null]}
-          selectionColor={textInputProps?.selectionColor ?? "#a6cdfb"}
-          {...textInputProps}
-        />
-      </View>
+      {Platform.OS === "ios" && (
+        <InputAccessoryView nativeID={inputAccessoryViewID}>
+          <View style={styles.accessoryContainer}>
+            
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => Keyboard.dismiss()}
+              style={[
+                styles.doneButton,
+                {
+                  backgroundColor:
+                    theme?.colors?.ui?.button || "#000",
+                },
+              ]}
+            >
+              <Text style={styles.doneButtonText}>Done</Text>
+            </TouchableOpacity>
+          </View>
+        </InputAccessoryView>
+      )}
 
-      {/* Optional error text (string) */}
       {typeof error === "string" && error.trim() !== "" ? (
         <Text style={styles.errorText}>{error}</Text>
       ) : null}
-
-      {/* For debugging/preview if you want: */}
-      {/* <Text>{formattedValue}</Text> */}
     </View>
   );
 }
@@ -253,9 +285,11 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     overflow: "hidden",
   },
+
   containerError: {
     borderColor: "red",
   },
+
   containerDisabled: {
     backgroundColor: "#f4f4f5",
   },
@@ -280,7 +314,6 @@ const styles = StyleSheet.create({
     color: "black",
   },
 
-  // Dropdown compressed for country area
   countryButton: {
     height: "100%",
     borderWidth: 0,
@@ -289,22 +322,45 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     minWidth: 90,
   },
+
   countryButtonText: {
     fontSize: 16,
   },
+
   countryButtonInner: {
     flexDirection: "row",
     alignItems: "center",
   },
+
   countryCodeText: {
     fontSize: 16,
     color: "black",
   },
 
+accessoryContainer: {
+  backgroundColor: "rgba(255, 255, 255, 0.7)", // 👈 tweak opacity
+  padding: 10,
+  borderTopWidth: 1,
+  borderColor: "rgba(0,0,0,0.1)",
+},
+
+  doneButton: {
+    height: 50,
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  doneButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "700",
+  },
+
   errorText: {
     color: "red",
-    // marginTop: 6,
     marginRight: 10,
     fontSize: 12,
+    marginTop: 6,
   },
 });
