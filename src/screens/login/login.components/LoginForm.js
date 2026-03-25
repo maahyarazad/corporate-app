@@ -28,7 +28,21 @@ const LoginForm = ({
   handleBrowser,
 }) => {
   return (
-    <View style={{ margin: 16 }}>
+    <View style={{ margin: 16, marginTop: 0 }}>
+
+         <View style={{ flex: 1, justifyContent: "flex-end" }}>
+    <View style={{ margin: 0 }}>
+      <Label color="white" shadow size="h5" weight="medium">
+        Welcome!
+      </Label>
+
+      <View style={{ marginTop: 6 }} />
+
+      <Label color="white" size="caption" weight="medium" shadow>
+        Sign in with your username and password.
+      </Label>
+    </View>
+  </View>
       <CustomTextInput style={{marginTop: 8}}
         value={username}
         onChangeText={setUsername}

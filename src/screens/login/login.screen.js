@@ -319,6 +319,7 @@ const { signin, loading, verifyOTP , submittedCard, authorize} = useAuth();
               contentContainerStyle={{ flexGrow: 1 }}
             >
               <View style={{ flex: 1, justifyContent: "space-between" }}>
+                
                 <LoginHeader companyLogo={companyLogo} />
 
                 <LoginForm

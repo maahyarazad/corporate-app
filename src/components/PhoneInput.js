@@ -16,7 +16,7 @@ import {
 } from "react-native-country-picker-modal";
 import { DropDown } from "../components/DropDown";
 import { useTheme } from "styled-components/native";
-import { BlurView } from 'expo-blur';
+
 // --- helpers ---------------------------------------------------------------
 
 function normalizeDigits(input) {

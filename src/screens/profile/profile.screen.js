@@ -353,9 +353,9 @@ const styles = StyleSheet.create({
   logo: {
     position: "absolute",
     top: 15,
-    left: 10,
+    left: 0,
     width: 120,
-    height: 70,
+    height: 60,
     resizeMode: "contain",
   },
 
@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 10,
     right: 10,
-    top: "60%",
+    top: "50%",
     transform: [{ translateY: -20 }],
     flexDirection: "row",
     alignItems: "center",
@@ -375,7 +375,7 @@ const styles = StyleSheet.create({
     color: "#fba918",
     fontSize: fontSizes.large_title,
     right: 10,
-    top: "24%",
+    top: "20%",
   },
 
   iconCircle: {

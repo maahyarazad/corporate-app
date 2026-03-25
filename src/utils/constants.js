@@ -10,7 +10,7 @@ export const offerChipColor = {
   2: "#9FD8FF",
 };
 
-const local_ip = "192.168.1.93";
+const local_ip = "192.168.1.200";
 // const local_ip = "192.168.0.198";
 
 export const config = {
