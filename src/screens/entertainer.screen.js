@@ -21,10 +21,10 @@ import { navigate } from "../navigation/navigate";
 import { NotificationsService } from "../services/notifications/notifications.service";
 import { CacheImage } from "../components/cacheImage";
 import { typeEnum } from "../utils/constants";
-import { LogBox } from 'react-native';
+import { LogBox } from "react-native";
 
 LogBox.ignoreLogs([
-  'A props object containing a "key" prop is being spread into JSX'
+  'A props object containing a "key" prop is being spread into JSX',
 ]);
 const Tab = createMaterialTopTabNavigator();
 
@@ -54,7 +54,8 @@ export const EntertainerScreen = () => {
   const handleNotificationResponse = useCallback((response) => {
     // console.log("CHECKING NOTIF RESPONSE");
 
-    const notificationData = response?.notification?.request?.content?.data || {};
+    const notificationData =
+      response?.notification?.request?.content?.data || {};
     // console.log("NOTIFICATION DATA:", notificationData);
 
     const path = notificationData?.path;
@@ -90,11 +91,12 @@ export const EntertainerScreen = () => {
         handleNotificationResponse(response);
       });
 
-    const receivedSubscription =
-      Notifications.addNotificationReceivedListener((notification) => {
+    const receivedSubscription = Notifications.addNotificationReceivedListener(
+      (notification) => {
         // console.log("incoming foreground notification", notification);
         setHasNotification(true);
-      });
+      }
+    );
 
     // Handles the case where app was opened by tapping a notification
     // while previously closed/backgrounded.
@@ -137,85 +139,83 @@ export const EntertainerScreen = () => {
     };
   }, [userData?.user_id]);
 
-
-
-const registerForPushNotificationsAsync = async () => {
-  try {
-    if (Platform.OS === "android") {
-      await Notifications.setNotificationChannelAsync("default", {
-        name: "default",
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: "#FF231F7C",
-      });
-    }
-
-    if (!Device.isDevice) {
-      throw new Error("Push notifications require a physical device");
-    }
-
-    const { status: existingStatus } =
-      await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-
-    if (existingStatus !== "granted") {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-
-    if (finalStatus !== "granted") {
-      throw new Error("Permission not granted for push notifications");
-    }
-
-    const projectId =
-      Constants?.expoConfig?.extra?.eas?.projectId ??
-      Constants?.easConfig?.projectId;
-
-    if (!projectId) {
-      throw new Error("Missing EAS projectId");
-    }
-
-    const expoPushToken = await Notifications.getExpoPushTokenAsync({
-      projectId,
-    });
-
-    const token = expoPushToken?.data;
-
-    if (!token) {
-      throw new Error("Failed to obtain Expo push token");
-    }
-
-    // console.log("Expo push token:", token);
-    // console.log("User Id:", userData.user_id);
-
-    const response = await NotificationsService.storePushToken(
-      userData.user_id,
-      {
-        token,
-        provider: "expo",
-        platform: Platform.OS,
+  const registerForPushNotificationsAsync = async () => {
+    try {
+      if (Platform.OS === "android") {
+        await Notifications.setNotificationChannelAsync("default", {
+          name: "default",
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: "#FF231F7C",
+        });
       }
-    );
 
-    if (!response?.success) {
+      if (!Device.isDevice) {
+        throw new Error("Push notifications require a physical device");
+      }
+
+      const { status: existingStatus } =
+        await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+
+      if (existingStatus !== "granted") {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+
+      if (finalStatus !== "granted") {
+        throw new Error("Permission not granted for push notifications");
+      }
+
+      const projectId =
+        Constants?.expoConfig?.extra?.eas?.projectId ??
+        Constants?.easConfig?.projectId;
+
+      if (!projectId) {
+        throw new Error("Missing EAS projectId");
+      }
+
+      const expoPushToken = await Notifications.getExpoPushTokenAsync({
+        projectId,
+      });
+
+      const token = expoPushToken?.data;
+
+      if (!token) {
+        throw new Error("Failed to obtain Expo push token");
+      }
+
+      // console.log("Expo push token:", token);
+      // console.log("User Id:", userData.user_id);
+
+      const response = await NotificationsService.storePushToken(
+        userData.user_id,
+        {
+          token,
+          provider: "expo",
+          platform: Platform.OS,
+        }
+      );
+
+      if (!response?.success) {
+        Alert.alert(
+          response?.title || "Error",
+          response?.message || "Failed to store push token"
+        );
+        return null;
+      }
+
+      await SecureStore.setItemAsync("pushtoken", token);
+      return token;
+    } catch (error) {
+      console.log("Failed to register for push notifications:", error);
       Alert.alert(
-        response?.title || "Error",
-        response?.message || "Failed to store push token"
+        "Push notification setup failed",
+        error?.message || "Unknown error"
       );
       return null;
     }
-
-    await SecureStore.setItemAsync("pushtoken", token);
-    return token;
-  } catch (error) {
-    console.log("Failed to register for push notifications:", error);
-    Alert.alert(
-      "Push notification setup failed",
-      error?.message || "Unknown error"
-    );
-    return null;
-  }
-};
+  };
 
   const changeHeaderRight = (route) => {
     const handleSearch = () => {
@@ -229,7 +229,7 @@ const registerForPushNotificationsAsync = async () => {
             type: typeEnum.category,
             search: 0,
             page: 1,
-            limit: 20,
+            limit: 100,
             source: 2,
             headerTitle: i18n.t("search-all"),
             focus: true,
@@ -351,102 +351,102 @@ const registerForPushNotificationsAsync = async () => {
     });
   };
 
-const TabItems = React.useMemo(
-  () => [
-    // {
-    //   route: "Feed",
-    //   component: PostTabsNavigationScreen,
-    //   activeIcon: " ",
-    //   inactiveIcon: "post",
-    //   name: i18n.t("bottom-tabs.feed"),
-    // },
-    {
-      route: "Home",
-      component: HomeNavigation,
-      activeIcon: "",
-      inactiveIcon: "home",
-      name: i18n.t("bottom-tabs.home"),
-    },
-    {
-      route: "Offers",
-      component: SpecialsScreen,
-      activeIcon: " ",
-      inactiveIcon: "tag-multiple",
-      name: i18n.t("bottom-tabs.offers"),
-    },
-    {
-      route: "Events",
-      component: EventsScreen,
-      activeIcon: " ",
-      inactiveIcon: "calendar-month",
-      name: i18n.t("bottom-tabs.events"),
-    },
-  ],
-  [i18n]
-);
+  const TabItems = React.useMemo(
+    () => [
+      // {
+      //   route: "Feed",
+      //   component: PostTabsNavigationScreen,
+      //   activeIcon: " ",
+      //   inactiveIcon: "post",
+      //   name: i18n.t("bottom-tabs.feed"),
+      // },
+      {
+        route: "Home",
+        component: HomeNavigation,
+        activeIcon: "",
+        inactiveIcon: "home",
+        name: i18n.t("bottom-tabs.home"),
+      },
+      {
+        route: "Offers",
+        component: SpecialsScreen,
+        activeIcon: " ",
+        inactiveIcon: "tag-multiple",
+        name: i18n.t("bottom-tabs.offers"),
+      },
+      {
+        route: "Events",
+        component: EventsScreen,
+        activeIcon: " ",
+        inactiveIcon: "calendar-month",
+        name: i18n.t("bottom-tabs.events"),
+      },
+    ],
+    [i18n]
+  );
 
-const visibleTabs = TabItems.filter((tab) => {
-  if (tab.route === "Events" && !eventList.length) return false;
-//   if (tab.route === "Feed" && userData && !userData.member) return false;
-  return true;
-});
+  const visibleTabs = TabItems.filter((tab) => {
+    if (tab.route === "Events" && !eventList.length) return false;
+    //   if (tab.route === "Feed" && userData && !userData.member) return false;
+    return true;
+  });
 
-return (
-  <Tab.Navigator
-    tabBarPosition="bottom"
-    screenOptions={{
-      lazy: true,
-      tabBarItemStyle: {
-        paddingTop: 6,
-        margin: 0,
-      },
-      tabBarIndicatorStyle: {
-        color: "transparent",
-        backgroundColor: "transparent",
-      },
-      tabBarIconStyle: {
-        width: 30,
-        height: 30,
-        alignItems: "center",
-      },
-      tabBarInactiveTintColor: "#999",
-      tabBarStyle: { backgroundColor: "red" },
-    }}
-  >
-    {visibleTabs.map((tab) => (
-      <Tab.Screen
-        key={tab.route}
-        name={tab.route}
-        component={tab.component}
-        listeners={{
-          tabPress: () => {
-            changeHeaderRight(tab.route);
-          },
-        }}
-        options={{
-          tabBarLabel: tab.name,
-          tabBarLabelStyle: {
-            fontSize: 10,
-            fontWeight: "bold",
-          },
-          tabBarStyle: {
-            height: Platform.OS === "ios" ? "10%" : "auto",
-          },
-          tabBarIcon: ({ focused }) => (
-            <MaterialCommunityIcons
-              name={tab.inactiveIcon}
-              size={30}
-              color={
-                focused
-                  ? theme.colors.icons.active
-                  : theme.colors.icons.inactive
-              }
-            />
-          ),
-          tabBarActiveTintColor: theme.colors.icons.active,
-        }}
-      />
-    ))}
-  </Tab.Navigator>
-);
+  return (
+    <Tab.Navigator
+      tabBarPosition="bottom"
+      screenOptions={{
+        lazy: true,
+        tabBarItemStyle: {
+          paddingTop: 6,
+          margin: 0,
+        },
+        tabBarIndicatorStyle: {
+          color: "transparent",
+          backgroundColor: "transparent",
+        },
+        tabBarIconStyle: {
+          width: 30,
+          height: 30,
+          alignItems: "center",
+        },
+        tabBarInactiveTintColor: "#999",
+        tabBarStyle: { backgroundColor: "red" },
+      }}
+    >
+      {visibleTabs.map((tab) => (
+        <Tab.Screen
+          key={tab.route}
+          name={tab.route}
+          component={tab.component}
+          listeners={{
+            tabPress: () => {
+              changeHeaderRight(tab.route);
+            },
+          }}
+          options={{
+            tabBarLabel: tab.name,
+            tabBarLabelStyle: {
+              fontSize: 10,
+              fontWeight: "bold",
+            },
+            tabBarStyle: {
+              height: Platform.OS === "ios" ? "10%" : "auto",
+            },
+            tabBarIcon: ({ focused }) => (
+              <MaterialCommunityIcons
+                name={tab.inactiveIcon}
+                size={30}
+                color={
+                  focused
+                    ? theme.colors.icons.active
+                    : theme.colors.icons.inactive
+                }
+              />
+            ),
+            tabBarActiveTintColor: theme.colors.icons.active,
+          }}
+        />
+      ))}
+    </Tab.Navigator>
+  );
 };
