@@ -5,9 +5,10 @@ import {
   Linking,
   RefreshControl,
   StyleSheet,
+  Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  View,
+  View, Platform
 } from "react-native";
 import { SafeArea } from "../../components/safearea.component";
 import { Label } from "../../components/typography/label.component";
@@ -121,7 +122,7 @@ export const LocationViewScreen = ({ route, navigation }) => {
     const label = location?.name;
     const url = Platform.select({
       ios: `${scheme}${encodeURIComponent(label)}@${latLng}`,
-      android: `${scheme}${latLng}(${encodeURIComponent(labe)})`,
+      android: `${scheme}${latLng}(${encodeURIComponent(label)})`,
     });
     Linking.openURL(url);
   };
@@ -134,6 +135,7 @@ const SLIDESHOW_HEIGHT = Math.floor(width * 9 / 16);
     return (
       <>
         <View style={{ backgroundColor: "#efefef" }}>
+             
           <View>
             <View style={{ height: SLIDESHOW_HEIGHT }}>
               {width != undefined && location != undefined && (
@@ -144,8 +146,9 @@ const SLIDESHOW_HEIGHT = Math.floor(width * 9 / 16);
             </View>
 
             <View>
-              {/* New Component */}
+               
               <View style={{ padding: 16 }}>
+              
                 <LocationInfo
                   location={location}
                   distance={distance}
