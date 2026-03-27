@@ -33,9 +33,9 @@ export const verifyOTP = (otp_details) => {
 
 export const getDeviceInfo = async () => {
   try {
-    debugger;
+    
     const info = {};
-    console.log("getting info");
+    
     info.ip_address = await Network.getIpAddressAsync();
     const platform = Platform.OS;
     const deviceId =
@@ -50,7 +50,7 @@ export const getDeviceInfo = async () => {
     info.version = version;
     return info;
   } catch (err) {
-    console.log("error in getting device info");
+    
     console.log(err);
   }
 };

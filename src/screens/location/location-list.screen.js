@@ -116,12 +116,9 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
     if (mounted) {
       if (hasSubmitted || searchData.current.page !== currentPage) {
           searchData.current.page = currentPage;
-          console.log('============================================================');
-          console.log('============================================================');
-          console.log('===========================Load Data========================');
+          
           loadData();
-          console.log('============================================================');
-          console.log('============================================================');
+          
           setHasSubmitted(false);
         }
     }

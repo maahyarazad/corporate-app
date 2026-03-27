@@ -386,6 +386,7 @@ export const EntertainerScreen = () => {
   );
 
   const visibleTabs = TabItems.filter((tab) => {
+    return true;
     if (tab.route === "Events" && !eventList.length) return false;
     //   if (tab.route === "Feed" && userData && !userData.member) return false;
     return true;

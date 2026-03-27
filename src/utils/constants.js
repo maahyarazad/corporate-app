@@ -10,27 +10,15 @@ export const offerChipColor = {
   2: "#9FD8FF",
 };
 
-const local_ip = "192.168.1.200";
-// const local_ip = "192.168.0.198";
-
 export const config = {
-  BASE_URL: `http://${local_ip}:3299/v1/api/`, // Local
-  SERVER_HOST: `http://${local_ip}:3299`, // Local
-  SERVICES_BASE_URL: `http://${local_ip}:3299/`, // Local
-  SERVICES_HOST: `http://${local_ip}:5501`, // Local
-
-  // BASE_URL: "https://www.german-emirates-club.com/api/v1/api", //Prod
-  // SERVER_HOST: "https://www.german-emirates-club.com/api/", //Prod
-  // SERVICES_BASE_URL: "https://www.german-emirates-club.com/api/v1/api", //Prod
-  // SERVICES_HOST: "https://services.german-emirates-club.com`", //Prod
-//   BASE_URL: "https://dev.german-emirates-club.com/api/v1/api", //Dev
-//   SERVER_HOST: "https://dev.german-emirates-club.com/api/", //Dev
+  BASE_URL: process.env.EXPO_PUBLIC_BASE_URL,
+  SERVER_HOST: process.env.EXPO_PUBLIC_SERVER_HOST,
+  SERVICES_BASE_URL: process.env.EXPO_PUBLIC_SERVICES_BASE_URL,
+  SERVICES_HOST: process.env.EXPO_PUBLIC_SERVICES_HOST,
 
   APP_ID: 2,
-  // WEBSOCKET_URL: "http://192.168.1.140:3300",
-  // WEBSOCKET_URL: "https://dev.german-emirates-club.com",
   CURRENCY: "AED",
-  DEV: true,
+  DEV: process.env.EXPO_PUBLIC_DEV === "true",
 };
 
 export const EULAPrivacyLink = `https://www.buenapublica.com/uploads/privacy-policy.pdf`;

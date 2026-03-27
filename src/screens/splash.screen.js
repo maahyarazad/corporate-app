@@ -19,9 +19,7 @@ const LoadingContainer = styled(View)`
 
 
 export const SplashScreen = () => {
-    useEffect(()=>{
-        console.log('SplashScreen LOADED')
-},[])
+
 
   return (
     <SplashScreenContainer>

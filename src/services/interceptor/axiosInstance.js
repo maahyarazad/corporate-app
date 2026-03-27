@@ -14,6 +14,7 @@ export const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   async (config) => {
+    console.log(config.baseURL);
     const token = await SecureStore.getItemAsync("token");
 
     if (token) {

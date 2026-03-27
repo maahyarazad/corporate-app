@@ -23,9 +23,9 @@ const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       const flags = await retrieveInfo();
-      console.log("FLAG", flags);
+    //   console.log("FLAG", flags);
       if (flags && isMounted.current) {
-        await setTimeout(() => {
+        setTimeout(() => {
           setRefreshToken(flags._refreshToken);
           setAccessToken(flags._accessToken);
           setIsAuthorized(parseInt(flags._isAuthorized));

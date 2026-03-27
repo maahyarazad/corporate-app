@@ -6,14 +6,35 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "channel": "development"
+      "channel": "development",
+      "env": {
+        "EXPO_PUBLIC_BASE_URL": "http://192.168.1.200:3299/v1/api/",
+        "EXPO_PUBLIC_SERVER_HOST": "http://192.168.1.200:3299",
+        "EXPO_PUBLIC_SERVICES_BASE_URL": "http://192.168.1.200:3299/",
+        "EXPO_PUBLIC_SERVICES_HOST": "http://192.168.1.200:5501",
+        "EXPO_PUBLIC_DEV": "true"
+      }
     },
     "preview": {
       "distribution": "internal",
-      "channel": "preview"
+      "channel": "preview",
+      "env": {
+        "EXPO_PUBLIC_BASE_URL": "https://dev.german-emirates-club.com/api/v1/api",
+        "EXPO_PUBLIC_SERVER_HOST": "https://dev.german-emirates-club.com/api/",
+        "EXPO_PUBLIC_SERVICES_BASE_URL": "https://dev.german-emirates-club.com/api/v1/api",
+        "EXPO_PUBLIC_SERVICES_HOST": "https://services.german-emirates-club.com",
+        "EXPO_PUBLIC_DEV": "false"
+      }
     },
     "production": {
-      "channel": "production"
+      "channel": "production",
+      "env": {
+        "EXPO_PUBLIC_BASE_URL": "https://www.german-emirates-club.com/api/v1/api",
+        "EXPO_PUBLIC_SERVER_HOST": "https://www.german-emirates-club.com/api/",
+        "EXPO_PUBLIC_SERVICES_BASE_URL": "https://www.german-emirates-club.com/api/v1/api",
+        "EXPO_PUBLIC_SERVICES_HOST": "https://services.german-emirates-club.com",
+        "EXPO_PUBLIC_DEV": "false"
+      }
     }
   },
   "submit": {

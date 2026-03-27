@@ -7,7 +7,7 @@ export const isVersionOutdated = (latestVersion) => {
   const arrayB = latestVersion.split(".");
 
   for (let i = 0; i < arrayA.length; i++) {
-    console.log(`${arrayB[i]} - ${arrayA[i]}`);
+    console.log(`${arrayB[i]} - ${arrayA[i]}`);``
     if (arrayB[i] > arrayA[i]) {
       return true;
     } else if (arrayB[i] < arrayA[i]) {

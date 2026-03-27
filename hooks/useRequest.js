@@ -191,7 +191,7 @@ export default function useRequest() {
             );
 
             if (response) {
-              console.log("REFRESHING TOKEN");
+            //   console.log("REFRESHING TOKEN");
               renewAccessToken(response);
               //retry
               return await httpRequest(

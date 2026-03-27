@@ -57,11 +57,11 @@ export const CacheImage = ({
 
         const file = new File(cacheDir, fileName);
 
-        console.log("CacheImage start");
-        console.log("encodedUri:", encodedUri);
-        console.log("fileName:", fileName);
-        console.log("fileUri:", file.uri);
-        console.log("exists:", file.exists);
+        // console.log("CacheImage start");
+        // console.log("encodedUri:", encodedUri);
+        // console.log("fileName:", fileName);
+        // console.log("fileUri:", file.uri);
+        // console.log("exists:", file.exists);
 
         if (file.exists) {
           if (isMounted) {
@@ -79,7 +79,7 @@ export const CacheImage = ({
           setIsFallback(false);
         }
       } catch (error) {
-        console.log("cache image error:", error, "uri:", uri);
+        // console.log("cache image error:", error, "uri:", uri);
 
         if (isMounted) {
           // fallback to remote image if available, otherwise local placeholder
@@ -115,7 +115,7 @@ export const CacheImage = ({
         file.delete();
       }
     } catch (error) {
-      console.log("Failed to delete cached image:", error);
+    //   console.log("Failed to delete cached image:", error);
     }
   };
 

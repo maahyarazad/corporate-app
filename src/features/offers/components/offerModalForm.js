@@ -23,6 +23,7 @@ import { Offer } from "./offer.component";
 import useRequest from "../../../../hooks/useRequest";
 import useUser from "../../../../hooks/useUser";
 import useAuth from "../../../../hooks/useAuth";
+import { fontSizes } from "../../../infrastructure/theme/fonts";
 
 export const OfferModalInfo = ({
   onCloseModal,
@@ -201,7 +202,7 @@ export const OfferModalInfo = ({
           }}
           mode="contained"
         >
-          <Text allowFontScaling={false}>
+          <Text allowFontScaling={false} style={{fontSize: fontSizes.subtitle}}>
             {i18n.t("redeem-offer.avail-offer")}
           </Text>
         </Button>
@@ -216,10 +217,14 @@ export const OfferModalInfo = ({
             flex: 1,
             backgroundColor: "#1282FF",
             borderRadius: 10,
+            
           }}
           mode="contained"
         >
+             <Text allowFontScaling={false} style={{fontSize: fontSizes.subtitle}}>
+         
           {i18n.t("close")}
+          </Text>
         </Button>
       </View>
     </View>

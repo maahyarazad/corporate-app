@@ -4,9 +4,15 @@ import { Alert } from "react-native";
 import { config } from "../../utils/constants";
 import { showToast } from "../../Toast"; 
 
+
+
+// 0 (Axios default) → no timeout (not recommended for production)
+// 5,000 – 10,000 ms (5–10s) → common for APIs (fast services)
+// 10,000 – 30,000 ms (10–30s) → typical for production apps
+// >30,000 ms → only for long-running operations (uploads, reports, etc.)
 export const axiosInstance = axios.create({
   baseURL: config.SERVICES_BASE_URL,
-  timeout: 15000,
+  timeout: 60000,
   timeoutErrorMessage: "Server Error, Please contact the developer!",
 });
 

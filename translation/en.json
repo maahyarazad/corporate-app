@@ -117,6 +117,7 @@
             "done": "Done"
         },
         "events": {
+            "no-upcoming-events": "No upcoming event at the moment",
             "title": "Upcoming Events",
             "include-guests": "include guests",
             "attend": "Attend",

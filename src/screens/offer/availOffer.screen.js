@@ -25,6 +25,7 @@ import { CodeInputField } from "../../components/codeInputField";
 import { useNavigation } from "@react-navigation/native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import useRequest from "../../../hooks/useRequest";
+import { fontSizes } from "../../infrastructure/theme/fonts";
 
 export const AvailOfferScreen = ({ route }) => {
   const { location, offerInfo, distance, offerCode } = route.params.state;
@@ -145,17 +146,38 @@ export const AvailOfferScreen = ({ route }) => {
   };
 
   const onConsume = async (discount, total, paid) => {
-    const safeOfferCode = typeof offerCode === "string" ? offerCode : "";
+    try {
+      const safeOfferCode = typeof offerCode === "string" ? offerCode : "";
 
-    const data = {
-      initials: safeOfferCode.slice(0, 3),
-      series: safeOfferCode.slice(3),
-      discount,
-      total,
-      paid,
-    };
+      const data = {
+        initials: safeOfferCode.slice(0, 3),
+        series: safeOfferCode.slice(3),
+        discount,
+        total,
+        paid,
+      };
 
-    return await request(`/v2/offer/consume`, "post", data);
+      const result = await request(`/v2/offer/consume`, "post", data);
+ 
+     
+      if (result.success) {
+        navigation.reset({
+          routes: [{ name: "TransactionSummary", params: result?.data }],
+        });
+      }
+   
+      
+    } catch (e) {
+       
+        console.log(e?.data?.error?.sqlMessage);
+         Alert.alert(
+        "Transaction Failed",
+       e?.data?.error?.sqlMessage || "Something went wrong while redeeming the offer."
+      );
+       
+    } finally {
+        setIsLoading(false);
+    }
   };
 
   const onChangePaidAmount = (amount) => {
@@ -187,10 +209,10 @@ export const AvailOfferScreen = ({ route }) => {
   };
 
   const handleRedeem = async () => {
-    try {
       setIsLoading(true);
 
       const merchantPin = (location?.merchant_pin ?? "").toString().trim();
+     
       const enteredPin = (merchantCode ?? "").toString().trim();
 
       if (enteredPin !== merchantPin) {
@@ -203,26 +225,7 @@ export const AvailOfferScreen = ({ route }) => {
         return;
       }
 
-      const consumed = await onConsume(discAmount, totalAmount, paidAmount);
-
-      if (consumed?.success) {
-        navigation.reset({
-          routes: [{ name: "TransactionSummary", params: consumed.data }],
-        });
-      } else {
-        Alert.alert(
-          "Transaction Failed",
-          consumed?.message || "Unable to complete the transaction."
-        );
-      }
-    } catch (error) {
-      Alert.alert(
-        "Transaction Failed",
-        error?.message || "Something went wrong while redeeming the offer."
-      );
-    } finally {
-      setIsLoading(false);
-    }
+      await onConsume(discAmount, totalAmount, paidAmount);
   };
 
   const handleConfirm = () => {
@@ -450,7 +453,7 @@ export const AvailOfferScreen = ({ route }) => {
                     disabled={!pinReady || isLoading}
                     onPress={handleConfirm}
                     contentStyle={{ padding: 10 }}
-                    labelStyle={{ fontSize: 12 }}
+                    labelStyle={{ fontSize: fontSizes.subtitle }}
                     style={{
                       flex: 1,
                       backgroundColor:
@@ -468,7 +471,7 @@ export const AvailOfferScreen = ({ route }) => {
                   <Button
                     onPress={handleCallNow}
                     disabled={isLoading}
-                    labelStyle={{ fontSize: 12 }}
+                    labelStyle={{ fontSize: fontSizes.subtitle, color: 'white' }}
                     contentStyle={{ padding: 10 }}
                     style={{
                       flex: 1,
