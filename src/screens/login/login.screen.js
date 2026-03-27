@@ -34,13 +34,10 @@ import RegisterSection from "./login.components/RegisterSection";
 import useBiometrics from "../../../hooks/useBiometrics";
 import { useTranslation } from "../../../hooks/useTranslation";
 import { showToast } from "../../Toast";
-import { storeToken} from '../../services/auth/auth.service';
+import { storeToken } from "../../services/auth/auth.service";
 import { CommonActions } from "@react-navigation/native";
 import { Keyboard } from "react-native";
-
-
-
-
+import { getDeviceInfo } from "../../services/auth/auth.service";
 
 export const TextInputForm = styled(TextInput)`
   border-radius: 10px;
@@ -64,8 +61,8 @@ export const LoginScreen = ({ navigation }) => {
   const [loginLoading, setLoginLoading] = useState(false);
   const [canRegister, setCanRegister] = useState(true);
   const request = useRequest();
-  
-const { signin, loading, verifyOTP , submittedCard, authorize} = useAuth();
+
+  const { signin, loading, verifyOTP, submittedCard, authorize } = useAuth();
 
   const { setLang } = useContext(TranslationContext);
   const [biometricType, setBiometricType] = useState(null);
@@ -111,19 +108,13 @@ const { signin, loading, verifyOTP , submittedCard, authorize} = useAuth();
 
       if (status) {
         // console.log("Biometric Token:", biometric.token);
-
+        const deviceInfo = await getDeviceInfo();
         const ip = await Network.getIpAddressAsync();
         const platform = Platform.OS;
-        const deviceId =
-          platform === "ios"
-            ? await Application.getIosIdForVendorAsync()
-            : platform === "android"
-              ? await Application.androidId
-              : "n/a";
 
         const credentials = {
           app_id: config.APP_ID,
-          device_id: deviceId,
+          device_id: deviceInfo.device_id,
           ip_address: ip,
           platform: platform,
           version: Constants.default.expoConfig.version,
@@ -134,8 +125,6 @@ const { signin, loading, verifyOTP , submittedCard, authorize} = useAuth();
 
         const response = await request("/v2/auth/login", "post", credentials);
 
-       
-        
         if (response.success) {
           setLang(response.member ? "de" : "en");
           if (response.member_id) {
@@ -195,9 +184,8 @@ const { signin, loading, verifyOTP , submittedCard, authorize} = useAuth();
       Keyboard.dismiss();
       const ip = await Network.getIpAddressAsync();
       const platform = Platform.OS;
-      
 
-        //Todo device id should be replaced  
+      //Todo device id should be replaced
       const credentials = {
         app_id: config.APP_ID,
         username,
@@ -213,7 +201,6 @@ const { signin, loading, verifyOTP , submittedCard, authorize} = useAuth();
 
       const response = await request("/v2/auth/login", "post", credentials);
 
-      
       if (response.success) {
         // console.log("Response Login", response);
         setLang(response.member ? "de" : "en");
@@ -238,7 +225,6 @@ const { signin, loading, verifyOTP , submittedCard, authorize} = useAuth();
       } else {
         showToast("error", response.title, response.message);
       }
-      
     } catch (err) {
       console.log("ERROR", err);
     } finally {
@@ -252,8 +238,7 @@ const { signin, loading, verifyOTP , submittedCard, authorize} = useAuth();
         await WebBrowser.openBrowserAsync(EULAPrivacyLink);
       }
     } catch (error) {
-         showToast("error", "Error Occured",  "Cannot Open Document");
-      
+      showToast("error", "Error Occured", "Cannot Open Document");
     }
   };
 
@@ -319,7 +304,6 @@ const { signin, loading, verifyOTP , submittedCard, authorize} = useAuth();
               contentContainerStyle={{ flexGrow: 1 }}
             >
               <View style={{ flex: 1, justifyContent: "space-between" }}>
-                
                 <LoginHeader companyLogo={companyLogo} />
 
                 <LoginForm
