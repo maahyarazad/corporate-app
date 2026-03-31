@@ -40,7 +40,7 @@ import { NoConnectionScreen } from "./src/screens/noConnection.screen";
 import { AppContext } from "./src/services/app/app.context";
 import { VersionMismatchScreen } from "./src/screens/versionMismatch.screen";
 import useAuth from "./hooks/useAuth";
-import useUser from "./hooks/useUser";
+import { Ionicons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { ProfileScreen } from "./src/screens/profile/profile.screen";
 import PostEntrySelect from "./src/screens/posts/post_entry/postEntrySelect.screen";
@@ -58,6 +58,7 @@ import NotificationsScreen from "./src/screens/notifications.screen";
 import ChangeMobileNumberScreen from "./src/screens/profile/changeMobileNumber.screen";
 import PostDetailMagazine from "./src/screens/posts/postDetailMagazine.screen";
 import ChangeEmailAddressScreen from "./src/screens/profile/changeEmailAddress.screen ";
+import { useNavigation } from "@react-navigation/native";
 
 const AuthStack = createStackNavigator();
 const MainStack = createStackNavigator();
@@ -210,7 +211,7 @@ const AuthStackScreen = () => {
 
 const OverlappingNavigator = () => {
   const { i18n } = useContext(TranslationContext);
-
+  
   return (
     <BottomSheetModalProvider>
       <OverlappingStack.Navigator>
@@ -387,7 +388,7 @@ const OverlappingNavigator = () => {
 
 const MainScreen = () => {
   const { i18n } = useContext(TranslationContext);
-
+const navigation = useNavigation();
   return (
     <MainStack.Navigator>
       <MainStack.Screen
@@ -423,10 +424,19 @@ const MainScreen = () => {
         name="LocationList"
         component={LocationListScreen}
         options={{
-          headerBackTitleVisible: false,
-          headerTitleAlign: "left",
-          headerTintColor: "black",
-          headerStyle: { borderColor: "black", shadowColor: "transparent" },
+           headerBackTitle: "",
+  headerTitle: "",
+  headerTintColor: "black",
+  headerStyle: { shadowColor: "transparent" },
+
+  headerLeft: () => (
+    <TouchableOpacity
+      onPress={() => navigation.goBack()}
+      style={{ paddingLeft: 15 }}
+    >
+      <Ionicons name="arrow-back" size={24} color="black" />
+    </TouchableOpacity>
+  ),
           cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
           gestureDirection: "horizontal",
           gestureResponseDistance: 200,
