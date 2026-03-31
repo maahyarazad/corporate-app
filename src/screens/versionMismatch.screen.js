@@ -47,13 +47,13 @@ const onPressPublisher = async () => {
         />
         <View style={styles.wrapper}>
           <View style={styles.window}>
-            <Label size={"title"} weight={"bold"}>
+            <Label size="title" weight="bold">
               Outdated Version
             </Label>
 
             <View style={{ marginTop: 10 }} />
 
-            <Label style={styles.message} size={"subtitle"}>
+            <Label style={styles.message} size="subtitle">
               Your app is running on an outdated version. Please update your
               app.
             </Label>

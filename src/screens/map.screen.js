@@ -207,9 +207,9 @@ export const MapScreen = ({ navigation }) => {
             <TouchableRipple
               onPress={navigateBack}
               style={{ borderRadius: 25, padding: 10, overflow: "hidden" }}
-              rippleColor={"#444"}
+              rippleColor="#444"
             >
-              <Ionicons name={"arrow-back"} size={35} />
+              <Ionicons name="arrow-back" size={35} />
             </TouchableRipple>
           </View>
         </View>
@@ -244,7 +244,7 @@ export const MapScreen = ({ navigation }) => {
       <View style={{ flex: 1 }}>
         {partnerLocations && myLocation ? (
           <StyledMap
-            provider={"google"}
+            provider="google"
             ref={mapRef}
             camera={{
               center: {
@@ -324,9 +324,9 @@ export const MapScreen = ({ navigation }) => {
               <TouchableRipple
                 onPress={navigateBack}
                 style={{ borderRadius: 25, padding: 10, overflow: "hidden" }}
-                rippleColor={"#444"}
+                rippleColor="#444"
               >
-                <Ionicons name={"arrow-back"} size={35} />
+                <Ionicons name="arrow-back" size={35} />
               </TouchableRipple>
             </View>
             <View style={{ alignItems: "flex-end", alignSelf: "flex-end" }}>
@@ -347,12 +347,12 @@ export const MapScreen = ({ navigation }) => {
                   shadowRadius: 5,
                   shadowOffset: { width: 1, height: 1 },
                 }}
-                rippleColor={"#444"}
+                rippleColor="#444"
               >
                 <MaterialIcons
-                  name={"my-location"}
+                  name="my-location"
                   size={35}
-                  color={"#0e89ff"}
+                  color="#0e89ff"
                 />
               </TouchableRipple>
             </View>
@@ -413,12 +413,12 @@ export const MapScreen = ({ navigation }) => {
                   />
                  
                   {/* Location name and distance */}
-                  <Label size={"title"} weight={"bold"} style={{marginTop: 10}}>
+                  <Label size="title" weight="bold" style={{marginTop: 10}}>
                     {locationState.locationName}
                   </Label>
                   <Label
-                    size={"subtitle"}
-                    weight={"medium"}
+                    size="subtitle"
+                    weight="medium"
                     style={{ color: "#aaa" }}
                   >
                     {distance} KM

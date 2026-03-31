@@ -22,7 +22,7 @@ export const Suggestion = ({ suggestedList, onPress }) => {
             return (
               <TouchableHighlight
                 activeOpacity={0.9}
-                underlayColor={"#ddd"}
+                underlayColor="#ddd"
                 onPress={() => {
                   onPress(item.keyword, searchSource.suggestion);
                 }}

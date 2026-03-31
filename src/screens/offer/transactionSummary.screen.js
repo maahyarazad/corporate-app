@@ -92,15 +92,15 @@ export const TransactionSummaryScreen = () => {
           >
             <Label
               style={{ textAlign: "center" }}
-              weight={"bold"}
-              size={"heading"}
+              weight="bold"
+              size="heading"
             >
               {i18n.t("redemption-success.success")}
             </Label>
             <Label
               style={{ color: theme.colors.ui.lightGray, textAlign: "center" }}
-              weight={"medium"}
-              size={"subtitle"}
+              weight="medium"
+              size="subtitle"
             >
               {moment(transactDate).format("DD.MMMM YYYY H:mm A")}
             </Label>
@@ -119,8 +119,8 @@ export const TransactionSummaryScreen = () => {
             <View style={{ marginVertical: 12 }}>
               <Label
                 style={{ textAlign: "center" }}
-                weight={"bold"}
-                size={"heading"}
+                weight="bold"
+                size="heading"
               >
                 {`${discount} ${config.CURRENCY}`}
               </Label>
@@ -142,15 +142,15 @@ export const TransactionSummaryScreen = () => {
               color: theme.colors.ui.lightGray,
               textAlign: "center",
             }}
-            weight={"bold"}
-            size={"heading"}
+            weight="bold"
+            size="heading"
           >
             {prodname}
           </Label>
           <Label
             style={{ textAlign: "center", marginVertical: 12 }}
-            weight={"bold"}
-            size={"h5"}
+            weight="bold"
+            size="h5"
           >
             {refCode}
           </Label>
@@ -172,7 +172,7 @@ export const TransactionSummaryScreen = () => {
             buttonColor={theme.colors.icons.active}
             onPress={handleDone}
           >
-            <Label color={"white"} weight={"bold"} size={"title"}>
+            <Label color="white" weight="bold" size="title">
               {i18n.t("redemption-success.done")}
             </Label>
           </Button>

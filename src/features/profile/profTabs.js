@@ -23,7 +23,7 @@ export const ProfTabs = () => {
       >
         {icon}
       
-        <Label size={"caption"} weight={"bold"} style={{marginLeft: 4, fontSize: fontSizes.tab_title}}>
+        <Label size="caption" weight="bold" style={{marginLeft: 4, fontSize: fontSizes.tab_title}}>
           {label}
         </Label>
       </View>

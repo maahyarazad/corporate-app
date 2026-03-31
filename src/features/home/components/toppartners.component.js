@@ -12,7 +12,7 @@ const TopPartners = ({ topPartnersData }) => {
       <>
         <View style={{ paddingHorizontal: 16, paddingBottom: 18 }}>
           <Skeleton
-            variant={"square"}
+            variant="square"
             borderRadius={25}
             height={30}
             width={200}
@@ -21,10 +21,10 @@ const TopPartners = ({ topPartnersData }) => {
           />
            <View style={{marginTop: 8}} />
           <Skeleton
-            variant={"square"}
+            variant="square"
             borderRadius={10}
             height={330}
-            width={"100%"}
+            width="100%"
             opacityMin={0.1}
             opacityMax={0.2}
           />

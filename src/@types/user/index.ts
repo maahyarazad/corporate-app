@@ -44,7 +44,7 @@ export interface IMemberInfo {
 }
 
 export type UserServiceType = {
-    createUser: (user: IUser) => Promise<boolean>;
+    createUser: (user: IUser) => Promise<any>;
     updateUser: (user: IUser) => Promise<boolean>;
     getUserInfo: (userId: number) => Promise<IUser>;
     validateDetails: (data: IUserDetails) => Promise<boolean>;

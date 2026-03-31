@@ -49,8 +49,8 @@ export const SoleilScreen = () => {
           <View style={{marginRight: 8}}/>
 
           <View>
-            <Label size={"body"}>{item.username.toUpperCase()}</Label>
-            <Label size={"caption"}>{item.email}</Label>
+            <Label size="body">{item.username.toUpperCase()}</Label>
+            <Label size="caption">{item.email}</Label>
           </View>
         </View>
       </>

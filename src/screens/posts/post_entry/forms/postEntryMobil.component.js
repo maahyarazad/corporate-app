@@ -59,13 +59,13 @@ const RenderTickView = ({ item, state, setValue, mode }) => {
           borderColor: checked ? theme.colors.icons.active : "#eee",
         }}
       >
-        <Checkbox.Android
+         <Checkbox.Android
           style={{ width: 100 }}
           status={checked ? "checked" : "unchecked"}
           color={theme.colors.icons.active}
         />
         <View style={{ flex: 1 }}>
-          <Label numberOfLines={2} size={"subtitle"}>
+          <Label numberOfLines={2} size="subtitle">
             {item.label}
           </Label>
         </View>
@@ -412,7 +412,7 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
           {icon && (
             <MaterialCommunityIcons name={icon} size={16} color={color} />
           )}
-          <Label size={12} weight={"bold"} style={{ color }}>
+          <Label size={12} weight="bold" style={{ color }}>
             {label}
           </Label>
         </View>
@@ -562,7 +562,7 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
         </View>
       ) : (
         <>
-          <Label size={"subtitle"} weight={"bold"}>
+          <Label size="subtitle" weight="bold">
             Baujahr
           </Label>
           <View style={{ flex: 1, flexDirection: "row", gap: 8, zIndex: 9 }}>
@@ -685,7 +685,7 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
         />
       ) : (
         <>
-          <Label size={"subtitle"} weight={"bold"}>
+          <Label size="subtitle" weight="bold">
             Kilometer
           </Label>
           <View style={{ flexDirection: "row", gap: 8 }}>
@@ -755,7 +755,7 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
         />
       ) : (
         <>
-          <Label size={"subtitle"} weight={"bold"}>
+          <Label size="subtitle" weight="bold">
             Preis
           </Label>
           <View style={{ flexDirection: "row", gap: 8 }}>
@@ -806,20 +806,20 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
 
       <View style={{ gap: 6, marginTop: 10 }}>
         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-          <Label size={"subtitle"} weight={"bold"}>
+          <Label size="subtitle" weight="bold">
             Ausstattung
           </Label>
           <View style={{ flexDirection: "row", gap: 8 }}>
             <ButtonText
-              label={"Select All"}
-              icon={"check-bold"}
-              color={"#009432"}
+              label="Select All"
+              icon="check-bold"
+              color="#009432"
               onPress={selectAllInclusions}
             />
             <ButtonText
-              label={"Clear"}
-              icon={"close-thick"}
-              color={"#b71540"}
+              label="Clear"
+              icon="close-thick"
+              color="#b71540"
               onPress={clearAllInclusions}
             />
           </View>
@@ -908,8 +908,8 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
           }}
         >
           <Label
-            size={"subtitle"}
-            weight={"bold"}
+            size="subtitle"
+            weight="bold"
             style={{ color: "white", letterSpacing: 1 }}
           >
             Absenden

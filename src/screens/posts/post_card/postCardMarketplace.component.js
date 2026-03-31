@@ -77,7 +77,7 @@ const PostCardMarketplace = ({ item }) => {
               { backgroundColor: "#f0932b", paddingHorizontal: 12 },
             ]}
           >
-            <Label color={"white"} weight={"bold"}>
+            <Label color="white" weight="bold">
               Angebote
             </Label>
           </View>
@@ -90,7 +90,7 @@ const PostCardMarketplace = ({ item }) => {
               { backgroundColor: "#436885", paddingHorizontal: 12 },
             ]}
           >
-            <Label color={"white"} weight={"bold"}>
+            <Label color="white" weight="bold">
               Gesuche
             </Label>
           </View>
@@ -134,13 +134,13 @@ const PostCardMarketplace = ({ item }) => {
                   {!!imageCount && (
                     <View style={styles.mediaCounter}>
                       <MaterialCommunityIcons
-                        name={"image"}
+                        name="image"
                         size={15}
-                        color={"#777"}
+                        color="#777"
                       />
                       <Label
                         size={12}
-                        weight={"bold"}
+                        weight="bold"
                         style={{ color: "#777" }}
                       >
                         {`${imageCount}`}
@@ -150,13 +150,13 @@ const PostCardMarketplace = ({ item }) => {
                   {!!videoCount && (
                     <View style={styles.mediaCounter}>
                       <MaterialCommunityIcons
-                        name={"video"}
+                        name="video"
                         size={15}
-                        color={"#777"}
+                        color="#777"
                       />
                       <Label
                         size={12}
-                        weight={"bold"}
+                        weight="bold"
                         style={{ color: "#777" }}
                       >
                         {`${videoCount}`}
@@ -176,9 +176,9 @@ const PostCardMarketplace = ({ item }) => {
                     }}
                   >
                     <MaterialCommunityIcons
-                      name={"play-circle-outline"}
+                      name="play-circle-outline"
                       size={50}
-                      color={"white"}
+                      color="white"
                     />
                   </View>
                 )}
@@ -206,8 +206,8 @@ const PostCardMarketplace = ({ item }) => {
               >
                 <View style={{ gap: 8 }}>
                   <Label
-                    size={"title"}
-                    weight={"bold"}
+                    size="title"
+                    weight="bold"
                     numberOfLinei={images ? 1 : 2}
                   >
                     {item.title}
@@ -215,13 +215,13 @@ const PostCardMarketplace = ({ item }) => {
                   <Label numberOfLines={2}>{item.content}</Label>
                 </View>
                 <Label style={{ alignContent: "flex-end" }}>
-                  Kategorie: <Label weight={"bold"}>{item.category}</Label>
+                  Kategorie: <Label weight="bold">{item.category}</Label>
                 </Label>
               </View>
               {item.price_from ? (
                 <Label
                   size={18}
-                  weight={"bold"}
+                  weight="bold"
                   color={theme.colors.icons.active}
                   style={{ alignSelf: "flex-start" }}
                   // style={{ color: theme.colors.icons.active }}

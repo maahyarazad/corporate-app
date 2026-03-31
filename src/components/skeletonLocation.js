@@ -20,9 +20,9 @@ export const SkeletonLocation = ({ display, backgroundColor = "#efefef" }) => {
         }}
       >
         <Skeleton
-          variant={"square"}
-          height={"100%"}
-          width={"100%"}
+          variant="square"
+          height="100%"
+          width="100%"
           opacityMax={0.2}
           opacityMin={0.1}
         />
@@ -38,7 +38,7 @@ export const SkeletonLocation = ({ display, backgroundColor = "#efefef" }) => {
         >
           <View>
             <Skeleton
-              variant={"circle"}
+              variant="circle"
               height={100}
               width={100}
               opacityMax={0.2}
@@ -48,18 +48,18 @@ export const SkeletonLocation = ({ display, backgroundColor = "#efefef" }) => {
           </View>
           <View style={{ flex: 1, paddingLeft: 16 }}>
             <Skeleton
-              variant={"square"}
-              height={"30%"}
-              width={"100%"}
+              variant="square"
+              height="30%"
+              width="100%"
               opacityMax={0.2}
               opacityMin={0.1}
               borderRadius={10}
               style={{ marginBottom: 10 }}
             />
             <Skeleton
-              variant={"square"}
-              height={"30%"}
-              width={"50%"}
+              variant="square"
+              height="30%"
+              width="50%"
               opacityMax={0.2}
               opacityMin={0.1}
               borderRadius={10}
@@ -69,27 +69,27 @@ export const SkeletonLocation = ({ display, backgroundColor = "#efefef" }) => {
 
         <View style={{ marginVertical: 16 }}>
           <Skeleton
-            variant={"square"}
+            variant="square"
             height={30}
-            width={"50%"}
+            width="50%"
             opacityMax={0.2}
             opacityMin={0.1}
             borderRadius={10}
             style={{ marginBottom: 10 }}
           />
           <Skeleton
-            variant={"square"}
+            variant="square"
             height={100}
-            width={"100%"}
+            width="100%"
             opacityMax={0.2}
             opacityMin={0.1}
             borderRadius={10}
             style={{ marginBottom: 10 }}
           />
           <Skeleton
-            variant={"square"}
+            variant="square"
             height={100}
-            width={"100%"}
+            width="100%"
             opacityMax={0.2}
             opacityMin={0.1}
             borderRadius={10}
@@ -98,18 +98,18 @@ export const SkeletonLocation = ({ display, backgroundColor = "#efefef" }) => {
 
         <View style={{ marginVertical: 16 }}>
           <Skeleton
-            variant={"square"}
+            variant="square"
             height={30}
-            width={"50%"}
+            width="50%"
             opacityMax={0.2}
             opacityMin={0.1}
             borderRadius={10}
             style={{ marginBottom: 10 }}
           />
           <Skeleton
-            variant={"square"}
+            variant="square"
             height={100}
-            width={"100%"}
+            width="100%"
             opacityMax={0.2}
             opacityMin={0.1}
             borderRadius={10}

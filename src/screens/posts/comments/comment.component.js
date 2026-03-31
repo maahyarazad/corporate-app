@@ -180,7 +180,7 @@ export default function Comment({
           }}
           multiline={true}
           numberOfLines={4}
-          placeholder={"Write a comment..."}
+          placeholder="Write a comment..."
           value={editedText}
           onChangeText={handleEditTextChange}
           maxLength={COMMENT_MAXLENGTH}
@@ -261,17 +261,17 @@ export default function Comment({
               }}
             >
               <Label
-                size={"caption"}
-                weight={"bold"}
+                size="caption"
+                weight="bold"
               >{`${data.first_name} ${data.last_name}`}</Label>
-              <Label size={"caption"} weight={"regular"}>
+              <Label size="caption" weight="regular">
                 {` • ${timeDiffString(data.date_posted * 1000)}`}
               </Label>
             </View>
 
             {/* <Label
-            size={"caption"}
-            weight={"regular"}
+            size="caption"
+            weight="regular"
           >{`${data.position}`}</Label> */}
 
             {/* Show only if user is the one created it */}
@@ -281,7 +281,7 @@ export default function Comment({
                   <MaterialCommunityIcons
                     name="dots-horizontal"
                     size={25}
-                    color={"#aaa"}
+                    color="#aaa"
                   />
                 </TouchableOpacity>
               </View>
@@ -309,7 +309,7 @@ export default function Comment({
                             style={{
                               color: like ? theme.colors.icons.active : "black",
                             }}
-                            weight={"bold"}
+                            weight="bold"
                             size={12}
                           >{`${likeCount} `}</Label>
                         )}
@@ -323,7 +323,7 @@ export default function Comment({
                           style={{
                             color: like ? theme.colors.icons.active : "black",
                           }}
-                          weight={"bold"}
+                          weight="bold"
                         >
                           {` Like`}
                         </Label>
@@ -339,7 +339,7 @@ export default function Comment({
                             size={12}
                             name="message-reply-text-outline"
                           />
-                          <Label size={12} weight={"bold"}>
+                          <Label size={12} weight="bold">
                             Antworten
                           </Label>
                         </View>
@@ -374,7 +374,7 @@ export default function Comment({
       {degree > 1 && replies > 0 && !isViewed && (
         <View style={styles.viewMore}>
           <TouchableOpacity onPress={viewReply}>
-            <Label weight={"bold"} size={12}>
+            <Label weight="bold" size={12}>
               {`View ${replies} more ${replies > 1 ? "replies" : "reply"}`}
             </Label>
           </TouchableOpacity>

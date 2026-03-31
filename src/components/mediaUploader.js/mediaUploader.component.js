@@ -48,7 +48,7 @@ const PreviewPhoto = React.memo(({ onPress, item, removeItem }) => {
               width: 100,
               height: 100,
             }}
-            resizeMode={"cover"}
+            resizeMode="cover"
             local={true}
           />
           {item.type === "video" && (
@@ -60,7 +60,7 @@ const PreviewPhoto = React.memo(({ onPress, item, removeItem }) => {
               <MaterialCommunityIcons
                 name="play-circle-outline"
                 size={60}
-                color={"white"}
+                color="white"
               />
             </View>
           )}
@@ -72,7 +72,7 @@ const PreviewPhoto = React.memo(({ onPress, item, removeItem }) => {
             <MaterialCommunityIcons
               name="minus-circle"
               size={25}
-              color={"red"}
+              color="red"
             />
           </View>
         </TouchableOpacity>
@@ -115,7 +115,7 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
         //   console.log(`Final Size: ${finalSize.toFixed(2)}`);
           const perc = (finalSize / initialSize) * 100;
         //   console.log(
-        //     `% Reduction: (${finalSize > initialSize ? "UP" : "DOWN"}) ${(
+        //     `% Reduction: (${finalSize > initialSize ? "UP" : "DOWN") ${(
         //       perc - 100
         //     ).toFixed(2)}%`
         //   );
@@ -253,7 +253,7 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
             <MaterialCommunityIcons
               name="plus-circle"
               size={30}
-              color={"#ccc"}
+              color="#ccc"
             />
           </View>
         </TouchableOpacity>
@@ -404,7 +404,7 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
                                 size={50}
                               />
                               <Label
-                                weight={"bold"}
+                                weight="bold"
                                 style={{ textAlign: "center" }}
                               >
                                 Bilder auswählen
@@ -430,7 +430,7 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
                             >
                               <MaterialCommunityIcons name="video" size={50} />
                               <Label
-                                weight={"bold"}
+                                weight="bold"
                                 style={{ textAlign: "center" }}
                               >
                                 Video auswählen
@@ -462,9 +462,9 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
                               }}
                             >
                               <MaterialCommunityIcons
-                                name={"close"}
+                                name="close"
                                 size={30}
-                                color={"#ddd"}
+                                color="#ddd"
                               />
                             </View>
                           </TouchableWithoutFeedback>
@@ -503,10 +503,10 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
           {header && (
             <View style={styles.headerContainer}>
               <View style={styles.header}>
-                <Label size={"title"} weight={"bold"}>
+                <Label size="title" weight="bold">
                   Bilder / Video
                 </Label>
-                <Label size={"title"} weight={"bold"}>
+                <Label size="title" weight="bold">
                   {images?.length > 0 ? `(${images.length})` : ""}
                 </Label>
               </View>
@@ -517,13 +517,13 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
                 >
                   <View style={styles.clearButton}>
                     <MaterialCommunityIcons
-                      name={"close-thick"}
+                      name="close-thick"
                       size={16}
-                      color={"#b71540"}
+                      color="#b71540"
                     />
                     <Label
                       size={12}
-                      weight={"bold"}
+                      weight="bold"
                       style={{ color: "#b71540" }}
                     >
                       Alles löschen
@@ -580,9 +580,9 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
                   >
                     <View style={{ padding: 10 }}>
                       <MaterialCommunityIcons
-                        name={"close"}
+                        name="close"
                         size={30}
-                        color={"#ddd"}
+                        color="#ddd"
                       />
                     </View>
                   </TouchableOpacity>

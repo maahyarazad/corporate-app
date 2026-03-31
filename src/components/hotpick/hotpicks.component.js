@@ -127,7 +127,7 @@ const Hotpicks = ({ hotpickData }) => {
           onPress={() => {
             handlePress(item.partner_id);
           }}
-          size={"hotpick"}
+          size="hotpick"
           stamp={offerStamps[item.premium_id - 1]}
           offer_name={item.offer_name}
           // offer_name={item.offer_name}
@@ -203,9 +203,9 @@ const Hotpicks = ({ hotpickData }) => {
                     onPress={() => {
                       handlePress(hotpickData[0].partner_id);
                     }}
-                    size={"hotpick"}
-                    width={"100%"}
-                    imgWidth={"100%"}
+                    size="hotpick"
+                    width="100%"
+                    imgWidth="100%"
                     imgHeight={Math.min(Dimensions.get("screen").width * 0.5)}
                     stamp={offerStamps[hotpickData[0].premium_id - 1]}
                     offer_name={hotpickData[0].offer_name}
@@ -299,8 +299,8 @@ const Hotpicks = ({ hotpickData }) => {
                     textStyle={{ width: 105, textAlign: "center" }}
                   >
                     <Label
-                      weight={"bold"}
-                      color={"white"}
+                      weight="bold"
+                      color="white"
                     >{`${currentIndex} out of ${hotpickData.length}`}</Label>
                   </Chip>
                 )}
@@ -309,7 +309,7 @@ const Hotpicks = ({ hotpickData }) => {
                   hotpickData.map((_, index) => {
                     return (
                       <PaginationItem
-                        backgroundColor={"#ccc"}
+                        backgroundColor="#ccc"
                         animValue={progressValue}
                         index={index}
                         key={index}

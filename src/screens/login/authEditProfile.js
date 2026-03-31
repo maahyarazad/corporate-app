@@ -7,13 +7,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import {
-  
-  Platform,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Platform, StyleSheet, TouchableOpacity, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Button } from "react-native-paper";
 import { BirthdatePicker } from "../../components/BirthdatePicker";
@@ -83,7 +77,6 @@ export const AuthEditProfileScreen = () => {
       const response = await PartnerService.getPartners();
       const response_userInfo = await getUserInfo();
       if (response_userInfo) {
-        
         setUserData(response_userInfo);
       }
 
@@ -145,8 +138,13 @@ export const AuthEditProfileScreen = () => {
         empty = true;
       }
     });
-    
-    if (empty) showToast("error", "Empty Fields", "Please fill in all the required fields")
+
+    if (empty)
+      showToast(
+        "error",
+        "Empty Fields",
+        "Please fill in all the required fields"
+      );
     return empty;
   };
 
@@ -156,7 +154,6 @@ export const AuthEditProfileScreen = () => {
         ...state,
         cardValidity: expiryToDate(state.card_valid_date),
       };
-      
 
       setIsSubmitted(true);
 
@@ -171,22 +168,18 @@ export const AuthEditProfileScreen = () => {
           setIsLoading(false);
 
           showToast(
-                  "success",
-                  i18n.t("profile-tabs.profile.update.heading"),
-                i18n.t("profile-tabs.profile.update.text")
-                );
+            "success",
+            i18n.t("profile-tabs.profile.update.heading"),
+            i18n.t("profile-tabs.profile.update.text")
+          );
 
           goback();
         }
       }
     } catch (error) {
       console.log(error);
-       showToast(
-              "error",
-              "Error",
-           error.data.message
-            );
-      
+      showToast("error", "Error", error.data.message);
+
       setIsLoading(false);
     }
   };
@@ -236,9 +229,9 @@ export const AuthEditProfileScreen = () => {
               }}
               activeOpacity={0.5}
             >
-              <Ionicons name="arrow-back" size={35} color={"#eee"} />
+              <Ionicons name="arrow-back" size={35} color="#eee" />
               <Label
-                size={"body"}
+                size="body"
                 weight="bold"
                 style={{ color: "#dfdfdf", justifyContent: "center" }}
               >
@@ -260,7 +253,7 @@ export const AuthEditProfileScreen = () => {
                     <MaterialCommunityIcons
                       name="content-save-outline"
                       size={20}
-                      color={"white"}
+                      color="white"
                     ></MaterialCommunityIcons>
                   );
                 }}
@@ -277,8 +270,8 @@ export const AuthEditProfileScreen = () => {
               justifyContent: "center",
               paddingHorizontal: 18,
             }}
-            indicatorStyle={"white"}
-            keyboardShouldPersistTaps={"always"}
+            indicatorStyle="white"
+            keyboardShouldPersistTaps="always"
             keyboardDismissMode={
               Platform.OS === "ios" ? "interactive" : "on-drag"
             }
@@ -387,7 +380,6 @@ export const AuthEditProfileScreen = () => {
               }}
             >
               <BirthdatePicker
-                
                 value={state.birthdate}
                 onChange={(date) =>
                   setState((prev) => ({ ...prev, birthdate: date }))
@@ -406,7 +398,6 @@ export const AuthEditProfileScreen = () => {
               <NationalityInput
                 value={state.nationality}
                 onChange={(e) => {
-                  
                   setState({ ...state, nationality: e });
                 }}
               />
@@ -414,24 +405,22 @@ export const AuthEditProfileScreen = () => {
 
             {userData && !userData.member && (
               <>
-
                 <DropDown
                   value={state.partner_id}
                   searchable={true}
                   items={partnerList}
                   style={{ marginBottom: 8 }}
                   onChange={handlePartnerChange}
-                  placeholder={"Partner"}
-                  
+                  placeholder="Partner"
                 />
 
                 <CustomTextInput
                   maxLength={5}
-                  label={"GEC Card Expiry Date *"}
+                  label="GEC Card Expiry Date *"
                   value={state.card_valid_date}
-                  returnKeyType={"done"}
+                  returnKeyType="done"
                   keyboardType="numeric"
-                  placeholder={"mm/yy"}
+                  placeholder="mm/yy"
                   onChangeText={handleValidityChange}
                   error={isSubmitted && state.card_valid_date?.trim() === ""}
                   style={{ marginBottom: 8 }}
@@ -445,7 +434,7 @@ export const AuthEditProfileScreen = () => {
                 setState({ ...state, cardNumber: prev });
               }}
               keyboardType="numeric"
-              label={"GEC Card Number *"}
+              label="GEC Card Number *"
               error={isSubmitted && state.cardNumber?.trim() === ""}
             />
           </KeyboardAwareScrollView>

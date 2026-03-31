@@ -30,11 +30,11 @@ export const SearchButton = ({ onPress }) => {
           <MaterialCommunityIcons
             name="store-search"
             size={30}
-            color={"#888"}
+            color="#888"
           />
           <Label
             style={{ marginLeft: 10, color: "#999" }}
-            size={"title"}
+            size="title"
             weight="medium"
           >
             {i18n.t("search")}

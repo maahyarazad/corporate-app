@@ -124,9 +124,9 @@ export const OfferModalInfo = ({
           <LocationInfo
             location={location}
             distance={distance}
-            headerSize={"title"}
-            subheaderSize={"subtitle"}
-            infoSize={"body"}
+            headerSize="title"
+            subheaderSize="subtitle"
+            infoSize="body"
             imageH={80}
             imageW={80}
             showContact={false}
@@ -287,7 +287,7 @@ export const OrderCardModal = ({ onClose }) => {
             rippleColor="#ccc"
           ></IconButton>
         </View>
-        <Label size={"heading"} weight={"bold"}>
+        <Label size="heading" weight="bold">
           {i18n.t("offer-restriction.title")}
         </Label>
         <View style={{marginTop: 8}} />

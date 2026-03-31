@@ -45,7 +45,7 @@ export const ProfSettings = () => {
         return (
           <MaterialCommunityIcons
             color={theme.colors.ui.lightGray2}
-            name={"cog-outline"}
+            name="cog-outline"
             size={25}
           />
         );
@@ -60,7 +60,7 @@ export const ProfSettings = () => {
         return (
           <MaterialCommunityIcons
             color={theme.colors.ui.lightGray2}
-            name={"shield-search"}
+            name="shield-search"
             size={25}
           />
         );
@@ -75,7 +75,7 @@ export const ProfSettings = () => {
         return (
           <MaterialCommunityIcons
             color={theme.colors.ui.lightGray2}
-            name={"face-agent"}
+            name="face-agent"
             size={25}
           />
         );
@@ -90,7 +90,7 @@ export const ProfSettings = () => {
         return (
           <MaterialCommunityIcons
             color={theme.colors.ui.warning}
-            name={"account-remove-outline"}
+            name="account-remove-outline"
             size={25}
           />
         );
@@ -103,7 +103,7 @@ export const ProfSettings = () => {
       triggerFunction: 0,
       icon: () => {
         return (
-          <MaterialCommunityIcons color={"white"} name={"logout"} size={25} />
+          <MaterialCommunityIcons color="white" name="logout" size={25} />
         );
       },
     },
@@ -193,7 +193,7 @@ export const ProfSettings = () => {
     return (
       <View style={styles.section}>
         <View>
-          <Label size={"subtitle"} weight={"medium"} color={"#888"}>
+          <Label size="subtitle" weight="medium" color="#888">
             {title}
           </Label>
         </View>
@@ -244,7 +244,7 @@ export const ProfSettings = () => {
             name={icon}
             size={25}
           />
-          <Label weight={"bold"}>{label}</Label>
+          <Label weight="bold">{label}</Label>
           <View style={{ flex: 1 }}>
             {type === "switch" && (
               <Switch
@@ -281,7 +281,7 @@ export const ProfSettings = () => {
           {item.icon != undefined ? item.icon() : <></>}
           <Label
             style={{ color: item.textColor, marginLeft: 8 }}
-            weight={"bold"}
+            weight="bold"
           >
             {item.label}
           </Label>
@@ -294,9 +294,9 @@ export const ProfSettings = () => {
     <View style={{ flex: 1, backgroundColor: "#f8f8f8" }}>
       {biometric.available != null && biometric.type != null && (
         <ScrollView contentContainerStyle={styles.container}>
-          <Section title={"General"}>
+          <Section title="General">
             <Settings
-              icon={"cog-outline"}
+              icon="cog-outline"
               label={i18n.t("profile-tabs.settings-menu.settings-permission")}
               onPress={handleSettings}
             />
@@ -309,28 +309,28 @@ export const ProfSettings = () => {
               type="switch"
             />
           </Section>
-          <Section title={"Legal"}>
+          <Section title="Legal">
             <Settings
-              icon={"shield-search"}
+              icon="shield-search"
               label={i18n.t("profile-tabs.settings-menu.legal")}
               onPress={handlePrivacyPolicy}
             />
           </Section>
-          <Section title={"Support"}>
+          <Section title="Support">
             <Settings
-              icon={"face-agent"}
+              icon="face-agent"
               label={i18n.t("profile-tabs.settings-menu.contact-us")}
               onPress={handleContactUs}
             />
           </Section>
-          <Section title={"Account"}>
+          <Section title="Account">
             <Settings
-              icon={"account-remove-outline"}
+              icon="account-remove-outline"
               label={i18n.t("profile-tabs.settings-menu.delete-account")}
               onPress={handleDelete}
             />
             <Settings
-              icon={"logout"}
+              icon="logout"
               label={i18n.t("profile-tabs.settings-menu.logout")}
               onPress={handleLogout}
             />

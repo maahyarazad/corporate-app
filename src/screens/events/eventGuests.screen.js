@@ -143,7 +143,7 @@ export const EventGuestsScreen = () => {
               borderRadius: 15,
             }}
           >
-            <Label weight={"bold"} size="heading">
+            <Label weight="bold" size="heading">
               {message}
             </Label>
           </View>
@@ -171,9 +171,9 @@ export const EventGuestsScreen = () => {
               }}
               activeOpacity={0.5}
             >
-              <Ionicons name="arrow-back" size={35} color={"#111"} />
+              <Ionicons name="arrow-back" size={35} color="#111" />
               <Label
-                // size={"title"}
+                // size="title"
                 weight="bold"
                 style={{
                   fontSize: 16,
@@ -188,14 +188,14 @@ export const EventGuestsScreen = () => {
           <View>
             <Label
               style={{ marginVertical: 10 }}
-              size={"heading"}
-              weight={"bold"}
+              size="heading"
+              weight="bold"
             >
               {i18n.t("events.guest-list.header")}
             </Label>
-            <Label size={"title"}>
+            <Label size="title">
               {i18n.t("events.guest-list.subheader-1")}
-              <Label size={"title"} weight={"bold"}>
+              <Label size="title" weight="bold">
                 {MAX_GUESTS}
               </Label>
               {i18n.t("events.guest-list.subheader-2")}
@@ -207,7 +207,7 @@ export const EventGuestsScreen = () => {
               marginHorizontal: -15,
               paddingHorizontal: 15,
             }}
-            keyboardShouldPersistTaps={"always"}
+            keyboardShouldPersistTaps="always"
           >
             {guestList &&
               guestList.length > 0 &&
@@ -220,7 +220,7 @@ export const EventGuestsScreen = () => {
                         justifyContent: "space-between",
                       }}
                     >
-                      <Label size={"title"} weight={"bold"}>
+                      <Label size="title" weight="bold">
                         {`${i18n.t("events.guest-list.guest")} #${index + 1}`}
                       </Label>
                       <TouchableOpacity
@@ -236,18 +236,18 @@ export const EventGuestsScreen = () => {
                     <View style={{marginTop: 8}} />
                     <View style={{ flexDirection: "row" }}>
                       <View style={styles.guestLabel}>
-                        <Label size={"title"} weight={"bold"}>
+                        <Label size="title" weight="bold">
                           {i18n.t("events.guest-list.firstname")}
                         </Label>
-                        <Label size={"subtitle"} weight={"regular"}>
+                        <Label size="subtitle" weight="regular">
                           {guest.first_name}
                         </Label>
                       </View>
                       <View style={styles.guestLabel}>
-                        <Label size={"title"} weight={"bold"}>
+                        <Label size="title" weight="bold">
                           {i18n.t("events.guest-list.lastname")}
                         </Label>
-                        <Label size={"subtitle"} weight={"regular"}>
+                        <Label size="subtitle" weight="regular">
                           {guest.last_name}
                         </Label>
                       </View>
@@ -261,7 +261,7 @@ export const EventGuestsScreen = () => {
               })}
             {addGuest && (
               <View style={styles.guestListItem}>
-                <Label size={"title"} weight={"bold"}>
+                <Label size="title" weight="bold">
                   {`${i18n.t("events.guest-list.guest")} #${
                     guestList.length + 1 ?? 1
                   }`}
@@ -298,7 +298,7 @@ export const EventGuestsScreen = () => {
                   mode="contained"
                   contentStyle={{ paddingVertical: 8 }}
                   style={[{ borderRadius: 10 }, styles.buttonShadow]}
-                  buttonColor={"#9E3333"}
+                  buttonColor="#9E3333"
                   onPress={handleCancel}
                 >
                   {i18n.t("cancel")}
@@ -331,7 +331,7 @@ export const EventGuestsScreen = () => {
                     <MaterialCommunityIcons
                       size={24}
                       name="plus-circle"
-                      color={"white"}
+                      color="white"
                     />
                   )}
                 >
@@ -350,7 +350,7 @@ export const EventGuestsScreen = () => {
             onPress={handleAttendGuests}
             disabled={guestList.length < 1}
           >
-            <Label style={{ color: "white" }} weight={"bold"}>
+            <Label style={{ color: "white" }} weight="bold">
               {i18n.t("events.confirm-attendance")}
             </Label>
           </Button>

@@ -281,16 +281,16 @@ export const RequestApprovalScreen = () => {
               !hasSubmit && (
                 <View style={{ padding: 20 }}>
                   <Label
-                    weight={"regular"}
-                    size={"subtitle"}
+                    weight="regular"
+                    size="subtitle"
                     style={{ color: "red" }}
                   >
-                    <Label size={"subtitle"} weight={"bold"}>
+                    <Label size="subtitle" weight="bold">
                       {`Rejected Previous Request `}
                     </Label>
                     ({moment(userData.requestDate).format("DD.MMMM YYYY H:mm A")}
-                    ){"\n"}
-                    <Label size={"subtitle"} weight={"bold"}>
+                    )"\n"
+                    <Label size="subtitle" weight="bold">
                       Reason
                     </Label>
                     : {userData.remarks}
@@ -333,7 +333,7 @@ export const RequestApprovalScreen = () => {
                         alignItems: "center",
                       }}
                       onPress={handleOpenCamera}
-                      underlayColor={"#666"}
+                      underlayColor="#666"
                       disabled={isCameraOpen}
                     >
                       <ImageBackground
@@ -366,13 +366,13 @@ export const RequestApprovalScreen = () => {
                         {!isCameraOpen ? (
                           <>
                             <MaterialCommunityIcons
-                              color={"#00000088"}
+                              color="#00000088"
                               name="camera"
                               size={50}
                             />
                             <Label
-                              size={"title"}
-                              weight={"bold"}
+                              size="title"
+                              weight="bold"
                               style={{ color: "#00000088" }}
                             >
                               {i18n.t("card-upload.click-here").toUpperCase()}
@@ -421,7 +421,7 @@ export const RequestApprovalScreen = () => {
                                       color: "white",
                                       textAlign: "center",
                                     }}
-                                    size={"title"}
+                                    size="title"
                                   >
                                     Needs camera permission.
                                   </Label>
@@ -430,7 +430,7 @@ export const RequestApprovalScreen = () => {
                                       color: "white",
                                       textAlign: "center",
                                     }}
-                                    size={"title"}
+                                    size="title"
                                   >
                                     Please allow in your phone settings.
                                   </Label>
@@ -461,7 +461,7 @@ export const RequestApprovalScreen = () => {
                                 >
                                   <SimpleLineIcons
                                     name="arrow-up"
-                                    color={"white"}
+                                    color="white"
                                     size={30}
                                   />
                                 </Pressable>
@@ -477,7 +477,7 @@ export const RequestApprovalScreen = () => {
                                   <TouchableHighlight
                                     onPress={takePic}
                                     style={styles.takeShotButton}
-                                    underlayColor={"#000"}
+                                    underlayColor="#000"
                                   >
                                     <View style={styles.takeShotButton}>
                                       <MaterialCommunityIcons
@@ -545,8 +545,8 @@ export const RequestApprovalScreen = () => {
                       textAlign: "center",
                       marginBottom: 8,
                     }}
-                    size={"heading"}
-                    weight={"bold"}
+                    size="heading"
+                    weight="bold"
                   >
                     {i18n.t("card-upload.heading")}
                   </Label>
@@ -563,8 +563,8 @@ export const RequestApprovalScreen = () => {
                         textAlign: "center",
                         lineHeight: 30,
                       }}
-                      size={"title"}
-                      weight={"regular"}
+                      size="title"
+                      weight="regular"
                     >
                       {i18n.t("card-upload.text")}
                     </Label>
@@ -576,8 +576,8 @@ export const RequestApprovalScreen = () => {
                           textAlign: "left",
                           marginBottom: 20,
                         }}
-                        size={"body"}
-                        weight={"regular"}
+                        size="body"
+                        weight="regular"
                       >
                         {i18n.t("card-upload.notice")}
                       </Label>
@@ -615,12 +615,12 @@ export const RequestApprovalScreen = () => {
                           ? "rgba(230,135,0,1)"
                           : "#aaa"
                       }
-                      buttonColorTo={"rgba(210,115,0,1)"}
-                      iconName={"upload"}
+                      buttonColorTo="rgba(210,115,0,1)"
+                      iconName="upload"
                       iconSize={30}
-                      textColor={"#fff"}
-                      textSize={"title"}
-                      textWeight={"regular"}
+                      textColor="#fff"
+                      textSize="title"
+                      textWeight="regular"
                       label={i18n.t("submit")}
                     />
                   </View>

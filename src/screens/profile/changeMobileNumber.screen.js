@@ -79,19 +79,19 @@ const ChangeMobileNumberScreen = () => {
             }}
             activeOpacity={0.5}
           >
-            <Ionicons name="arrow-back" size={35} color={"#fff"} />
+            <Ionicons name="arrow-back" size={35} color="#fff" />
             <Label
-              size={"body"}
+              size="body"
               weight="bold"
               style={{ justifyContent: "center" }}
-              color={"white"}
+              color="white"
             >
               {i18n.t("return")}
             </Label>
           </TouchableOpacity>
         </View>
         <View style={{ flex: 1, width: "100%", padding: 12, gap: 50 }}>
-          <Label size={"h4"} weight={"bold"} color={"white"}>
+          <Label size="h4" weight="bold" color="white">
             {i18n.t("update-mobile-number.header")}
           </Label>
 
@@ -129,7 +129,7 @@ const ChangeMobileNumberScreen = () => {
                 marginVertical: 30,
               }}
             >
-              <Label style={{ color: "white" }} size={"body"} weight={"bold"}>
+              <Label style={{ color: "white" }} size="body" weight="bold">
                 {i18n.t("update-mobile-number.confirm")}
               </Label>
             </TouchableOpacity>

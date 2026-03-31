@@ -11,12 +11,13 @@ const responseData = (response: AxiosResponse) => response.data;
 const resData = (response: AxiosResponse) => response.data.data;
 
 export const UserService: UserServiceType = {
-  async createUser(user): Promise<boolean> {
-    const response = await axiosInstance.post<boolean>(
+  async createUser(user): Promise<any> {
+    const response = await axiosInstance.post<any>(
       `${API_URL}/register`,
       user
     );
-    return success(response);
+    
+    return responseData(response);
   },
 
   async updateUser(user): Promise<boolean> {

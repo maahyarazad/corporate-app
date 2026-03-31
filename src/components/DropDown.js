@@ -272,7 +272,7 @@ useEffect(() => {
                 value={query}
                 onChangeText={setQuery}
                 placeholder={searchPlaceholder}
-                placeholderTextColor={"#999"}
+                placeholderTextColor="#999"
                 autoCorrect={false}
                 style={[styles.searchInput, searchInputStyle]}
               />

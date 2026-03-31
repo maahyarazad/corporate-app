@@ -405,47 +405,47 @@ export default function PostsScreen() {
               width={50}
               height={50}
               opacityMax={0.2}
-              variant={"circle"}
+              variant="circle"
             />
             <View style={{ flex: 1, gap: 6 }}>
               <Skeleton
-                width={"50%"}
+                width="50%"
                 height={20}
                 opacityMax={0.2}
-                variant={"circle"}
+                variant="circle"
               />
               <Skeleton
-                width={"30%"}
+                width="30%"
                 height={20}
                 opacityMax={0.2}
-                variant={"circle"}
+                variant="circle"
               />
             </View>
           </View>
           <View style={{ gap: 6 }}>
             <Skeleton
-              width={"100%"}
+              width="100%"
               height={22}
               opacityMax={0.2}
-              variant={"circle"}
+              variant="circle"
             />
             <Skeleton
-              width={"100%"}
+              width="100%"
               height={22}
               opacityMax={0.2}
-              variant={"circle"}
+              variant="circle"
             />
             <Skeleton
-              width={"100%"}
+              width="100%"
               height={22}
               opacityMax={0.2}
-              variant={"circle"}
+              variant="circle"
             />
             <Skeleton
-              width={"40%"}
+              width="40%"
               height={22}
               opacityMax={0.2}
-              variant={"circle"}
+              variant="circle"
             />
           </View>
         </View>
@@ -502,7 +502,7 @@ export default function PostsScreen() {
               //           size={20}
               //           color="black"
               //         />
-              //         <Label size={"subtitle"}>Posts durchsuchen</Label>
+              //         <Label size="subtitle">Posts durchsuchen</Label>
               //       </View>
               //     </TouchableWithoutFeedback>
               //   </View>
@@ -568,7 +568,7 @@ export default function PostsScreen() {
                 elevation: 12,
               }}
             >
-              <MaterialCommunityIcons name="plus" color={"white"} size={40} />
+              <MaterialCommunityIcons name="plus" color="white" size={40} />
             </View>
           </TouchableOpacity>
         </View>

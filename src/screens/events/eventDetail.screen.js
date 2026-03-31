@@ -327,7 +327,7 @@ export const EventDetailScreen = () => {
       <CustomModal type="fade" showModal={showModal}>
         <View style={styles.modalContainer}>
           <View style={styles.modalCard}>
-            <Label weight={"bold"} size="heading">
+            <Label weight="bold" size="heading">
               {message}
             </Label>
           </View>
@@ -355,7 +355,7 @@ export const EventDetailScreen = () => {
                   style={styles.backButton}
                   activeOpacity={0.5}
                 >
-                  <Ionicons name="arrow-back" size={35} color={"#111"} />
+                  <Ionicons name="arrow-back" size={35} color="#111" />
                   <Label weight="bold" style={styles.backLabel}>
                     {i18n.t("bottom-tabs.events")}
                   </Label>
@@ -371,9 +371,9 @@ export const EventDetailScreen = () => {
 
               <View style={styles.innerContainer}>
                 <Label
-                  size={"heading"}
+                  size="heading"
                   style={{ marginVertical: 8 }}
-                  weight={"bold"}
+                  weight="bold"
                 >
                   {eventDetails.eventName}
                 </Label>

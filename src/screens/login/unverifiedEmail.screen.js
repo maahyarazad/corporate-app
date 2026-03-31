@@ -61,7 +61,7 @@ export const UnverifiedEmailScreen = ({ route }) => {
               borderWidth: 2,
             }}
           >
-            <Label weight={"bold"} size={20}>
+            <Label weight="bold" size={20}>
               {value}
             </Label>
           </View>
@@ -110,7 +110,7 @@ export const UnverifiedEmailScreen = ({ route }) => {
     <Background>
       <SafeArea>
         <KeyboardAwareScrollView
-          keyboardShouldPersistTaps={"always"}
+          keyboardShouldPersistTaps="always"
           contentContainerStyle={styles.container}
         >
           <View
@@ -128,8 +128,8 @@ export const UnverifiedEmailScreen = ({ route }) => {
           <View style={styles.viewStyle}>
             <Label
               style={{ color: "white", textAlign: "center" }}
-              size={"title"}
-              weight={"medium"}
+              size="title"
+              weight="medium"
             >
               {i18n.t("email-verification.text")}
             </Label>
@@ -140,7 +140,7 @@ export const UnverifiedEmailScreen = ({ route }) => {
           <TouchableOpacity onPress={handleEmailChange} style={styles.viewStyle}>
             <Label
               style={{ color: "white", textDecorationLine: "underline" }}
-              size={"title"}
+              size="title"
             >
               {i18n.t("update-email.header")}
             </Label>
@@ -160,7 +160,7 @@ export const UnverifiedEmailScreen = ({ route }) => {
             contentStyle={{ paddingVertical: 8, paddingHorizontal: 16 }}
             mode="contained"
           >
-            <Label size={"body"} weight={"bold"} color={"white"}>
+            <Label size="body" weight="bold" color="white">
               {i18n.t("email-verification.button")}
             </Label>
           </Button>
@@ -169,8 +169,8 @@ export const UnverifiedEmailScreen = ({ route }) => {
             <TouchableOpacity onPress={handleResend} style={styles.viewStyle}>
               <Label
                 style={{ color: "white", textDecorationLine: "underline" }}
-                size={"subtitle"}
-                weight={"regular"}
+                size="subtitle"
+                weight="regular"
               >
                 {i18n.t("email-verification.link")}
               </Label>
@@ -178,8 +178,8 @@ export const UnverifiedEmailScreen = ({ route }) => {
           ) : (
             <Label
               style={{ color: "#aaa" }}
-              size={"subtitle"}
-              weight={"regular"}
+              size="subtitle"
+              weight="regular"
             >
               {i18n.t("email-verification.link-pressed")}
             </Label>
@@ -191,8 +191,8 @@ export const UnverifiedEmailScreen = ({ route }) => {
               <TouchableOpacity onPress={handleUseVerification}>
                 <Label
                   style={{ color: "white", textDecorationLine: "underline" }}
-                  size={"subtitle"}
-                  weight={"regular"}
+                  size="subtitle"
+                  weight="regular"
                 >
                   Use Verification Code
                 </Label>

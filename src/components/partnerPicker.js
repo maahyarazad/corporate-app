@@ -42,7 +42,7 @@ export const PartnerPicker = ({
       >
         <CustomTextInput
           value={selectedPartner ? selectedPartner : selectedPartnerName}
-          label={"Partner *"}
+          label="Partner *"
           style={{
             width: "100%",
             maxHeight: 58,

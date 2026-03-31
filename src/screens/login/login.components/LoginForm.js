@@ -81,7 +81,7 @@ const LoginForm = ({
         />
         <View style={{ flex: 1 }}>
           <Label size="caption" shadow style={{ color: "white" }}>
-            I accept the{" "}
+            I accept the" "
             <Label
               onPress={handleBrowser}
               size="caption"

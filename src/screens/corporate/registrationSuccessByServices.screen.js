@@ -8,18 +8,15 @@ import { Label } from "../../components/typography/label.component";
 import { theme } from "../../infrastructure/theme";
 import { navigate } from "../../navigation/navigate";
 
-import { retrieveToken} from '../../services/auth/auth.service';
+import { retrieveToken } from "../../services/auth/auth.service";
 
 export const RegistrationSuccessByServices = () => {
   const bounceValue = useRef(new Animated.Value(0)).current;
   const fadeInValue = useRef(new Animated.Value(0)).current;
   const fadeInButton = useRef(new Animated.Value(0)).current;
- 
-const { signin, loading, verifyOTP , submittedCard, authorize} = useAuth();
 
+  const { signin, loading, verifyOTP, submittedCard, authorize } = useAuth();
 
-
- 
   const fadeInterpolation = bounceValue.interpolate({
     inputRange: [0, 1],
     outputRange: [-100, 0],
@@ -63,25 +60,7 @@ const { signin, loading, verifyOTP , submittedCard, authorize} = useAuth();
     ],
   };
 
-  
-
-    const Continue = async () => {
-
-        const token = await  retrieveToken();
-
-    await verifyOTP(); // updates phoneVerified
-    await authorize(); // updates isAuthorized
-         
-          await verifyOTP(); await submittedCard();
-          await signin(token, token);  
-        navigate("Entertainer")
-
-    // AppNavigation will now render MainScreen automatically
-  };
-
-
   const fadeInAnimationStyle = {
-    
     opacity: fadeInValue,
   };
 
@@ -98,7 +77,26 @@ const { signin, loading, verifyOTP , submittedCard, authorize} = useAuth();
     <Background>
       <View style={styles.container}>
         <View style={{ flex: 2, justifyContent: "flex-end" }}>
+
           <Animated.View style={bounceAnimationStyle}>
+            <Label
+              size="h4"
+              weight="bold"
+              style={{ color: "white", textAlign: "center" }}
+            >
+              BOOM!
+
+            </Label>
+
+<Label
+              size="h4"
+              weight="bold"
+              style={{ color: "white", textAlign: "center" }}
+            >
+              You are in
+              
+            </Label>
+
             <MaterialCommunityIcons
               name="account-check"
               color={theme.colors.icons.active}
@@ -115,19 +113,24 @@ const { signin, loading, verifyOTP , submittedCard, authorize} = useAuth();
         >
           <Animated.View style={fadeInAnimationStyle}>
             <Label
-              size={"h4"}
-              weight={"bold"}
+              size="h4"
+              weight="bold"
               style={{ color: "white", textAlign: "center" }}
             >
               Your account has been created!
             </Label>
-            
+
             <Label
-              size={"title"}
-              weight={"medium"}
-              style={{ color: "white", textAlign: "center" , ...styles.marginFix}}
+              size="title"
+              weight="medium"
+              style={{
+                color: "white",
+                textAlign: "center",
+                ...styles.marginFix,
+              }}
             >
-               Your account has already been verified with the provided email and mobile number previously.
+              Your account has already been verified with the provided email and
+              mobile number previously.
             </Label>
           </Animated.View>
           <Animated.View style={fadeInButtonAnimationStyle}>
@@ -136,12 +139,13 @@ const { signin, loading, verifyOTP , submittedCard, authorize} = useAuth();
               buttonColor={theme.colors.icons.active}
               labelStyle={{ paddingVertical: 14 }}
               style={{ marginBottom: 100, borderRadius: 10 }}
-             onPress={() => {Continue()}}
+              onPress={() => {
+                navigate("Login");
+              }}
             >
               <Label
-                size={"title"}
-                weight={"bold"}
-              
+                size="title"
+                weight="bold"
                 style={{ color: "black", textAlign: "center" }}
               >
                 Continues
@@ -160,7 +164,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  marginFix:{
-    marginTop: 8
-  }
+  marginFix: {
+    marginTop: 8,
+  },
 });

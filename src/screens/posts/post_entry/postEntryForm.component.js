@@ -41,7 +41,7 @@ const PostEntryForm = ({ setValue, value, category_id = 1 }) => {
           <>
             <TextInput
               placeholder="Title"
-              placeholderTextColor={"#ccc"}
+              placeholderTextColor="#ccc"
               style={{
                 backgroundColor: "white",
                 fontSize: 20,
@@ -56,7 +56,7 @@ const PostEntryForm = ({ setValue, value, category_id = 1 }) => {
             <View style={{marginTop: 6}}/>
             <TextInput
               placeholder="Content"
-              placeholderTextColor={"#ccc"}
+              placeholderTextColor="#ccc"
               style={{
                 fontSize: 18,
                 fontWeight: "normal",
@@ -79,7 +79,7 @@ const PostEntryForm = ({ setValue, value, category_id = 1 }) => {
           <>
             <TextInput
               placeholder="Product Name"
-              placeholderTextColor={"#ccc"}
+              placeholderTextColor="#ccc"
               style={{
                 backgroundColor: "white",
                 fontSize: 20,
@@ -94,7 +94,7 @@ const PostEntryForm = ({ setValue, value, category_id = 1 }) => {
             <View style={{marginTop: 6}}/>
             <TextInput
               placeholder="Price"
-              placeholderTextColor={"#ccc"}
+              placeholderTextColor="#ccc"
               style={{
                 fontSize: 18,
                 fontWeight: "normal",
@@ -128,7 +128,7 @@ const PostEntryForm = ({ setValue, value, category_id = 1 }) => {
       >
         <RenderForm />
         <View style={{ alignSelf: "flex-end", bottom: 10 }}>
-          <Label style={{ color: "#bbb" }} weight={"bold"}>
+          <Label style={{ color: "#bbb" }} weight="bold">
             {content.length}/{POST_MAXLENGTH}
           </Label>
         </View>

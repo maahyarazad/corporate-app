@@ -377,7 +377,7 @@ const MainScreen = () => {
           headerTitle: () => {
             const { sectionTitle } = useContext(SectionContext);
             return (
-              <Label size={"title"} weight={"bold"}>
+              <Label size="title" weight="bold">
                 {sectionTitle}
               </Label>
             );

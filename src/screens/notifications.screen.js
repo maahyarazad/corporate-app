@@ -121,7 +121,7 @@ const RenderNotification = memo(({ item, index }) => {
             {item.image ? (
               <CacheImage
                 uri={`${item.image}_s1.jpg`}
-                resizeMode={"contain"}
+                resizeMode="contain"
                 style={{
                   width: "100%",
                   height: "100%",
@@ -228,9 +228,9 @@ const NotificationsScreen = () => {
             }}
             activeOpacity={0.5}
           >
-            <Ionicons name="arrow-back" size={35} color={"#555"} />
+            <Ionicons name="arrow-back" size={35} color="#555" />
             <Label
-              size={"body"}
+              size="body"
               weight="bold"
               style={{ color: "#555", justifyContent: "center" }}
             >
@@ -238,7 +238,7 @@ const NotificationsScreen = () => {
             </Label>
           </TouchableOpacity>
         </View>
-        <Label weight={"bold"} size={"h5"}>
+        <Label weight="bold" size="h5">
           Benachrichtigungen
         </Label>
         <View style={{ flex: 1 }}>
@@ -277,7 +277,7 @@ const NotificationsScreen = () => {
                     paddingVertical: 50,
                   }}
                 >
-                  <Label size={20} weight={"bold"} color={"#bbb"}>
+                  <Label size={20} weight="bold" color="#bbb">
                     No notifications
                   </Label>
                 </View>

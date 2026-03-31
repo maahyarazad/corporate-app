@@ -177,12 +177,12 @@ const PostEntryScreen = () => {
                   paddingHorizontal: 20,
                 }}
               >
-                <Label size={25} weight={"bold"}>
+                <Label size={25} weight="bold">
                   Sie sind fast am Ziel!
                 </Label>
                 <Label
-                  size={"subtitle"}
-                  weight={"medium"}
+                  size="subtitle"
+                  weight="medium"
                   style={{ textAlign: "center" }}
                 >
                   Vervollständigen Sie die Details und schon kann es losgehen!
@@ -193,7 +193,7 @@ const PostEntryScreen = () => {
                 <View>
                   <Label
                     size={16}
-                    weight={"bold"}
+                    weight="bold"
                   >{`${type.label}  ➤  ${category.category}`}</Label>
                 </View>
                 {/* <TextInput

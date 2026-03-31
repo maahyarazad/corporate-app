@@ -299,7 +299,7 @@ const SLIDESHOW_HEIGHT = Math.floor(width * 9 / 16);
                     alignItems: "center",
                   }}
                 >
-                  <Ionicons name={"arrow-back"} color="white" size={35} />
+                  <Ionicons name="arrow-back" color="white" size={35} />
                 </View>
               </TouchableRipple>
             </View>

@@ -303,7 +303,7 @@ const PostCard = ({
                 <MaterialCommunityIcons
                   name="play-circle-outline"
                   size={80}
-                  color={"white"}
+                  color="white"
                 />
               </View>
             )}
@@ -322,7 +322,7 @@ const PostCard = ({
                     alignItems: "center",
                   }}
                 >
-                  <Label size={"title"} color={"white"}>{`+${
+                  <Label size="title" color="white">{`+${
                     thumbnails.length - 4
                   } mehr`}</Label>
                 </View>
@@ -341,7 +341,7 @@ const PostCard = ({
       <View style={{ paddingVertical: 4 }}>
         <View style={[styles.container, styles.title]}>
           <Skeleton
-            variant={"circle"}
+            variant="circle"
             width={50}
             height={50}
             opacityMax={0.15}
@@ -362,8 +362,8 @@ const PostCard = ({
             >
               <View style={styles.row}>
                 <Skeleton
-                  variant={"square"}
-                  width={"100%"}
+                  variant="square"
+                  width="100%"
                   height={50}
                   style={{ borderRadius: 10 }}
                   opacityMax={0.15}
@@ -394,7 +394,7 @@ const PostCard = ({
             source={{ uri: image.uri }}
             style={{ width: "100%", height: 300 }}
           />
-          <Label color={"white"}>aw</Label>
+          <Label color="white">aw</Label>
           {isVisible && (
             <View
               style={{
@@ -445,7 +445,7 @@ const PostCard = ({
                   <View style={styles.row}>
                     <TouchableWithoutFeedback onPress={onTitlePress}>
                       <View>
-                        <Label size={"body"} weight={"bold"}>
+                        <Label size="body" weight="bold">
                           {`${data.first_name} ${data.last_name}`}
                         </Label>
                       </View>
@@ -455,13 +455,13 @@ const PostCard = ({
                   {/* position/profession */}
                   {data && data.position && (
                     <View style={{ flexDirection: "row" }}>
-                      <Label size={"caption"} weight={"regular"}>
+                      <Label size="caption" weight="regular">
                         {data.position}
                       </Label>
                     </View>
                   )}
                   <View>
-                    {/* <Label size={"caption"}>
+                    {/* <Label size="caption">
                       {timeDiffString(data.date_posted)}
                     </Label> */}
                   </View>
@@ -475,7 +475,7 @@ const PostCard = ({
                   {/* category */}
                   <View style={[styles.row]}>
                     <View style={[styles.row, styles.chip]}>
-                      <Label weight={"bold"} size={12}>
+                      <Label weight="bold" size={12}>
                         {data.category}
                       </Label>
                     </View>
@@ -494,7 +494,7 @@ const PostCard = ({
                           <MaterialCommunityIcons
                             name="dots-horizontal"
                             size={25}
-                            color={"#aaa"}
+                            color="#aaa"
                           />
                         </TouchableOpacity>
                       </View>
@@ -502,7 +502,7 @@ const PostCard = ({
                   )}
                 </View>
               </View>
-              {/* <Label size={"caption"} weight={"regular"}>
+              {/* <Label size="caption" weight="regular">
                 {data.category}
               </Label> */}
               {/* Category */}
@@ -513,7 +513,7 @@ const PostCard = ({
         {/* Title */}
         <TouchableWithoutFeedback onPress={onCommentPress}>
           <View style={[styles.container, { paddingBottom: 0 }]}>
-            <Label weight={"bold"} size={20}>
+            <Label weight="bold" size={20}>
               {data.title}
             </Label>
           </View>
@@ -573,8 +573,8 @@ const PostCard = ({
           </Button>
           <Button
             style={styles.actionButton}
-            textColor={"#444"}
-            icon={"chat-outline"}
+            textColor="#444"
+            icon="chat-outline"
             onPress={onCommentPress}
             uppercase={false}
           >
@@ -582,8 +582,8 @@ const PostCard = ({
           </Button>
           <Button
             style={styles.actionButton}
-            textColor={"#444"}
-            icon={"share-outline"}
+            textColor="#444"
+            icon="share-outline"
             onPress={onSharePress}
             uppercase={false}
           >
@@ -602,7 +602,7 @@ const PostCard = ({
                   onPress={viewPreviousComments}
                   style={{ alignSelf: "flex-start" }}
                 >
-                  <Label weight={"bold"}>
+                  <Label weight="bold">
                     Vorherige Kommentare anzeigen...
                   </Label>
                 </TouchableOpacity>
@@ -675,9 +675,9 @@ const PostCard = ({
                   >
                     <View style={{ padding: 10 }}>
                       <MaterialCommunityIcons
-                        name={"close"}
+                        name="close"
                         size={30}
-                        color={"#ddd"}
+                        color="#ddd"
                       />
                     </View>
                   </TouchableOpacity>

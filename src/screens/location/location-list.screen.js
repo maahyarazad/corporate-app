@@ -102,7 +102,7 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
     navigation.setOptions({
       headerTitle: () => {
         return (
-          <Label numberOfLines={1} size={"title"} weight={"bold"}>
+          <Label numberOfLines={1} size="title" weight="bold">
             {title}
           </Label>
         );
@@ -298,11 +298,11 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
           onSubmitEditing={handleSubmitSearch}
           onChangeText={onFilterChange}
           autoCorrect={false}
-          placeholder={"Search"}
+          placeholder="Search"
         />
         <View style={{ paddingVertical: 10, paddingHorizontal: 12 }}>
           {resultCount != undefined && (
-            <Label weight={"bold"}>{resultCount} Results</Label>
+            <Label weight="bold">{resultCount} Results</Label>
           )}
         </View>
       </View>

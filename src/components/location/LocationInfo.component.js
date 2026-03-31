@@ -79,7 +79,7 @@ export const LocationInfo = ({
               <Ionicons
                 name="call"
                 size={17}
-                color={"#888"}
+                color="#888"
                 style={{ paddingRight: 4 }}
               />
               <View>

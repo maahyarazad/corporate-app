@@ -124,7 +124,7 @@ export const LocationCards = ({ label, locationList }) => {
                         margin: 8,
                       }}
                     >
-                      <Label size={"mini"} weight={"bold"}>
+                      <Label size="mini" weight="bold">
                         {`${getDistanceInKM(item.lat, item.lng)} km`}
                       </Label>
                     </View>
@@ -135,13 +135,13 @@ export const LocationCards = ({ label, locationList }) => {
                   style={{ flex: 1, paddingHorizontal: 16, paddingVertical: 8 }}
                 >
                   <View style={{ height: 40, justifyContent: "center" }}>
-                    <Label size={"title"} weight="bold">
+                    <Label size="title" weight="bold">
                       {item.outlet_name}
                     </Label>
                     {item.main_name != undefined && (
                       <Label
                         style={{ color: "#aaa" }}
-                        size={"body"}
+                        size="body"
                         weight="bold"
                       >
                         {item.main_name}
@@ -151,13 +151,13 @@ export const LocationCards = ({ label, locationList }) => {
                   <View style={{ paddingTop: 8, paddingBottom: 2 }}>
                     <Label
                       numberOfLines={2}
-                      size={"body"}
+                      size="body"
                       weight="regular"
                       style={{ color: "#aaa" }}
                     >
                       {item.tags.map(
                         ({ tag }, index) =>
-                          `${tag}${index < item.tags.length - 1 ? " • " : ""}`
+                          `${tag}${index < item.tags.length - 1 ? " • " : ""`
                       )}
                     </Label>
                   </View>
@@ -203,7 +203,7 @@ export const LocationCards = ({ label, locationList }) => {
           alignItems: "flex-end",
         }}
       >
-        <Label size={"heading"} weight={"bold"}>
+        <Label size="heading" weight="bold">
           {label}
         </Label>
         <TouchableOpacity
@@ -218,8 +218,8 @@ export const LocationCards = ({ label, locationList }) => {
         >
           <Label
             // style={{ textDecorationLine: "underline", color: "#006EFF" }}
-            size={"body"}
-            weight={"bold"}
+            size="body"
+            weight="bold"
             style={{ marginRight: 4 }}
           >
             {i18n.t("see-all")}
@@ -243,10 +243,10 @@ export const LocationCards = ({ label, locationList }) => {
             fadingEdgeLength={100}
             snapToAlignment="start"
             snapToInterval={width - 16}
-            decelerationRate={"fast"}
-            overScrollMode={"always"}
+            decelerationRate="fast"
+            overScrollMode="always"
             //   keyExtractor={(item) => item.id}
-            keyboardDismissMode={"interactive"}
+            keyboardDismissMode="interactive"
             contentContainerStyle={{ paddingHorizontal: 16 }}
             ItemSeparatorComponent={itemSeparatorHM}
           />

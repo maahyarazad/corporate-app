@@ -74,11 +74,11 @@ const PostCardMagazine = ({ item }) => {
               ></Image>
             </View>
           </View>
-          <Label weight={"bold"}>{item.author ?? "German Emirates Club"}</Label>
+          <Label weight="bold">{item.author ?? "German Emirates Club"}</Label>
         </View>
         <View style={[styles.row]}>
           <View style={[styles.row, styles.chip]}>
-            <Label weight={"bold"} size={12}>
+            <Label weight="bold" size={12}>
               Magazin
             </Label>
           </View>
@@ -89,7 +89,7 @@ const PostCardMagazine = ({ item }) => {
       <View style={{ flex: 1, gap: 12 }}>
         <TouchableWithoutFeedback onPress={handleReadMore}>
           <View style={{ gap: 12 }}>
-            <Label size={20} weight={"bold"}>
+            <Label size={20} weight="bold">
               {item.title}
             </Label>
             <MagazineImage uri={item.image} />
@@ -101,7 +101,7 @@ const PostCardMagazine = ({ item }) => {
             width: "100%",
             aspectRatio: 3 / 2,
           }}
-          resizeMode={"cover"}
+          resizeMode="cover"
         /> */}
             <Label>
               {`${body}${item.moreBody ? "..." : ""}`}{" "}

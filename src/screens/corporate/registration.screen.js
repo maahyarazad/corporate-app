@@ -32,18 +32,7 @@ import { PhoneInput } from "../../components/PhoneInput";
 import { showToast } from "../../Toast";
 
 export const RegistrationScreen = () => {
-  const _login = {
-    username: "maahyarazad",
-    password: "398@AZad",
-    cpassword: "398@AZad",
-    email: "maahyarazad@gmail.com",
-    mobile: "585831595",
-    mobileCode: "971",
-    mobileCountry: "AE",
-    partner_id: 525,
-    app_id: 2,
-    card_valid_date: "0227",
-  };
+
 
   const theme = useTheme();
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -154,6 +143,15 @@ export const RegistrationScreen = () => {
       return false;
     }
 
+    if (!state.mobile) {
+      shake();
+      showToast(
+        "error",
+        "Mobile is required",
+      );
+      return false;
+    }
+
     // if (!_isFutureExpiry) {
 
     setIsPasswordMatch(true);
@@ -232,22 +230,24 @@ export const RegistrationScreen = () => {
 
   const [partnerList, setPartnerList] = useState([]);
 
-  const getPartners = useCallback(async () => {
-    try {
-      const response = await PartnerService.getPartners();
+//   const getPartners = useCallback(async () => {
+//     try {
+        
+        
+//       const response = await PartnerService.getPartners();
 
-      if (response.success) {
-        setPartnerList(response.data);
-      }
-    } catch (error) {
-      console.log(error);
-      showToast("error", "Server Error", error);
-    }
-  }, []);
+//       if (response.success) {
+//         setPartnerList(response.data);
+//       }
+//     } catch (error) {
+//       console.log(error);
+//       showToast("error", "Server Error");
+//     }
+//   }, []);
 
-  useEffect(() => {
-    getPartners();
-  }, [getPartners]);
+//   useEffect(() => {
+//     getPartners();
+//   }, [getPartners]);
 
   return (
     <>
@@ -288,9 +288,9 @@ export const RegistrationScreen = () => {
                   }}
                   activeOpacity={0.5}
                 >
-                  <Ionicons name="arrow-back" size={35} color={"#eee"} />
+                  <Ionicons name="arrow-back" size={35} color="#eee" />
                   <Label
-                    size={"body"}
+                    size="body"
                     weight="bold"
                     style={{ color: "#dfdfdf", justifyContent: "center" }}
                   >
@@ -304,7 +304,7 @@ export const RegistrationScreen = () => {
                 value={state.username}
                 style={{ marginTop: 8 }}
                 onChangeText={handleUsernameChange}
-                label={"Username *"}
+                label="Username *"
                 error={isSubmitted && state.username.trim() === ""}
                 returnKeyType="next"
                 onSubmitEditing={() => passwordRef.current?.focus()}
@@ -345,12 +345,12 @@ export const RegistrationScreen = () => {
               />
 
               <CustomTextInput
-                label={"E-mail *"}
+                label="E-mail *"
                 style={{ marginTop: 8 }}
                 value={state.email}
                 ref={emailRef}
                 onChangeText={handleEmailChange}
-                keyboardType={"email-address"}
+                keyboardType="email-address"
                 error={isSubmitted && state.email.trim() === ""}
                 returnKeyType="next"
               />
@@ -404,7 +404,7 @@ export const RegistrationScreen = () => {
                   marginVertical: 30,
                 }}
               >
-                <Label style={{ color: "white" }} size={"body"} weight={"bold"}>
+                <Label style={{ color: "white" }} size="body" weight="bold">
                   Next
                 </Label>
               </TouchableOpacity>

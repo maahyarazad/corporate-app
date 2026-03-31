@@ -209,7 +209,7 @@ export const UpdateMemberScreen = ({ navigation }) => {
           <Animated.View style={[styles.safeArea, shakeAnimatedStyle]}>
             <KeyboardAwareScrollView
               automaticallyAdjustKeyboardInsets={true}
-              keyboardShouldPersistTaps={"always"}
+              keyboardShouldPersistTaps="always"
               style={{ height: "100%" }}
               // contentContainerStyle={{ flexGrow: 1 }}
             >
@@ -220,14 +220,14 @@ export const UpdateMemberScreen = ({ navigation }) => {
                 }}
               >
                 <View>
-                  <Label size={"h4"} weight={"bold"} style={{ color: "white" , ...styles.fixMargin}}>
+                  <Label size="h4" weight="bold" style={{ color: "white" , ...styles.fixMargin}}>
                     Mitgliedsprofil aktualisieren
                   </Label>
 
                  
                   <Label 
-                    size={"title"}
-                    weight={"bold"}
+                    size="title"
+                    weight="bold"
                     style={{ color: "white" , ...styles.fixMargin}}
                   >
                     {/* Keep your information up-to-date. */}
@@ -241,7 +241,7 @@ export const UpdateMemberScreen = ({ navigation }) => {
                   <CustomTextInput style={styles.fixMargin}
                     value={state.firstname}
                     onChangeText={handleFirstNameChange}
-                    label={"Vorname *"}
+                    label="Vorname *"
                     error={isSubmitted && state.firstname.trim() === ""}
                   ></CustomTextInput>
                   
@@ -249,25 +249,25 @@ export const UpdateMemberScreen = ({ navigation }) => {
                   style={styles.fixMargin}
                     value={state.middlename}
                     onChangeText={handleMiddleNameChange}
-                    label={"zweiter Vorname"}
+                    label="zweiter Vorname"
                   ></CustomTextInput>
                   
                   <CustomTextInput
                   style={styles.fixMargin}
                     value={state.lastname}
                     onChangeText={handleLastNameChange}
-                    label={"Nachname *"}
+                    label="Nachname *"
                     error={isSubmitted && state.lastname.trim() === ""}
                   ></CustomTextInput>
 
                   
                   <CustomTextInput
                   style={styles.fixMargin}
-                    label={"E-mail *"}
+                    label="E-mail *"
                     value={state.email}
                     // value={route.params.member_id}
                     onChangeText={handleEmailChange}
-                    keyboardType={"email-address"}
+                    keyboardType="email-address"
                     error={isSubmitted && state.email.trim() === ""}
                   />
 
@@ -318,8 +318,8 @@ export const UpdateMemberScreen = ({ navigation }) => {
                   >
                     <Label
                       style={{ color: "white" }}
-                      size={"body"}
-                      weight={"bold"}
+                      size="body"
+                      weight="bold"
                     >
                       aktualisieren
                     </Label>

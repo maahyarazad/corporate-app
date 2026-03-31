@@ -72,7 +72,7 @@ const Searchbar = ({ onSearch, setValue }) => {
           placeholder="Posts durchsuchen"
           returnKeyType="search"
           onSubmitEditing={() => onSearch(searchText)}
-          placeholderTextColor={"#999"}
+          placeholderTextColor="#999"
         />
       </View>
     </View>
@@ -211,7 +211,7 @@ const PostSearch = () => {
               elevation: 5,
             }}
           >
-            <Label color={"white"} weight={"bold"}>
+            <Label color="white" weight="bold">
               Click Here to Load More
             </Label>
           </View>

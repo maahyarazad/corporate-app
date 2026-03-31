@@ -152,9 +152,9 @@ export const ForgotPasswordScreen = () => {
                   }}
                   activeOpacity={0.5}
                 >
-                  <Ionicons name="arrow-back" size={35} color={"#eee"} />
+                  <Ionicons name="arrow-back" size={35} color="#eee" />
                   <Label
-                    size={"title"}
+                    size="title"
                     weight="bold"
                     style={{ color: "#dfdfdf", justifyContent: "center" , ...styles.marginFix}}
                   >
@@ -164,16 +164,16 @@ export const ForgotPasswordScreen = () => {
                 
 
                 <Label
-                  size={"title"}
-                  weight={"bold"}
+                  size="title"
+                  weight="bold"
                   style={{ color: "white" ,...styles.marginFix}}
                 >
                   Forgot Password
                 </Label>
                 
                 <Label
-                  size={"body"}
-                  weight={"medium"}
+                  size="body"
+                  weight="medium"
                   style={{ color: "white",...styles.marginFix }}
                 >
                   Please provide the following information

@@ -5,9 +5,10 @@ import {
   StyleSheet,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  View,
+  View
 } from "react-native";
-import { ActivityIndicator, Checkbox, TextInput } from "react-native-paper";
+
+import { ActivityIndicator, Checkbox, TextInput, Button } from "react-native-paper";
 import { SafeArea } from "../../components/safearea.component";
 import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";
@@ -109,13 +110,13 @@ export const LoginScreen = ({ navigation }) => {
       if (status) {
         // console.log("Biometric Token:", biometric.token);
         const deviceInfo = await getDeviceInfo();
-        const ip = await Network.getIpAddressAsync();
+
         const platform = Platform.OS;
 
         const credentials = {
           app_id: config.APP_ID,
           device_id: deviceInfo.device_id,
-          ip_address: ip,
+          ip_address: deviceInfo.ip_address,
           platform: platform,
           version: Constants.default.expoConfig.version,
           biometric_token: biometric.token,
@@ -182,22 +183,19 @@ export const LoginScreen = ({ navigation }) => {
       }
 
       Keyboard.dismiss();
-      const ip = await Network.getIpAddressAsync();
+      const deviceInfo = await getDeviceInfo();
+
       const platform = Platform.OS;
 
-      //Todo device id should be replaced
       const credentials = {
         app_id: config.APP_ID,
         username,
         password,
-        // device_id: platform.device_id,
-        device_id: "R5CW411BPEA",
-        ip_address: ip,
+        device_id: deviceInfo.device_id,
+        ip_address: deviceInfo.ip_address,
         platform: platform,
         version: Constants.default.expoConfig.version,
       };
-
-      // const response = await login(credentials, setLoading);
 
       const response = await request("/v2/auth/login", "post", credentials);
 
@@ -282,7 +280,7 @@ export const LoginScreen = ({ navigation }) => {
               ]}
             >
               <ActivityIndicator
-                size={"large"}
+                size="large"
                 color="#FFB400"
               ></ActivityIndicator>
             </View>
@@ -329,6 +327,7 @@ export const LoginScreen = ({ navigation }) => {
                   <RegisterSection navigation={navigation} theme={theme} />
                 )}
               </View>
+              
             </KeyboardAwareScrollView>
           </SafeArea>
         </Background>

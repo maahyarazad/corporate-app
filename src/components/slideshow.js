@@ -119,9 +119,9 @@ export const Slideshow = ({ images }) => {
               >
                 <View style={{ padding: 10 }}>
                   <MaterialCommunityIcons
-                    name={"close"}
+                    name="close"
                     size={30}
-                    color={"#ddd"}
+                    color="#ddd"
                   />
                 </View>
               </TouchableOpacity>
@@ -167,8 +167,8 @@ export const Slideshow = ({ images }) => {
           >
             <Label
               style={{ color: "white" }}
-              weight={"medium"}
-              size={"subtitle"}
+              weight="medium"
+              size="subtitle"
             >
               {`${currentImageIndex + 1} / ${images.length}`}
             </Label>

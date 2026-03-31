@@ -256,8 +256,8 @@ export const EntertainerScreen = () => {
               alignSelf: "center",
             }}
             numberOfLines={1}
-            size={"subtitle"}
-            weight={"bold"}
+            size="subtitle"
+            weight="bold"
           >
             {i18n.t("user_greeting", {
               name: userData ? userData.first_name?.split(" ")[0] : "",

@@ -53,7 +53,7 @@ export const MyCard = ({
         <TouchableOpacity
           style={{ borderRadius: 10 }}
           activeOpacity={0.6}
-          underlayColor={"#00000022"}
+          underlayColor="#00000022"
           onPress={onPress}
           onPressOut={() => {
             setPress(false);
@@ -109,7 +109,7 @@ export const MyCard = ({
                     margin: 8,
                   }}
                 >
-                  <Label size={"mini"} weight={"bold"}>
+                  <Label size="mini" weight="bold">
                     {distance}
                   </Label>
                 </View>
@@ -135,7 +135,7 @@ export const MyCard = ({
               >
                 {CARD_SIZE[size].type === 2 && (
                   <>
-                    <Label size={"title"} weight="bold" numberOfLines={2}>
+                    <Label size="title" weight="bold" numberOfLines={2}>
                       {offer_name}
                     </Label>
                   </>
@@ -151,7 +151,7 @@ export const MyCard = ({
                   {outlet_name}
                 </Label>
                 {CARD_SIZE[size].type === 1 && main_name != undefined && (
-                  <Label style={{ color: "#aaa" }} size={"body"} weight="bold">
+                  <Label style={{ color: "#aaa" }} size="body" weight="bold">
                     {main_name}
                   </Label>
                 )}
@@ -173,7 +173,7 @@ export const MyCard = ({
                 <View style={{ paddingTop: 8, paddingBottom: 2 }}>
                   <Label
                     numberOfLines={2}
-                    size={"body"}
+                    size="body"
                     weight="regular"
                     style={{ color: "#aaa" }}
                   >

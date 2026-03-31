@@ -122,9 +122,9 @@ export const ContactUsScreen = () => {
         }}
         activeOpacity={0.5}
       >
-        <Ionicons name="arrow-back" size={35} color={"#555"} />
+        <Ionicons name="arrow-back" size={35} color="#555" />
         <Label
-          size={"body"}
+          size="body"
           weight="bold"
           style={{ color: "#555", justifyContent: "center" }}
         >
@@ -134,7 +134,7 @@ export const ContactUsScreen = () => {
       <View style={styles.contactContainer}>
         <View style={{ marginBottom: 24 }}>
           <Label
-            size={"h5"}
+            size="h5"
             weight="bold"
             style={{ color: "#555", justifyContent: "center" , marginTop: 10}}
           >
@@ -221,10 +221,10 @@ export const ContactUsScreen = () => {
               disabled={disableButton || isLoading}
               onPress={handleSubmit}
               contentStyle={{ paddingVertical: 8 }}
-              color={"orange"}
+              color="orange"
               mode="contained"
             >
-              <Label size={"body"} weight={"medium"}>
+              <Label size="body" weight="medium">
                 {i18n.t("submit")}
               </Label>
             </Button>

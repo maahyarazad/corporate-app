@@ -91,16 +91,16 @@ export const RegistrationSuccessfulScreen = () => {
         >
           <Animated.View style={fadeInAnimationStyle}>
             <Label
-              size={"h4"}
-              weight={"bold"}
+              size="h4"
+              weight="bold"
               style={{ color: "white", textAlign: "center" }}
             >
               Your account has been created!
             </Label>
             
             <Label
-              size={"title"}
-              weight={"medium"}
+              size="title"
+              weight="medium"
               style={{ color: "white", textAlign: "center" , ...styles.marginFix}}
             >
               Before you can login, please activate your account by clicking the
@@ -118,8 +118,8 @@ export const RegistrationSuccessfulScreen = () => {
               }}
             >
               <Label
-                size={"title"}
-                weight={"bold"}
+                size="title"
+                weight="bold"
                 style={{ color: "black", textAlign: "center" }}
               >
                 Back to Login

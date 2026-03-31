@@ -2,92 +2,88 @@ import * as SecureStore from "expo-secure-store";
 import { axiosInstance } from "../interceptor/axiosInstance";
 import * as Network from "expo-network";
 import * as Application from "expo-application";
-import { navigate } from "../../navigation/navigate";
-import { Alert, Platform } from "react-native";
-import * as Constants from "expo-constants";
+import Constants from "expo-constants";
+import { Platform } from "react-native";
 
-// const API_URL = `${config.BASE_URL}user`;
-
-export const verifyOTP = (otp_details) => {
-  return new Promise((resolve, reject) => {
-    axiosInstance
-      .post(`user/verify`, otp_details)
-      .then((response) => {
-        const res = response.data;
-        if (res.success) {
-        //   console.log("---------res---------");
-        //   console.log(res);
-          storeToken(res.token);
-          resolve(res);
-        } else {
-        //   console.log(res);
-          reject(res.message);
-        }
-      })
-      .catch(() => {
-        // console.log(err.response);
-        reject("Invalid Code");
-      });
-  });
-};
-
-export const getDeviceInfo = async () => {
+export const verifyOTP = async (otp_details) => {
   try {
-    
-    const info = {};
-    
-    info.ip_address = await Network.getIpAddressAsync();
-    const platform = Platform.OS;
-    const deviceId =
-      platform === "ios"
-        ? await Application.getIosIdForVendorAsync()
-        : platform === "android"
-        ? await Application.androidId
-        : "n/a";
-    const version = Constants.default.expoConfig.version;
-    info.device_id = deviceId;
-    info.platform = platform;
-    info.version = version;
-    return info;
+    const response = await axiosInstance.post("user/verify", otp_details);
+    const res = response.data;
+
+    if (!res?.success) {
+      throw new Error(res?.message || "Invalid Code");
+    }
+
+    await storeToken(res.token);
+    return res;
   } catch (err) {
-    
-    console.log(err);
+    console.log("verifyOTP error:", err);
+    throw new Error(err?.response?.data?.message || err?.message || "Invalid Code");
   }
 };
 
-export const retrieveToken = () => {
-  return new Promise((resolve, reject) => {
-    try {
-      const data = SecureStore.getItemAsync("token");
-      resolve(data);
-    } catch (err) {
-      console.log(err);
-      reject(err);
+export const getDeviceInfo = async () => {
+  const platform = Platform.OS;
+
+  let ip_address = "";
+  let device_id = "";
+  let version = "";
+
+  try {
+    ip_address = await Network.getIpAddressAsync();
+  } catch (err) {
+    console.log("getDeviceInfo ip error:", err);
+  }
+
+  try {
+    if (platform === "ios") {
+      device_id = (await Application.getIosIdForVendorAsync()) || "";
+    } else if (platform === "android") {
+      device_id = Application.getAndroidId() || "";
+    } else {
+      device_id = "n/a";
     }
-  });
+  } catch (err) {
+    console.log("getDeviceInfo device id error:", err);
+    device_id = "";
+  }
+
+  try {
+    version =
+      Constants.expoConfig?.version ||
+      Constants.manifest2?.extra?.expoClient?.version ||
+      Constants.manifest?.version ||
+      "";
+  } catch (err) {
+    console.log("getDeviceInfo version error:", err);
+    version = "";
+  }
+
+  return {
+    ip_address,
+    device_id,
+    platform,
+    version,
+  };
 };
 
-// export const hasSubmitCard = () => {
-//   return new Promise(async (resolve, reject) => {
-//     try {
-//       const data = await SecureStore.getItemAsync("submitCard");
-//       resolve(parseInt(data));
-//     } catch (err) {
-//       console.log(err);
-//       reject(err);
-//     }
-//   });
-// };
+export const retrieveToken = async () => {
+  try {
+    return await SecureStore.getItemAsync("token");
+  } catch (err) {
+    console.log("retrieveToken error:", err);
+    throw err;
+  }
+};
 
-export const storeToken = (value) => {
-  return new Promise((resolve, reject) => {
-    try {
-      SecureStore.setItemAsync("token", value);
-      resolve();
-    } catch (err) {
-      reject(err);
-    }
-  });
+export const storeToken = async (value) => {
+  try {
+    await SecureStore.setItemAsync("token", value);
+    return true;
+  } catch (err) {
+    console.log("storeToken error:", err);
+    throw err;
+  }
 };
 
 export const removeStorage = async () => {
@@ -98,53 +94,38 @@ export const removeStorage = async () => {
     await SecureStore.deleteItemAsync("user_details");
     await SecureStore.deleteItemAsync("skip");
     await SecureStore.deleteItemAsync("pushtoken");
+    return true;
   } catch (err) {
-    console.log(err);
+    console.log("removeStorage error:", err);
+    return false;
   }
 };
 
 export const resendOTP = async (user_id) => {
-  return new Promise((resolve, reject) => {
-    try {
-      axiosInstance.post("user/resend-otp", { user_id }).then((response) => {
-        resolve(response.success);
-      });
-    } catch (err) {
-      console.log(err);
-      reject(false);
-    }
-  });
+  try {
+    const response = await axiosInstance.post("user/resend-otp", { user_id });
+    return response.data?.success ?? false;
+  } catch (err) {
+    console.log("resendOTP error:", err);
+    return false;
+  }
 };
 
 export const checkAuthorization = async () => {
-  return new Promise((resolve, reject) => {
-    try {
-      
-      axiosInstance
-        .post(`user/check-authorization/`)
-        .then((response) => {
-          // console.log("response:", response);
-          resolve(response.data.result);
-        })
-        .catch((err) => {
-          console.log("ERR", err);
-          // navigate("Logout");
-          reject(err);
-        });
-    } catch (err) {
-      console.log(err);
-    }
-  });
+  try {
+    const response = await axiosInstance.post("user/check-authorization/");
+    return response.data?.result;
+  } catch (err) {
+    console.log("checkAuthorization error:", err);
+    throw err;
+  }
 };
 
-export const retrieveUserId = () => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const userId = await SecureStore.getItemAsync("user_id");
-      resolve(userId);
-    } catch (err) {
-      console.log(err);
-      reject(null);
-    }
-  });
+export const retrieveUserId = async () => {
+  try {
+    return await SecureStore.getItemAsync("user_id");
+  } catch (err) {
+    console.log("retrieveUserId error:", err);
+    return null;
+  }
 };

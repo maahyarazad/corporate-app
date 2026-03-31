@@ -95,7 +95,7 @@ const PostCardHeader = ({ item }) => {
                 }}
               >
                 <View>
-                  <Label size={"body"} weight={"bold"}>
+                  <Label size="body" weight="bold">
                     {`${item.first_name} ${item.last_name}`}
                   </Label>
                 </View>
@@ -105,13 +105,13 @@ const PostCardHeader = ({ item }) => {
             {/* position/profession */}
             {item && item.position && (
               <View style={{ flexDirection: "row" }}>
-                <Label size={"caption"} weight={"regular"}>
+                <Label size="caption" weight="regular">
                   {item.position}
                 </Label>
               </View>
             )}
             <View>
-              {/* <Label size={"caption"}>{timeDiffString(item.date_posted)}</Label> */}
+              {/* <Label size="caption">{timeDiffString(item.date_posted)}</Label> */}
             </View>
           </View>
           <View
@@ -123,7 +123,7 @@ const PostCardHeader = ({ item }) => {
             {/* category */}
             <View style={[styles.row]}>
               <View style={[styles.row, styles.chip]}>
-                <Label weight={"bold"} size={12}>
+                <Label weight="bold" size={12}>
                   Marktplatz
                 </Label>
               </View>
@@ -141,7 +141,7 @@ const PostCardHeader = ({ item }) => {
                     <MaterialCommunityIcons
                       name="dots-horizontal"
                       size={25}
-                      color={"#aaa"}
+                      color="#aaa"
                     />
                   </TouchableOpacity>
                 </View>
@@ -149,7 +149,7 @@ const PostCardHeader = ({ item }) => {
             )}
           </View>
         </View>
-        {/* <Label size={"caption"} weight={"regular"}>
+        {/* <Label size="caption" weight="regular">
                 {data.category}
               </Label> */}
         {/* Category */}

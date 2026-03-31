@@ -304,7 +304,7 @@ export const HomeScreen = (props) => {
       >
         <View style={{ flexDirection: "row", gap: 8, flex: 1 }}>
           <View style={{ flex: 1 }}>
-            <Label color={"white"}>{msg}</Label>
+            <Label color="white">{msg}</Label>
           </View>
 
           <CustomButton
@@ -320,7 +320,7 @@ export const HomeScreen = (props) => {
               },
               shadowRadius: 5,
             }}
-            label={"Order Card"}
+            label="Order Card"
             labelStyle={{ color: "white" }}
           />
 
@@ -330,7 +330,7 @@ export const HomeScreen = (props) => {
                 <MaterialCommunityIcons
                   name="close"
                   size={25}
-                  color={"white"}
+                  color="white"
                 />
               </TouchableOpacity>
             </View>

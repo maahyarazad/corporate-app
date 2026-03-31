@@ -42,21 +42,21 @@ export const PostCardUpload = () => {
       <Animated.View style={[styles.animatedView, animatedStyle]}>
         <View style={styles.wrapper}>
 
-            <Label size={"h5"} weight={"bold"} style={styles.label}>
+            <Label size="h5" weight="bold" style={styles.label}>
             {i18n.t("card-upload.uploaded.heading")}
             </Label>
         </View>
         
         <View style={styles.wrapper}>
 
-            <Label size={"h5"} weight={"bold"} style={styles.label}>
+            <Label size="h5" weight="bold" style={styles.label}>
             {i18n.t("card-upload.uploaded.heading2")}
             </Label>
         </View>
         
           <View style={styles.wrapper}>
 
-        <Label size={"title"} weight={"medium"} style={styles.label}>
+        <Label size="title" weight="medium" style={styles.label}>
           {i18n.t("card-upload.uploaded.message")}
         </Label>
           </View>
@@ -64,8 +64,8 @@ export const PostCardUpload = () => {
 
         <View style={styles.notecontainer}>
           <Label
-            size={"body"}
-            weight={"regular"}
+            size="body"
+            weight="regular"
             style={[styles.label, styles.notelabel]}
           >
             {i18n.t("card-upload.uploaded.note")}
@@ -85,7 +85,7 @@ export const PostCardUpload = () => {
               backgroundColor: theme.colors.icons.active,
             }}
           >
-            <Ionicons name="refresh" size={30} color={"white"} />
+            <Ionicons name="refresh" size={30} color="white" />
           </View>
         </TouchableOpacity>
       </View>

@@ -44,13 +44,13 @@ export const ProfInfo = () => {
     return (
       <View style={styles.infoRow}>
         <View style={styles.label}>
-          <Label style={{ color: "#999" }} size={"caption"} weight={"medium"}>
+          <Label style={{ color: "#999" }} size="caption" weight="medium">
             {label}
           </Label>
         </View>
         <View style={{marginLeft: 6}} />
         <View style={styles.value}>
-          <Label size={"body"} weight={"medium"}>
+          <Label size="body" weight="medium">
             {value}
           </Label>
         </View>
@@ -105,7 +105,7 @@ export const ProfInfo = () => {
           userData?.card_number.trim() != "" &&
           userData?.card_number != "" && (
             <RenderRow
-              label={"Card Number"}
+              label="Card Number"
               value={userData?.card_number
                 ?.toString()
                 .replace(/.{4}/g, `$& `)
@@ -117,7 +117,7 @@ export const ProfInfo = () => {
           <>
             {/* <Label>{userInfo.card_valid_date}</Label> */}
             <RenderRow
-              label={"Validity Date"}
+              label="Validity Date"
               value={moment(userData?.expiry).format("MM/YY")}
             />
           </>

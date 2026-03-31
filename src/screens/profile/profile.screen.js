@@ -177,7 +177,7 @@ const ProfilePrimaryScreen = () => {
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
-                    {`${userData?.honorifics || ""} ${userData?.first_name || ""} ${
+                     {`${userData?.honorifics || ""} ${userData?.first_name || ""} ${
                       userData?.last_name || ""
                     }`.trim()}
                   </Label>
@@ -207,7 +207,7 @@ const ProfilePrimaryScreen = () => {
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
-                    {userData?.expiry
+                     {userData?.expiry
                       ? moment(userData.expiry).format("MM/YY")
                       : "--/--"}
                   </Label>

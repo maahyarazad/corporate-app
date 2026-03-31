@@ -290,7 +290,7 @@ export const AvailOfferScreen = ({ route }) => {
                   }}
                   activeOpacity={0.5}
                 >
-                  <Ionicons name="arrow-back" size={35} color={"#eee"} />
+                  <Ionicons name="arrow-back" size={35} color="#eee" />
                   <Label
                     weight="bold"
                     style={{
@@ -314,9 +314,9 @@ export const AvailOfferScreen = ({ route }) => {
                 <LocationInfo
                   distance={distance}
                   location={location}
-                  headerSize={"title"}
-                  subheaderSize={"body"}
-                  infoSize={"subheading"}
+                  headerSize="title"
+                  subheaderSize="body"
+                  infoSize="subheading"
                   headerColor="white"
                   color="white"
                   showContact={false}
@@ -328,8 +328,8 @@ export const AvailOfferScreen = ({ route }) => {
               <View style={{ alignItems: "center", paddingTop: 12 }}>
                 <Label
                   style={{ color: "white", textAlign: "center" }}
-                  size={"h5"}
-                  weight={"bold"}
+                  size="h5"
+                  weight="bold"
                 >
                   {`${offerInfo.premium_en || ""}${
                     offerInfo.freebie_en !== undefined &&
@@ -343,8 +343,8 @@ export const AvailOfferScreen = ({ route }) => {
               <View style={{ alignItems: "center", paddingVertical: 12 }}>
                 <Label
                   style={{ color: "white", textAlign: "center" }}
-                  size={"title"}
-                  weight={"medium"}
+                  size="title"
+                  weight="medium"
                 >
                   {offerInfo.prodname_en}
                 </Label>
@@ -366,7 +366,7 @@ export const AvailOfferScreen = ({ route }) => {
                     fontSize: 16,
                     textAlign: "center",
                   }}
-                  weight={"bold"}
+                  weight="bold"
                 >
                   {i18n.t("redeem-offer.instruction", {
                     locationName: location.name,
@@ -480,7 +480,7 @@ export const AvailOfferScreen = ({ route }) => {
                     }}
                     mode="contained"
                     icon={() => (
-                      <Ionicons name="call" color={"white"} size={20} />
+                      <Ionicons name="call" color="white" size={20} />
                     )}
                   >
                     {i18n.t("redeem-offer.call-now")}

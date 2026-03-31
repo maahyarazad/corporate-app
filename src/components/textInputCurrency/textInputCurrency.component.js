@@ -28,7 +28,7 @@ export const TextInputCurrency = ({
 
       <View style={styles.rowContainer}>
         <View style={styles.currencyContainer}>
-          <Label weight={"bold"}>{currency}</Label>
+          <Label weight="bold">{currency}</Label>
         </View>
 
         <TextInput

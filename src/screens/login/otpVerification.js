@@ -178,7 +178,7 @@ export const OtpVerification = ({ route, navigation }) => {
                     fontSize: width * 0.08,
                     ...styles.fixMargin,
                   }}
-                  weight={"bold"}
+                  weight="bold"
                 >
                   {i18n.t("auth.account-verification")}
                 </Label>
@@ -190,7 +190,7 @@ export const OtpVerification = ({ route, navigation }) => {
                     textAlign: "center",
                     ...styles.fixMargin,
                   }}
-                  weight={"regular"}
+                  weight="regular"
                 >
                   {i18n.t("auth.message", {
                     codeLength: MAX_CODE_LENGTH,
@@ -199,7 +199,7 @@ export const OtpVerification = ({ route, navigation }) => {
                 </Label>
                 {/* <Label
                   style={{ color: "white", fontSize: width * 0.04 }}
-                  weight={"bold"}
+                  weight="bold"
                 >
                   +{mobileNum}
                 </Label> */}
@@ -212,7 +212,7 @@ export const OtpVerification = ({ route, navigation }) => {
                     textDecorationLine: "underline",
                     ...styles.fixMargin,
                   }}
-                  size={"title"}
+                  size="title"
                 >
                   {i18n.t("update-mobile-number.header")}
                 </Label>
@@ -244,8 +244,8 @@ export const OtpVerification = ({ route, navigation }) => {
               ) : (
                 <Label
                   style={{ color: pinReady ? "white" : colors.ui.lightGray }}
-                  size={"heading"}
-                  weight={"medium"}
+                  size="heading"
+                  weight="medium"
                 >
                   {i18n.t("auth.verify-code")}
                 </Label>
@@ -266,13 +266,13 @@ export const OtpVerification = ({ route, navigation }) => {
               {resendStatus ? (
                 <Label
                   style={{ color: "#aaa", ...styles.fixMargin }}
-                  size={"title"}
+                  size="title"
                 >
                   {`${resendMsg} (${otpCooldown}s)`}
                 </Label>
               ) : (
                 <TouchableOpacity onPress={handleResend}>
-                  <Label style={{ color: "white" }} size={"title"}>
+                  <Label style={{ color: "white" }} size="title">
                     {i18n.t("auth.resend-code")}
                   </Label>
                 </TouchableOpacity>

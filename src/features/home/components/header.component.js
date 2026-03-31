@@ -50,8 +50,8 @@ const HomeHeader = ({ notification = false }) => {
             alignSelf: "center",
           }}
           numberOfLines={1}
-          size={"subtitle"}
-          weight={"bold"}
+          size="subtitle"
+          weight="bold"
         >
           {/* {`Hi there, ${
                         userInfo != undefined

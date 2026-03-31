@@ -33,7 +33,7 @@ import Recaptcha from "react-native-recaptcha-that-works";
 import { DropDown } from "../../components/DropDown";
 import { BirthdatePicker } from "../../components/BirthdatePicker";
 import { NationalityInput } from "../../components/NationalityInput";
-import {getDeviceInfo} from "../../services/auth/auth.service";
+import { getDeviceInfo } from "../../services/auth/auth.service";
 const genderItems = [
   { label: "Select Gender", value: "" },
   { label: "Male", value: "Male" },
@@ -41,7 +41,6 @@ const genderItems = [
 ];
 
 export const RegistrationDetailsScreen = ({ route }) => {
-  
   const theme = useTheme();
   const [showCountries, setShowCountries] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -60,7 +59,7 @@ export const RegistrationDetailsScreen = ({ route }) => {
     gender: "",
   });
 
- const firstname = useRef(null);
+  const firstname = useRef(null);
   const lastname = useRef(null);
   const middlename = useRef(null);
   const animatedShake = useRef(new Animated.Value(0)).current;
@@ -105,7 +104,6 @@ export const RegistrationDetailsScreen = ({ route }) => {
   };
 
   const onVerify = (token) => {
-    
     submit(token);
     // nextPage();
   };
@@ -119,9 +117,7 @@ export const RegistrationDetailsScreen = ({ route }) => {
     if (
       state.firstname.trim() === "" ||
       state.lastname.trim() === "" ||
-      state.birthdate === null ||
-      state.honorifics === "" ||
-      state.gender === ""
+      state.birthdate === null
     ) {
       shake();
       showToast("error", "Empty Fields", "Some fields are empty.");
@@ -131,7 +127,8 @@ export const RegistrationDetailsScreen = ({ route }) => {
     return true;
   };
 
-  const submit = async (token) => {
+ const submit = async (token) => {
+  try {
     const register1 = route.params.login;
     const platform = Platform.OS;
     const deviceInfo = await getDeviceInfo();
@@ -143,20 +140,23 @@ export const RegistrationDetailsScreen = ({ route }) => {
       gender: state.gender.charAt(0),
       token,
       device_info: deviceInfo,
-      platform
+      platform,
     };
 
-    
-    
+    const result = await UserService.createUser(user);
 
-    UserService.createUser(user)
-      .then((result) => {
-        if (result) navigate("RegisterSuccess");
-      })
-      .catch((err) => {
-        showToast("error", "Error", err.message);
-      });
-  };
+    
+    if (result) {
+      if (result?.redCard) {
+        navigate("RegisterSuccessByServices");
+      } else {
+        navigate("RegisterSuccess");
+      }
+    }
+  } catch (err) {
+    showToast("error", "Error", err.message);
+  }
+};
 
   const handleFirstNameChange = (value) => {
     setState({ ...state, firstname: value });
@@ -177,183 +177,185 @@ export const RegistrationDetailsScreen = ({ route }) => {
           <Image style={styles.companyLogo} source={companyLogo} />
           <Animated.View style={[styles.safeArea, shakeAnimatedStyle]}>
             <KeyboardAwareScrollView
-                         enableOnAndroid
-                         extraScrollHeight={20}
-                         extraHeight={120}
-                         keyboardShouldPersistTaps="handled"
-                         keyboardDismissMode="on-drag"
-                         showsVerticalScrollIndicator={false}
-                         contentContainerStyle={{
-                           flexGrow: 1,
-                           paddingHorizontal: 16,
-                           paddingBottom: 40,
-                         }}
-                         style={{ flex: 1 }}
-                       >
-                         <View style={{flex: 1, justifyContent:'center'}}>
-              <View
-                style={{
-                  flexDirection: "row",
-                  marginBottom: 16,
-                }}
-              >
-                <TouchableOpacity
-                  onPress={() => {
-                    Keyboard.dismiss;
-                    goback();
-                  }}
+              enableOnAndroid
+              extraScrollHeight={20}
+              extraHeight={120}
+              keyboardShouldPersistTaps="handled"
+              keyboardDismissMode="on-drag"
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{
+                flexGrow: 1,
+                paddingHorizontal: 16,
+                paddingBottom: 40,
+              }}
+              style={{ flex: 1 }}
+            >
+              <View style={{ flex: 1, justifyContent: "center" }}>
+                <View
                   style={{
                     flexDirection: "row",
-                    alignItems: "center",
+                    marginBottom: 16,
                   }}
-                  activeOpacity={0.5}
                 >
-                  <Ionicons name="arrow-back" size={35} color={"#eee"} />
-                  <Label
-                    size={"body"}
-                    weight="bold"
-                    style={{ color: "#dfdfdf", justifyContent: "center" }}
+                  <TouchableOpacity
+                    onPress={() => {
+                      Keyboard.dismiss;
+                      goback();
+                    }}
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                    activeOpacity={0.5}
                   >
-                    Go Back to Registration Data
-                  </Label>
-                </TouchableOpacity>
-              </View>
+                    <Ionicons name="arrow-back" size={35} color="#eee" />
+                    <Label
+                      size="body"
+                      weight="bold"
+                      style={{ color: "#dfdfdf", justifyContent: "center" }}
+                    >
+                      Go Back to Registration Data
+                    </Label>
+                  </TouchableOpacity>
+                </View>
 
-              <View style={styles.formControl}>
-                <DropDown
-                  items={honorificList.map((item) => ({
-                    label: item,
-                    value: item,
-                  }))}
-                  onChange={(e) =>
-                    setState((prev) => ({ ...prev, honorifics: e }))
-                  }
-                  openBelow={true}
-                  placeholder={"Salutation *"}
-                  error={!state.honorifics && isSubmitted}
-                />
+                <View style={styles.formControl}>
+                  <DropDown
+                    items={honorificList.map((item) => ({
+                      label: item,
+                      value: item,
+                    }))}
+                    onChange={(e) =>
+                      setState((prev) => ({ ...prev, honorifics: e }))
+                    }
+                    openBelow={true}
+                    placeholder="Salutation *"
+                    //   error={!state.honorifics && isSubmitted}
+                  />
+
+                  <View
+                    style={{ zIndex: 2, position: "relative", width: "100%" }}
+                  ></View>
+                </View>
 
                 <View
-                  style={{ zIndex: 2, position: "relative", width: "100%" }}
-                ></View>
-              </View>
-
-              <View
-                style={{
-                  ...styles.formControl,
-                  marginTop: 2,
-                }}
-              >
-                <CustomTextInput
-                ref={firstname}
-                  value={state.firstname}
-                  onChangeText={handleFirstNameChange}
-                  label={"First Name *"}
-                  error={isSubmitted && state.firstname.trim() === ""}
-                   onSubmitEditing={() => middlename.current?.focus()}
-                />
-              </View>
-
-              <View style={styles.formControl}>
-                <CustomTextInput
-                  ref={middlename}
-                  value={state.middlename}
-                  onChangeText={handleMiddleNameChange}
-                  label={"Middle Name"}
-                     onSubmitEditing={() => lastname.current?.focus()}
-                />
-              </View>
-
-              <View style={styles.formControl}>
-                <CustomTextInput
-                   ref={lastname}
-                  value={state.lastname}
-                  onChangeText={handleLastNameChange}
-                      onSubmitEditing={Keyboard.dismiss}
-                  label={"Last Name *"}
-                  error={isSubmitted && state.lastname.trim() === ""}
-                />
-              </View>
-
-              <View style={styles.formControl}>
-                <NationalityInput
-                  value={state.nationality}
-                  onChange={(value) =>
-                    setState((prev) => ({ ...prev, nationality: value }))
-                  }
-                />
-              </View>
-
-              <View
-                style={{
-                  ...styles.formControl,
-                  marginTop: 2,
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                }}
-              >
-                <View style={{ flex: 1, marginRight: 8 }}>
-                    
-                  <BirthdatePicker
-                    value={state.birthdate}
-                    onChange={(date) =>
-                      setState((prev) => ({ ...prev, birthdate: date }))
-                    }
-                    error={!state.birthdate && isSubmitted}
+                  style={{
+                    ...styles.formControl,
+                    marginTop: 2,
+                  }}
+                >
+                  <CustomTextInput
+                    ref={firstname}
+                    value={state.firstname}
+                    onChangeText={handleFirstNameChange}
+                    label="First Name *"
+                    error={isSubmitted && state.firstname.trim() === ""}
+                    onSubmitEditing={() => middlename.current?.focus()}
                   />
                 </View>
 
-                <View style={{ flex: 1, marginLeft: 8 }}>
-                  <DropDown
-                    items={genderItems}
-                    onChange={(e) =>
-                      setState((prev) => ({ ...prev, gender: e }))
-                    }
-                    placeholder={"Gender *"}
-                    error={!state.gender && isSubmitted}
+                <View style={styles.formControl}>
+                  <CustomTextInput
+                    ref={middlename}
+                    value={state.middlename}
+                    onChangeText={handleMiddleNameChange}
+                    label="Middle Name"
+                    onSubmitEditing={() => lastname.current?.focus()}
                   />
                 </View>
-              </View>
 
-              <View
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <Recaptcha
-                  ref={recaptcha}
-                  siteKey="6LfkGVAmAAAAALcsQxnK2wntbm2ccMfBCz0V81M9"
-                  baseUrl="http://www.german-emirates-club.com"
-                  onVerify={onVerify}
-                  onError={(e) => console.log("ERROR:", e)}
-                  onExpire={onExpire}
-                  size="small"
-                  
-                />
-              </View>
+                <View style={styles.formControl}>
+                  <CustomTextInput
+                    ref={lastname}
+                    value={state.lastname}
+                    onChangeText={handleLastNameChange}
+                    onSubmitEditing={Keyboard.dismiss}
+                    label="Last Name *"
+                    error={isSubmitted && state.lastname.trim() === ""}
+                  />
+                </View>
 
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={sendCaptcha}
-                style={{
-                  height: 60,
-                  backgroundColor: theme.colors.ui.button,
-                  borderRadius: 5,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  marginVertical: 30,
-                }}
-              >
-                <Label style={{ color: "white" }} size={"body"} weight={"bold"}>
-                  Next
-                </Label>
-              </TouchableOpacity>
+                <View style={styles.formControl}>
+                  <NationalityInput
+                    value={state.nationality}
+                    onChange={(value) =>
+                      setState((prev) => ({ ...prev, nationality: value }))
+                    }
+                  />
+                </View>
+
+                <View
+                  style={{
+                    ...styles.formControl,
+                    marginTop: 2,
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <View style={{ flex: 1, marginRight: 8 }}>
+                    <BirthdatePicker
+                      value={state.birthdate}
+                      onChange={(date) =>
+                        setState((prev) => ({ ...prev, birthdate: date }))
+                      }
+                      error={!state.birthdate && isSubmitted}
+                    />
+                  </View>
+
+                  <View style={{ flex: 1, marginLeft: 8 }}>
+                    <DropDown
+                      items={genderItems}
+                      onChange={(e) =>
+                        setState((prev) => ({ ...prev, gender: e }))
+                      }
+                      placeholder="Gender *"
+                      // error={!state.gender && isSubmitted}
+                    />
+                  </View>
+                </View>
+
+                <View
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Recaptcha
+                    ref={recaptcha}
+                    siteKey="6LfkGVAmAAAAALcsQxnK2wntbm2ccMfBCz0V81M9"
+                    baseUrl="http://www.german-emirates-club.com"
+                    onVerify={onVerify}
+                    onError={(e) => console.log("ERROR:", e)}
+                    onExpire={onExpire}
+                    size="small"
+                  />
+                </View>
+
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={sendCaptcha}
+                  style={{
+                    height: 60,
+                    backgroundColor: theme.colors.ui.button,
+                    borderRadius: 5,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    marginVertical: 30,
+                  }}
+                >
+                  <Label
+                    style={{ color: "white" }}
+                    size="body"
+                    weight="bold"
+                  >
+                    Next
+                  </Label>
+                </TouchableOpacity>
               </View>
             </KeyboardAwareScrollView>
           </Animated.View>

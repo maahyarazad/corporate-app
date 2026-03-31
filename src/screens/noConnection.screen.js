@@ -17,12 +17,12 @@ export const NoConnectionScreen = () => {
     <SafeArea style={styles.safearea}>
       <StatusBar style="light"></StatusBar>
       <View style={styles.container}>
-        <Label size={"heading"} style={styles.label}>
+        <Label size="heading" style={styles.label}>
           Connection Error
         </Label>
         
         <View style={{marginTop: 6}}/>
-        <Label size={"title"} style={styles.label}>
+        <Label size="title" style={styles.label}>
           Couldn't connect to Server
         </Label>
         

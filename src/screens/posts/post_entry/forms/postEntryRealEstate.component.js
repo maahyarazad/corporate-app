@@ -300,7 +300,7 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
         />
       ) : (
         <>
-          <Label size={"subtitle"} weight={"bold"}>
+          <Label size="subtitle" weight="bold">
             Wohnfläche
           </Label>
           <View style={{ flexDirection: "row", gap: 8 }}>
@@ -353,7 +353,7 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
       )}
 
       <View style={[styles.formField, { gap: 10, paddingBottom: 30 }]}>
-        <Label size={"title"}>Schlafräume</Label>
+        <Label size="title">Schlafräume</Label>
         <View>
           <Slider
             // value={state.bedrooms}
@@ -387,7 +387,7 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
                     //   marginTop: -10,
                   }}
                 >
-                  <Label size={16} weight={"bold"}>
+                  <Label size={16} weight="bold">
                     {!!e ? state.sleep_rooms_end : state.sleep_rooms_start}
                   </Label>
                 </View>
@@ -424,7 +424,7 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
         />
       ) : (
         <>
-          <Label size={"subtitle"} weight={"bold"}>
+          <Label size="subtitle" weight="bold">
             Preis
           </Label>
           <View style={{ flexDirection: "row", gap: 8 }}>
@@ -537,8 +537,8 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
           }}
         >
           <Label
-            size={"subtitle"}
-            weight={"bold"}
+            size="subtitle"
+            weight="bold"
             style={{ color: "white", letterSpacing: 1 }}
           >
             Absenden

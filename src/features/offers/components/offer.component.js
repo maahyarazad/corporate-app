@@ -38,7 +38,7 @@ export const Offer = ({ offer, onPress, backgroundColor = "#efefef" }) => {
           <View style={[styles.offerTicket, { backgroundColor: offer.color }]}>
             {offer && !!offer.isHotpick && (
               <View style={{ position: "absolute", zIndex: 2, top: 6 }}>
-                <RibbonSVG fill={"#FF9600"} />
+                <RibbonSVG fill="#FF9600" />
                 <View
                   style={{
                     position: "absolute",
@@ -74,7 +74,7 @@ export const Offer = ({ offer, onPress, backgroundColor = "#efefef" }) => {
                         color: "white",
                         fontSize: 13,
                       }}
-                      weight={"bold"}
+                      weight="bold"
                     >
                       Hot Pick
                     </Label>
@@ -95,14 +95,14 @@ export const Offer = ({ offer, onPress, backgroundColor = "#efefef" }) => {
               </View>
               <View style={styles.textContent}>
                 <View style={{ flex: 1 }}>
-                  <Label weight={"medium"} size={14}>
+                  <Label weight="medium" size={14}>
                     {`${offer.premium_en}${
                       offer.freebie_en ? ` ${offer.freebie_en}` : ""
                     } on`}
                   </Label>
                   <View style={styles.offerName}>
                     <Label
-                      weight={"bold"}
+                      weight="bold"
                       size={16}
                       numberOfLines={3}
                       ellipsizeMode="tail"
@@ -110,7 +110,7 @@ export const Offer = ({ offer, onPress, backgroundColor = "#efefef" }) => {
                       {offer.prodname_en}
                     </Label>
                   </View>
-                  <Label style={styles.expiryDate} size={"caption"}>
+                  <Label style={styles.expiryDate} size="caption">
                    
                     {`${i18n.t("offer-details.valid-until")} ${moment(
                       new Date(Date.parse(offer.date_end))

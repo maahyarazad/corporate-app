@@ -1,5 +1,6 @@
 {
   "expo": {
+    "jsEngine": "hermes",
     "scheme": "gecmobile",
     "name": "GEC Mobile",
     "slug": "GEC-Rewards",
@@ -43,6 +44,7 @@
       "**/*"
     ],
     "ios": {
+        "jsEngine": "jsc",
         "provisioningProfilePath": "./profile.mobileprovision",
     "distributionCertificate": {
       "path": "./DevCertificates.p12",
@@ -52,7 +54,7 @@
         "applinks:buenapublica.com",
         "applinks:buenapublica.com"
       ],
-      "buildNumber": "42",
+      "buildNumber": "45",
       "supportsTablet": true,
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Turning on location services allows us to show you nearby shops with offers.",
@@ -67,7 +69,8 @@
       }
     },
     "android": {
-      "versionCode": 41,
+        "enableProguardInReleaseBuilds": true,
+      "versionCode": 43,
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyBdMYAFwnxqA6KI4AE31v8BWBsr1ZDRogQ"

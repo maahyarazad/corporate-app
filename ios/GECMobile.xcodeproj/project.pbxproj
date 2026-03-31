@@ -8,25 +8,25 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		1C73E7C8296FA4DA64DBD84B /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59BCEA3C423C9BA6D33C454F /* ExpoModulesProvider.swift */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		573126F61B1576C0AE9A8333 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07CC8A6259B7F24DA53C29F4 /* ExpoModulesProvider.swift */; };
-		59A93204A5A13BCE5EE58837 /* libPods-GECMobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 482E2A7C75617FDC93D3E6EB /* libPods-GECMobile.a */; };
+		6053C68BBE1EA9E8AA1EBB0E /* libPods-GECMobile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 09BBF559F2520609E41410E0 /* libPods-GECMobile.a */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		C6AF8659F0D7B76D333E39CB /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = BCABF106D793225156D46EC7 /* PrivacyInfo.xcprivacy */; };
+		EC348C4006790A6333D3A0D5 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 03D4FAC548D15EBC665C1578 /* PrivacyInfo.xcprivacy */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		07CC8A6259B7F24DA53C29F4 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-GECMobile/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		03D4FAC548D15EBC665C1578 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = GECMobile/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		09BBF559F2520609E41410E0 /* libPods-GECMobile.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-GECMobile.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07F961A680F5B00A75B9A /* GECMobile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GECMobile.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = GECMobile/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = GECMobile/Info.plist; sourceTree = "<group>"; };
-		482E2A7C75617FDC93D3E6EB /* libPods-GECMobile.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-GECMobile.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		5D99213ECFAC3F0765E96573 /* Pods-GECMobile.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GECMobile.debug.xcconfig"; path = "Target Support Files/Pods-GECMobile/Pods-GECMobile.debug.xcconfig"; sourceTree = "<group>"; };
-		9CB70A2E7E7915671361F1C4 /* Pods-GECMobile.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GECMobile.release.xcconfig"; path = "Target Support Files/Pods-GECMobile/Pods-GECMobile.release.xcconfig"; sourceTree = "<group>"; };
+		26D155E04F1FD4689629DB4F /* Pods-GECMobile.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GECMobile.release.xcconfig"; path = "Target Support Files/Pods-GECMobile/Pods-GECMobile.release.xcconfig"; sourceTree = "<group>"; };
+		5513AC9323D082F29241C6E6 /* Pods-GECMobile.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GECMobile.debug.xcconfig"; path = "Target Support Files/Pods-GECMobile/Pods-GECMobile.debug.xcconfig"; sourceTree = "<group>"; };
+		59BCEA3C423C9BA6D33C454F /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-GECMobile/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = GECMobile/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		BCABF106D793225156D46EC7 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = GECMobile/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = GECMobile/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* GECMobile-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "GECMobile-Bridging-Header.h"; path = "GECMobile/GECMobile-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -37,13 +37,23 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				59A93204A5A13BCE5EE58837 /* libPods-GECMobile.a in Frameworks */,
+				6053C68BBE1EA9E8AA1EBB0E /* libPods-GECMobile.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		08F9F8F433A02B12118EE8A9 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				5513AC9323D082F29241C6E6 /* Pods-GECMobile.debug.xcconfig */,
+				26D155E04F1FD4689629DB4F /* Pods-GECMobile.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		13B07FAE1A68108700A75B9A /* GECMobile */ = {
 			isa = PBXGroup;
 			children = (
@@ -53,34 +63,26 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				BCABF106D793225156D46EC7 /* PrivacyInfo.xcprivacy */,
+				03D4FAC548D15EBC665C1578 /* PrivacyInfo.xcprivacy */,
 			);
 			name = GECMobile;
+			sourceTree = "<group>";
+		};
+		1A0CDEFC7F38DC39A0D5D9B5 /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				89B8C0779EA08B4B13FB5279 /* GECMobile */,
+			);
+			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				482E2A7C75617FDC93D3E6EB /* libPods-GECMobile.a */,
+				09BBF559F2520609E41410E0 /* libPods-GECMobile.a */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		4217EA48BB76495278463271 /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				6DE70B298965E72BB9957964 /* GECMobile */,
-			);
-			name = ExpoModulesProviders;
-			sourceTree = "<group>";
-		};
-		6DE70B298965E72BB9957964 /* GECMobile */ = {
-			isa = PBXGroup;
-			children = (
-				07CC8A6259B7F24DA53C29F4 /* ExpoModulesProvider.swift */,
-			);
-			name = GECMobile;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -90,15 +92,6 @@
 			name = Libraries;
 			sourceTree = "<group>";
 		};
-		8377898948EEEEC56147B59F /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				5D99213ECFAC3F0765E96573 /* Pods-GECMobile.debug.xcconfig */,
-				9CB70A2E7E7915671361F1C4 /* Pods-GECMobile.release.xcconfig */,
-			);
-			path = Pods;
-			sourceTree = "<group>";
-		};
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
@@ -106,8 +99,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				8377898948EEEEC56147B59F /* Pods */,
-				4217EA48BB76495278463271 /* ExpoModulesProviders */,
+				08F9F8F433A02B12118EE8A9 /* Pods */,
+				1A0CDEFC7F38DC39A0D5D9B5 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -120,6 +113,14 @@
 				13B07F961A680F5B00A75B9A /* GECMobile.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		89B8C0779EA08B4B13FB5279 /* GECMobile */ = {
+			isa = PBXGroup;
+			children = (
+				59BCEA3C423C9BA6D33C454F /* ExpoModulesProvider.swift */,
+			);
+			name = GECMobile;
 			sourceTree = "<group>";
 		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
@@ -139,13 +140,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "GECMobile" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				AC12C021821DC9F5CE51D63D /* [Expo] Configure project */,
+				F50AD5514C7A8683073AAE67 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				0B1AEB8E74E0EBA871A15F72 /* [CP] Embed Pods Frameworks */,
+				8399ED750D35FC54A0116888 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -165,7 +166,9 @@
 				LastUpgradeCheck = 1130;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
+						DevelopmentTeam = YQFY6269ZL;
 						LastSwiftMigration = 1250;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -195,7 +198,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				C6AF8659F0D7B76D333E39CB /* PrivacyInfo.xcprivacy in Resources */,
+				EC348C4006790A6333D3A0D5 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -239,28 +242,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		0B1AEB8E74E0EBA871A15F72 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-GECMobile/Pods-GECMobile-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/React-Core-prebuilt/React.framework/React",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ReactNativeDependencies/ReactNativeDependencies.framework/ReactNativeDependencies",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/React.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReactNativeDependencies.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-GECMobile/Pods-GECMobile-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
@@ -359,7 +340,29 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-GECMobile/Pods-GECMobile-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		AC12C021821DC9F5CE51D63D /* [Expo] Configure project */ = {
+		8399ED750D35FC54A0116888 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-GECMobile/Pods-GECMobile-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/React-Core-prebuilt/React.framework/React",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ReactNativeDependencies/ReactNativeDependencies.framework/ReactNativeDependencies",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/React.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ReactNativeDependencies.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-GECMobile/Pods-GECMobile-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F50AD5514C7A8683073AAE67 /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -391,7 +394,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				573126F61B1576C0AE9A8333 /* ExpoModulesProvider.swift in Sources */,
+				1C73E7C8296FA4DA64DBD84B /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -400,11 +403,13 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5D99213ECFAC3F0765E96573 /* Pods-GECMobile.debug.xcconfig */;
+			baseConfigurationReference = 5513AC9323D082F29241C6E6 /* Pods-GECMobile.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = GECMobile/GECMobile.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = YQFY6269ZL;
 				ENABLE_BITCODE = NO;
@@ -437,11 +442,13 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9CB70A2E7E7915671361F1C4 /* Pods-GECMobile.release.xcconfig */;
+			baseConfigurationReference = 26D155E04F1FD4689629DB4F /* Pods-GECMobile.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = GECMobile/GECMobile.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = YQFY6269ZL;
 				INFOPLIST_FILE = GECMobile/Info.plist;

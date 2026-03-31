@@ -1,3 +1,4 @@
+import Constants from "expo-constants";
 export const honorificList = ["Mr.", "Mrs.", "Ms.", "Dr.", "Engr."];
 
 export const offerChipIcon = {
@@ -13,7 +14,7 @@ export const offerChipColor = {
 export const config = {
   BASE_URL: process.env.EXPO_PUBLIC_BASE_URL,
   SERVER_HOST: process.env.EXPO_PUBLIC_SERVER_HOST,
-  SERVICES_BASE_URL: process.env.EXPO_PUBLIC_SERVICES_BASE_URL,
+  SERVICES_BASE_URL:process.env.EXPO_PUBLIC_SERVICES_BASE_URL,
   SERVICES_HOST: process.env.EXPO_PUBLIC_SERVICES_HOST,
 
   APP_ID: 2,

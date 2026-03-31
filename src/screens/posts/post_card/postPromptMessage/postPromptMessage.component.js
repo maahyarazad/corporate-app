@@ -36,7 +36,7 @@ const PostPromptMessage = ({ severity = "info", message, title }) => {
               color={theme.colors.ui.warning}
             ></MaterialCommunityIcons>
           )}
-          <Label weight={"bold"}>{title}</Label>
+          <Label weight="bold">{title}</Label>
         </View>
         <Label>{message}</Label>
       </View>

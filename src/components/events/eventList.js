@@ -167,7 +167,7 @@ export const EventList = () => {
       <MaterialCommunityIcons
         size={20}
         name={item.includeGuests ? "account-group" : "account"}
-        color={"white"}
+        color="white"
         style={{ marginRight: 5 }}
       />
     );
@@ -182,8 +182,8 @@ export const EventList = () => {
       >
         <Card style={{ backgroundColor: "white", padding: 0 }}>
           <Card.Cover
-            resizeMethod={"resize"}
-            resizeMode={"cover"}
+            resizeMethod="resize"
+            resizeMode="cover"
             style={{
               height: 130,
             }}
@@ -366,7 +366,7 @@ export const EventList = () => {
               borderRadius: 15,
             }}
           >
-            <Label weight={"bold"} size="heading">
+            <Label weight="bold" size="heading">
               {confirmationMSG}
             </Label>
           </View>
