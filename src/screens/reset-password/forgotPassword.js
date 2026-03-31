@@ -148,7 +148,7 @@ export const ForgotPasswordScreen = () => {
                   onPress={goback}
                   style={{
                     flexDirection: "row",
-                    alignItems: "center",
+                    alignItems: "center",...styles.marginFix
                   }}
                   activeOpacity={0.5}
                 >
@@ -156,7 +156,7 @@ export const ForgotPasswordScreen = () => {
                   <Label
                     size="title"
                     weight="bold"
-                    style={{ color: "#dfdfdf", justifyContent: "center" , ...styles.marginFix}}
+                    style={{ color: "#dfdfdf", justifyContent: "center" }}
                   >
                     Login
                   </Label>

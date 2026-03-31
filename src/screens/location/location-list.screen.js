@@ -100,11 +100,12 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
 
   const changeHeader = (title) => {
     navigation.setOptions({
-      headerTitle: () => {
+       headerRight: () => {
         return (
-          <Label numberOfLines={1} size="title" weight="bold">
-            {title}
+          <Label numberOfLines={1} size="title" weight="bold" style={{paddingRight: 15}}>
+            {title} 
           </Label>
+            
         );
       },
     });
@@ -283,6 +284,7 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
     <View style={{ flex: 1 }}>
         
       <View style={{ backgroundColor: "white" }}>
+        
         <Search
           ref={searchRef}
           numberOfLines={1}
