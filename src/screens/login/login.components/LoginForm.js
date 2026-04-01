@@ -1,5 +1,5 @@
-import React from "react";
-import { View, TouchableOpacity, Text } from "react-native";
+import React, {useRef} from "react";
+import { View, TouchableOpacity, Keyboard } from "react-native";
 import { Checkbox, ActivityIndicator } from "react-native-paper";
 import { Spacer } from "../../../components/spacer/spacer.component";
 import { Label } from "../../../components/typography/label.component";
@@ -27,6 +27,10 @@ const LoginForm = ({
   handleForgetPassword,
   handleBrowser,
 }) => {
+
+      const usernameRef = useRef(null);
+      const passwordRef = useRef(null);
+
   return (
     <View style={{ margin: 16, marginTop: 0 }}>
 
@@ -43,22 +47,27 @@ const LoginForm = ({
       </Label>
     </View>
   </View>
+
       <CustomTextInput style={{marginTop: 8}}
         value={username}
+        ref={usernameRef}
         onChangeText={setUsername}
         label="Username or Email"
         textContentType="username"
+         onSubmitEditing={() => passwordRef.current?.focus()}
       />
 
       
 
       <CustomTextInput
         value={password} style={{marginTop: 8}}
+        ref={passwordRef}
         onChangeText={setPassword}
         label="Password"
         secureTextEntry
         showEye
         textContentType="password"
+         onSubmitEditing={() => Keyboard.dismiss()}
       />
 
       

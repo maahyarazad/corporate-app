@@ -14,6 +14,7 @@ import { theme } from "../../infrastructure/theme";
 import { navigate } from "../../navigation/navigate";
 import { UserService } from "../../services/user/user.service";
 import { EULAPrivacyLink } from "../../utils/constants";
+import { DELETE_ACCOUNT } from "../../utils/constants";
 import * as WebBrowser from "expo-web-browser";
 import * as Constants from "expo-constants";
 import { AuthContext } from "../../services/auth/auth.context";
@@ -129,34 +130,43 @@ export const ProfSettings = () => {
     ]);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
+
+
+    // navigate("Privacy Policy");
+    try {
+      await WebBrowser.openBrowserAsync(DELETE_ACCOUNT);
+    } catch (error) {
+      // console.log(error);
+      Alert.alert("Error Occured", "Cannot Open Document");
+    }
     // logout();
-    Alert.alert(
-      i18n.t("delete-account.header"),
-      i18n.t("delete-account.message"),
-      [
-        {
-          text: i18n.t("no"),
-          onPress: () => {},
-        },
-        {
-          text: i18n.t("yes"),
-          onPress: async () => {
-            if (user.user_id) {
-              const response = await UserService.removeUser(user.user_id);
-              if (response.success) {
-                Alert.alert(response.title, response.message);
-                navigate("Logout");
-              } else {
-                Alert.alert(response.title, response.message);
-              }
-            } else {
-              alert("User ID not available");
-            }
-          },
-        },
-      ]
-    );
+    // Alert.alert(
+    //   i18n.t("delete-account.header"),
+    //   i18n.t("delete-account.message"),
+    //   [
+    //     {
+    //       text: i18n.t("no"),
+    //       onPress: () => {},
+    //     },
+    //     {
+    //       text: i18n.t("yes"),
+    //       onPress: async () => {
+    //         if (user.user_id) {
+    //           const response = await UserService.removeUser(user.user_id);
+    //           if (response.success) {
+    //             Alert.alert(response.title, response.message);
+    //             navigate("Logout");
+    //           } else {
+    //             Alert.alert(response.title, response.message);
+    //           }
+    //         } else {
+    //           alert("User ID not available");
+    //         }
+    //       },
+    //     },
+    //   ]
+    // );
   };
 
   const handleContactUs = () => {

@@ -22,7 +22,8 @@ export const config = {
   DEV: process.env.EXPO_PUBLIC_DEV === "true",
 };
 
-export const EULAPrivacyLink = `https://www.buenapublica.com/uploads/privacy-policy.pdf`;
+export const EULAPrivacyLink = `https://www.buenapublica.com/privacy-policy`;
+export const DELETE_ACCOUNT = `https://services.german-emirates-club.com/account-deletion`;
 
 export const loginBGImage = require("../../assets/ifza-login-bg2.jpg");
 
