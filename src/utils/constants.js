@@ -23,7 +23,7 @@ export const config = {
 };
 
 export const EULAPrivacyLink = `https://www.buenapublica.com/privacy-policy`;
-export const DELETE_ACCOUNT = `https://services.german-emirates-club.com/account-deletion`;
+export const DELETE_ACCOUNT = `https://www.buenapublica.com/account-deletion`;
 
 export const loginBGImage = require("../../assets/ifza-login-bg2.jpg");
 

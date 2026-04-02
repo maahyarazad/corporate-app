@@ -4,15 +4,10 @@
     "scheme": "gecmobile",
     "name": "GEC Mobile",
     "slug": "GEC-Rewards",
-    "version": "3.0.1",
+    "version": "3.0.3",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#131313"
-    },
     "plugins": [
       [
         "expo-media-library",
@@ -34,7 +29,21 @@
       "expo-secure-store",
       "expo-web-browser",
       "expo-font",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker", [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#131313",
+          "image": "./assets/splash.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "ios": {
+            "backgroundColor": "#131313",
+            "image": "./assets/splash.png",
+            "resizeMode": "cover",
+            "enableFullScreenImage_legacy": true
+          }
+        }
+      ]
     ],
     "updates": {
       "fallbackToCacheTimeout": 0,
@@ -54,7 +63,7 @@
         "applinks:buenapublica.com",
         "applinks:buenapublica.com"
       ],
-      "buildNumber": "45",
+      "buildNumber": "48",
       "supportsTablet": true,
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Turning on location services allows us to show you nearby shops with offers.",
@@ -70,7 +79,7 @@
     },
     "android": {
         "enableProguardInReleaseBuilds": true,
-      "versionCode": 43,
+      "versionCode": 46,
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyBdMYAFwnxqA6KI4AE31v8BWBsr1ZDRogQ"

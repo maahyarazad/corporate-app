@@ -5,11 +5,12 @@ import { LoadingOverlay } from "../components/loading/loading.component";
 
 const SplashScreenContainer = styled(View)`
   flex: 1;
+  width: 100%;
+  height: 100%;
   background-color: #999;
   justify-content: center;
   align-items: center;
 `;
-
 const LoadingContainer = styled(View)`
   width: 150px;
   height: 150px;
