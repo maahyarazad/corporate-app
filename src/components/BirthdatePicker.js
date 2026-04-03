@@ -10,7 +10,9 @@ export function BirthdatePicker({
   label = "Birthdate *",
   error,
 }) {
+    
   const [show, setShow] = useState(false);
+  
   const [tempDate, setTempDate] = useState(value || new Date());
 
   const openPicker = () => {

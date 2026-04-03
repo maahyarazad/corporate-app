@@ -215,7 +215,7 @@ export const RegistrationScreen = () => {
         const response = await UserService.validateDetails(data);
         console.log(response);
         if (response.success) {
-          navigate("RegisterDetails", { login: data });
+          navigate("RegisterDetails", { login: data, services_data: response});
         } else {
           shake();
           showToast("error", "Validation Error", response.message);

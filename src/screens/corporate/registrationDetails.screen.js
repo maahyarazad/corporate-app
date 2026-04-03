@@ -41,6 +41,8 @@ const genderItems = [
 ];
 
 export const RegistrationDetailsScreen = ({ route }) => {
+    
+
   const theme = useTheme();
   const [showCountries, setShowCountries] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -170,6 +172,21 @@ export const RegistrationDetailsScreen = ({ route }) => {
     setState({ ...state, lastname: value });
   };
 
+
+useEffect(() => {
+  const services_data = route.params?.services_data?.services;
+  if (services_data) {
+    
+
+    setState(prev => ({
+      ...prev,
+      firstname: services_data.firstname,
+      lastname: services_data.lastname,
+      birthdate : services_data.birthday ? new Date(services_data.birthday) : ""
+    }));
+    
+  }
+}, []);
   return (
     <>
       <Background>
