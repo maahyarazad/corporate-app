@@ -1,117 +1,119 @@
 {
-  "expo": {
-    "jsEngine": "hermes",
-    "scheme": "gecmobile",
-    "name": "GEC Mobile",
-    "slug": "GEC-Rewards",
-    "version": "3.0.3",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "plugins": [
-      [
-        "expo-media-library",
-        {
-          "photosPermission": "The app needs to access the photo of your GEC Membership card.",
-          "savePhotosPermission": "The app needs to save a photo of your GEC Membership card.",
-          "isAccessMediaLocationEnabled": "true"
-        }
-      ],
-      "expo-localization",
-      [
-        "expo-av",
-        {
-          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
-        }
-      ],
-      "react-native-compressor",
-      "expo-asset",
-      "expo-secure-store",
-      "expo-web-browser",
-      "expo-font",
-      "@react-native-community/datetimepicker", [
-        "expo-splash-screen",
-        {
-          "backgroundColor": "#131313",
-          "image": "./assets/splash.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "ios": {
-            "backgroundColor": "#131313",
-            "image": "./assets/splash.png",
-            "resizeMode": "cover",
-            "enableFullScreenImage_legacy": true
-          }
-        }
-      ]
-    ],
-    "updates": {
-      "fallbackToCacheTimeout": 0,
-      "url": "https://u.expo.dev/62fbe3bc-6c85-43b1-af3d-4546f8f80ffe"
-    },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "ios": {
-        "jsEngine": "jsc",
-        "provisioningProfilePath": "./profile.mobileprovision",
-    "distributionCertificate": {
-      "path": "./DevCertificates.p12",
-      "password": "YOUR_P12_PASSWORD"
-    },
-      "associatedDomains": [
-        "applinks:buenapublica.com",
-        "applinks:buenapublica.com"
-      ],
-      "buildNumber": "49",
-      "supportsTablet": true,
-      "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "Turning on location services allows us to show you nearby shops with offers.",
-        "NSPhotoLibraryUsageDescription": "The app needs to access the photo of your GEC Membership card.",
-        "NSPhotoLibraryAddUsageDescription": "The app needs to save a photo of your GEC Membership card.",
-        "NSCameraUsageDescription": "The app needs to take a photo of your GEC Membership card.",
-        "ITSAppUsesNonExemptEncryption": false
-      },
-      "bundleIdentifier": "com.buenapublica.GECRewards",
-      "config": {
-        "googleMapsApiKey": "AIzaSyARBZ-ZBNWxmlP8sTXqeqFJuBkkQm6zuKE"
-      }
-    },
-    "android": {
-        "enableProguardInReleaseBuilds": true,
-      "versionCode": 47,
-      "config": {
-        "googleMaps": {
-          "apiKey": "AIzaSyBdMYAFwnxqA6KI4AE31v8BWBsr1ZDRogQ"
-        }
-      },
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "googleServicesFile": "./google-services.json",
-      "package": "com.buenapublica.GECRewards",
-      "permissions": [
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.ACCESS_MEDIA_LOCATION",
-        "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
-        "android.permission.READ_MEDIA_IMAGES",
-        "android.permission.READ_MEDIA_VIDEO",
-        "android.permission.READ_MEDIA_AUDIO",
-        "android.permission.RECORD_AUDIO",
-        "android.permission.MODIFY_AUDIO_SETTINGS"
-      ]
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
-    "description": "",
-    "extra": {
-      "eas": {
-        "projectId": "62fbe3bc-6c85-43b1-af3d-4546f8f80ffe"
-      }
-    },
-    "runtimeVersion": "2.2.0"
-  }
+    "expo": {
+        "jsEngine": "hermes",
+        "scheme": "gecmobile",
+        "name": "GEC Mobile",
+        "slug": "GEC-Rewards",
+        "version": "3.0.5",
+        "orientation": "portrait",
+        "icon": "./assets/icon.png",
+        "userInterfaceStyle": "light",
+        "plugins": [
+            [
+                "expo-media-library",
+                {
+                    "photosPermission": "The app needs to access the photo of your GEC Membership card.",
+                    "savePhotosPermission": "The app needs to save a photo of your GEC Membership card.",
+                    "isAccessMediaLocationEnabled": "true"
+                }
+            ],
+            "expo-localization",
+            [
+                "expo-av",
+                {
+                    "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
+                }
+            ],
+            "react-native-compressor",
+            "expo-asset",
+            "expo-secure-store",
+            "expo-web-browser",
+            "expo-font",
+            "@react-native-community/datetimepicker",
+            [
+                "expo-splash-screen",
+                {
+                    "android": {
+                        "backgroundColor": "#ffffff",
+                        "image": "./assets/GE-LOGO-GOLD.png",
+                        "imageWidth": 150,
+                        "resizeMode": "contain"
+                    },
+                   "ios": {
+        "backgroundColor": "#ffffff",
+        "image": "./assets/GE-LOGO-GOLD.png",
+        "imageWidth": 150,
+        "resizeMode": "contain"
+    }
+                }
+            ]
+        ],
+        "updates": {
+            "fallbackToCacheTimeout": 0,
+            "url": "https://u.expo.dev/62fbe3bc-6c85-43b1-af3d-4546f8f80ffe"
+        },
+        "assetBundlePatterns": [
+            "**/*"
+        ],
+        "ios": {
+            "jsEngine": "jsc",
+            "provisioningProfilePath": "./profile.mobileprovision",
+            "distributionCertificate": {
+                "path": "./DevCertificates.p12",
+                "password": "YOUR_P12_PASSWORD"
+            },
+            "associatedDomains": [
+                "applinks:buenapublica.com"
+            ],
+            "buildNumber": "52",
+            "supportsTablet": true,
+            "infoPlist": {
+                "NSLocationWhenInUseUsageDescription": "Turning on location services allows us to show you nearby shops with offers.",
+                "NSPhotoLibraryUsageDescription": "The app needs to access the photo of your GEC Membership card.",
+                "NSPhotoLibraryAddUsageDescription": "The app needs to save a photo of your GEC Membership card.",
+                "NSCameraUsageDescription": "The app needs to take a photo of your GEC Membership card.",
+                "ITSAppUsesNonExemptEncryption": false
+            },
+            "bundleIdentifier": "com.buenapublica.GECRewards",
+            "config": {
+                "googleMapsApiKey": "AIzaSyARBZ-ZBNWxmlP8sTXqeqFJuBkkQm6zuKE"
+            }
+        },
+        "android": {
+            "enableProguardInReleaseBuilds": true,
+            "versionCode": 52,
+            "config": {
+                "googleMaps": {
+                    "apiKey": "AIzaSyBdMYAFwnxqA6KI4AE31v8BWBsr1ZDRogQ"
+                }
+            },
+            "adaptiveIcon": {
+                "foregroundImage": "./assets/adaptive-icon.png",
+                "backgroundColor": "#ffffff"
+            },
+            "googleServicesFile": "./google-services.json",
+            "package": "com.buenapublica.GECRewards",
+            "permissions": [
+                "android.permission.READ_EXTERNAL_STORAGE",
+                "android.permission.WRITE_EXTERNAL_STORAGE",
+                "android.permission.ACCESS_MEDIA_LOCATION",
+                "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
+                "android.permission.READ_MEDIA_IMAGES",
+                "android.permission.READ_MEDIA_VIDEO",
+                "android.permission.READ_MEDIA_AUDIO",
+                "android.permission.RECORD_AUDIO",
+                "android.permission.MODIFY_AUDIO_SETTINGS"
+            ]
+        },
+        "web": {
+            "favicon": "./assets/favicon.png"
+        },
+        "description": "",
+        "extra": {
+            "eas": {
+                "projectId": "62fbe3bc-6c85-43b1-af3d-4546f8f80ffe"
+            }
+        },
+        "runtimeVersion": "2.2.0"
+    }
 }

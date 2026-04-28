@@ -77,7 +77,6 @@ export const RegistrationSuccessByServices = () => {
     <Background>
       <View style={styles.container}>
         <View style={{ flex: 2, justifyContent: "flex-end" }}>
-
           <Animated.View style={bounceAnimationStyle}>
             <Label
               size="h4"
@@ -85,16 +84,14 @@ export const RegistrationSuccessByServices = () => {
               style={{ color: "white", textAlign: "center" }}
             >
               BOOM!
-
             </Label>
 
-<Label
+            <Label
               size="h4"
               weight="bold"
               style={{ color: "white", textAlign: "center" }}
             >
               You are in
-              
             </Label>
 
             <MaterialCommunityIcons
@@ -117,21 +114,10 @@ export const RegistrationSuccessByServices = () => {
               weight="bold"
               style={{ color: "white", textAlign: "center" }}
             >
-              Your account has been created!
+              Your account has been verified!
             </Label>
 
-            <Label
-              size="title"
-              weight="medium"
-              style={{
-                color: "white",
-                textAlign: "center",
-                ...styles.marginFix,
-              }}
-            >
-              Your account has already been verified with the provided email and
-              mobile number previously.
-            </Label>
+         
           </Animated.View>
           <Animated.View style={fadeInButtonAnimationStyle}>
             <Button
@@ -148,7 +134,7 @@ export const RegistrationSuccessByServices = () => {
                 weight="bold"
                 style={{ color: "black", textAlign: "center" }}
               >
-                Continues
+                Continue
               </Label>
             </Button>
           </Animated.View>

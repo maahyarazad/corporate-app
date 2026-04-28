@@ -1,8 +1,9 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import {
   CardStyleInterpolators,
   createStackNavigator,
 } from "@react-navigation/stack";
+import { LoadingOverlay } from "./src/components/loading/loading.component";
 import { NavigationContainer } from "@react-navigation/native";
 import { LoginScreen } from "./src/screens/login/login.screen";
 import { EntertainerScreen } from "./src/screens/entertainer.screen";
@@ -10,7 +11,7 @@ import { VerifyInfo } from "./src/screens/login/login-verify-info.screen";
 import { RegistrationScreen } from "./src/screens/corporate/registration.screen";
 import { OtpVerification } from "./src/screens/login/otpVerification";
 import { MapScreen } from "./src/screens/map.screen";
-import { SplashScreen } from "./src/screens/splash.screen";
+import { ActivityIndicator } from "react-native-paper";
 import { goback, navigationRef } from "./src/navigation/navigate";
 import { LogoutScreen } from "./src/screens/logout.screen";
 import { RequestApprovalScreen } from "./src/screens/login/requestapproval.screen";
@@ -24,7 +25,13 @@ import { LocationListScreen } from "./src/screens/location/location-list.screen"
 import { SectionContext } from "./src/services/section/section.context";
 import { AvailOfferScreen } from "./src/screens/offer/availOffer.screen";
 import { LocationViewScreen } from "./src/screens/location/location-view.screen";
-import { Image, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  TouchableOpacity,
+  View,
+  Dimensions,
+  ImageBackground,
+} from "react-native";
 import { TransactionSummaryScreen } from "./src/screens/offer/transactionSummary.screen";
 import { ForgotPasswordScreen } from "./src/screens/reset-password/forgotPassword";
 import { ForgotPasswordOTPScreen } from "./src/screens/reset-password/forgotPasswordOTP";
@@ -44,9 +51,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { ProfileScreen } from "./src/screens/profile/profile.screen";
 import PostEntrySelect from "./src/screens/posts/post_entry/postEntrySelect.screen";
-import {
-  PostTabsNavigationScreen,
-} from "./src/screens/posts/postNavigation.screen";
+import { PostTabsNavigationScreen } from "./src/screens/posts/postNavigation.screen";
 import PostDetailScreen from "./src/screens/posts/postDetail.screen";
 import PostEntryScreen from "./src/screens/posts/post_entry/postEntry.screen";
 import { theme } from "./src/infrastructure/theme";
@@ -59,6 +64,7 @@ import ChangeMobileNumberScreen from "./src/screens/profile/changeMobileNumber.s
 import PostDetailMagazine from "./src/screens/posts/postDetailMagazine.screen";
 import ChangeEmailAddressScreen from "./src/screens/profile/changeEmailAddress.screen ";
 import { useNavigation } from "@react-navigation/native";
+import * as SplashScreen from "expo-splash-screen";
 
 const AuthStack = createStackNavigator();
 const MainStack = createStackNavigator();
@@ -211,7 +217,7 @@ const AuthStackScreen = () => {
 
 const OverlappingNavigator = () => {
   const { i18n } = useContext(TranslationContext);
-  
+
   return (
     <BottomSheetModalProvider>
       <OverlappingStack.Navigator>
@@ -388,7 +394,7 @@ const OverlappingNavigator = () => {
 
 const MainScreen = () => {
   const { i18n } = useContext(TranslationContext);
-const navigation = useNavigation();
+  const navigation = useNavigation();
   return (
     <MainStack.Navigator>
       <MainStack.Screen
@@ -424,19 +430,19 @@ const navigation = useNavigation();
         name="LocationList"
         component={LocationListScreen}
         options={{
-           headerBackTitle: "",
-  headerTitle: "",
-  headerTintColor: "black",
-  headerStyle: { shadowColor: "transparent" },
+          headerBackTitle: "",
+          headerTitle: "",
+          headerTintColor: "black",
+          headerStyle: { shadowColor: "transparent" },
 
-  headerLeft: () => (
-    <TouchableOpacity
-      onPress={() => navigation.goBack()}
-      style={{ paddingLeft: 15 }}
-    >
-      <Ionicons name="arrow-back" size={24} color="black" />
-    </TouchableOpacity>
-  ),
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={{ paddingLeft: 15 }}
+            >
+              <Ionicons name="arrow-back" size={24} color="black" />
+            </TouchableOpacity>
+          ),
           cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
           gestureDirection: "horizontal",
           gestureResponseDistance: 200,
@@ -560,97 +566,136 @@ const ApprovalScreen = () => {
   );
 };
 
+SplashScreen.preventAutoHideAsync();
 export const AppNavigation = () => {
   const { isOutdated } = useContext(AppContext);
-  
+  const { width, height } = Dimensions.get("screen");
   const { phoneVerified, refreshToken, isSkip, noConnection, isAuthorized } =
     useAuth();
 
-  const [assets] = useAssets([
-    require("./assets/IFZA-Logo.png"),
-    require("./assets/ifza-login-bg2.jpg"),
-    require("./assets/ifza-login-bg.webp"),
-    require("./assets/GE-LOGO-GOLD.png"),
-
-    require("./assets/Food_Drinks.png"),
-    require("./assets/Beauty_Fitness.png"),
-    require("./assets/Attraction_Leisure.png"),
-    require("./assets/Fashion_Retail.png"),
-    require("./assets/EverydayServices.png"),
-    require("./assets/Travel.png"),
-    require("./assets/Education.png"),
-    require("./assets/Healthcare.png"),
-    require("./assets/FinancialServices.png"),
-    require("./assets/RealEstate.png"),
-    require("./assets/Consulting.png"),
-
-    require("./assets/stamps/GEC_1_Off_Discount.png"),
-    require("./assets/stamps/GEC_2_Off_Discount.png"),
-    require("./assets/stamps/GEC_3_Off_Discount.png"),
-    require("./assets/stamps/GEC_4_Off_Discount.png"),
-    require("./assets/stamps/GEC_5_Off_Discount.png"),
-    require("./assets/stamps/GEC_6_Off_Discount.png"),
-    require("./assets/stamps/GEC_7_Off_Discount.png"),
-    require("./assets/stamps/GEC_8_Off_Discount.png"),
-    require("./assets/stamps/GEC_9_Off_Discount.png"),
-    require("./assets/stamps/GEC_10_Off_Discount.png"),
-    require("./assets/stamps/GEC_11_Off_Discount.png"),
-    require("./assets/stamps/GEC_12_Off_Discount.png"),
-    require("./assets/stamps/GEC_13_Off_Discount.png"),
-    require("./assets/stamps/GEC_14_Off_Discount.png"),
-    require("./assets/stamps/GEC_15_Off_Discount.png"),
-    require("./assets/stamps/GEC_16_Off_Discount.png"),
-    require("./assets/stamps/GEC_17_Off_Discount.png"),
-    require("./assets/stamps/GEC_18_Off_Discount.png"),
-    require("./assets/stamps/GEC_19_Off_Discount.png"),
-    require("./assets/stamps/GEC_20_Off_Discount.png"),
-    require("./assets/stamps/GEC_25_Off_Discount.png"),
-    require("./assets/stamps/GEC_30_Off_Discount.png"),
-    require("./assets/stamps/GEC_35_Off_Discount.png"),
-    require("./assets/stamps/GEC_40_Off_Discount.png"),
-    require("./assets/stamps/GEC_45_Off_Discount.png"),
-    require("./assets/stamps/GEC_50_Off_Discount.png"),
-    require("./assets/stamps/GEC_55_Off_Discount.png"),
-    require("./assets/stamps/GEC_60_Off_Discount.png"),
-    require("./assets/stamps/GEC_65_Off_Discount.png"),
-    require("./assets/stamps/GEC_70_Off_Discount.png"),
-    require("./assets/stamps/GEC_75_Off_Discount.png"),
-    require("./assets/stamps/GEC_80_Off_Discount.png"),
-    require("./assets/stamps/GEC_85_Off_Discount.png"),
-    require("./assets/stamps/GEC_90_Off_Discount.png"),
-    require("./assets/stamps/GEC_95_Off_Discount.png"),
-    require("./assets/stamps/GEC_100_Off_Discount.png"),
-    require("./assets/stamps/GEC_2_for_1.png"),
-    require("./assets/stamps/GEC_3_for_2.png"),
-    require("./assets/stamps/GEC_4_for_3.png"),
-    require("./assets/stamps/GEC_5_for_4.png"),
-    require("./assets/stamps/GEC_6_for_5.png"),
-    require("./assets/stamps/GEC_7_for_6.png"),
-    require("./assets/stamps/GEC_Freebie.png"),
-
-    require("./assets/specials/Workspace.png"),
-    require("./assets/specials/Adrenaline.png"),
-    require("./assets/specials/Brand_New.png"),
-    require("./assets/specials/Breakfast.png"),
-    require("./assets/specials/Brunches.png"),
-    require("./assets/specials/Buffet.png"),
-    require("./assets/specials/Cuisine.png"),
-    require("./assets/specials/Daycations.png"),
-    require("./assets/specials/Delivery.png"),
-    require("./assets/specials/Flash_Sale.png"),
-    require("./assets/specials/Gourmet.png"),
-    require("./assets/specials/Hot_Pick.png"),
-    require("./assets/specials/Kids.png"),
-    require("./assets/specials/Monthly_Offers.png"),
-    require("./assets/specials/Pet_Friendly.png"),
-    require("./assets/specials/Shisha_Offers.png"),
-    require("./assets/specials/Staycations.png"),
-    require("./assets/specials/Summer_Super_Sale.png"),
-    require("./assets/specials/Takeaway.png"),
-    require("./assets/specials/Trending_Offers.png"),
-  ]);
+//   const assets = null;
+ 
 
   const renderNavigator = () => {
+       const [assets] = useAssets([
+      require("./assets/IFZA-Logo.png"),
+      require("./assets/ifza-login-bg2.jpg"),
+      require("./assets/ifza-login-bg.webp"),
+      require("./assets/GE-LOGO-GOLD.png"),
+
+      require("./assets/Food_Drinks.png"),
+      require("./assets/Beauty_Fitness.png"),
+      require("./assets/Attraction_Leisure.png"),
+      require("./assets/Fashion_Retail.png"),
+      require("./assets/EverydayServices.png"),
+      require("./assets/Travel.png"),
+      require("./assets/Education.png"),
+      require("./assets/Healthcare.png"),
+      require("./assets/FinancialServices.png"),
+      require("./assets/RealEstate.png"),
+      require("./assets/Consulting.png"),
+
+      require("./assets/stamps/GEC_1_Off_Discount.png"),
+      require("./assets/stamps/GEC_2_Off_Discount.png"),
+      require("./assets/stamps/GEC_3_Off_Discount.png"),
+      require("./assets/stamps/GEC_4_Off_Discount.png"),
+      require("./assets/stamps/GEC_5_Off_Discount.png"),
+      require("./assets/stamps/GEC_6_Off_Discount.png"),
+      require("./assets/stamps/GEC_7_Off_Discount.png"),
+      require("./assets/stamps/GEC_8_Off_Discount.png"),
+      require("./assets/stamps/GEC_9_Off_Discount.png"),
+      require("./assets/stamps/GEC_10_Off_Discount.png"),
+      require("./assets/stamps/GEC_11_Off_Discount.png"),
+      require("./assets/stamps/GEC_12_Off_Discount.png"),
+      require("./assets/stamps/GEC_13_Off_Discount.png"),
+      require("./assets/stamps/GEC_14_Off_Discount.png"),
+      require("./assets/stamps/GEC_15_Off_Discount.png"),
+      require("./assets/stamps/GEC_16_Off_Discount.png"),
+      require("./assets/stamps/GEC_17_Off_Discount.png"),
+      require("./assets/stamps/GEC_18_Off_Discount.png"),
+      require("./assets/stamps/GEC_19_Off_Discount.png"),
+      require("./assets/stamps/GEC_20_Off_Discount.png"),
+      require("./assets/stamps/GEC_25_Off_Discount.png"),
+      require("./assets/stamps/GEC_30_Off_Discount.png"),
+      require("./assets/stamps/GEC_35_Off_Discount.png"),
+      require("./assets/stamps/GEC_40_Off_Discount.png"),
+      require("./assets/stamps/GEC_45_Off_Discount.png"),
+      require("./assets/stamps/GEC_50_Off_Discount.png"),
+      require("./assets/stamps/GEC_55_Off_Discount.png"),
+      require("./assets/stamps/GEC_60_Off_Discount.png"),
+      require("./assets/stamps/GEC_65_Off_Discount.png"),
+      require("./assets/stamps/GEC_70_Off_Discount.png"),
+      require("./assets/stamps/GEC_75_Off_Discount.png"),
+      require("./assets/stamps/GEC_80_Off_Discount.png"),
+      require("./assets/stamps/GEC_85_Off_Discount.png"),
+      require("./assets/stamps/GEC_90_Off_Discount.png"),
+      require("./assets/stamps/GEC_95_Off_Discount.png"),
+      require("./assets/stamps/GEC_100_Off_Discount.png"),
+      require("./assets/stamps/GEC_2_for_1.png"),
+      require("./assets/stamps/GEC_3_for_2.png"),
+      require("./assets/stamps/GEC_4_for_3.png"),
+      require("./assets/stamps/GEC_5_for_4.png"),
+      require("./assets/stamps/GEC_6_for_5.png"),
+      require("./assets/stamps/GEC_7_for_6.png"),
+      require("./assets/stamps/GEC_Freebie.png"),
+
+      require("./assets/specials/Workspace.png"),
+      require("./assets/specials/Adrenaline.png"),
+      require("./assets/specials/Brand_New.png"),
+      require("./assets/specials/Breakfast.png"),
+      require("./assets/specials/Brunches.png"),
+      require("./assets/specials/Buffet.png"),
+      require("./assets/specials/Cuisine.png"),
+      require("./assets/specials/Daycations.png"),
+      require("./assets/specials/Delivery.png"),
+      require("./assets/specials/Flash_Sale.png"),
+      require("./assets/specials/Gourmet.png"),
+      require("./assets/specials/Hot_Pick.png"),
+      require("./assets/specials/Kids.png"),
+      require("./assets/specials/Monthly_Offers.png"),
+      require("./assets/specials/Pet_Friendly.png"),
+      require("./assets/specials/Shisha_Offers.png"),
+      require("./assets/specials/Staycations.png"),
+      require("./assets/specials/Summer_Super_Sale.png"),
+      require("./assets/specials/Takeaway.png"),
+      require("./assets/specials/Trending_Offers.png"),
+    ]);
+
+  useEffect(() => {
+    if (assets) {
+      SplashScreen.hideAsync();
+    }
+  }, [assets]);
+      if (!assets) {
+    return (
+      <ImageBackground
+        source={require("./assets/splash.png")}
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width,
+          height,
+        }}
+        resizeMode="cover"
+      >
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <ActivityIndicator
+            size="large"
+            color="#FFB400"
+            style={{ paddingTop: 250 }}
+          />
+        </View>
+      </ImageBackground>
+    );
+  }
+
     if (noConnection) {
       return <TimeoutStackScreen />;
     }
@@ -670,9 +715,7 @@ export const AppNavigation = () => {
     return <AuthStackScreen />;
   };
 
-  if (!assets) {
-    return <SplashScreen />;
-  }
+
 
   return (
     <NavigationContainer ref={navigationRef}>
