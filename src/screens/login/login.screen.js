@@ -1,32 +1,25 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Image,
+  Keyboard,
   Platform,
   StyleSheet,
   TouchableOpacity,
-  TouchableWithoutFeedback,
-  View
+  View,
 } from "react-native";
-
-import { ActivityIndicator, Checkbox, TextInput, Button } from "react-native-paper";
+import { ActivityIndicator, TextInput } from "react-native-paper";
 import { SafeArea } from "../../components/safearea.component";
-import { Spacer } from "../../components/spacer/spacer.component";
-import { Label } from "../../components/typography/label.component";
-import styled from "styled-components/native";
 import { useTheme } from "styled-components/native";
 import { StatusBar } from "expo-status-bar";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { navigate } from "../../navigation/navigate";
 import Background from "../../components/background/background.component";
-import { CustomTextInput } from "../../components/customTextInput";
 import * as WebBrowser from "expo-web-browser";
 import { isValidURL } from "../../utils/isValidURL";
 import { companyLogo, config, EULAPrivacyLink } from "../../utils/constants";
 import useRequest from "../../../hooks/useRequest";
 import useAuth from "../../../hooks/useAuth";
 import { TranslationContext } from "../../services/translation/translation.context";
-import * as Application from "expo-application";
-import * as Network from "expo-network";
 import * as Constants from "expo-constants";
 import LoginHeader from "./login.components/LoginHeader";
 import LoginForm from "./login.components/LoginForm";
@@ -35,10 +28,8 @@ import RegisterSection from "./login.components/RegisterSection";
 import useBiometrics from "../../../hooks/useBiometrics";
 import { useTranslation } from "../../../hooks/useTranslation";
 import { showToast } from "../../Toast";
-import { storeToken } from "../../services/auth/auth.service";
-import { CommonActions } from "@react-navigation/native";
-import { Keyboard } from "react-native";
 import { getDeviceInfo } from "../../services/auth/auth.service";
+import styled from "styled-components/native";
 
 export const TextInputForm = styled(TextInput)`
   border-radius: 10px;
@@ -56,127 +47,125 @@ export const LoginButton = styled(TouchableOpacity)`
 `;
 
 export const LoginScreen = ({ navigation }) => {
-  const [checked, setChecked] = useState(false);
-  const [username, setUsername] = useState(null);
-  const [password, setPassword] = useState(null);
+  const [checked, setChecked]           = useState(false);
+  const [username, setUsername]         = useState(null);
+  const [password, setPassword]         = useState(null);
   const [loginLoading, setLoginLoading] = useState(false);
-  const [canRegister, setCanRegister] = useState(true);
+  const [biometricLoading, setBiometricLoading] = useState(false); // ✅ separate loading state
+  const [canRegister, setCanRegister]   = useState(true);
+
   const request = useRequest();
-
-  const { signin, loading, verifyOTP, submittedCard, authorize } = useAuth();
-
+  const { signin, loading } = useAuth();
   const { setLang } = useContext(TranslationContext);
-  const [biometricType, setBiometricType] = useState(null);
   const theme = useTheme();
-  const biometric = useBiometrics();
   const { i18n } = useTranslation();
 
+  // ✅ Destructure once — use these variables directly everywhere
+  const {
+    available,
+    type,
+    enrolled,
+    token,
+    authenticate,
+    enable,
+    disable,
+    checkBiometricStatus,
+  } = useBiometrics();
+
+  // ✅ Construct a biometric object to pass to child components
+  const biometric = { available, type, enrolled, token, authenticate, enable, disable };
+
   useEffect(() => {
-    // console.log("biometric", biometric);
-    return () => {};
-  }, [biometric.available]);
+    // Re-check biometric status when availability changes
+    checkBiometricStatus();
+  }, [available]); // ✅ now correctly references the destructured variable
 
   const handleBiometricLogin = async () => {
     try {
-      if (!biometric.enrolled) {
+      // 1. Guard: hardware available
+      if (!available) {
+        showToast("info", "Notice", "Biometric authentication is not available on this device.");
+        return;
+      }
+
+      // 2. Guard: user has enrolled biometrics in device settings
+      if (!enrolled) {
+        showToast("info", "Notice", `Please enable ${type} in your device settings.`);
+        return;
+      }
+
+      // 3. Guard: user has enabled biometrics in the app
+      if (!token) {
         showToast(
           "info",
           "Notice",
-          `Please enable your ${biometric.type} in your device settings.`
+          `Please enable '${i18n.t(`profile-tabs.settings-menu.login-${type}`)}' in the app.\n\n` +
+          `${i18n.t("bottom-tabs.profile")} > ${i18n.t("profile-tabs.settings")} > ${i18n.t(`profile-tabs.settings-menu.login-${type}`)}`
         );
         return;
       }
 
-      // Check if biometric token is available
-      if (!biometric.token) {
-        showToast(
-          "info",
-          "Notice",
-          `Please enable '${i18n.t(
-            `profile-tabs.settings-menu.login-${biometric.type}`
-          )}' in your device settings.\n\n` +
-            `${i18n.t("bottom-tabs.profile")} > ${i18n.t(
-              "profile-tabs.settings"
-            )} > ${i18n.t(
-              `profile-tabs.settings-menu.login-${biometric.type}`
-            )}`
-        );
+      // 4. Trigger biometric prompt
+      const authenticated = await authenticate();
+      if (!authenticated) return; // user cancelled — silent return
+
+      // 5. Biometric passed — call login API
+      setBiometricLoading(true); // ✅ use dedicated loading state
+      const deviceInfo = await getDeviceInfo();
+
+      const credentials = {
+        app_id: config.APP_ID,
+        device_id: deviceInfo.device_id,
+        ip_address: deviceInfo.ip_address,
+        platform: Platform.OS,
+        version: Constants.default.expoConfig.version,
+        biometric_token: token,
+      };
+
+      const response = await request("/v2/auth/login", "post", credentials);
+
+      if (!response.success) {
+        showToast("error", response.title, response.message);
         return;
       }
 
-      //Authenticate User
-      const status = await biometric.authenticate();
+      // 6. Handle successful login
+      setLang(response.member ? "de" : "en");
+      signin(response.refreshToken, response.accessToken);
 
-      if (status) {
-        // console.log("Biometric Token:", biometric.token);
-        const deviceInfo = await getDeviceInfo();
+      if (response.member_id) {
+        navigation.navigate("UpdateMember", { member_id: response.member_id, credentials });
+        return;
+      }
 
-        const platform = Platform.OS;
-
-        const credentials = {
-          app_id: config.APP_ID,
-          device_id: deviceInfo.device_id,
-          ip_address: deviceInfo.ip_address,
-          platform: platform,
-          version: Constants.default.expoConfig.version,
-          biometric_token: biometric.token,
-        };
-
-        // const response = await login(credentials, setLoading);
-
-        const response = await request("/v2/auth/login", "post", credentials);
-
-        if (response.success) {
-          setLang(response.member ? "de" : "en");
-          if (response.member_id) {
-            navigate("UpdateMember", {
-              member_id: response.member_id,
-              credentials,
-            });
-            return;
-          }
-          if (response.status) {
-            signin(response.refreshToken, response.accessToken);
-            navigation.navigate("VerifyOTP", {
-              hiddenNumber: response.phone_number,
-            });
-          } else {
-            signin(response.refreshToken, response.accessToken);
-            navigation.navigate("Unverified Email", {
-              userId: response.user_id,
-            });
-          }
-        } else {
-          showToast("error", response.title, response.message);
-        }
+      if (response.status) {
+        navigation.navigate("VerifyOTP", { hiddenNumber: response.phone_number });
       } else {
+        navigation.navigate("Unverified Email", { userId: response.user_id });
       }
+
     } catch (error) {
-      console.log("Failed to login using biometrics:", error);
+      console.error("Biometric login failed:", error);
+      showToast("error", "Error", "Something went wrong. Please try again.");
+    } finally {
+      setBiometricLoading(false); // ✅ always clears loading
     }
   };
 
-  const handleForgetPassword = () => {
-    navigate("ForgotPassword");
-  };
+  const handleForgetPassword = () => navigate("ForgotPassword");
 
   const handleLogin = async () => {
     try {
       setLoginLoading(true);
+
       if (!username?.trim() && !password?.trim()) {
-        showToast(
-          "error",
-          "Invalid Login",
-          "Please enter your username and password"
-        );
+        showToast("error", "Invalid Login", "Please enter your username and password");
         return;
       }
-
       if (!username?.trim()) {
         showToast("error", "Invalid Login", "Please enter your username");
         return;
       }
-
       if (!password?.trim()) {
         showToast("error", "Invalid Login", "Please enter your password");
         return;
@@ -185,46 +174,40 @@ export const LoginScreen = ({ navigation }) => {
       Keyboard.dismiss();
       const deviceInfo = await getDeviceInfo();
 
-      const platform = Platform.OS;
-
       const credentials = {
         app_id: config.APP_ID,
         username,
         password,
         device_id: deviceInfo.device_id,
         ip_address: deviceInfo.ip_address,
-        platform: platform,
+        platform: Platform.OS,
         version: Constants.default.expoConfig.version,
       };
 
       const response = await request("/v2/auth/login", "post", credentials);
 
-      if (response.success) {
-        // console.log("Response Login", response);
-        setLang(response.member ? "de" : "en");
-        if (response.member_id) {
-          navigate("UpdateMember", {
-            member_id: response.member_id,
-            credentials,
-          });
-          return;
-        }
-        if (response.status) {
-          signin(response.refreshToken, response.accessToken);
-          navigation.navigate("VerifyOTP", {
-            hiddenNumber: response.phone_number,
-          });
-        } else {
-          signin(response.refreshToken, response.accessToken);
-          navigation.navigate("Unverified Email", {
-            userId: response.user_id,
-          });
-        }
-      } else {
+      if (!response.success) {
         showToast("error", response.title, response.message);
+        return;
       }
+
+      setLang(response.member ? "de" : "en");
+      signin(response.refreshToken, response.accessToken); // ✅ called once
+
+      if (response.member_id) {
+        navigate("UpdateMember", { member_id: response.member_id, credentials });
+        return;
+      }
+
+      if (response.status) {
+        navigation.navigate("VerifyOTP", { hiddenNumber: response.phone_number });
+      } else {
+        navigation.navigate("Unverified Email", { userId: response.user_id });
+      }
+
     } catch (err) {
-      console.log("ERROR", err);
+      console.error("Login error:", err);
+      showToast("error", "Error", "Something went wrong. Please try again.");
     } finally {
       setLoginLoading(false);
     }
@@ -242,51 +225,14 @@ export const LoginScreen = ({ navigation }) => {
 
   if (loading) {
     return (
-      <>
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: "white",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <View
-            style={{
-              alignItems: "center",
-              height: 400,
-              justifyContent: "center",
-            }}
-          >
-            <Image
-              style={{
-                width: 170,
-                resizeMode: "contain",
-                top: 0,
-              }}
-              source={companyLogo}
-            />
-
-            <View
-              style={[
-                {
-                  position: "absolute",
-                  alignContent: "center",
-                  alignItems: "center",
-                  bottom: 0,
-                  right: 0,
-                  left: 0,
-                },
-              ]}
-            >
-              <ActivityIndicator
-                size="large"
-                color="#FFB400"
-              ></ActivityIndicator>
-            </View>
+      <View style={{ flex: 1, backgroundColor: "white", justifyContent: "center", alignItems: "center" }}>
+        <View style={{ alignItems: "center", height: 400, justifyContent: "center" }}>
+          <Image style={{ width: 170, resizeMode: "contain", top: 0 }} source={companyLogo} />
+          <View style={{ position: "absolute", alignItems: "center", bottom: 0, right: 0, left: 0 }}>
+            <ActivityIndicator size="large" color="#FFB400" />
           </View>
         </View>
-      </>
+      </View>
     );
   }
 
@@ -317,17 +263,16 @@ export const LoginScreen = ({ navigation }) => {
                   handleBrowser={handleBrowser}
                 />
 
+                {/* ✅ Pass biometric object + dedicated loading state */}
                 <BiometricLogin
                   biometric={biometric}
+                  biometricLoading={biometricLoading}
                   handleBiometricLogin={handleBiometricLogin}
                   i18n={i18n}
                 />
 
-                {canRegister && (
-                  <RegisterSection navigation={navigation} theme={theme} />
-                )}
+                {canRegister && <RegisterSection navigation={navigation} theme={theme} />}
               </View>
-              
             </KeyboardAwareScrollView>
           </SafeArea>
         </Background>

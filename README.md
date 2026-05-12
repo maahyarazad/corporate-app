@@ -444,4 +444,39 @@ It is written in **React Native** Framework using **Expo** Tools.
 
        ![Google Play Console Release Details](./docs/google-play-publishing-overview.png)
 
-  
+  Maahyar Azad Note
+  ## [3.0.6] - 2025-05-12
+
+### Fixed
+- Biometric authentication logic overhauled on LoginScreen
+  - Resolved undefined `biometric.*` reference caused by incorrect destructuring
+    of useBiometrics hook
+  - Fixed silent failure when biometric prompt was cancelled or failed
+  - Fixed `useEffect` dependency watching undefined `biometric.available`
+  - Separated `biometricLoading` state from auth `loading` to prevent
+    spinner conflicts
+  - Added hardware availability guard as first check before enrollment
+    and token checks
+
+- useBiometrics hook
+  - Fixed face-id vs face-recognition always returning "face-recognition"
+    due to hardcoded `false` condition — now uses `Platform.OS`
+  - Fixed token state going stale after enable/disable — now syncs via setToken()
+  - Fixed SecureStore token deletion on disable() not guarded behind
+    response.success — local token no longer wiped if server call fails
+  - Replaced magic numbers (1, 2) with LocalAuthentication.AuthenticationType
+    enum for clarity and safety
+
+- app.json
+  - Fixed ERR_ASSERTION plugin error — expo-local-authentication and
+    expo-media-library were incorrectly nested in the same plugin array
+
+### Added
+- Toast error/info feedback across all biometric login failure states
+  (hardware unavailable, not enrolled, token missing, API error)
+- Skeleton loaders for images to improve perceived performance
+  and reduce layout shifts during content load
+- android.permission.USE_BIOMETRIC and USE_FINGERPRINT permissions
+- NSFaceIDUsageDescription added to iOS infoPlist (required for App Store approval)
+- Exported checkBiometricStatus from useBiometrics for manual refresh
+- BIOMETRIC_TOKEN_KEY extracted as a constant in useBiometrics

@@ -4,11 +4,12 @@
         "scheme": "gecmobile",
         "name": "GEC Mobile",
         "slug": "GEC-Rewards",
-        "version": "3.0.5",
+        "version": "3.1.0",
         "orientation": "portrait",
         "icon": "./assets/icon.png",
         "userInterfaceStyle": "light",
         "plugins": [
+            "expo-local-authentication",
             [
                 "expo-media-library",
                 {
@@ -39,12 +40,12 @@
                         "imageWidth": 150,
                         "resizeMode": "contain"
                     },
-                   "ios": {
-        "backgroundColor": "#ffffff",
-        "image": "./assets/GE-LOGO-GOLD.png",
-        "imageWidth": 150,
-        "resizeMode": "contain"
-    }
+                    "ios": {
+                        "backgroundColor": "#ffffff",
+                        "image": "./assets/GE-LOGO-GOLD.png",
+                        "imageWidth": 150,
+                        "resizeMode": "contain"
+                    }
                 }
             ]
         ],
@@ -65,13 +66,14 @@
             "associatedDomains": [
                 "applinks:buenapublica.com"
             ],
-            "buildNumber": "52",
+            "buildNumber": "54",
             "supportsTablet": true,
             "infoPlist": {
                 "NSLocationWhenInUseUsageDescription": "Turning on location services allows us to show you nearby shops with offers.",
                 "NSPhotoLibraryUsageDescription": "The app needs to access the photo of your GEC Membership card.",
                 "NSPhotoLibraryAddUsageDescription": "The app needs to save a photo of your GEC Membership card.",
                 "NSCameraUsageDescription": "The app needs to take a photo of your GEC Membership card.",
+                "NSFaceIDUsageDescription": "We use Face ID to securely authenticate your identity and provide quick access to your account.",
                 "ITSAppUsesNonExemptEncryption": false
             },
             "bundleIdentifier": "com.buenapublica.GECRewards",
@@ -81,7 +83,7 @@
         },
         "android": {
             "enableProguardInReleaseBuilds": true,
-            "versionCode": 52,
+            "versionCode": 54,
             "config": {
                 "googleMaps": {
                     "apiKey": "AIzaSyBdMYAFwnxqA6KI4AE31v8BWBsr1ZDRogQ"
@@ -99,10 +101,8 @@
                 "android.permission.ACCESS_MEDIA_LOCATION",
                 "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
                 "android.permission.READ_MEDIA_IMAGES",
-                "android.permission.READ_MEDIA_VIDEO",
-                "android.permission.READ_MEDIA_AUDIO",
-                "android.permission.RECORD_AUDIO",
-                "android.permission.MODIFY_AUDIO_SETTINGS"
+                "android.permission.USE_BIOMETRIC",
+                "android.permission.USE_FINGERPRINT"
             ]
         },
         "web": {
