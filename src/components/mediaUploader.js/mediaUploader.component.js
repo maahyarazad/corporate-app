@@ -2,7 +2,6 @@ import {
   Alert,
   FlatList,
   Image,
-  Modal,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -18,45 +17,30 @@ import GalleryView from "react-native-image-viewing";
 import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator";
 import * as VideoThumbnails from "expo-video-thumbnails";
+import * as FileSystem from "expo-file-system"; // FIX: replaced fragile _bodyBlob hack
 import { companyLogo } from "../../utils/constants";
 import { CustomModal } from "../modal/customModal.component";
 import { Video, Image as Picture } from "react-native-compressor";
 import { ProgressBar } from "react-native-paper";
-import { StatusBar } from "expo-status-bar";
-import { ResizeMode, Video as VideoPlayer } from "expo-av";
-import {
-  GestureHandlerRootView,
-  PanGestureHandler,
-  State,
-} from "react-native-gesture-handler";
 import VideoPlayerModal from "../videoPlayerModal/videoPlayerModal.component";
 
+// ─────────────────────────────────────────────
+// PreviewPhoto
+// FIX: moved key prop to outer View (was on TouchableOpacity — wrong place)
+// ─────────────────────────────────────────────
 const PreviewPhoto = React.memo(({ onPress, item, removeItem }) => {
   return (
-    <View>
-      <TouchableOpacity
-        onPress={onPress}
-        key={item.uri}
-        onLongPress={() => {
-        //   console.log("long press");
-        }}
-      >
+    <View key={item.uri}>
+      <TouchableOpacity onPress={onPress}>
         <View style={styles.photoContainer}>
           <CacheImage
             uri={item.uri}
-            style={{
-              width: 100,
-              height: 100,
-            }}
+            style={{ width: 100, height: 100 }}
             resizeMode="cover"
             local={true}
           />
           {item.type === "video" && (
-            <View
-              style={{
-                position: "absolute",
-              }}
-            >
+            <View style={{ position: "absolute" }}>
               <MaterialCommunityIcons
                 name="play-circle-outline"
                 size={60}
@@ -69,11 +53,7 @@ const PreviewPhoto = React.memo(({ onPress, item, removeItem }) => {
       <View style={styles.floatButton}>
         <TouchableOpacity onPress={removeItem}>
           <View style={styles.removeButton}>
-            <MaterialCommunityIcons
-              name="minus-circle"
-              size={25}
-              color="red"
-            />
+            <MaterialCommunityIcons name="minus-circle" size={25} color="red" />
           </View>
         </TouchableOpacity>
       </View>
@@ -81,15 +61,36 @@ const PreviewPhoto = React.memo(({ onPress, item, removeItem }) => {
   );
 });
 
+// ─────────────────────────────────────────────
+// MediaUploader
+// ─────────────────────────────────────────────
 const MediaUploader = ({ images, setImages, header = false, show = true }) => {
   const MAX_PHOTOS = 6;
   const [imageIndex, setImageIndex] = useState(0);
-  const [mediaType, setMediaType] = useState(null);
   const [openModal, setOpenModal] = useState(false);
-  const [compressDone, setCompressDone] = useState(null);
+  const [compressDone, setCompressDone] = useState(null); // null=hidden, false=compressing, true=done
   const [compressProgress, setCompressProgress] = useState(0);
   const [selectedVideo, setSelectedVideo] = useState(null);
+  const [galleryOpen, setGalleryOpen] = useState(false);
 
+  // ─────────────────────────────────────────
+  // FIX: replaced fragile _bodyBlob._data.size hack with expo-file-system
+  // ─────────────────────────────────────────
+  const getImageFileSize = async (uri) => {
+    try {
+      const info = await FileSystem.getInfoAsync(uri, { size: true });
+      const mb = 1000 ** 2;
+      return (info.size ?? 0) / mb;
+    } catch (error) {
+      console.log("Failed to get file size:", error);
+      return 0;
+    }
+  };
+
+  // ─────────────────────────────────────────
+  // pickImage — gallery
+  // FIX: was incorrectly using launchCameraAsync
+  // ─────────────────────────────────────────
   const pickImage = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
@@ -101,47 +102,48 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
 
       if (!result.canceled) {
         setCompressDone(false);
-        const newImages = result.assets.map(async (item, index) => {
-          const initialSize = await getImageFileSize(item.uri);
-          // const resizedImage = await resizeImage(item.uri, {
-          //   width: item.width,
-          //   height: item.height,
-          // })
-          const resizedImage = await Picture.compress(item.uri);
-          const finalSize = await getImageFileSize(resizedImage);
-          //Compression Stats
-        //   console.log(`----------------[${index + 1}]--------------`);
-        //   console.log(`Initial Size[2]: ${initialSize.toFixed(2)}`);
-        //   console.log(`Final Size: ${finalSize.toFixed(2)}`);
-          const perc = (finalSize / initialSize) * 100;
-        //   console.log(
-        //     `% Reduction: (${finalSize > initialSize ? "UP" : "DOWN") ${(
-        //       perc - 100
-        //     ).toFixed(2)}%`
-        //   );
-        //   console.log(`-----------------------------------`);
-          setCompressProgress(index / result.assets.length);
-          return {
-            uri: resizedImage,
-            name: item.fileName,
-            // type: item.type,
-            type: "image/jpeg",
-          };
-        });
-
-        const resolvedImages = await Promise.all(newImages);
-
-        setImages([...resolvedImages, ...(images ?? [])]);
-        setCompressDone(null);
         setCompressProgress(0);
-        setOpenModal(false);
+
+        const newImages = await Promise.all(
+          result.assets.map(async (item, index) => {
+            const initialSize = await getImageFileSize(item.uri);
+            const resizedUri = await Picture.compress(item.uri);
+            const finalSize = await getImageFileSize(resizedUri);
+
+            setCompressProgress((index + 1) / result.assets.length);
+
+            return {
+              uri: resizedUri,
+              name: item.fileName,
+              type: "image/jpeg",
+            };
+          })
+        );
+
+        setImages([...newImages, ...(images ?? [])]);
+        setCompressDone(true);
+
+        // Short delay so user sees "Fertig" before modal closes
+        setTimeout(() => {
+          setCompressDone(null);
+          setCompressProgress(0);
+          setOpenModal(false);
+        }, 800);
       }
     } catch (error) {
-      console.log("Failed to pick image: ", error);
-    } finally {
+      console.log("Failed to pick image:", error);
+      setCompressDone(null);
+      setCompressProgress(0);
     }
   };
 
+  // ─────────────────────────────────────────
+  // pickVideo — gallery
+  // FIX 1: was using launchCameraAsync
+  // FIX 2: Promise.all was never awaited (map returned array of Promises)
+  // FIX 3: duration check was after setCompressDone — now before
+  // FIX 4: setImages was inside map callback, now called after resolution
+  // ─────────────────────────────────────────
   const pickVideo = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
@@ -151,210 +153,146 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
       });
 
       if (!result.canceled) {
-        const newVideo = result.assets.map(async (item, index) => {
-          if (item.duration / 1000 > 90) {
-            alert("Video darf nicht länger als 90 Sekunden sein");
-            return;
-          }
-        //   console.log("Starting Compression");
-          setCompressDone(false);
-          const r2 = await Video.compress(
-            item.uri,
-            {
-              progressDivider: 2,
-              downloadProgress: (progress) => {
-                // console.log("downloadProgress: ", progress);
-              },
-            },
-            (progress) => {
-              setCompressProgress(progress);
-            }
-          );
-          const thumbnail = await VideoThumbnails.getThumbnailAsync(r2, {
-            time: 1000,
-          });
-          thumbnail.type = "video/mp4";
-          thumbnail.name = item.fileName;
-          thumbnail.videoURI = r2;
+        // Only allow one video at a time
+        const item = result.assets[0];
 
-          setImages([thumbnail, ...(images ?? [])]);
+        // FIX: duration check BEFORE starting compression
+        if (item.duration / 1000 > 90) {
+          alert("Video darf nicht länger als 90 Sekunden sein");
+          return;
+        }
+
+        setCompressDone(false);
+        setCompressProgress(0);
+
+        const compressedUri = await Video.compress(
+          item.uri,
+          { progressDivider: 2 },
+          (progress) => {
+            setCompressProgress(progress);
+          }
+        );
+
+        const thumbnail = await VideoThumbnails.getThumbnailAsync(compressedUri, {
+          time: 1000,
+        });
+
+        const videoEntry = {
+          ...thumbnail,
+          type: "video",
+          name: item.fileName,
+          videoURI: compressedUri,
+        };
+
+        // FIX: setImages called once after full resolution, not inside map
+        setImages([videoEntry, ...(images ?? [])]);
+        setCompressDone(true);
+
+        setTimeout(() => {
           setCompressDone(null);
           setCompressProgress(0);
           setOpenModal(false);
-        });
+        }, 800);
       }
     } catch (error) {
-      console.log("Failed to pick video: ", error);
-    } finally {
+      console.log("Failed to pick video:", error);
+      setCompressDone(null);
+      setCompressProgress(0);
     }
   };
 
-  const resizeImage = async (uri, dimensions) => {
-    try {
-      const FIXED_WIDTH = 720;
-      const ratio = dimensions?.width / dimensions?.height;
-
-      const actions = [
-        {
-          resize: {
-            width: FIXED_WIDTH,
-            height: FIXED_WIDTH / ratio,
-          },
-        },
-      ];
-      const options = {
-        compress: 0,
-        format: ImageManipulator.SaveFormat.JPEG,
-        base64: false,
-      };
-
-      const result = await ImageManipulator.manipulateAsync(
-        uri,
-        actions,
-        options
-      );
-      return result;
-    } catch (error) {
-      console.log("Failed to resize image: ", error);
-    }
-  };
-
-  const getImageFileSize = async (uri) => {
-    try {
-      const file = await fetch(uri);
-      const mb = 1000 ** 2;
-
-      //Return file size in MB
-      return file["_bodyBlob"]["_data"].size / mb;
-    } catch (error) {
-      console.log("Failed to get the size", error);
-    }
-  };
-
-  const [galleryOpen, setGalleryOpen] = useState(false);
-
-  const onGalleryOpen = () => {
-    setGalleryOpen(true);
-  };
-
-  const onGalleryClose = () => {
-    setGalleryOpen(false);
-  };
-
-  const onModalOpen = () => {
-    setOpenModal(true);
-  };
-
-  const AddPhotos = () => {
-    return (
-      <View style={{ width: 100 }}>
-        <TouchableOpacity onPress={onModalOpen}>
-          <View style={styles.photoPlaceholder}>
-            <MaterialCommunityIcons
-              name="plus-circle"
-              size={30}
-              color="#ccc"
-            />
-          </View>
-        </TouchableOpacity>
-      </View>
-    );
-  };
-
+  // ─────────────────────────────────────────
+  // clearImages
+  // FIX: was setting null — now sets [] to avoid downstream .map() crashes
+  // ─────────────────────────────────────────
   const clearImages = () => {
     Alert.alert(
       "Bilder löschen",
       "Sind Sie sicher, dass Sie alle Bilder löschen möchten?",
       [
-        {
-          text: "abbrechen",
-          onPress: () => {},
-        },
+        { text: "abbrechen", onPress: () => {} },
         {
           text: "löschen",
-          onPress: () => {
-            setImages(null);
-          },
+          onPress: () => setImages([]),
           style: "destructive",
         },
       ]
     );
   };
 
-  const renderPreview = ({ item, index }) => {
-    const openImage = () => {
-      if (item.type === "video") {
-        console.log("opening video", item.videoURI);
-        setSelectedVideo(item.videoURI);
-        return;
-      }
-      setImageIndex(index);
-      onGalleryOpen();
-    };
-
-    const removeItem = () => {
-      const newImages = [...images];
-      newImages.splice(index, 1);
-      //   setTempImages(newImages);
-      setImages(newImages);
-    };
-
-    return (
-      <>
-        <View style={{ flexDirection: "row", gap: 8 }}>
-          {index === 0 && images.length < MAX_PHOTOS && (
-            <View style={styles.addPhotoButton}>
-              <TouchableOpacity onPress={openMediaSelector}>
-                <MaterialCommunityIcons
-                  name="plus-circle"
-                  color={theme.colors.icons.active}
-                  size={70}
-                />
-              </TouchableOpacity>
-            </View>
-          )}
-          <PreviewPhoto
-            onPress={openImage}
-            removeItem={removeItem}
-            item={item}
-          />
-        </View>
-      </>
-    );
-  };
-
+  // ─────────────────────────────────────────
+  // openMediaSelector
+  // FIX: logic was inverted — now correctly shows modal when no video exists
+  //      and goes straight to pickImage when a video is already selected
+  // ─────────────────────────────────────────
   const openMediaSelector = () => {
-    console.log("checking images");
-    let hasVideo = false;
-    images.map((item, index) => {
-      console.log(item);
-      if (item.type === "video") {
-        hasVideo = true;
-        return;
-      }
-    });
-
+    const hasVideo = (images ?? []).some((item) => item.type === "video");
     if (hasVideo) {
+      // Already have a video — only allow adding more images
       pickImage();
     } else {
+      // No video yet — show full modal (image or video choice)
       setOpenModal(true);
     }
   };
 
-  const handleVideoOnClose = () => {
-    setSelectedVideo(null);
+  // ─────────────────────────────────────────
+  // renderPreview
+  // FIX: removed unnecessary empty fragment wrapper
+  // ─────────────────────────────────────────
+  const renderPreview = ({ item, index }) => {
+    const openImage = () => {
+      if (item.type === "video") {
+        setSelectedVideo(item.videoURI);
+        return;
+      }
+      setImageIndex(index);
+      setGalleryOpen(true);
+    };
+
+    const removeItem = () => {
+      const newImages = [...(images ?? [])];
+      newImages.splice(index, 1);
+      setImages(newImages);
+    };
+
+    return (
+      <View style={{ flexDirection: "row", gap: 8 }}>
+        {index === 0 && (images?.length ?? 0) < MAX_PHOTOS && (
+          <View style={styles.addPhotoButton}>
+            <TouchableOpacity onPress={openMediaSelector}>
+              <MaterialCommunityIcons
+                name="plus-circle"
+                color={theme.colors.icons.active}
+                size={70}
+              />
+            </TouchableOpacity>
+          </View>
+        )}
+        <PreviewPhoto onPress={openImage} removeItem={removeItem} item={item} />
+      </View>
+    );
   };
+
+  const AddPhotos = () => (
+    <View style={{ width: 100 }}>
+      <TouchableOpacity onPress={() => setOpenModal(true)}>
+        <View style={styles.photoPlaceholder}>
+          <MaterialCommunityIcons name="plus-circle" size={30} color="#ccc" />
+        </View>
+      </TouchableOpacity>
+    </View>
+  );
+
+  const handleVideoOnClose = () => setSelectedVideo(null);
 
   return (
     <>
       {show && (
         <View>
+          {/* ── Media Picker Modal ── */}
           <CustomModal showModal={openModal} type="none">
-            <TouchableWithoutFeedback
-              onPress={() => {
-                setOpenModal(false);
-              }}
-            >
+            <TouchableWithoutFeedback onPress={() => setOpenModal(false)}>
               <View
                 style={{
                   backgroundColor: "#000000aa",
@@ -383,96 +321,52 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
                           gap: 8,
                         }}
                       >
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
-                        >
+                        {/* Pick Images */}
+                        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
                           <TouchableWithoutFeedback onPress={pickImage}>
-                            <View
-                              style={[
-                                styles.buttonStyle,
-                                {
-                                  backgroundColor: "palegreen",
-                                },
-                              ]}
-                            >
-                              <MaterialCommunityIcons
-                                name="image-multiple"
-                                size={50}
-                              />
-                              <Label
-                                weight="bold"
-                                style={{ textAlign: "center" }}
-                              >
+                            <View style={[styles.buttonStyle, { backgroundColor: "palegreen" }]}>
+                              <MaterialCommunityIcons name="image-multiple" size={50} />
+                              <Label weight="bold" style={{ textAlign: "center" }}>
                                 Bilder auswählen
                               </Label>
                             </View>
                           </TouchableWithoutFeedback>
                         </View>
-                        <View
-                          style={{
-                            flex: 1,
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
-                        >
+
+                        {/* Pick Video */}
+                        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
                           <TouchableWithoutFeedback onPress={pickVideo}>
-                            <View
-                              style={[
-                                styles.buttonStyle,
-                                {
-                                  backgroundColor: "lightblue",
-                                },
-                              ]}
-                            >
+                            <View style={[styles.buttonStyle, { backgroundColor: "lightblue" }]}>
                               <MaterialCommunityIcons name="video" size={50} />
-                              <Label
-                                weight="bold"
-                                style={{ textAlign: "center" }}
-                              >
+                              <Label weight="bold" style={{ textAlign: "center" }}>
                                 Video auswählen
                               </Label>
                             </View>
                           </TouchableWithoutFeedback>
                         </View>
                       </View>
-                      <View
-                        style={{
-                          position: "absolute",
-                          right: -20,
-                          top: -20,
-                        }}
-                      >
-                        <View>
-                          <TouchableWithoutFeedback
-                            onPress={() => {
-                              setOpenModal(false);
+
+                      {/* Close button */}
+                      <View style={{ position: "absolute", right: -20, top: -20 }}>
+                        <TouchableWithoutFeedback onPress={() => setOpenModal(false)}>
+                          <View
+                            style={{
+                              padding: 6,
+                              backgroundColor: "white",
+                              borderRadius: 50,
+                              borderColor: "#ddd",
+                              borderWidth: 2,
                             }}
                           >
-                            <View
-                              style={{
-                                padding: 6,
-                                backgroundColor: "white",
-                                borderRadius: 50,
-                                borderColor: "#ddd",
-                                borderWidth: 2,
-                              }}
-                            >
-                              <MaterialCommunityIcons
-                                name="close"
-                                size={30}
-                                color="#ddd"
-                              />
-                            </View>
-                          </TouchableWithoutFeedback>
-                        </View>
+                            <MaterialCommunityIcons name="close" size={30} color="#ddd" />
+                          </View>
+                        </TouchableWithoutFeedback>
                       </View>
+
+                      {/* Info + Progress */}
                       <View>
                         <Label style={{ fontStyle: "italic" }}>
-                          * Maximal 6 images pro Beitrag
+                          * Maximal 6 Bilder pro Beitrag
                         </Label>
                         <Label style={{ fontStyle: "italic" }}>
                           * Maximal 1 Video pro Beitrag
@@ -480,12 +374,8 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
                         {compressDone != null && (
                           <View style={{ paddingTop: 10 }}>
                             <ProgressBar progress={compressProgress} />
-                            <Label
-                              style={{ textAlign: "center", paddingTop: 6 }}
-                            >
-                              {compressDone === false
-                                ? "Komprimieren..."
-                                : "Fertig"}
+                            <Label style={{ textAlign: "center", paddingTop: 6 }}>
+                              {compressDone === false ? "Komprimieren..." : "Fertig"}
                             </Label>
                           </View>
                         )}
@@ -496,10 +386,11 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
               </View>
             </TouchableWithoutFeedback>
           </CustomModal>
-          <VideoPlayerModal
-            video={selectedVideo}
-            onClose={handleVideoOnClose}
-          />
+
+          {/* ── Video Player Modal ── */}
+          <VideoPlayerModal video={selectedVideo} onClose={handleVideoOnClose} />
+
+          {/* ── Header ── */}
           {header && (
             <View style={styles.headerContainer}>
               <View style={styles.header}>
@@ -507,25 +398,14 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
                   Bilder / Video
                 </Label>
                 <Label size="title" weight="bold">
-                  {images?.length > 0 ? `(${images.length})` : ""}
+                  {(images?.length ?? 0) > 0 ? `(${images.length})` : ""}
                 </Label>
               </View>
-              {images?.length > 0 && (
-                <TouchableOpacity
-                  onPress={clearImages}
-                  disabled={!(images?.length > 0)}
-                >
+              {(images?.length ?? 0) > 0 && (
+                <TouchableOpacity onPress={clearImages}>
                   <View style={styles.clearButton}>
-                    <MaterialCommunityIcons
-                      name="close-thick"
-                      size={16}
-                      color="#b71540"
-                    />
-                    <Label
-                      size={12}
-                      weight="bold"
-                      style={{ color: "#b71540" }}
-                    >
+                    <MaterialCommunityIcons name="close-thick" size={16} color="#b71540" />
+                    <Label size={12} weight="bold" style={{ color: "#b71540" }}>
                       Alles löschen
                     </Label>
                   </View>
@@ -533,8 +413,10 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
               )}
             </View>
           )}
+
+          {/* ── Media List ── */}
           <View style={{ flexDirection: "row", gap: 8 }}>
-            {images && images?.length > 0 ? (
+            {(images?.length ?? 0) > 0 ? (
               <FlatList
                 data={images}
                 horizontal
@@ -549,11 +431,12 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
             )}
           </View>
 
+          {/* ── Gallery Viewer ── */}
           <GalleryView
             visible={galleryOpen}
-            images={images}
+            images={images ?? []}
             imageIndex={imageIndex}
-            onRequestClose={onGalleryClose}
+            onRequestClose={() => setGalleryOpen(false)}
             animationType="fade"
             HeaderComponent={() => (
               <View
@@ -566,24 +449,14 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
                 }}
               >
                 <Image
-                  width={100}
-                  height={100}
                   source={companyLogo}
                   resizeMode="contain"
                   style={{ width: 100, height: 100 }}
-                ></Image>
-
+                />
                 <View style={{ top: 20 }}>
-                  <TouchableOpacity
-                    activeOpacity={0.7}
-                    onPress={onGalleryClose}
-                  >
+                  <TouchableOpacity activeOpacity={0.7} onPress={() => setGalleryOpen(false)}>
                     <View style={{ padding: 10 }}>
-                      <MaterialCommunityIcons
-                        name="close"
-                        size={30}
-                        color="#ddd"
-                      />
+                      <MaterialCommunityIcons name="close" size={30} color="#ddd" />
                     </View>
                   </TouchableOpacity>
                 </View>

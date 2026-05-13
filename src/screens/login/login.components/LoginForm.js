@@ -7,8 +7,8 @@ import { CustomTextInput } from "../../../components/customTextInput";
 import styled from "styled-components/native";
 
 const LoginButton = styled(TouchableOpacity)`
-  min-height: 60px;
-  max-height: 60px;
+  min-height: 55px;
+  max-height: 55px;
   background-color: ${({ checked }) => (checked ? "#207ede" : "#c7c7c7")};
   border-radius: 5px;
   justify-content: center;

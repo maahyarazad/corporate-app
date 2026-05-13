@@ -30,7 +30,7 @@ const RegisterSection = ({ theme }) => {
         <TouchableOpacity
           onPress={() => navigate("Registration")}
           style={{
-            height: 60,
+            height: 55,
             backgroundColor: theme.colors.ui.button,
             borderRadius: 5,
             justifyContent: "center",

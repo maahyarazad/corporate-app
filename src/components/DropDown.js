@@ -1,24 +1,23 @@
 // Dropdown.js
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import {
-  View,
-  Text,
-  Pressable,
-  Modal,
-  FlatList,
-  TextInput,
-  StyleSheet,
-  Platform,
-  KeyboardAvoidingView,
   Dimensions,
+  FlatList,
+  Modal,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-const GAP = -20; // nicer than negative
 const SCREEN_PADDING = 8;
+const MENU_OFFSET = 4; // gap between button and menu
 
 export function DropDown({
-  items,
+  items = [],
 
   value,
   defaultValue = null,
@@ -48,57 +47,106 @@ export function DropDown({
   searchInputStyle,
 
   closeOnSelect = true,
-  maxMenuHeight = 360,
+  maxMenuHeight = 300,
   title,
 
-  // ✅ NEW
-  openBelow = false, // boolean requested
-  openDirection = "auto", // "auto" | "up" | "down" (optional)
+  openDirection = "auto", // "auto" | "up" | "down"
 }) {
   const isControlled = value !== undefined;
 
   const [open, setOpen] = useState(false);
   const [internalValue, setInternalValue] = useState(defaultValue);
   const [query, setQuery] = useState("");
+  const [anchor, setAnchor] = useState(null); // { x, y, width, height }
+  const [menuHeight, setMenuHeight] = useState(0);
+  const [menuReady, setMenuReady] = useState(false);
+
+  const buttonRef = useRef(null);
+  const { height: screenHeight, width: screenWidth } = Dimensions.get("window");
 
   const selectedValue = isControlled ? (value ?? null) : internalValue;
 
   const hasError = !!error;
   const showError = showErrorBorder && hasError && !open;
 
-  const buttonRef = useRef(null);
-  const { height: screenHeight } = Dimensions.get("window");
+  // ── derived ──────────────────────────────────────────────────────────────
 
-  // ---- positioning state ----
-  const [anchor, setAnchor] = useState(null); // {x,y,width,height}
-  const [measuredMenuHeight, setMeasuredMenuHeight] = useState(0);
-  const [menuTop, setMenuTop] = useState(0);
-  const [menuReady, setMenuReady] = useState(false);
-
-  const selectedItem = useMemo(() => {
-    return items.find((x) => Object.is(x.value, selectedValue)) || null;
-  }, [items, selectedValue]);
+  const selectedItem = useMemo(
+    () => items.find((x) => Object.is(x.value, selectedValue)) ?? null,
+    [items, selectedValue]
+  );
 
   const filteredItems = useMemo(() => {
     if (!searchable) return items;
-
     const q = String(query || "").trim().toLowerCase();
     if (!q) return items;
-
-    const filterFn =
-      searchFilter ||
+    const fn =
+      searchFilter ??
       ((qq, item) => String(item.label).toLowerCase().includes(qq));
-
-    return items.filter((it) => filterFn(q, it));
+    return items.filter((it) => fn(q, it));
   }, [items, query, searchable, searchFilter]);
+
+  // ── direction & position ─────────────────────────────────────────────────
+
+  const direction = useMemo(() => {
+    if (openDirection === "up" || openDirection === "down") return openDirection;
+    if (!anchor) return "down";
+    const spaceBelow = screenHeight - (anchor.y + anchor.height) - SCREEN_PADDING;
+    const spaceAbove = anchor.y - SCREEN_PADDING;
+    return spaceBelow >= spaceAbove ? "down" : "up";
+  }, [openDirection, anchor, screenHeight]);
+
+  const cappedMenuHeight = useMemo(() => {
+    if (!anchor) return maxMenuHeight;
+    const available =
+      direction === "down"
+        ? screenHeight - (anchor.y + anchor.height) - MENU_OFFSET - SCREEN_PADDING
+        : anchor.y - MENU_OFFSET - SCREEN_PADDING;
+    return Math.max(80, Math.min(maxMenuHeight, available));
+  }, [anchor, direction, maxMenuHeight, screenHeight]);
+
+  const menuTop = useMemo(() => {
+    if (!anchor || !menuHeight) return 0;
+    if (direction === "down") return anchor.y + anchor.height + MENU_OFFSET;
+    return anchor.y - Math.min(menuHeight, cappedMenuHeight) - MENU_OFFSET;
+  }, [anchor, menuHeight, direction, cappedMenuHeight]);
+
+  const menuLeft = useMemo(() => {
+    if (!anchor) return SCREEN_PADDING;
+    const menuWidth = Math.min(420, Math.round(screenWidth * 0.92));
+    const left = anchor.x + anchor.width / 2 - menuWidth / 2;
+    return Math.max(
+      SCREEN_PADDING,
+      Math.min(left, screenWidth - menuWidth - SCREEN_PADDING)
+    );
+  }, [anchor, screenWidth]);
+
+  // ── handlers ─────────────────────────────────────────────────────────────
+
+  const handlePress = () => {
+    if (disabled) return;
+    buttonRef.current?.measureInWindow((x, y, width, height) => {
+      setAnchor({ x, y, width, height });
+      setMenuReady(false);
+      setMenuHeight(0);
+      setQuery("");
+      setOpen(true);
+    });
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setMenuReady(false);
+    setMenuHeight(0);
+    setAnchor(null);
+    setQuery("");
+  };
 
   const pick = (item) => {
     if (!item || item.disabled) return;
-
     if (!isControlled) setInternalValue(item.value);
     onChange?.(item.value, item);
-
-    if (closeOnSelect) setOpen(false);
+    if (closeOnSelect) handleClose();
   };
 
   const defaultKeyExtractor = (item, index) => {
@@ -107,105 +155,30 @@ export function DropDown({
     return `${item?.label ?? "item"}-${index}`;
   };
 
-  const borderStateStyle = showError
+  // ── styles (derived) ──────────────────────────────────────────────────────
+
+  const borderStyle = showError
     ? styles.errorBorder
     : open
     ? styles.focusBorder
     : styles.normalBorder;
 
-  const textStateStyle = showError
-    ? styles.textError
-    : open
-    ? styles.textFocus
-    : styles.textNormal;
+  const menuWidth = Math.min(420, Math.round(screenWidth * 0.92));
 
-  const isPlaceholder = !selectedItem;
-  const placeholderStateStyle =
-    isPlaceholder && showError
-      ? styles.placeholderError
-      : isPlaceholder
-      ? styles.placeholder
-      : null;
-
-  const resetModalState = () => {
-    setMenuReady(false);
-    setMeasuredMenuHeight(0);
-    setMenuTop(0);
-    setAnchor(null);
-    setQuery("");
-  };
-
-  useEffect(() => {
-    if (!open) resetModalState();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
-
-  const handlePress = () => {
-    if (disabled) return;
-
-    buttonRef.current?.measureInWindow((x, y, width, height) => {
-      setAnchor({ x, y, width, height });
-      setOpen(true);
-    });
-  };
-
-  const resolvedDirection = useMemo(() => {
-  // explicit boolean takes precedence
-  if (openBelow) return "down";
-  if (openDirection === "up" || openDirection === "down") return openDirection;
-
-  // fallback to auto
-  if (!anchor) return "down";
-
-  const spaceAbove = anchor.y - SCREEN_PADDING;
-  const spaceBelow = screenHeight - (anchor.y + anchor.height) - SCREEN_PADDING;
-
-  // pick direction with more space
-  return spaceBelow >= spaceAbove ? "down" : "up";
-}, [openBelow, openDirection, anchor, screenHeight]);
-
-const computedMaxHeight = useMemo(() => {
-  if (!anchor) return maxMenuHeight;
-
-  const availableAbove = anchor.y - GAP - SCREEN_PADDING;
-  const availableBelow =
-    screenHeight - (anchor.y + anchor.height) - GAP - SCREEN_PADDING;
-
-  const available = openBelow ? availableBelow : availableAbove;
-
-  return Math.max(120, Math.min(maxMenuHeight, available));
-}, [anchor, maxMenuHeight, screenHeight, openBelow]);
-
-const IOS_TOP_ADJUST = Platform.OS === "ios" ? 25 : 0;
-
-useEffect(() => {
-  if (!open || !anchor || !measuredMenuHeight) return;
-
-  const baseTop = openBelow
-    ? anchor.y + anchor.height + (GAP + 53)
-    : anchor.y - measuredMenuHeight - GAP;
-
-  let top = baseTop - IOS_TOP_ADJUST;
-
-  top = Math.max(SCREEN_PADDING, top);
-  const maxTop = screenHeight - measuredMenuHeight - SCREEN_PADDING;
-  top = Math.min(top, maxTop);
-
-  setMenuTop(top);
-  setMenuReady(true);
-}, [open, anchor, measuredMenuHeight, screenHeight, openBelow]);
+  // ── render ────────────────────────────────────────────────────────────────
 
   return (
     <View style={[styles.wrap, style]}>
+      {/* Trigger button */}
       <Pressable
         ref={buttonRef}
         disabled={disabled}
         onPress={handlePress}
         style={({ pressed }) => [
           styles.button,
-          borderStateStyle,
-          disabled ? styles.buttonDisabled : null,
-          pressed && !disabled ? { opacity: 0.9 } : null,
+          borderStyle,
+          disabled && styles.buttonDisabled,
+          pressed && !disabled && { opacity: 0.85 },
           buttonStyle,
         ]}
       >
@@ -216,9 +189,9 @@ useEffect(() => {
             numberOfLines={1}
             style={[
               styles.buttonText,
-              textStateStyle,
-              placeholderStateStyle,
-              disabled ? { opacity: 0.6 } : null,
+              !selectedItem && styles.placeholder,
+              showError && !selectedItem && styles.placeholderError,
+              disabled && { opacity: 0.5 },
               buttonTextStyle,
             ]}
           >
@@ -226,127 +199,130 @@ useEffect(() => {
           </Text>
         )}
 
-        <View style={styles.chevronWrap}>
-          <MaterialCommunityIcons
-            name="chevron-down"
-            size={25}
-            color={disabled ? "rgba(17,24,39,0.5)" : "#111827"}
-          />
-        </View>
+        <MaterialCommunityIcons
+          name={open ? "chevron-up" : "chevron-down"}
+          size={24}
+          color={disabled ? "#aaa" : "#111827"}
+        />
       </Pressable>
 
+      {/* Dropdown modal */}
       <Modal
         visible={open}
         transparent
         animationType="fade"
-        onRequestClose={() => setOpen(false)}
+        statusBarTranslucent          // keeps measurements consistent on Android
+        onRequestClose={handleClose}
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-          style={{ flex: 1 }}
+        {/* Dismiss overlay */}
+        <Pressable
+          style={[StyleSheet.absoluteFill, styles.overlay, overlayStyle]}
+          onPress={handleClose}
+        />
+
+        {/* Menu */}
+        <View
+          style={[
+            styles.menu,
+            {
+              width: menuWidth,
+              maxHeight: cappedMenuHeight,
+              top: menuTop,
+              left: menuLeft,
+              opacity: menuReady ? 1 : 0,
+            },
+            menuStyle,
+          ]}
+          onLayout={(e) => {
+            const h = e.nativeEvent.layout.height;
+            if (h && !menuReady) {
+              setMenuHeight(h);
+              setMenuReady(true);
+            }
+          }}
         >
-          <Pressable
-            style={[styles.overlay, overlayStyle]}
-            onPress={() => setOpen(false)}
-          />
+          {!!title && <Text style={styles.title}>{title}</Text>}
 
-          <View
-            style={[
-              styles.menu,
-              {
-                top: menuReady ? menuTop : SCREEN_PADDING,
-                opacity: menuReady ? 1 : 0,
-                maxHeight: computedMaxHeight,
-              },
-              menuStyle,
-            ]}
-            onLayout={(e) => {
-              const h = e.nativeEvent.layout.height;
-              if (!measuredMenuHeight && h) setMeasuredMenuHeight(h);
-            }}
-          >
-            {!!title && <Text style={styles.title}>{title}</Text>}
-
-            {searchable && (
-              <TextInput
-                value={query}
-                onChangeText={setQuery}
-                placeholder={searchPlaceholder}
-                placeholderTextColor="#999"
-                autoCorrect={false}
-                style={[styles.searchInput, searchInputStyle]}
-              />
-            )}
-
-            <FlatList
-              data={filteredItems}
-              keyboardShouldPersistTaps="handled"
-              keyExtractor={keyExtractor || defaultKeyExtractor}
-              renderItem={({ item }) => {
-                const selected = selectedItem
-                  ? Object.is(item.value, selectedItem.value)
-                  : false;
-
-                const row = renderItem ? (
-                  renderItem(item, { selected, disabled: !!item.disabled })
-                ) : (
-                  <View
-                    style={[
-                      styles.itemRow,
-                      selected ? styles.itemRowSelected : null,
-                      item.disabled ? styles.itemRowDisabled : null,
-                      itemStyle,
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.itemText,
-                        selected ? styles.itemTextSelected : null,
-                        item.disabled ? { opacity: 0.5 } : null,
-                        itemTextStyle,
-                      ]}
-                      numberOfLines={1}
-                    >
-                      {item.label}
-                    </Text>
-
-                    {selected ? <Text style={styles.check}>✓</Text> : null}
-                  </View>
-                );
-
-                return (
-                  <Pressable onPress={() => pick(item)} disabled={item.disabled}>
-                    {row}
-                  </Pressable>
-                );
-              }}
-              ListEmptyComponent={
-                <View style={styles.empty}>
-                  <Text style={styles.emptyText}>No results</Text>
-                </View>
-              }
+          {searchable && (
+            <TextInput
+              value={query}
+              onChangeText={setQuery}
+              placeholder={searchPlaceholder}
+              placeholderTextColor="#999"
+              autoCorrect={false}
+              autoCapitalize="none"
+              style={[styles.searchInput, searchInputStyle]}
             />
-          </View>
-        </KeyboardAvoidingView>
+          )}
+
+          <FlatList
+            data={filteredItems}
+            keyboardShouldPersistTaps="handled"
+            keyExtractor={keyExtractor ?? defaultKeyExtractor}
+            renderItem={({ item }) => {
+              const selected = selectedItem
+                ? Object.is(item.value, selectedItem.value)
+                : false;
+
+              return (
+                <Pressable
+                  onPress={() => pick(item)}
+                  disabled={!!item.disabled}
+                >
+                  {renderItem ? (
+                    renderItem(item, { selected, disabled: !!item.disabled })
+                  ) : (
+                    <View
+                      style={[
+                        styles.itemRow,
+                        selected && styles.itemRowSelected,
+                        item.disabled && styles.itemRowDisabled,
+                        itemStyle,
+                      ]}
+                    >
+                      <Text
+                        numberOfLines={1}
+                        style={[
+                          styles.itemText,
+                          selected && styles.itemTextSelected,
+                          item.disabled && { opacity: 0.4 },
+                          itemTextStyle,
+                        ]}
+                      >
+                        {item.label}
+                      </Text>
+                      {selected && <Text style={styles.check}>✓</Text>}
+                    </View>
+                  )}
+                </Pressable>
+              );
+            }}
+            ListEmptyComponent={
+              <View style={styles.empty}>
+                <Text style={styles.emptyText}>No results</Text>
+              </View>
+            }
+          />
+        </View>
       </Modal>
 
-      {typeof error === "string" && error.trim() !== "" ? (
+      {/* Inline error message */}
+      {typeof error === "string" && error.trim() !== "" && (
         <Text style={styles.errorMessage}>{error}</Text>
-      ) : null}
+      )}
     </View>
   );
 }
 
-const { width } = Dimensions.get("window");
-const MENU_WIDTH = Math.min(420, Math.round(width * 0.92));
+// ── styles ────────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
   wrap: { width: "100%" },
 
   button: {
-    height: 60,
+    height: 55,
     width: "100%",
-    borderRadius: 4,
+    borderRadius: 6,
     backgroundColor: "#fff",
     paddingHorizontal: 12,
     flexDirection: "row",
@@ -355,59 +331,55 @@ const styles = StyleSheet.create({
   },
 
   normalBorder: { borderWidth: 1, borderColor: "#d0d5dd" },
-  focusBorder: { borderWidth: 1, borderColor: "#333" },
-  errorBorder: { borderWidth: 2, borderColor: "red" },
-
+  focusBorder: { borderWidth: 1.5, borderColor: "#333" },
+  errorBorder: { borderWidth: 1.5, borderColor: "#ef4444" },
   buttonDisabled: { backgroundColor: "#f4f4f5" },
 
-  buttonText: { flex: 1, fontSize: 15, marginRight: 10 },
+  buttonText: { flex: 1, fontSize: 15, color: "#111827", marginRight: 8 },
+  placeholder: { color: "#9ca3af" },
+  placeholderError: { color: "#ef4444" },
 
-  textNormal: { color: "#111827" },
-  textFocus: { color: "#111827" },
-  textError: { color: "#111827" },
-
-  placeholder: { paddingLeft: 8, color: "#999" },
-  placeholderError: { paddingLeft: 8, color: "red" },
-
-  chevronWrap: { alignItems: "center", justifyContent: "center" },
-
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.35)",
-  },
+  overlay: { backgroundColor: "rgba(0,0,0,0.25)" },
 
   menu: {
     position: "absolute",
-    alignSelf: "center",
-    width: MENU_WIDTH,
     backgroundColor: "#fff",
-    borderRadius: 4,
-    overflow: "hidden",
+    borderRadius: 6,
     borderWidth: 1,
     borderColor: "#e5e7eb",
+    overflow: "hidden",
+    // cross-platform shadow
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.12,
+        shadowRadius: 8,
+      },
+      android: { elevation: 6 },
+    }),
   },
 
   title: {
     paddingHorizontal: 14,
-    paddingTop: 14,
-    paddingBottom: 8,
-    fontSize: 16,
+    paddingTop: 12,
+    paddingBottom: 6,
+    fontSize: 15,
     fontWeight: "600",
     color: "#111827",
   },
 
   searchInput: {
-    height: 56,
-    marginHorizontal: 12,
-    marginBottom: 10,
-    marginTop: 8,
-    backgroundColor: "#fff",
+    height: 44,
+    marginHorizontal: 10,
+    marginVertical: 8,
     borderWidth: 1,
     borderColor: "#e5e7eb",
-    borderRadius: 4,
-    paddingHorizontal: 14,
-    fontSize: 15,
+    borderRadius: 6,
+    paddingHorizontal: 12,
+    fontSize: 14,
     color: "#111827",
+    backgroundColor: "#fafafa",
   },
 
   itemRow: {
@@ -416,18 +388,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    borderTopWidth: 1,
+    borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: "#f3f4f6",
   },
   itemRowSelected: { backgroundColor: "#f9fafb" },
-  itemRowDisabled: { backgroundColor: "#fff" },
+  itemRowDisabled: { opacity: 0.5 },
 
-  itemText: { flex: 1, fontSize: 14, color: "#111827", marginRight: 10 },
+  itemText: { flex: 1, fontSize: 14, color: "#111827", marginRight: 8 },
   itemTextSelected: { fontWeight: "600" },
-  check: { fontSize: 16, color: "#111827" },
+  check: { fontSize: 15, color: "#111827" },
 
-  empty: { padding: 18, alignItems: "center" },
-  emptyText: { color: "#6b7280" },
+  empty: { paddingVertical: 20, alignItems: "center" },
+  emptyText: { fontSize: 14, color: "#6b7280" },
 
-  errorMessage: { color: "red", marginTop: 6, fontSize: 12 },
+  errorMessage: { marginTop: 4, fontSize: 12, color: "#ef4444" },
 });

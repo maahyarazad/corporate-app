@@ -396,12 +396,12 @@ export const RegistrationScreen = () => {
                 activeOpacity={0.8}
                 onPress={nextPage}
                 style={{
-                  height: 60,
+                  height: 55,
                   backgroundColor: theme.colors.ui.button,
                   borderRadius: 5,
                   justifyContent: "center",
                   alignItems: "center",
-                  marginVertical: 30,
+                  marginVertical: 8,
                 }}
               >
                 <Label style={{ color: "white" }} size="body" weight="bold">
