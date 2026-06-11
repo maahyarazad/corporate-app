@@ -1,5 +1,4 @@
 import {
-  Alert,
   KeyboardAvoidingView,
   SafeAreaView,
   ScrollView,
@@ -10,6 +9,7 @@ import {
   View,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
+import { showToast } from "../../../Toast";
 import {
   CommonActions,
   useNavigation,
@@ -104,7 +104,8 @@ const PostEntryScreen = () => {
       if (response && response.success) {
         // alert("success!");
         navigation.pop(3);
-        Alert.alert(
+        showToast(
+          "success",
           "Beitrag erstellt!",
           "Bitte geben Sie uns einen Moment, und Ihr Beitrag wird bald veröffentlicht. Wir werden Sie informieren."
         );

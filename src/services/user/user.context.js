@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { showToast } from "../../Toast";
 import { AuthContext } from "../auth/auth.context";
 import { UserService } from "./user.service";
 import * as SecureStorage from "expo-secure-store";
@@ -51,7 +52,7 @@ export const UserContextProvider = ({ children }) => {
         })
         .catch((err) => {
           console.log(err);
-          alert("Something went wrong");
+          showToast("error", "Error", "Something went wrong");
         });
     }
   };

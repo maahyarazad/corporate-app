@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
+import { showToast } from "../../Toast";
 import {
   Animated,
   Dimensions,
@@ -320,7 +321,7 @@ const SLIDESHOW_HEIGHT = Math.floor(width * 9 / 16);
   const callNumber = (phoneNumber) => {
     Linking.openURL(`tel:${encodeURIComponent(phoneNumber.trim())}`).catch(
       (err) => {
-        alert("Unable to call this number");
+        showToast("error", "Call Failed", "Unable to call this number");
       }
     );
   };

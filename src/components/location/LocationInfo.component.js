@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Image, Linking, StyleSheet, Text, View } from "react-native";
+import { showToast } from "../../Toast";
 import { adminFileBaseURL } from "../../utils/constants";
 import { Label } from "../typography/label.component";
 
@@ -92,7 +93,7 @@ export const LocationInfo = ({
                           `tel:${encodeURIComponent(phone)}`
                         );
                       } catch (err) {
-                        alert("Unable to call this number");
+                        showToast("error", "Call Failed", "Unable to call this number");
                       }
                     }}
                     style={{ color: "#006EFF", fontWeight: "bold", fontSize: 12 }}

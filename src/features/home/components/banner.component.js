@@ -7,9 +7,9 @@ import {
   TouchableOpacity,
   Platform,
   Linking,
-  Alert,
 } from "react-native";
 import styled from "styled-components/native";
+import { showToast } from "../../../Toast";
 import { LoadingOverlay } from "../../../components/loading/loading.component";
 import { Spacer } from "../../../components/spacer/spacer.component";
 import * as WebBrowser from "expo-web-browser";
@@ -73,7 +73,7 @@ const renderBanner = ({ item, screenWidth, loading, setLoading }) => {
       }
     } catch (err) {
       console.err("Banner click error:", err);
-      Alert.alert("Banner Error", "Can't open the link");
+      showToast("error", "Banner Error", "Can't open the link");
     }
   };
 

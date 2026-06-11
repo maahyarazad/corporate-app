@@ -1,0 +1,23 @@
+diff --git a/node_modules/react-native-tab-view/src/TabBar.tsx b/node_modules/react-native-tab-view/src/TabBar.tsx
+index e8d0b4c..0563dc4 100644
+--- a/node_modules/react-native-tab-view/src/TabBar.tsx
++++ b/node_modules/react-native-tab-view/src/TabBar.tsx
+@@ -442,13 +442,17 @@ export function TabBar<T extends Route>({
+         android_ripple,
+       };
+ 
++      // React 18+/19 require `key` to be passed directly to JSX, not spread in
++      // via a props object. Separate it out for the default TabBarItem render.
++      const { key, ...itemProps } = props;
++
+       return (
+         <>
+           {gap > 0 && index > 0 ? <Separator width={gap} /> : null}
+           {renderTabBarItem ? (
+             renderTabBarItem(props)
+           ) : (
+-            <TabBarItem {...props} />
++            <TabBarItem key={key} {...itemProps} />
+           )}
+         </>
+       );

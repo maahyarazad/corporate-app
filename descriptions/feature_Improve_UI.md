@@ -17,3 +17,19 @@ The Birth Date Picker input field is currently taller than the other input field
 ### 3. Prevent Navigation
 
 Once the registration form is submitted, lock the user on the current screen and disable all navigation actions until the server returns a response.
+
+
+### 4. Contact Us Update
+
+## Description 
+at the **profSettings.js** file chnage the behavioiur of the handleContactUs and when user tap on this it will open the browser and redirect to the 
+`https://services.german-emirates-club.com/support`
+```js
+ <Section title="Support">
+            <Settings
+              icon="face-agent"
+              label={i18n.t("profile-tabs.settings-menu.contact-us")}
+              onPress={handleContactUs}
+            />
+          </Section>
+```

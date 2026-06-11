@@ -1,5 +1,4 @@
 import {
-  Alert,
   FlatList,
   Image,
   SafeAreaView,
@@ -10,6 +9,8 @@ import {
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
+import { showToast } from "../../../Toast";
+import { showConfirm } from "../../../components/confirmDialog.component";
 import { Button } from "react-native-paper";
 import { CacheImage } from "../../../components/cacheImage";
 import { Label } from "../../../components/typography/label.component";
@@ -69,34 +70,32 @@ const PostCard = ({
       logo: "trash-can-outline",
       onPress: () => {
         if (commentCount > 0 && userData.old_user_id === data.user_id) {
-          Alert.alert(
+          showToast(
+            "info",
             "Hinweis",
             "Du kannst einen Beitrag mit Kommentaren nicht löschen."
           );
         } else {
-          Alert.alert(
-            "Beitrag löschen",
-            "Bist du sicher, dass du diesen Beitrag löschen möchtest?",
-            [
-              { text: "Abbrechen", onPress: () => {}, isPreferred: true },
-              {
-                text: "Löschen",
-                style: "destructive",
-                onPress: () => {
-                  //Call Remove Comment API
-                  Alert.alert(
-                    "Notice",
-                    "Your request has been sent. Please wait for the admin to approve."
-                  );
-                  removePost(data.post_id, true);
-                  onDrawerClose();
-                  if (comment) {
-                    goback();
-                  }
-                },
-              },
-            ]
-          );
+          showConfirm({
+            title: "Beitrag löschen",
+            message: "Bist du sicher, dass du diesen Beitrag löschen möchtest?",
+            confirmText: "Löschen",
+            cancelText: "Abbrechen",
+            destructive: true,
+            onConfirm: () => {
+              //Call Remove Comment API
+              showToast(
+                "info",
+                "Notice",
+                "Your request has been sent. Please wait for the admin to approve."
+              );
+              removePost(data.post_id, true);
+              onDrawerClose();
+              if (comment) {
+                goback();
+              }
+            },
+          });
         }
       },
     },

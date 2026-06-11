@@ -1,5 +1,4 @@
 import {
-  Alert,
   FlatList,
   ScrollView,
   StyleSheet,
@@ -9,6 +8,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { showConfirm } from "../../../components/confirmDialog.component";
 import React, {
   useCallback,
   useEffect,
@@ -78,22 +78,19 @@ export default function Comment({
         description: "Diesen Kommentar entfernen",
         logo: "trash-can",
         onPress: () => {
-          Alert.alert(
-            "Kommentar entfernen",
-            "Bist du sicher, dass du diesen Kommentar entfernen möchtest?",
-            [
-              { text: "Abbrechen", onPress: () => {}, isPreferred: true },
-              {
-                text: "Entfernen",
-                style: "destructive",
-                onPress: () => {
-                  //Call Remove Comment API
-                  onRemoveComment(data.post_id);
-                  onCloseDrawer();
-                },
-              },
-            ]
-          );
+          showConfirm({
+            title: "Kommentar entfernen",
+            message:
+              "Bist du sicher, dass du diesen Kommentar entfernen möchtest?",
+            confirmText: "Entfernen",
+            cancelText: "Abbrechen",
+            destructive: true,
+            onConfirm: () => {
+              //Call Remove Comment API
+              onRemoveComment(data.post_id);
+              onCloseDrawer();
+            },
+          });
         },
       });
 

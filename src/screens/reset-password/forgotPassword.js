@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Alert,
   Animated,
   Easing,
   Platform,
@@ -9,6 +8,7 @@ import {
   Vibration,
   View,
 } from "react-native";
+import { showToast } from "../../Toast";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Button } from "react-native-paper";
 
@@ -81,7 +81,7 @@ export const ForgotPasswordScreen = () => {
       setIsSubmitted(true);
 
       if (login.trim() === "" || mobile.trim() === "") {
-        Alert.alert("Invalid", "Some fields are empty.");
+        showToast("error", "Invalid", "Some fields are empty.");
         shake();
         return;
       }
@@ -110,7 +110,7 @@ export const ForgotPasswordScreen = () => {
           });
         } else {
           setLoading(false);
-          Alert.alert(result.title, result.message);
+          showToast("error", result.title, result.message);
         }
       }
     } catch (error) {

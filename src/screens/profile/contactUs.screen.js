@@ -1,12 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
 import React, { useContext, useEffect, useLayoutEffect, useState } from "react";
 import {
-  Alert,
   Platform,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
+import { showToast } from "../../Toast";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Button } from "react-native-paper";
 import { CustomTextInput } from "../../components/customTextInput";
@@ -88,16 +88,18 @@ export const ContactUsScreen = () => {
       const response = await request(`/v2/support/message`, "post", data);
       // const response = await SupportService.sendFeedbackMsg(data);
       if (response.success) {
-        Alert.alert(
+        showToast(
+          "success",
           "Sent Successfully",
           "Your message has been sent. Thank you for contacting us!"
         );
         goback();
       } else {
-        Alert.alert("Sending Failed", response.message);
+        showToast("error", "Sending Failed", response.message);
       }
 
-      Alert.alert(
+      showToast(
+        "success",
         i18n.t("contact-us.sent-successful"),
         i18n.t("contact-us.message-sent")
       );
@@ -106,7 +108,7 @@ export const ContactUsScreen = () => {
       }, 3000);
     } catch (error) {
       setIsLoading(false);
-      Alert.alert("Sending Failed", "Your inquiry was not sent");
+      showToast("error", "Sending Failed", "Your inquiry was not sent");
     } finally {
       setIsLoading(true);
     }

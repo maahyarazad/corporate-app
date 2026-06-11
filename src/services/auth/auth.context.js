@@ -21,7 +21,7 @@ import {
   checkAuthorization,
   retrieveUserId,
 } from "./auth.service";
-import { Alert } from "react-native";
+import { showToast } from "../../Toast";
 
 export const AuthContext = createContext();
 
@@ -112,7 +112,8 @@ export const AuthContextProvider = ({ children }) => {
         }
 
         if (result && result.expired) {
-          Alert.alert(
+          showToast(
+            "error",
             "Card Expired",
             "Your membership card has expired. Please contact your administrator."
           );
@@ -135,7 +136,7 @@ export const AuthContextProvider = ({ children }) => {
         case 403:
           setNoConnection(false);
           // setUser({ ...user, token: "" });
-          Alert.alert(err.title, err.message);
+          showToast("error", err.title, err.message);
           logout();
           break;
       }
@@ -174,7 +175,7 @@ export const AuthContextProvider = ({ children }) => {
         })
         .catch((err) => {
           if (err === -1) {
-            Alert.alert(i18n.t("auth.fail-header"), i18n.t("auth.fail-msg"));
+            showToast("error", i18n.t("auth.fail-header"), i18n.t("auth.fail-msg"));
           }
           setIsLoading(false);
           // alert(err);
@@ -214,7 +215,7 @@ export const AuthContextProvider = ({ children }) => {
         })
         .catch((err) => {
           // console.log(err.data.message);
-          Alert.alert(err.title, err.message);
+          showToast("error", err.title, err.message);
           reject(err);
         });
     });

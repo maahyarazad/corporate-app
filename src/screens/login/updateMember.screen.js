@@ -5,11 +5,11 @@ import {
   TextInput,
   Pressable,
   Animated,
-  Alert,
   Vibration,
   StyleSheet,
   Easing,
 } from "react-native";
+import { showToast } from "../../Toast";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import Background from "../../components/background/background.component";
@@ -115,7 +115,7 @@ export const UpdateMemberScreen = ({ navigation }) => {
       state.mobileNumber.trim() === ""
     ) {
       shake();
-      alert("Some fields are empty.");
+      showToast("error", "Invalid", "Some fields are empty.");
       return false;
     }
 

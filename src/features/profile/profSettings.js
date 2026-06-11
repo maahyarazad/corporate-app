@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
-  Alert,
   FlatList,
   Linking,
   ScrollView,
@@ -9,9 +8,10 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { showToast } from "../../Toast";
+import { showConfirm } from "../../components/confirmDialog.component";
 import { Label } from "../../components/typography/label.component";
 import { theme } from "../../infrastructure/theme";
-import { navigate } from "../../navigation/navigate";
 import { UserService } from "../../services/user/user.service";
 import { EULAPrivacyLink } from "../../utils/constants";
 import { DELETE_ACCOUNT } from "../../utils/constants";
@@ -114,20 +114,18 @@ export const ProfSettings = () => {
 
   const handleLogout = () => {
     // logout();
-    Alert.alert(i18n.t("logout.header"), i18n.t("logout.message"), [
-      {
-        text: i18n.t("no"),
-        onPress: () => {},
+    showConfirm({
+      title: i18n.t("logout.header"),
+      message: i18n.t("logout.message"),
+      confirmText: i18n.t("yes"),
+      cancelText: i18n.t("no"),
+      destructive: true,
+      onConfirm: () => {
+        signout();
+        setUserData(null);
+        // navigate("Logout");
       },
-      {
-        text: i18n.t("yes"),
-        onPress: () => {
-          signout();
-          setUserData(null);
-          // navigate("Logout");
-        },
-      },
-    ]);
+    });
   };
 
   const handleDelete = async () => {
@@ -138,7 +136,7 @@ export const ProfSettings = () => {
       await WebBrowser.openBrowserAsync(DELETE_ACCOUNT);
     } catch (error) {
       // console.log(error);
-      Alert.alert("Error Occured", "Cannot Open Document");
+      showToast("error", "Error Occured", "Cannot Open Document");
     }
     // logout();
     // Alert.alert(
@@ -169,8 +167,14 @@ export const ProfSettings = () => {
     // );
   };
 
-  const handleContactUs = () => {
-    navigate("ContactUs");
+  const handleContactUs = async () => {
+    try {
+      await WebBrowser.openBrowserAsync(
+        "https://services.german-emirates-club.com/support"
+      );
+    } catch (error) {
+      showToast("error", "Error Occured", "Cannot Open Support Page");
+    }
   };
 
   const handlePrivacyPolicy = async () => {
@@ -179,7 +183,7 @@ export const ProfSettings = () => {
       await WebBrowser.openBrowserAsync(EULAPrivacyLink);
     } catch (error) {
       // console.log(error);
-      Alert.alert("Error Occured", "Cannot Open Document");
+      showToast("error", "Error Occured", "Cannot Open Document");
     }
   };
 
@@ -187,7 +191,7 @@ export const ProfSettings = () => {
     try {
       await Linking.openSettings();
     } catch (err) {
-      Alert.alert("Error Occured", "Cannot Open Settings");
+      showToast("error", "Error Occured", "Cannot Open Settings");
     }
   };
 

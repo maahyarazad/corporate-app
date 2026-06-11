@@ -1,5 +1,4 @@
 import {
-  Alert,
   FlatList,
   StyleSheet,
   Switch,
@@ -11,6 +10,7 @@ import {
   View,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
+import { showToast } from "../../../../Toast";
 import DropDownPicker from "react-native-dropdown-picker";
 import {
   carInclusions,
@@ -163,19 +163,20 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
     ) {
       //price from should greater than 0
       if (state.price_from <= 0) {
-        Alert.alert("Fehler", "Preis muss größer als 0 sein.");
+        showToast("error", "Fehler", "Preis muss größer als 0 sein.");
         return true;
       }
 
       //Price to is less than price from
       if (mode === 2 && state.price_to <= state.price_from) {
-        Alert.alert("Fehler", "Bitte geben Sie eine gültige Preisspanne an.");
+        showToast("error", "Fehler", "Bitte geben Sie eine gültige Preisspanne an.");
         return true;
       }
 
       //Kilometer to is less than kilometer from
       if (mode === 2 && state.kilometer_to <= state.kilometer_from) {
-        Alert.alert(
+        showToast(
+          "error",
           "Fehler",
           "Bitte geben Sie eine gültige Kilometerreichweite ein."
         );
@@ -184,7 +185,8 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
 
       //Year to is less than year from
       if (mode === 2 && state.year_to <= state.year_from) {
-        Alert.alert(
+        showToast(
+          "error",
           "Fehler",
           "Bitte geben Sie eine gültige Jahresbereich ein."
         );
@@ -194,7 +196,7 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
       return false;
     } else {
       console.log("mode", state.price_to);
-      Alert.alert("Fehler", "Bitte füllen Sie alle Felder aus.");
+      showToast("error", "Fehler", "Bitte füllen Sie alle Felder aus.");
       return true;
     }
   };

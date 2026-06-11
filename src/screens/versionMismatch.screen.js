@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 import { Linking, Platform, StyleSheet, View, Image } from "react-native";
+import { showToast } from "../Toast";
 import { Button } from "react-native-paper";
 import Background from "../components/background/background.component";
 
@@ -23,7 +24,7 @@ const onPressPublisher = async () => {
     const supported = await Linking.canOpenURL(url);
 
     if (!supported) {
-      alert("Not Supported");
+      showToast("error", "Not Supported", "This link cannot be opened.");
       return;
     }
     await Linking.openURL(url);

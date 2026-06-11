@@ -1,7 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
-  Alert,
   Keyboard,
   Linking,
   Platform,
@@ -10,6 +9,8 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { showToast } from "../../Toast";
+import { showConfirm } from "../../components/confirmDialog.component";
 import Background from "../../components/background/background.component";
 import { SafeArea } from "../../components/safearea.component";
 import { Label } from "../../components/typography/label.component";
@@ -170,7 +171,8 @@ export const AvailOfferScreen = ({ route }) => {
     } catch (e) {
        
         console.log(e?.data?.error?.sqlMessage);
-         Alert.alert(
+         showToast(
+        "error",
         "Transaction Failed",
        e?.data?.error?.sqlMessage || "Something went wrong while redeeming the offer."
       );
@@ -209,14 +211,17 @@ export const AvailOfferScreen = ({ route }) => {
   };
 
   const handleRedeem = async () => {
-      setIsLoading(true);
+    
 
       const merchantPin = (location?.merchant_pin ?? "").toString().trim();
-     
+
       const enteredPin = (merchantCode ?? "").toString().trim();
 
+      // Validate the PIN before showing the loading state. Otherwise an early
+      // return on a wrong PIN would leave the button stuck in loading/disabled.
       if (enteredPin !== merchantPin) {
-        Alert.alert(
+        showToast(
+          "error",
           i18n.t("redemption.error-header"),
           i18n.t("redemption.error-merchant-pin")
         );
@@ -225,22 +230,32 @@ export const AvailOfferScreen = ({ route }) => {
         return;
       }
 
+      setIsLoading(true);
+
       await onConsume(discAmount, totalAmount, paidAmount);
   };
 
   const handleConfirm = () => {
-    Alert.alert(i18n.t("redemption.confirm"), i18n.t("redemption.message"), [
-      { text: i18n.t("cancel"), onPress: () => {} },
-      { text: i18n.t("proceed"), onPress: handleRedeem },
-    ]);
+    showConfirm({
+      title: i18n.t("redemption.confirm"),
+      message: i18n.t("redemption.message"),
+      confirmText: i18n.t("proceed"),
+      cancelText: i18n.t("cancel"),
+      onConfirm: handleRedeem,
+    });
   };
+
+  // The redeem button is actionable only when the PIN is complete and no
+  // request is in flight. Single source of truth for both the disabled state
+  // and the styling so they can't drift apart.
+  const canRedeem = pinReady && !isLoading;
 
   const handleCallNow = async () => {
     try {
       const phone = location?.phone?.split("|")?.[0]?.trim();
 
       if (!phone) {
-        Alert.alert("Unavailable", "Phone number is not available.");
+        showToast("info", "Unavailable", "Phone number is not available.");
         return;
       }
 
@@ -248,13 +263,13 @@ export const AvailOfferScreen = ({ route }) => {
       const supported = await Linking.canOpenURL(url);
 
       if (!supported) {
-        Alert.alert("Unavailable", "Calling is not supported on this device.");
+        showToast("info", "Unavailable", "Calling is not supported on this device.");
         return;
       }
 
       await Linking.openURL(url);
     } catch (error) {
-      Alert.alert("Unavailable", "Unable to open the dialer.");
+      showToast("error", "Unavailable", "Unable to open the dialer.");
     }
   };
 
@@ -450,14 +465,13 @@ export const AvailOfferScreen = ({ route }) => {
                   }}
                 >
                   <Button
-                    disabled={!pinReady || isLoading}
+                    disabled={!canRedeem}
                     onPress={handleConfirm}
                     contentStyle={{ padding: 10 }}
                     labelStyle={{ fontSize: fontSizes.subtitle }}
                     style={{
                       flex: 1,
-                      backgroundColor:
-                        pinReady && !isLoading ? "#1282FF" : "gray",
+                      backgroundColor: canRedeem ? "#1282FF" : "gray",
                       borderRadius: 12,
                     }}
                     mode="contained"

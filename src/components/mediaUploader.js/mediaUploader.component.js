@@ -1,5 +1,4 @@
 import {
-  Alert,
   FlatList,
   Image,
   StyleSheet,
@@ -9,6 +8,8 @@ import {
   View,
 } from "react-native";
 import React, { useState } from "react";
+import { showToast } from "../../Toast";
+import { showConfirm } from "../confirmDialog.component";
 import { CacheImage } from "../cacheImage";
 import { Label } from "../typography/label.component";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -158,7 +159,7 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
 
         // FIX: duration check BEFORE starting compression
         if (item.duration / 1000 > 90) {
-          alert("Video darf nicht länger als 90 Sekunden sein");
+          showToast("error", "Fehler", "Video darf nicht länger als 90 Sekunden sein");
           return;
         }
 
@@ -206,18 +207,14 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
   // FIX: was setting null — now sets [] to avoid downstream .map() crashes
   // ─────────────────────────────────────────
   const clearImages = () => {
-    Alert.alert(
-      "Bilder löschen",
-      "Sind Sie sicher, dass Sie alle Bilder löschen möchten?",
-      [
-        { text: "abbrechen", onPress: () => {} },
-        {
-          text: "löschen",
-          onPress: () => setImages([]),
-          style: "destructive",
-        },
-      ]
-    );
+    showConfirm({
+      title: "Bilder löschen",
+      message: "Sind Sie sicher, dass Sie alle Bilder löschen möchten?",
+      confirmText: "löschen",
+      cancelText: "abbrechen",
+      destructive: true,
+      onConfirm: () => setImages([]),
+    });
   };
 
   // ─────────────────────────────────────────

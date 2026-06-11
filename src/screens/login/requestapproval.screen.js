@@ -2,7 +2,6 @@ import { MaterialCommunityIcons, SimpleLineIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import {
-  Alert,
   Animated,
   ImageBackground,
   Linking,
@@ -13,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { showConfirm } from "../../components/confirmDialog.component";
 import { SafeArea } from "../../components/safearea.component";
 import { Spacer } from "../../components/spacer/spacer.component";
 import { CompanyLogo, width } from "../../components/styles";
@@ -97,28 +97,22 @@ export const RequestApprovalScreen = () => {
   };
 
   const handleSkip = async () => {
-    Alert.alert(
-      i18n.t("skip-auth-msg.header"),
-      i18n.t("skip-auth-msg.message"),
-      [
-        {
-          text: i18n.t("skip-auth-msg.button-order"),
-          onPress: () => {
-            Linking.openURL(`tel:${encodeURIComponent("+971562050066")}`).catch(
-              () => {
-                alert("Unable to call this number");
-              }
-            );
-          },
-        },
-        {
-          text: i18n.t("skip-auth-msg.button-proceed"),
-          onPress: () => {
-            skipAuth();
-          },
-        },
-      ]
-    );
+    showConfirm({
+      title: i18n.t("skip-auth-msg.header"),
+      message: i18n.t("skip-auth-msg.message"),
+      confirmText: i18n.t("skip-auth-msg.button-proceed"),
+      cancelText: i18n.t("skip-auth-msg.button-order"),
+      onConfirm: () => {
+        skipAuth();
+      },
+      onCancel: () => {
+        Linking.openURL(`tel:${encodeURIComponent("+971562050066")}`).catch(
+          () => {
+            showToast("error", "Call Failed", "Unable to call this number");
+          }
+        );
+      },
+    });
   };
 
   const handleUpload = async () => {

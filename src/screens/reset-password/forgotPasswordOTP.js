@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Dimensions,
   StyleSheet,
   TouchableOpacity,
   View,Platform
 } from "react-native";
+import { showToast } from "../../Toast";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import Background from "../../components/background/background.component";
 import { CodeInputField } from "../../components/codeInputField";
@@ -47,7 +47,7 @@ export const ForgotPasswordOTPScreen = ({ route }) => {
 
     const result = await UserService.requestForgetPass(data);
     if (!result.success) {
-      Alert.alert(result.title, result.message);
+      showToast("error", result.title, result.message);
     }
   };
 
@@ -69,7 +69,7 @@ export const ForgotPasswordOTPScreen = ({ route }) => {
       } else {
         const { title = "Alert", message = "Something went wrong" } = response;
         setIsLoading(false);
-        Alert.alert(title, message);
+        showToast("error", title, message);
       }
     }
   };

@@ -1,12 +1,13 @@
 import { CommonActions, useNavigation } from "@react-navigation/native";
 import React, { useContext, useEffect, useState } from "react";
 import {
-  Alert,
   KeyboardAvoidingView,
   ScrollView,
   StyleSheet,
   View,
 } from "react-native";
+import { showToast } from "../../../Toast";
+import { showConfirm } from "../../../components/confirmDialog.component";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Button } from "react-native-paper";
 import { CodeInputField } from "../../../components/codeInputField";
@@ -131,7 +132,8 @@ export const OfferRedeemForm = ({
     } else {
       setIsLoading(false);
 
-      Alert.alert(
+      showToast(
+        "error",
         i18n.t("redemption.error-header"),
         i18n.t("redemption.error-merchant-pin")
       );
@@ -139,18 +141,15 @@ export const OfferRedeemForm = ({
   };
 
   const handleConfirm = () => {
-    Alert.alert(i18n.t("redemption.confirm"), i18n.t("redemption.message"), [
-      {
-        text: i18n.t("cancel"),
-        onPress: () => {},
+    showConfirm({
+      title: i18n.t("redemption.confirm"),
+      message: i18n.t("redemption.message"),
+      confirmText: i18n.t("proceed"),
+      cancelText: i18n.t("cancel"),
+      onConfirm: () => {
+        handleRedeem();
       },
-      {
-        text: i18n.t("proceed"),
-        onPress: () => {
-          handleRedeem();
-        },
-      },
-    ]);
+    });
   };
 
   return (

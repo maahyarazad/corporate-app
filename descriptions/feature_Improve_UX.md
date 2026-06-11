@@ -38,3 +38,42 @@ import { showToast } from "../src/Toast";
 ```
 
 All user-facing notifications should use `showToast()` to provide a consistent user experience across the application.
+
+
+# Bug - Redeem stick in loading after adding ConfirmDialogHost
+
+## Description
+at this screen when  availOffer.screen.js when I try to redeem and I put wrong pin nymber the button stick in the loading and become disable
+
+```js
+const handleRedeem = async () => {
+      setIsLoading(true);
+
+      const merchantPin = (location?.merchant_pin ?? "").toString().trim();
+     
+      const enteredPin = (merchantCode ?? "").toString().trim();
+
+      if (enteredPin !== merchantPin) {
+        showToast(
+          "error",
+          i18n.t("redemption.error-header"),
+          i18n.t("redemption.error-merchant-pin")
+        );
+        setCode("");
+        setPinReady(false);
+        return;
+      }
+
+      await onConsume(discAmount, totalAmount, paidAmount);
+  };
+
+  const handleConfirm = () => {
+    showConfirm({
+      title: i18n.t("redemption.confirm"),
+      message: i18n.t("redemption.message"),
+      confirmText: i18n.t("proceed"),
+      cancelText: i18n.t("cancel"),
+      onConfirm: handleRedeem,
+    });
+  };
+```

@@ -14,3 +14,8 @@ Additionally, after the registration request is submitted:
 * Prevent multiple submissions until a response is received from the server.
 
 
+# Bug Ticket 1: Request doesnt reach the server token reCAPTCHA v3
+
+
+## Description
+Add console log where ever you can so I can debug it 
