@@ -56,7 +56,7 @@ export function BirthdatePicker({
             error={error}
             style={{
               borderRadius: 5,
-              height: 60,
+              height: 55,
               width: "100%",
             }}
           />

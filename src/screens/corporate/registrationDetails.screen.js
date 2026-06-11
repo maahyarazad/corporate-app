@@ -12,7 +12,10 @@ import {
   TouchableWithoutFeedback,
   Platform,
   ActivityIndicator,
+  BackHandler,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { BlurView } from "expo-blur";
 import { companyLogo, honorificList } from "../../utils/constants";
 import { useTheme } from "styled-components/native";
 import { Button, TextInput } from "react-native-paper";
@@ -41,10 +44,39 @@ const genderItems = [
   { label: "Female", value: "Female" },
 ];
 
+// Button label shown while the registration request is in flight. The text stays
+// static while only the trailing dots animate (0→3). The dots live in a
+// fixed-width slot so the text never shifts position as they change. It only
+// renders while loading, so the interval starts and stops with the loading state.
+const SubmittingLabel = () => {
+  const [dots, setDots] = useState("");
+  useEffect(() => {
+    const id = setInterval(() => {
+      setDots((d) => (d.length >= 3 ? "" : d + "."));
+    }, 400);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <View style={{ flexDirection: "row", alignItems: "center" }}>
+      <Label style={{ color: "white", paddingHorizontal: 2 }} size="body" weight="bold">
+        Creating Your Account
+      </Label>
+      <Label
+        style={{ color: "white", width: 22, textAlign: "left" }}
+        size="body"
+        weight="bold"
+      >
+        {dots}
+      </Label>
+    </View>
+  );
+};
+
 export const RegistrationDetailsScreen = ({ route }) => {
     
 
   const theme = useTheme();
+  const navigation = useNavigation();
   const [showCountries, setShowCountries] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -62,6 +94,30 @@ export const RegistrationDetailsScreen = ({ route }) => {
     birthdate: null,
     gender: "",
   });
+
+  // Lock the user on this screen while a submission is in flight. Blocks every
+  // way to leave: the iOS swipe-back gesture, the Android hardware back button,
+  // and any programmatic/header navigation away from the screen.
+  useEffect(() => {
+    navigation.setOptions({ gestureEnabled: !isLoading });
+
+    const backSub = BackHandler.addEventListener(
+      "hardwareBackPress",
+      // Returning true swallows the back press while loading.
+      () => isLoading
+    );
+
+    const removeBeforeRemove = navigation.addListener("beforeRemove", (e) => {
+      if (isLoading) {
+        e.preventDefault();
+      }
+    });
+
+    return () => {
+      backSub.remove();
+      removeBeforeRemove();
+    };
+  }, [navigation, isLoading]);
 
   const firstname = useRef(null);
   const lastname = useRef(null);
@@ -266,9 +322,11 @@ useEffect(() => {
                       Keyboard.dismiss;
                       goback();
                     }}
+                    disabled={isLoading}
                     style={{
                       flexDirection: "row",
                       alignItems: "center",
+                      opacity: isLoading ? 0.5 : 1,
                     }}
                     activeOpacity={0.5}
                   >
@@ -396,12 +454,12 @@ useEffect(() => {
                     borderRadius: 5,
                     justifyContent: "center",
                     alignItems: "center",
-                    marginVertical: 30,
+                    marginVertical: 2,
                     opacity: isLoading || !hasRequiredFields ? 0.5 : 1,
                   }}
                 >
                   {isLoading ? (
-                    <ActivityIndicator color="white" />
+                    <SubmittingLabel />
                   ) : (
                     <Label
                       style={{ color: "white" }}
@@ -417,6 +475,19 @@ useEffect(() => {
           </Animated.View>
         </SafeArea>
       </Background>
+
+      {/* Full-screen blur overlay shown from submit until the server responds.
+          Blocks further taps so the form can't be submitted twice. */}
+      {isLoading && (
+        <BlurView
+          intensity={70}
+          tint="dark"
+          style={styles.loadingOverlay}
+          pointerEvents="auto"
+        >
+          <ActivityIndicator size="large" color="white" />
+        </BlurView>
+      )}
     </>
   );
 };
@@ -438,5 +509,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     position: "relative",
     marginBottom: 6,
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1000,
   },
 });
