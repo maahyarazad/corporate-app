@@ -253,8 +253,8 @@ const PostEntryJobs = ({ onSubmit, mode }) => {
           }}
         >
           <Label
-            size={"subtitle"}
-            weight={"bold"}
+            size="subtitle"
+            weight="bold"
             style={{ color: "white", letterSpacing: 1 }}
           >
             Absenden

@@ -127,7 +127,7 @@ export const OfferRedeemForm = ({
         Alert("Transaction Failed", consumed.message);
       }
 
-      // console.log(te);
+      
     } else {
       setIsLoading(false);
 
@@ -230,7 +230,7 @@ export const OfferRedeemForm = ({
                     maxLength={6}
                     hidden={true}
                     inputBoxStyle={{
-                      borderRadius: 6,
+                      borderRadius: 20,
                       width: 40,
                       height: 40,
                       borderColor: "#aaa",
@@ -254,7 +254,8 @@ export const OfferRedeemForm = ({
         >
           {i18n.t("close")}
         </Button>
-        <Spacer position={"left"} size={"small"} />
+        <View style={{marginLeft: 6}} />
+        
         <Button
           disabled={!pinReady}
           style={{

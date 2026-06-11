@@ -13,22 +13,22 @@ export const UserContextProvider = ({ children }) => {
   useEffect(() => {
     let isMounted = true;
     (async () => {
-      console.log("test");
-      console.log("RETRIEVE AGAIN", user.token);
+    //   console.log("test");
+    //   console.log("RETRIEVE AGAIN", user.token);
       const info = await SecureStorage.getItemAsync("user_details");
-      console.log("info: ", info);
+    //   console.log("info: ", info);
       if (info != undefined) {
-        console.log("test1");
+        
         // // console.log(info);
-        console.log("------- retrieve (user_details) -------");
-        console.log(user.user_id);
+        // console.log("------- retrieve (user_details) -------");
+        // console.log(user.user_id);
 
         if (isMounted) setUserInfo(JSON.parse(info));
       } else {
-        console.log("test2");
+        // console.log("test2");
 
-        console.log("------- retrieve (server)-------");
-        console.log(user.user_id);
+        // console.log("------- retrieve (server)-------");
+        // console.log(user.user_id);
         if (isMounted) getUserInfo(user.user_id);
       }
     })();
@@ -43,7 +43,7 @@ export const UserContextProvider = ({ children }) => {
       UserService.getUserInfo(id)
         .then(async (user) => {
           setUserInfo(user);
-          console.log("SERVER INFO:", user);
+        //   console.log("SERVER INFO:", user);
           await SecureStorage.setItemAsync(
             "user_details",
             JSON.stringify(user)

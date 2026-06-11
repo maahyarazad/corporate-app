@@ -49,7 +49,7 @@ const CustomButton = ({
           {icon && (
             <MaterialCommunityIcons name={icon} size={iconSize} color={color} />
           )}
-          <Label weight={"bold"} color={color} style={labelStyle}>
+          <Label weight="bold" color={color} style={labelStyle}>
             {label}
           </Label>
         </View>

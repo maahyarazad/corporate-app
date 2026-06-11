@@ -18,12 +18,12 @@ export const PasswordInput = ({ label, onChangeText, value, outlineColor }) => {
       onChangeText={onChangeText}
       mode="outlined"
       outlineColor={outlineColor}
-      activeOutlineColor={"#B57000"}
+      activeOutlineColor="#B57000"
       textContentType="oneTimeCode"
       label={label}
       right={
         <TextInput.Icon
-          name={hidePass ? "eye" : "eye-off"}
+          name={hidePass ? "eye" : "eye-off"
           onPress={() => {
             hidePass ? setHidePass(false) : setHidePass(true);
           }}

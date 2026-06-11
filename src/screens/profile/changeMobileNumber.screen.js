@@ -1,10 +1,10 @@
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React, { useContext, useState } from "react";
 import Background from "../../components/background/background.component";
 import { SafeArea } from "../../components/safearea.component";
 import { StatusBar } from "expo-status-bar";
 import { Label } from "../../components/typography/label.component";
-import PhoneInput from "react-native-phone-number-input";
+import {PhoneInput} from "../../components/PhoneInput"
 import { theme } from "../../infrastructure/theme";
 import { goback } from "../../navigation/navigate";
 import { Ionicons } from "@expo/vector-icons";
@@ -12,6 +12,7 @@ import { useTranslation } from "../../../hooks/useTranslation";
 import useRequest from "../../../hooks/useRequest";
 import useUser from "../../../hooks/useUser";
 import { AuthContext } from "../../services/auth/auth.context";
+import { showToast } from "../../Toast";
 
 const ChangeMobileNumberScreen = () => {
   const [state, setState] = useState({
@@ -38,8 +39,6 @@ const ChangeMobileNumberScreen = () => {
 
   const handleUpdateNumber = async () => {
     try {
-      //Change mobile nubmer in server
-
       const response = await request("/v2/user/update-mobile", "PUT", state);
 
       if (response.success) {
@@ -50,22 +49,26 @@ const ChangeMobileNumberScreen = () => {
         }));
 
         resendOTP(userData.user_id);
-        Alert.alert(
+        showToast(
+          "success",
           i18n.t("update-mobile-number.success"),
           i18n.t("update-mobile-number.success-msg")
         );
         goback();
       } else {
-        Alert.alert(
+        showToast(
+          "error",
           i18n.t("update-mobile-number.failed"),
           i18n.t("update-mobile-number.failed-msg")
         );
       }
     } catch (error) {
-      console.error("Failed to change mobile number", error);
+      console.log("Failed to change mobile number", error);
+      showToast("error", "Server Error", error);
     }
   };
 
+  
   return (
     <Background>
       <StatusBar style="light" />
@@ -79,19 +82,19 @@ const ChangeMobileNumberScreen = () => {
             }}
             activeOpacity={0.5}
           >
-            <Ionicons name="arrow-back" size={35} color={"#fff"} />
+            <Ionicons name="arrow-back" size={35} color="#fff" />
             <Label
-              size={"body"}
+              size="body"
               weight="bold"
               style={{ justifyContent: "center" }}
-              color={"white"}
+              color="white"
             >
               {i18n.t("return")}
             </Label>
           </TouchableOpacity>
         </View>
         <View style={{ flex: 1, width: "100%", padding: 12, gap: 50 }}>
-          <Label size={"h4"} weight={"bold"} color={"white"}>
+          <Label size="h4" weight="bold" color="white">
             {i18n.t("update-mobile-number.header")}
           </Label>
 
@@ -121,15 +124,15 @@ const ChangeMobileNumberScreen = () => {
               activeOpacity={0.8}
               onPress={handleUpdateNumber}
               style={{
-                height: 60,
+                height: 55,
                 backgroundColor: theme.colors.ui.button,
                 borderRadius: 5,
                 justifyContent: "center",
                 alignItems: "center",
-                marginVertical: 30,
+                marginTop: 8
               }}
             >
-              <Label style={{ color: "white" }} size={"body"} weight={"bold"}>
+              <Label style={{ color: "white" }} size="body" weight="bold">
                 {i18n.t("update-mobile-number.confirm")}
               </Label>
             </TouchableOpacity>

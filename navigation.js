@@ -1,27 +1,23 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import {
   CardStyleInterpolators,
   createStackNavigator,
 } from "@react-navigation/stack";
-import {
-  NavigationContainer,
-  useNavigation,
-  useNavigationState,
-  useRoute,
-} from "@react-navigation/native";
+import { LoadingOverlay } from "./src/components/loading/loading.component";
+import { NavigationContainer } from "@react-navigation/native";
 import { LoginScreen } from "./src/screens/login/login.screen";
 import { EntertainerScreen } from "./src/screens/entertainer.screen";
 import { VerifyInfo } from "./src/screens/login/login-verify-info.screen";
 import { RegistrationScreen } from "./src/screens/corporate/registration.screen";
 import { OtpVerification } from "./src/screens/login/otpVerification";
 import { MapScreen } from "./src/screens/map.screen";
-import { AuthContext } from "./src/services/auth/auth.context";
-import { SplashScreen } from "./src/screens/splash.screen";
-import { goback, navigate, navigationRef } from "./src/navigation/navigate";
+import { ActivityIndicator } from "react-native-paper";
+import { goback, navigationRef } from "./src/navigation/navigate";
 import { LogoutScreen } from "./src/screens/logout.screen";
 import { RequestApprovalScreen } from "./src/screens/login/requestapproval.screen";
 import { CameraScreen } from "./src/screens/camera.screen";
 import { RegistrationSuccessfulScreen } from "./src/screens/corporate/registrationSuccess.screen";
+import { RegistrationSuccessByServices } from "./src/screens/corporate/registrationSuccessByServices.screen";
 import { RegistrationDetailsScreen } from "./src/screens/corporate/registrationDetails.screen";
 import { Label } from "./src/components/typography/label.component";
 import { useAssets } from "expo-asset";
@@ -29,8 +25,13 @@ import { LocationListScreen } from "./src/screens/location/location-list.screen"
 import { SectionContext } from "./src/services/section/section.context";
 import { AvailOfferScreen } from "./src/screens/offer/availOffer.screen";
 import { LocationViewScreen } from "./src/screens/location/location-view.screen";
-import { Dimensions, Image, TouchableOpacity, View } from "react-native";
-import { UserContext } from "./src/services/user/user.context";
+import {
+  Image,
+  TouchableOpacity,
+  View,
+  Dimensions,
+  ImageBackground,
+} from "react-native";
 import { TransactionSummaryScreen } from "./src/screens/offer/transactionSummary.screen";
 import { ForgotPasswordScreen } from "./src/screens/reset-password/forgotPassword";
 import { ForgotPasswordOTPScreen } from "./src/screens/reset-password/forgotPasswordOTP";
@@ -42,21 +43,15 @@ import { EventDetailScreen } from "./src/screens/events/eventDetail.screen";
 import { EventGuestsScreen } from "./src/screens/events/eventGuests.screen";
 import { TranslationContext } from "./src/services/translation/translation.context";
 import { UpdateMemberScreen } from "./src/screens/login/updateMember.screen";
-import * as SecureStore from "expo-secure-store";
 import { NoConnectionScreen } from "./src/screens/noConnection.screen";
 import { AppContext } from "./src/services/app/app.context";
 import { VersionMismatchScreen } from "./src/screens/versionMismatch.screen";
 import useAuth from "./hooks/useAuth";
-import useUser from "./hooks/useUser";
+import { Ionicons } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { CacheImage } from "./src/components/cacheImage";
 import { ProfileScreen } from "./src/screens/profile/profile.screen";
-import BottomSheetSelector from "./src/components/bottomSheetSelector.component";
 import PostEntrySelect from "./src/screens/posts/post_entry/postEntrySelect.screen";
-import {
-  PostStackNavigationScreen,
-  PostTabsNavigationScreen,
-} from "./src/screens/posts/postNavigation.screen";
+import { PostTabsNavigationScreen } from "./src/screens/posts/postNavigation.screen";
 import PostDetailScreen from "./src/screens/posts/postDetail.screen";
 import PostEntryScreen from "./src/screens/posts/post_entry/postEntry.screen";
 import { theme } from "./src/infrastructure/theme";
@@ -68,23 +63,14 @@ import NotificationsScreen from "./src/screens/notifications.screen";
 import ChangeMobileNumberScreen from "./src/screens/profile/changeMobileNumber.screen";
 import PostDetailMagazine from "./src/screens/posts/postDetailMagazine.screen";
 import ChangeEmailAddressScreen from "./src/screens/profile/changeEmailAddress.screen ";
+import { useNavigation } from "@react-navigation/native";
+import * as SplashScreen from "expo-splash-screen";
 
 const AuthStack = createStackNavigator();
 const MainStack = createStackNavigator();
 const ApprovalStack = createStackNavigator();
 const TimeoutStack = createStackNavigator();
-
-const config = {
-  animation: "spring",
-  config: {
-    stiffness: 1000,
-    damping: 500,
-    mass: 3,
-    overshootClamping: true,
-    restDisplacementThreshold: 0.01,
-    restSpeedThreshold: 0.01,
-  },
-};
+const OverlappingStack = createStackNavigator();
 
 const TimeoutStackScreen = () => {
   return (
@@ -104,35 +90,25 @@ const AuthStackScreen = () => {
       <AuthStack.Screen
         name="Login"
         component={LoginScreen}
-        options={{
-          headerShown: false,
-        }}
+        options={{ headerShown: false }}
       />
 
       <AuthStack.Screen
         name="Login Privacy Policy"
         component={PrivacyPolicyScreen}
-        options={{
-          headerShown: false,
-        }}
+        options={{ headerShown: false }}
       />
 
       <AuthStack.Screen
         name="Unverified Email"
         component={UnverifiedEmailScreen}
-        options={{
-          headerShown: false,
-          gestureEnabled: false,
-        }}
+        options={{ headerShown: false, gestureEnabled: false }}
       />
 
       <AuthStack.Screen
         name="ChangePassword"
         component={ChangePasswordScreen}
-        options={{
-          headerShown: false,
-          gestureEnabled: false,
-        }}
+        options={{ headerShown: false, gestureEnabled: false }}
       />
 
       <AuthStack.Screen
@@ -149,10 +125,7 @@ const AuthStackScreen = () => {
       <AuthStack.Screen
         name="ForgotPasswordOTP"
         component={ForgotPasswordOTPScreen}
-        options={{
-          headerShown: false,
-          gestureEnabled: false,
-        }}
+        options={{ headerShown: false, gestureEnabled: false }}
       />
 
       <AuthStack.Screen
@@ -180,10 +153,13 @@ const AuthStackScreen = () => {
       <AuthStack.Screen
         name="RegisterSuccess"
         component={RegistrationSuccessfulScreen}
-        options={{
-          headerShown: false,
-          gestureEnabled: false,
-        }}
+        options={{ headerShown: false, gestureEnabled: false }}
+      />
+
+      <AuthStack.Screen
+        name="RegisterSuccessByServices"
+        component={RegistrationSuccessByServices}
+        options={{ headerShown: false, gestureEnabled: false }}
       />
 
       <AuthStack.Screen
@@ -196,14 +172,13 @@ const AuthStackScreen = () => {
           gestureResponseDistance: 200,
         }}
       />
+
       <AuthStack.Screen
         name="Registration"
         component={RegistrationScreen}
-        options={{
-          headerShown: false,
-          gestureEnabled: false,
-        }}
+        options={{ headerShown: false, gestureEnabled: false }}
       />
+
       <AuthStack.Screen
         name="VerifyOTP"
         component={OtpVerification}
@@ -214,6 +189,7 @@ const AuthStackScreen = () => {
           gestureResponseDistance: 200,
         }}
       />
+
       <AuthStack.Screen
         name="MobileChange"
         component={ChangeMobileNumberScreen}
@@ -224,6 +200,7 @@ const AuthStackScreen = () => {
           gestureResponseDistance: 200,
         }}
       />
+
       <AuthStack.Screen
         name="EmailChange"
         component={ChangeEmailAddressScreen}
@@ -238,10 +215,7 @@ const AuthStackScreen = () => {
   );
 };
 
-const OverlappingStack = createStackNavigator();
-
 const OverlappingNavigator = () => {
-  const { userData } = useUser();
   const { i18n } = useContext(TranslationContext);
 
   return (
@@ -255,49 +229,44 @@ const OverlappingNavigator = () => {
             headerTitle: "",
             headerLeftContainerStyle: { paddingLeft: 8 },
             headerRightContainerStyle: { paddingRight: 4 },
-
-            headerLeft: () => {
-              return (
-                <View
+            headerLeft: () => (
+              <View
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  justifyContent: "center",
+                }}
+              >
+                <Image
                   style={{
-                    width: "100%",
-                    height: "100%",
-                    justifyContent: "center",
+                    height: 40,
+                    width: 80,
+                    resizeMode: "contain",
                   }}
-                >
-                  <Image
-                    style={{
-                      height: 40,
-                      width: 80,
-                      resizeMode: "contain",
-                    }}
-                    source={require("./assets/GE-LOGO-GOLD.png")}
-                  />
-                </View>
-              );
-            },
+                  source={require("./assets/GE-LOGO-GOLD.png")}
+                />
+              </View>
+            ),
           }}
         />
 
         <OverlappingStack.Screen
           name="post-tabs"
           component={PostTabsNavigationScreen}
-          options={{
-            headerShown: false,
-          }}
+          options={{ headerShown: false }}
         />
+
         <OverlappingStack.Screen
           name="post-detail"
           component={PostDetailScreen}
           options={{
             headerTintColor: theme.colors.icons.active,
-            headerTitleStyle: {
-              color: "black",
-            },
+            headerTitleStyle: { color: "black" },
             headerLeftLabelVisible: false,
             headerTitle: "",
           }}
         />
+
         <OverlappingStack.Screen
           name="post-entry"
           component={PostEntryScreen}
@@ -305,9 +274,7 @@ const OverlappingNavigator = () => {
             presentation: "modal",
             headerShown: false,
             headerTintColor: theme.colors.icons.active,
-            headerTitleStyle: {
-              color: "black",
-            },
+            headerTitleStyle: { color: "black" },
             headerLeftLabelVisible: false,
           }}
         />
@@ -322,6 +289,7 @@ const OverlappingNavigator = () => {
             gestureResponseDistance: 200,
           }}
         />
+
         <OverlappingStack.Screen
           name="notifications"
           component={NotificationsScreen}
@@ -332,6 +300,7 @@ const OverlappingNavigator = () => {
             gestureResponseDistance: 200,
           }}
         />
+
         <OverlappingStack.Screen
           name="post-select-category"
           component={PostEntryCategorySelect}
@@ -340,6 +309,7 @@ const OverlappingNavigator = () => {
             headerShown: false,
           }}
         />
+
         <OverlappingStack.Screen
           name="post-select"
           component={PostEntrySelect}
@@ -361,6 +331,7 @@ const OverlappingNavigator = () => {
             ),
           }}
         />
+
         <OverlappingStack.Screen
           name="marketplace-details"
           component={PostDetailMarketplace}
@@ -388,6 +359,7 @@ const OverlappingNavigator = () => {
             ),
           }}
         />
+
         <OverlappingStack.Screen
           name="magazine-details"
           component={PostDetailMagazine}
@@ -421,133 +393,139 @@ const OverlappingNavigator = () => {
 };
 
 const MainScreen = () => {
-  const { userData } = useUser();
-  const { i18n, hello } = useContext(TranslationContext);
-
-  // console.log(i18n.t("welcome"));
-
+  const { i18n } = useContext(TranslationContext);
+  const navigation = useNavigation();
   return (
-    <>
-      <MainStack.Navigator option>
-        <MainStack.Screen
-          name="Main"
-          component={OverlappingNavigator}
-          options={{ headerShown: false }}
-        />
+    <MainStack.Navigator>
+      <MainStack.Screen
+        name="Main"
+        component={OverlappingNavigator}
+        options={{ headerShown: false }}
+      />
 
-        <MainStack.Screen
-          name="Profile"
-          component={ProfileScreen}
-          options={{
-            headerShown: false,
-          }}
-        />
+      <MainStack.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{ headerShown: false }}
+      />
 
-        <MainStack.Screen
-          name="Logout"
-          component={LogoutScreen}
-          options={{ headerShown: false }}
-        />
-        <MainStack.Screen
-          name="Map"
-          component={MapScreen}
-          options={{
-            headerShown: false,
-            cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-            gestureDirection: "horizontal",
-            gestureResponseDistance: 200,
-          }}
-        />
-        <MainStack.Screen
-          name="LocationList"
-          component={LocationListScreen}
-          options={{
-            headerBackTitleVisible: false,
-            headerTitleAlign: "left",
-            headerTintColor: "black",
-            headerStyle: { borderColor: "black", shadowColor: "transparent" },
-            cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-            gestureDirection: "horizontal",
-            gestureResponseDistance: 200,
-          }}
-        />
-        <MainStack.Screen
-          name="AvailOffer"
-          component={AvailOfferScreen}
-          options={{
-            headerShown: false,
-            cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-            gestureDirection: "horizontal",
-            gestureResponseDistance: 200,
-          }}
-        />
-        <MainStack.Screen
-          name="TransactionSummary"
-          component={TransactionSummaryScreen}
-          options={{
-            headerShown: true,
-            title: i18n.t("redemption-success.transaction-summary"),
-            gestureEnabled: false,
-            headerBackTitleVisible: false,
-          }}
-        />
-        <MainStack.Screen
-          name={"Location View"}
-          pa
-          component={LocationViewScreen}
-          options={{
-            headerShown: false,
-            headerBackTitleVisible: false,
-            headerTitleAlign: "left",
-            headerTintColor: "black",
-            headerTitle: () => {
-              const { sectionTitle } = useContext(SectionContext);
-              return (
-                <Label size={"title"} weight={"bold"}>
-                  {sectionTitle}
-                </Label>
-              );
-            },
-            headerStyle: {
-              borderColor: "black",
-              shadowColor: "transparent",
-              backgroundColor: "transparent",
-            },
-            cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-            gestureDirection: "horizontal",
-            gestureResponseDistance: 200,
-          }}
-        />
+      <MainStack.Screen
+        name="Logout"
+        component={LogoutScreen}
+        options={{ headerShown: false }}
+      />
 
-        <MainStack.Screen
-          name={"Event Detail"}
-          component={EventDetailScreen}
-          options={{
-            headerShown: false,
-            headerBackTitleVisible: false,
-            headerTitleAlign: "left",
-            headerTintColor: "black",
-            cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-            gestureDirection: "horizontal",
-            gestureResponseDistance: 200,
-          }}
-        />
+      <MainStack.Screen
+        name="Map"
+        component={MapScreen}
+        options={{
+          headerShown: false,
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+          gestureDirection: "horizontal",
+          gestureResponseDistance: 200,
+        }}
+      />
 
-        <MainStack.Screen
-          name={"Attend Guests"}
-          component={EventGuestsScreen}
-          options={{
-            headerShown: false,
-            headerBackTitleVisible: false,
-            headerTitleAlign: "left",
-            headerTintColor: "black",
-            cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-            gestureDirection: "horizontal",
-            gestureResponseDistance: 200,
-          }}
-        />
-      </MainStack.Navigator>
-    </>
+      <MainStack.Screen
+        name="LocationList"
+        component={LocationListScreen}
+        options={{
+          headerBackTitle: "",
+          headerTitle: "",
+          headerTintColor: "black",
+          headerStyle: { shadowColor: "transparent" },
+
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={{ paddingLeft: 15 }}
+            >
+              <Ionicons name="arrow-back" size={24} color="black" />
+            </TouchableOpacity>
+          ),
+          cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+          gestureDirection: "horizontal",
+          gestureResponseDistance: 200,
+        }}
+      />
+
+      <MainStack.Screen
+        name="AvailOffer"
+        component={AvailOfferScreen}
+        options={{
+          headerShown: false,
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+          gestureDirection: "horizontal",
+          gestureResponseDistance: 200,
+        }}
+      />
+
+      <MainStack.Screen
+        name="TransactionSummary"
+        component={TransactionSummaryScreen}
+        options={{
+          headerShown: true,
+          title: i18n.t("redemption-success.transaction-summary"),
+          gestureEnabled: false,
+          headerBackTitleVisible: false,
+        }}
+      />
+
+      <MainStack.Screen
+        name="Location View"
+        component={LocationViewScreen}
+        options={{
+          headerShown: false,
+          headerBackTitleVisible: false,
+          headerTitleAlign: "left",
+          headerTintColor: "black",
+          headerTitle: () => {
+            const { sectionTitle } = useContext(SectionContext);
+            return (
+              <Label size="title" weight="bold">
+                {sectionTitle}
+              </Label>
+            );
+          },
+          headerStyle: {
+            borderColor: "black",
+            shadowColor: "transparent",
+            backgroundColor: "transparent",
+          },
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+          gestureDirection: "horizontal",
+          gestureResponseDistance: 200,
+        }}
+      />
+
+      <MainStack.Screen
+        name="Event Detail"
+        component={EventDetailScreen}
+        options={{
+          headerShown: false,
+          headerBackTitleVisible: false,
+          headerTitleAlign: "left",
+          headerTintColor: "black",
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+          gestureDirection: "horizontal",
+          gestureResponseDistance: 200,
+        }}
+      />
+
+      <MainStack.Screen
+        name="Attend Guests"
+        component={EventGuestsScreen}
+        options={{
+          headerShown: false,
+          headerBackTitleVisible: false,
+          headerTitleAlign: "left",
+          headerTintColor: "black",
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+          gestureDirection: "horizontal",
+          gestureResponseDistance: 200,
+        }}
+      />
+    </MainStack.Navigator>
   );
 };
 
@@ -557,9 +535,7 @@ const ApprovalScreen = () => {
       <ApprovalStack.Screen
         name="RequestApproval"
         component={RequestApprovalScreen}
-        options={{
-          headerShown: false,
-        }}
+        options={{ headerShown: false }}
       />
       <ApprovalStack.Screen
         name="AuthEditProfile"
@@ -590,148 +566,160 @@ const ApprovalScreen = () => {
   );
 };
 
-const ExceedTimeout = () => {
-  return (
-    <View style={{ flex: 1, justifyContent: "center" }}>
-      <Label>There has been an error</Label>
-    </View>
-  );
-};
-
+SplashScreen.preventAutoHideAsync();
 export const AppNavigation = () => {
-  // const { isRetrieving, user, skip } = useContext(AuthContext);
   const { isOutdated } = useContext(AppContext);
+  const { width, height } = Dimensions.get("screen");
   const { phoneVerified, refreshToken, isSkip, noConnection, isAuthorized } =
     useAuth();
-  const { userData } = useUser();
-  // const [skip, setSkip] = useState(0);
-  // useEffect(() => {
-  //   let isMounted = true;
-  //   const getSkip = async () => {
-  //     const test = await SecureStore.getItemAsync("skip");
-  //     setSkip(test);
-  //     console.log("skip: ", test);
-  //   };
 
-  //   getSkip();
+//   const assets = null;
+ 
 
-  //   return () => {
-  //     isMounted = false;
-  //   };
-  // }, []);
+  const renderNavigator = () => {
+       const [assets] = useAssets([
+      require("./assets/IFZA-Logo.png"),
+      require("./assets/ifza-login-bg2.jpg"),
+      require("./assets/ifza-login-bg.webp"),
+      require("./assets/GE-LOGO-GOLD.png"),
 
-  // const [timePassed, setTimePassed] = useState(false);
-  const [assets] = useAssets([
-    require("./assets/IFZA-Logo.png"),
-    require("./assets/ifza-login-bg2.jpg"),
-    require("./assets/ifza-login-bg.webp"),
-    require("./assets/GE-LOGO-GOLD.png"),
+      require("./assets/Food_Drinks.png"),
+      require("./assets/Beauty_Fitness.png"),
+      require("./assets/Attraction_Leisure.png"),
+      require("./assets/Fashion_Retail.png"),
+      require("./assets/EverydayServices.png"),
+      require("./assets/Travel.png"),
+      require("./assets/Education.png"),
+      require("./assets/Healthcare.png"),
+      require("./assets/FinancialServices.png"),
+      require("./assets/RealEstate.png"),
+      require("./assets/Consulting.png"),
 
-    //----------Category Icons------------
-    require("./assets/Food_Drinks.png"),
-    require("./assets/Beauty_Fitness.png"),
-    require("./assets/Attraction_Leisure.png"),
-    require("./assets/Fashion_Retail.png"),
-    require("./assets/EverydayServices.png"),
-    require("./assets/Travel.png"),
-    require("./assets/Education.png"),
-    require("./assets/Healthcare.png"),
-    require("./assets/FinancialServices.png"),
-    require("./assets/RealEstate.png"),
-    require("./assets/Consulting.png"),
+      require("./assets/stamps/GEC_1_Off_Discount.png"),
+      require("./assets/stamps/GEC_2_Off_Discount.png"),
+      require("./assets/stamps/GEC_3_Off_Discount.png"),
+      require("./assets/stamps/GEC_4_Off_Discount.png"),
+      require("./assets/stamps/GEC_5_Off_Discount.png"),
+      require("./assets/stamps/GEC_6_Off_Discount.png"),
+      require("./assets/stamps/GEC_7_Off_Discount.png"),
+      require("./assets/stamps/GEC_8_Off_Discount.png"),
+      require("./assets/stamps/GEC_9_Off_Discount.png"),
+      require("./assets/stamps/GEC_10_Off_Discount.png"),
+      require("./assets/stamps/GEC_11_Off_Discount.png"),
+      require("./assets/stamps/GEC_12_Off_Discount.png"),
+      require("./assets/stamps/GEC_13_Off_Discount.png"),
+      require("./assets/stamps/GEC_14_Off_Discount.png"),
+      require("./assets/stamps/GEC_15_Off_Discount.png"),
+      require("./assets/stamps/GEC_16_Off_Discount.png"),
+      require("./assets/stamps/GEC_17_Off_Discount.png"),
+      require("./assets/stamps/GEC_18_Off_Discount.png"),
+      require("./assets/stamps/GEC_19_Off_Discount.png"),
+      require("./assets/stamps/GEC_20_Off_Discount.png"),
+      require("./assets/stamps/GEC_25_Off_Discount.png"),
+      require("./assets/stamps/GEC_30_Off_Discount.png"),
+      require("./assets/stamps/GEC_35_Off_Discount.png"),
+      require("./assets/stamps/GEC_40_Off_Discount.png"),
+      require("./assets/stamps/GEC_45_Off_Discount.png"),
+      require("./assets/stamps/GEC_50_Off_Discount.png"),
+      require("./assets/stamps/GEC_55_Off_Discount.png"),
+      require("./assets/stamps/GEC_60_Off_Discount.png"),
+      require("./assets/stamps/GEC_65_Off_Discount.png"),
+      require("./assets/stamps/GEC_70_Off_Discount.png"),
+      require("./assets/stamps/GEC_75_Off_Discount.png"),
+      require("./assets/stamps/GEC_80_Off_Discount.png"),
+      require("./assets/stamps/GEC_85_Off_Discount.png"),
+      require("./assets/stamps/GEC_90_Off_Discount.png"),
+      require("./assets/stamps/GEC_95_Off_Discount.png"),
+      require("./assets/stamps/GEC_100_Off_Discount.png"),
+      require("./assets/stamps/GEC_2_for_1.png"),
+      require("./assets/stamps/GEC_3_for_2.png"),
+      require("./assets/stamps/GEC_4_for_3.png"),
+      require("./assets/stamps/GEC_5_for_4.png"),
+      require("./assets/stamps/GEC_6_for_5.png"),
+      require("./assets/stamps/GEC_7_for_6.png"),
+      require("./assets/stamps/GEC_Freebie.png"),
 
-    //----------Stamp Icons------------
-    require("./assets/stamps/GEC_1_Off_Discount.png"),
-    require("./assets/stamps/GEC_2_Off_Discount.png"),
-    require("./assets/stamps/GEC_3_Off_Discount.png"),
-    require("./assets/stamps/GEC_4_Off_Discount.png"),
-    require("./assets/stamps/GEC_5_Off_Discount.png"),
-    require("./assets/stamps/GEC_6_Off_Discount.png"),
-    require("./assets/stamps/GEC_7_Off_Discount.png"),
-    require("./assets/stamps/GEC_8_Off_Discount.png"),
-    require("./assets/stamps/GEC_9_Off_Discount.png"),
-    require("./assets/stamps/GEC_10_Off_Discount.png"),
-    require("./assets/stamps/GEC_11_Off_Discount.png"),
-    require("./assets/stamps/GEC_12_Off_Discount.png"),
-    require("./assets/stamps/GEC_13_Off_Discount.png"),
-    require("./assets/stamps/GEC_14_Off_Discount.png"),
-    require("./assets/stamps/GEC_15_Off_Discount.png"),
-    require("./assets/stamps/GEC_16_Off_Discount.png"),
-    require("./assets/stamps/GEC_17_Off_Discount.png"),
-    require("./assets/stamps/GEC_18_Off_Discount.png"),
-    require("./assets/stamps/GEC_19_Off_Discount.png"),
-    require("./assets/stamps/GEC_20_Off_Discount.png"),
-    require("./assets/stamps/GEC_25_Off_Discount.png"),
-    require("./assets/stamps/GEC_30_Off_Discount.png"),
-    require("./assets/stamps/GEC_35_Off_Discount.png"),
-    require("./assets/stamps/GEC_40_Off_Discount.png"),
-    require("./assets/stamps/GEC_45_Off_Discount.png"),
-    require("./assets/stamps/GEC_50_Off_Discount.png"),
-    require("./assets/stamps/GEC_55_Off_Discount.png"),
-    require("./assets/stamps/GEC_60_Off_Discount.png"),
-    require("./assets/stamps/GEC_65_Off_Discount.png"),
-    require("./assets/stamps/GEC_70_Off_Discount.png"),
-    require("./assets/stamps/GEC_75_Off_Discount.png"),
-    require("./assets/stamps/GEC_80_Off_Discount.png"),
-    require("./assets/stamps/GEC_85_Off_Discount.png"),
-    require("./assets/stamps/GEC_90_Off_Discount.png"),
-    require("./assets/stamps/GEC_95_Off_Discount.png"),
-    require("./assets/stamps/GEC_100_Off_Discount.png"),
-    // require("./assets/stamps/GEC_Best_Offer.png"),
-    require("./assets/stamps/GEC_2_for_1.png"),
-    require("./assets/stamps/GEC_3_for_2.png"),
-    require("./assets/stamps/GEC_4_for_3.png"),
-    require("./assets/stamps/GEC_5_for_4.png"),
-    require("./assets/stamps/GEC_6_for_5.png"),
-    require("./assets/stamps/GEC_7_for_6.png"),
-    require("./assets/stamps/GEC_Freebie.png"),
-    // require("./assets/stamps/GEC_Special_Offer.png"),
+      require("./assets/specials/Workspace.png"),
+      require("./assets/specials/Adrenaline.png"),
+      require("./assets/specials/Brand_New.png"),
+      require("./assets/specials/Breakfast.png"),
+      require("./assets/specials/Brunches.png"),
+      require("./assets/specials/Buffet.png"),
+      require("./assets/specials/Cuisine.png"),
+      require("./assets/specials/Daycations.png"),
+      require("./assets/specials/Delivery.png"),
+      require("./assets/specials/Flash_Sale.png"),
+      require("./assets/specials/Gourmet.png"),
+      require("./assets/specials/Hot_Pick.png"),
+      require("./assets/specials/Kids.png"),
+      require("./assets/specials/Monthly_Offers.png"),
+      require("./assets/specials/Pet_Friendly.png"),
+      require("./assets/specials/Shisha_Offers.png"),
+      require("./assets/specials/Staycations.png"),
+      require("./assets/specials/Summer_Super_Sale.png"),
+      require("./assets/specials/Takeaway.png"),
+      require("./assets/specials/Trending_Offers.png"),
+    ]);
 
-    //----------Specials Icons------------
-    require("./assets/specials/Workspace.png"),
-    require("./assets/specials/Adrenaline.png"),
-    require("./assets/specials/Brand_New.png"),
-    require("./assets/specials/Breakfast.png"),
-    require("./assets/specials/Brunches.png"),
-    require("./assets/specials/Buffet.png"),
-    require("./assets/specials/Cuisine.png"),
-    require("./assets/specials/Daycations.png"),
-    require("./assets/specials/Delivery.png"),
-    require("./assets/specials/Flash_Sale.png"),
-    require("./assets/specials/Gourmet.png"),
-    require("./assets/specials/Hot_Pick.png"),
-    require("./assets/specials/Kids.png"),
-    require("./assets/specials/Monthly_Offers.png"),
-    require("./assets/specials/Pet_Friendly.png"),
-    require("./assets/specials/Shisha_Offers.png"),
-    require("./assets/specials/Staycations.png"),
-    require("./assets/specials/Summer_Super_Sale.png"),
-    require("./assets/specials/Takeaway.png"),
-    require("./assets/specials/Trending_Offers.png"),
-  ]);
-
-  // if (isRetrieving || !assets) {
-  if (!assets) {
-    return <SplashScreen />;
+  useEffect(() => {
+    if (assets) {
+      SplashScreen.hideAsync();
+    }
+  }, [assets]);
+      if (!assets) {
+    return (
+      <ImageBackground
+        source={require("./assets/splash.png")}
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width,
+          height,
+        }}
+        resizeMode="cover"
+      >
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <ActivityIndicator
+            size="large"
+            color="#FFB400"
+            style={{ paddingTop: 250 }}
+          />
+        </View>
+      </ImageBackground>
+    );
   }
+
+    if (noConnection) {
+      return <TimeoutStackScreen />;
+    }
+
+    if (isOutdated) {
+      return <VersionMismatchScreen />;
+    }
+
+    if (phoneVerified && refreshToken) {
+      if (isAuthorized || isSkip) {
+        return <MainScreen />;
+      }
+
+      return <ApprovalScreen />;
+    }
+
+    return <AuthStackScreen />;
+  };
+
+
+
   return (
-    <>
-      {/* user.isAuthorized && user.submitCard ? ( */}
-      <NavigationContainer ref={navigationRef}>
-        {noConnection ? (
-          <TimeoutStackScreen />
-        ) : isOutdated ? (
-          <VersionMismatchScreen />
-        ) : phoneVerified && refreshToken ? (
-          !!isAuthorized || !!isSkip ? (
-            <MainScreen />
-          ) : (
-            <ApprovalScreen />
-          )
-        ) : (
-          <AuthStackScreen />
-        )}
-      </NavigationContainer>
-    </>
+    <NavigationContainer ref={navigationRef}>
+      {renderNavigator()}
+    </NavigationContainer>
   );
 };

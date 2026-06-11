@@ -118,7 +118,7 @@ const SlideshowV2 = ({ images }) => {
               width: SCREEN_WIDTH,
               aspectRatio: 1.33,
             }}
-            resizeMode={"cover"}
+            resizeMode="cover"
           />
           {item.type === "video" && (
             <View
@@ -133,7 +133,7 @@ const SlideshowV2 = ({ images }) => {
               <MaterialCommunityIcons
                 size={80}
                 name="play-circle-outline"
-                color={"white"}
+                color="white"
               />
             </View>
           )}
@@ -177,7 +177,7 @@ const SlideshowV2 = ({ images }) => {
             alignItems: "center",
           }}
         >
-          <Label style={{ color: "white" }} weight={"medium"} size={"subtitle"}>
+          <Label style={{ color: "white" }} weight="medium" size="subtitle">
             {`${imageIndex + 1} / ${images.length}`}
           </Label>
         </View>
@@ -227,9 +227,9 @@ const SlideshowV2 = ({ images }) => {
                 <TouchableOpacity activeOpacity={0.7} onPress={galleryClose}>
                   <View style={{ padding: 10 }}>
                     <MaterialCommunityIcons
-                      name={"close"}
+                      name="close"
                       size={30}
-                      color={"#ddd"}
+                      color="#ddd"
                     />
                   </View>
                 </TouchableOpacity>

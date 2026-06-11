@@ -1,3 +1,4 @@
+import Constants from "expo-constants";
 export const honorificList = ["Mr.", "Mrs.", "Ms.", "Dr.", "Engr."];
 
 export const offerChipIcon = {
@@ -10,26 +11,29 @@ export const offerChipColor = {
   2: "#9FD8FF",
 };
 
-const local_ip = "192.168.50.7";
-// const local_ip = "192.168.0.198";
-
 export const config = {
-  BASE_URL: `http://${local_ip}:3300/v1/api/`, // Local
-  SERVER_HOST: `http://${local_ip}:3300`, // Local
-
-  // BASE_URL: "https://www.german-emirates-club.com/api/v1/api", //Prod
-  // SERVER_HOST: "https://www.german-emirates-club.com/api/", //Prod
-  // BASE_URL: "https://dev.german-emirates-club.com/api/v1/api", //Dev
-  // SERVER_HOST: "https://dev.german-emirates-club.com/api/", //Dev
+  BASE_URL: process.env.EXPO_PUBLIC_BASE_URL,
+  SERVER_HOST: process.env.EXPO_PUBLIC_SERVER_HOST,
+  SERVICES_BASE_URL:process.env.EXPO_PUBLIC_SERVICES_BASE_URL,
+  SERVICES_HOST: process.env.EXPO_PUBLIC_SERVICES_HOST,
 
   APP_ID: 2,
-  // WEBSOCKET_URL: "http://192.168.1.140:3300",
-  // WEBSOCKET_URL: "https://dev.german-emirates-club.com",
   CURRENCY: "AED",
-  DEV: true,
+  DEV: process.env.EXPO_PUBLIC_DEV === "true",
+  RECAPTCHA_V3_SITE_KEY: process.env.EXPO_PUBLIC_RECAPTCHA_V3_SITE_KEY,
+  // reCAPTCHA Enterprise keys (KEY_ID) created in the Google Cloud console.
+  // Enterprise keys are PLATFORM-SPECIFIC: an Android key (tied to the package
+  // name + signing SHA-256) cannot be used by the iOS SDK and vice-versa.
+  // Passing the wrong platform's key to the native SDK throws "Key type invalid".
+  // Used by @google-cloud/recaptcha-enterprise-react-native.
+  RECAPTCHA_SITE_KEY_ANDROID: process.env.EXPO_PUBLIC_RECAPTCHA_SITE_KEY_ANDROID,
+  RECAPTCHA_SITE_KEY_IOS: process.env.EXPO_PUBLIC_RECAPTCHA_SITE_KEY_IOS,
+  // Legacy single-key fallback (kept so existing builds don't break).
+  RECAPTCHA_SITE_KEY: process.env.EXPO_PUBLIC_RECAPTCHA_SITE_KEY,
 };
 
-export const EULAPrivacyLink = `https://www.buenapublica.com/uploads/privacy-policy.pdf`;
+export const EULAPrivacyLink = `https://www.buenapublica.com/privacy-policy`;
+export const DELETE_ACCOUNT = `https://www.buenapublica.com/account-deletion`;
 
 export const loginBGImage = require("../../assets/ifza-login-bg2.jpg");
 

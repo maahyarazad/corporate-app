@@ -68,7 +68,7 @@ const PostCardModified = ({ item, ...props }) => {
             <Label>21 UNREAD POSTS</Label>
             <MaterialCommunityIcons name="arrow-up" size={24} color="black" />
           </View>
-          <Spacer size={"medium"} position={"top"} />
+          <View style={{marginTop: 8}}/>
         </>
       )} */}
       <PostCard data={item} {...props} />
@@ -82,7 +82,7 @@ const RenderRowPostCard = ({ item, index, magazines }) => {
   };
 
   const handleCommentPress = () => {
-    console.log("POST Pressed: ", item);
+    // console.log("POST Pressed: ", item);
     navigate("post-detail", {
       author: `${item.first_name} ${item.last_name}`,
       post: item,
@@ -99,13 +99,13 @@ const RenderRowPostCard = ({ item, index, magazines }) => {
 
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
-          console.log("shared with activity type of ", result.activityType);
+        //   console.log("shared with activity type of ", result.activityType);
         } else {
-          console.log("shared");
+        //   console.log("shared");
         }
       }
     } catch (error) {
-      console.error("Failed to share post:", error);
+      console.log("Failed to share post:", error);
     }
   };
 
@@ -205,7 +205,7 @@ export default function PostsScreen() {
         }
       } catch (error) {
         alert("Failed to retrieve last viewed post");
-        console.error(error);
+        console.log(error);
       }
     };
 
@@ -281,7 +281,7 @@ export default function PostsScreen() {
   //       dispatch(loadOldPosts(response.data));
   //     }
   //   } catch (error) {
-  //     console.error("Failed to get initial posts:", error);
+  //     console.log("Failed to get initial posts:", error);
   //   }
   // };
 
@@ -302,7 +302,7 @@ export default function PostsScreen() {
   //       dispatch(loadOldPosts(response.data));
   //     }
   //   } catch (error) {
-  //     console.error("Failed to get posts:", error);
+  //     console.log("Failed to get posts:", error);
   //   }
   // };
 
@@ -322,7 +322,7 @@ export default function PostsScreen() {
   //       dispatch(loadNewPosts(response.data));
   //     }
   //   } catch (error) {
-  //     console.error("Failed to get posts:", error);
+  //     console.log("Failed to get posts:", error);
   //   }
   // };
 
@@ -335,7 +335,7 @@ export default function PostsScreen() {
       setIsLoading(false);
       // }
     } catch (error) {
-      console.error("wat", error);
+      console.log("wat", error);
     } finally {
       setIsLoading(false);
     }
@@ -349,7 +349,7 @@ export default function PostsScreen() {
 
   const refreshPage = async () => {
     try {
-      console.log("last date:", rootPosts[0].date_posted);
+    //   console.log("last date:", rootPosts[0].date_posted);
       await getMoreRecentPosts(rootPosts[0].date_posted);
       // alert("damn");
       // fetchNewPosts(posts[0].post_id);
@@ -405,47 +405,47 @@ export default function PostsScreen() {
               width={50}
               height={50}
               opacityMax={0.2}
-              variant={"circle"}
+              variant="circle"
             />
             <View style={{ flex: 1, gap: 6 }}>
               <Skeleton
-                width={"50%"}
+                width="50%"
                 height={20}
                 opacityMax={0.2}
-                variant={"circle"}
+                variant="circle"
               />
               <Skeleton
-                width={"30%"}
+                width="30%"
                 height={20}
                 opacityMax={0.2}
-                variant={"circle"}
+                variant="circle"
               />
             </View>
           </View>
           <View style={{ gap: 6 }}>
             <Skeleton
-              width={"100%"}
+              width="100%"
               height={22}
               opacityMax={0.2}
-              variant={"circle"}
+              variant="circle"
             />
             <Skeleton
-              width={"100%"}
+              width="100%"
               height={22}
               opacityMax={0.2}
-              variant={"circle"}
+              variant="circle"
             />
             <Skeleton
-              width={"100%"}
+              width="100%"
               height={22}
               opacityMax={0.2}
-              variant={"circle"}
+              variant="circle"
             />
             <Skeleton
-              width={"40%"}
+              width="40%"
               height={22}
               opacityMax={0.2}
-              variant={"circle"}
+              variant="circle"
             />
           </View>
         </View>
@@ -502,7 +502,7 @@ export default function PostsScreen() {
               //           size={20}
               //           color="black"
               //         />
-              //         <Label size={"subtitle"}>Posts durchsuchen</Label>
+              //         <Label size="subtitle">Posts durchsuchen</Label>
               //       </View>
               //     </TouchableWithoutFeedback>
               //   </View>
@@ -568,7 +568,7 @@ export default function PostsScreen() {
                 elevation: 12,
               }}
             >
-              <MaterialCommunityIcons name="plus" color={"white"} size={40} />
+              <MaterialCommunityIcons name="plus" color="white" size={40} />
             </View>
           </TouchableOpacity>
         </View>

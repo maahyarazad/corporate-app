@@ -49,6 +49,7 @@ const Hotpicks = ({ hotpickData }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const request = useRequest();
 
+
   const PaginationItem = ({
     animValue,
     index,
@@ -126,7 +127,7 @@ const Hotpicks = ({ hotpickData }) => {
           onPress={() => {
             handlePress(item.partner_id);
           }}
-          size={"hotpick"}
+          size="hotpick"
           stamp={offerStamps[item.premium_id - 1]}
           offer_name={item.offer_name}
           // offer_name={item.offer_name}
@@ -165,8 +166,8 @@ const Hotpicks = ({ hotpickData }) => {
                 autoPlay={true}
                 snapEnabled={true}
                 autoPlayInterval={3000}
-                width={Dimensions.get("screen").width}
-                height={Dimensions.get("screen").width * 0.6}
+                width={Math.min(Dimensions.get("screen").width)}
+                height={Math.min(Dimensions.get("screen").width * 0.6)}
                 mode="parallax"
                 pagingEnabled={true}
                 onProgressChange={(_, absoluteProgress) => {
@@ -202,10 +203,10 @@ const Hotpicks = ({ hotpickData }) => {
                     onPress={() => {
                       handlePress(hotpickData[0].partner_id);
                     }}
-                    size={"hotpick"}
-                    width={"100%"}
-                    imgWidth={"100%"}
-                    imgHeight={Dimensions.get("screen").width * 0.5}
+                    size="hotpick"
+                    width="100%"
+                    imgWidth="100%"
+                    imgHeight={Math.min(Dimensions.get("screen").width * 0.5)}
                     stamp={offerStamps[hotpickData[0].premium_id - 1]}
                     offer_name={hotpickData[0].offer_name}
                     imgUrl={`${hotpickData[0].file}`}
@@ -233,8 +234,8 @@ const Hotpicks = ({ hotpickData }) => {
                   loop={false}
                   snapEnabled={true}
                   autoPlayInterval={3000}
-                  width={Dimensions.get("screen").width}
-                  height={Dimensions.get("screen").width * 0.64}
+                  width={Math.min(Dimensions.get("screen").width)}
+                  height={Math.min(Dimensions.get("screen").width * 0.64)}
                   mode="parallax"
                   pagingEnabled={true}
                   onProgressChange={(_, absoluteProgress) => {
@@ -298,8 +299,8 @@ const Hotpicks = ({ hotpickData }) => {
                     textStyle={{ width: 105, textAlign: "center" }}
                   >
                     <Label
-                      weight={"bold"}
-                      color={"white"}
+                      weight="bold"
+                      color="white"
                     >{`${currentIndex} out of ${hotpickData.length}`}</Label>
                   </Chip>
                 )}
@@ -308,7 +309,7 @@ const Hotpicks = ({ hotpickData }) => {
                   hotpickData.map((_, index) => {
                     return (
                       <PaginationItem
-                        backgroundColor={"#ccc"}
+                        backgroundColor="#ccc"
                         animValue={progressValue}
                         index={index}
                         key={index}

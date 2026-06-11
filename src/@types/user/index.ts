@@ -16,6 +16,7 @@ export interface IUser{
     mobileCode?: string;
     nationality: string | TranslationLanguageCodeMap;
     partner_id: number;
+    token: string;
 }
 
 export interface IUserDetails {
@@ -44,7 +45,7 @@ export interface IMemberInfo {
 }
 
 export type UserServiceType = {
-    createUser: (user: IUser) => Promise<boolean>;
+    createUser: (user: IUser) => Promise<any>;
     updateUser: (user: IUser) => Promise<boolean>;
     getUserInfo: (userId: number) => Promise<IUser>;
     validateDetails: (data: IUserDetails) => Promise<boolean>;

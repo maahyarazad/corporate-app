@@ -1,7 +1,19 @@
 const { getDefaultConfig } = require("expo/metro-config");
-const config = getDefaultConfig(__dirname);
 
-// Adds support for `mjs` files
-config.resolver.sourceExts.push("mjs");
+const defaultConfig = getDefaultConfig(__dirname);
 
-module.exports = config;
+// Add extra node modules for Metro to resolve
+defaultConfig.resolver.extraNodeModules = {
+  ...defaultConfig.resolver.extraNodeModules,
+
+  // shim 'path' module for web
+  path: require.resolve("path-browserify"),
+
+  // explicitly resolve react-async-hook
+  "react-async-hook": require.resolve("react-async-hook"),
+};
+
+// Optional: if you want to include node modules for web builds
+// defaultConfig.resolver.resolverMainFields = ['browser', 'main'];
+
+module.exports = defaultConfig;

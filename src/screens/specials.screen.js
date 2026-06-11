@@ -33,7 +33,7 @@ export const SpecialsScreen = ({ navigation }) => {
           setSpecialTagList(response.result);
         }
       } catch (error) {
-        console.error("Failed to get available tags: ", error);
+        console.log("Failed to get available tags: ", error);
       }
     };
 
@@ -117,7 +117,7 @@ const SkeletonTags = ({ cellSize }) => {
   return (
     <View style={{ paddingHorizontal: 16 }}>
       <Skeleton
-        variant={"square"}
+        variant="square"
         height={30}
         width={200}
         borderRadius={10}

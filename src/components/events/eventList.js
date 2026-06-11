@@ -167,7 +167,7 @@ export const EventList = () => {
       <MaterialCommunityIcons
         size={20}
         name={item.includeGuests ? "account-group" : "account"}
-        color={"white"}
+        color="white"
         style={{ marginRight: 5 }}
       />
     );
@@ -182,8 +182,8 @@ export const EventList = () => {
       >
         <Card style={{ backgroundColor: "white", padding: 0 }}>
           <Card.Cover
-            resizeMethod={"resize"}
-            resizeMode={"cover"}
+            resizeMethod="resize"
+            resizeMode="cover"
             style={{
               height: 130,
             }}
@@ -366,27 +366,39 @@ export const EventList = () => {
               borderRadius: 15,
             }}
           >
-            <Label weight={"bold"} size="heading">
+            <Label weight="bold" size="heading">
               {confirmationMSG}
             </Label>
           </View>
         </View>
       </CustomModal>
+     
       <View style={styles.container} removeClippedSubviews={true}>
-        {/* <Label>Events</Label> */}
+      {eventList && eventList.length > 0 ? (
+        <FlatList
+          data={eventList}
+          extraData={eventList}
+          renderItem={renderCard}
+          contentContainerStyle={styles.eventListContainer}
+          ItemSeparatorComponent={() => {
+            return <View style={{ height: 12 }}></View>;
+          }}
+        />
+      ) : (
+        <View style={styles.emptyContainer}>
+          <Label
+            style={styles.emptyText}
+            weight="bold"
+            size="body"
+          >
+             {i18n.t("events.no-upcoming-events")}
 
-        {eventList && eventList.length > 0 && (
-          <FlatList
-            data={eventList}
-            extraData={eventList}
-            renderItem={renderCard}
-            contentContainerStyle={styles.eventListContainer}
-            ItemSeparatorComponent={() => {
-              return <View style={{ height: 12 }}></View>;
-            }}
-          />
-        )}
-      </View>
+          </Label>
+        </View>
+      )}
+    </View>
+
+
     </>
   );
 };
@@ -424,4 +436,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 24,
+  },
+  emptyText: {
+    textAlign: "center",
+    color: theme.colors.ui.lightGray,
+  },
+
 });

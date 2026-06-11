@@ -108,11 +108,11 @@ const BottomSheetSelector = ({
                           <MaterialCommunityIcons
                             name={option.logo}
                             size={22}
-                            color={"#fff"}
+                            color="#fff"
                           />
                         </View>
                         <View>
-                          <Label weight={"bold"}>{option.title}</Label>
+                          <Label weight="bold">{option.title}</Label>
                           <Label>{option.description}</Label>
                         </View>
                       </View>

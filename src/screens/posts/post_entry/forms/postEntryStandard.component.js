@@ -157,8 +157,8 @@ const PostEntryStandard = ({ onSubmit, mode }) => {
           }}
         >
           <Label
-            size={"subtitle"}
-            weight={"bold"}
+            size="subtitle"
+            weight="bold"
             style={{ color: "white", letterSpacing: 1 }}
           >
             Absenden
@@ -187,7 +187,7 @@ export const PostAgreementCheckbox = () => {
       }}
     >
       {/* <Checkbox.Android
-        status={isAgreed ? "checked" : "unchecked"}
+        status={isAgreed ? "checked" : "unchecked"
         color={theme.colors.icons.active}
         onPress={toggleAgreement}
       /> */}
@@ -201,7 +201,7 @@ export const PostAgreementCheckbox = () => {
             "Anfragen auf Ihr Angebot erhalten Sie telefonisch!\n\nIhre registrierte Mobiltelefonnummer lautet:\n"
           }
           <Label
-            weight={"bold"}
+            weight="bold"
           >{`+${userData?.area_code} ${userData?.phone_number}`}</Label>
         </Label>
       </View>

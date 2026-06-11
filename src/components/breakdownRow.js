@@ -23,7 +23,7 @@ export const BreakdownRow = ({ item }) => {
       setShowModal(true);
       setIsLoading(true);
       const response = await TransactionService.getTransaction(id);
-      console.log(response);
+    //   console.log(response);
       if (response.success) {
         setIsLoading(false);
         setTransaction(response.data);
@@ -47,10 +47,10 @@ export const BreakdownRow = ({ item }) => {
         }}
       >
         <View style={{ flex: 1 }}>
-          <Label size={"caption"}>{label}</Label>
+          <Label size="caption">{label}</Label>
         </View>
         <View style={{ flex: 1, alignItems: "flex-end" }}>
-          <Label style={{ textAlign: "right" }} size={"caption"}>
+          <Label style={{ textAlign: "right" }} size="caption">
             {value}
           </Label>
         </View>
@@ -83,7 +83,7 @@ export const BreakdownRow = ({ item }) => {
                 padding: 16,
               }}
             >
-              <Label weight={"bold"}>
+              <Label weight="bold">
                 {i18n.t("profile-tabs.history-breakdown.transaction-details")}
               </Label>
             </View>
@@ -114,7 +114,7 @@ export const BreakdownRow = ({ item }) => {
                 )}
                 value={transaction ? transaction.transaction_code : ""}
               />
-              <RowDetails
+               <RowDetails
                 label={i18n.t("profile-tabs.history-breakdown.availed")}
                 value={`${
                   transaction
@@ -187,15 +187,15 @@ export const BreakdownRow = ({ item }) => {
       >
         <View style={{ flex: 1, flexDirection: "row" }}>
           <View style={{ flex: 3 }}>
-            <Label size={"caption"}>{item.merchant}</Label>
+            <Label size="caption">{item.merchant}</Label>
           </View>
           <View style={{ flex: 3, alignItems: "flex-end" }}>
-            <Label size={"caption"}>
+            <Label size="caption">
               {moment(item.date_transaction).format("DD.MMM YYYY")}
             </Label>
           </View>
           <View style={{ flex: 2, alignItems: "flex-end" }}>
-            <Label size={"caption"}>
+            <Label size="caption">
               {parseFloat(item.discount).toFixed(2)}
             </Label>
           </View>

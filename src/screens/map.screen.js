@@ -1,10 +1,10 @@
 // Import required libraries and components
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { Linking, Text, View } from "react-native";
+import { Linking, Platform, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { Button, TouchableRipple } from "react-native-paper";
-import styled from "styled-components";
+import styled from "styled-components/native";
 import { CacheImage } from "../components/cacheImage";
 import { LoadingOverlay } from "../components/loading/loading.component";
 import { SafeArea } from "../components/safearea.component";
@@ -78,7 +78,7 @@ export const MapScreen = ({ navigation }) => {
           setPartnerLocations(response);
         }
       } catch (error) {
-        console.error("Failed to get coordinates:", error);
+        console.log("Failed to get coordinates:", error);
       }
     };
 
@@ -207,9 +207,9 @@ export const MapScreen = ({ navigation }) => {
             <TouchableRipple
               onPress={navigateBack}
               style={{ borderRadius: 25, padding: 10, overflow: "hidden" }}
-              rippleColor={"#444"}
+              rippleColor="#444"
             >
-              <Ionicons name={"arrow-back"} size={35} />
+              <Ionicons name="arrow-back" size={35} />
             </TouchableRipple>
           </View>
         </View>
@@ -244,7 +244,7 @@ export const MapScreen = ({ navigation }) => {
       <View style={{ flex: 1 }}>
         {partnerLocations && myLocation ? (
           <StyledMap
-            provider={"google"}
+            provider="google"
             ref={mapRef}
             camera={{
               center: {
@@ -324,9 +324,9 @@ export const MapScreen = ({ navigation }) => {
               <TouchableRipple
                 onPress={navigateBack}
                 style={{ borderRadius: 25, padding: 10, overflow: "hidden" }}
-                rippleColor={"#444"}
+                rippleColor="#444"
               >
-                <Ionicons name={"arrow-back"} size={35} />
+                <Ionicons name="arrow-back" size={35} />
               </TouchableRipple>
             </View>
             <View style={{ alignItems: "flex-end", alignSelf: "flex-end" }}>
@@ -347,12 +347,12 @@ export const MapScreen = ({ navigation }) => {
                   shadowRadius: 5,
                   shadowOffset: { width: 1, height: 1 },
                 }}
-                rippleColor={"#444"}
+                rippleColor="#444"
               >
                 <MaterialIcons
-                  name={"my-location"}
+                  name="my-location"
                   size={35}
-                  color={"#0e89ff"}
+                  color="#0e89ff"
                 />
               </TouchableRipple>
             </View>
@@ -411,19 +411,19 @@ export const MapScreen = ({ navigation }) => {
                       borderRadius: 10,
                     }}
                   />
-                  <Spacer size={"medium"} position={"top"} />
+                 
                   {/* Location name and distance */}
-                  <Label size={"title"} weight={"bold"}>
+                  <Label size="title" weight="bold" style={{marginTop: 10}}>
                     {locationState.locationName}
                   </Label>
                   <Label
-                    size={"subtitle"}
-                    weight={"medium"}
+                    size="subtitle"
+                    weight="medium"
                     style={{ color: "#aaa" }}
                   >
                     {distance} KM
                   </Label>
-                  <Spacer size={"medium"} position={"top"} />
+                  <View style={{marginTop: 10}} />
 
                   {/* Action buttons */}
                   <View style={{ flexDirection: "row" }}>
@@ -442,7 +442,7 @@ export const MapScreen = ({ navigation }) => {
                     >
                       {i18n.t("offer-details.get-directions").toUpperCase()}
                     </Button>
-                    <Spacer size={"small"} position={"left"} />
+                      <View style={{marginLeft: 6}} />
                     <Button
                       style={{ borderRadius: 10, flex: 1, height: 40 }}
                       labelStyle={{ fontSize: 12, width: "100%" }}

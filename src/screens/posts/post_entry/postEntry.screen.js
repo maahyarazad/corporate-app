@@ -110,7 +110,7 @@ const PostEntryScreen = () => {
         );
       }
     } catch (error) {
-      console.error("Failed to create post", error);
+      console.log("Failed to create post", error);
     }
   };
 
@@ -177,23 +177,23 @@ const PostEntryScreen = () => {
                   paddingHorizontal: 20,
                 }}
               >
-                <Label size={25} weight={"bold"}>
+                <Label size={25} weight="bold">
                   Sie sind fast am Ziel!
                 </Label>
                 <Label
-                  size={"subtitle"}
-                  weight={"medium"}
+                  size="subtitle"
+                  weight="medium"
                   style={{ textAlign: "center" }}
                 >
                   Vervollständigen Sie die Details und schon kann es losgehen!
                 </Label>
               </View>
-              <Spacer size={"large"} position={"top"} />
+              <View style={{marginTop: 10}}/>
               <View style={{ alignSelf: "stretch", gap: 10, flex: 1 }}>
                 <View>
                   <Label
                     size={16}
-                    weight={"bold"}
+                    weight="bold"
                   >{`${type.label}  ➤  ${category.category}`}</Label>
                 </View>
                 {/* <TextInput

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext,useEffect, useCallback, useState } from "react";
 import { Dimensions, ScrollView, StyleSheet, View } from "react-native";
 import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";
@@ -10,27 +10,47 @@ import { AuthContext } from "../../services/auth/auth.context";
 import { TranslationContext } from "../../services/translation/translation.context";
 import useUser from "../../../hooks/useUser";
 import useAuth from "../../../hooks/useAuth";
-
+import useRequest from "../../../hooks/useRequest";
 const { width } = Dimensions.get("window");
 const labelWidth = width * (1 / 3);
 
 export const ProfInfo = () => {
   const { userData } = useUser();
   const { isSkip } = useAuth();
+  const request = useRequest();
   const { i18n } = useContext(TranslationContext);
-  // console.log(userInfo);
+   const [partnerTitle, setPartnerTitle] = useState(null);
+    
+  
+    const getPartnerTitle = useCallback(async () => {
+      try {
+        const response = await request(
+          `/partners/partner-title/${userData.partner_id}`,
+          "get"
+        );
+        if (response && response.success) {
+          setPartnerTitle(response.data.title);
+        }
+      } catch (error) {
+        console.log("Failed to get partner title", error);
+      }
+    }, []);
+  
+    useEffect(() => {
+      getPartnerTitle();
+    }, [userData]);
 
   const RenderRow = ({ label, value }) => {
     return (
       <View style={styles.infoRow}>
         <View style={styles.label}>
-          <Label style={{ color: "#999" }} size={"caption"} weight={"medium"}>
+          <Label style={{ color: "#999" }} size="caption" weight="medium">
             {label}
           </Label>
         </View>
-        <Spacer position={"left"} size={"small"} />
+        <View style={{marginLeft: 6}} />
         <View style={styles.value}>
-          <Label size={"body"} weight={"medium"}>
+          <Label size="body" weight="medium">
             {value}
           </Label>
         </View>
@@ -61,10 +81,17 @@ export const ProfInfo = () => {
             </Label>
           </View>
         )}
-        <RenderRow
-          label={i18n.t("profile-tabs.profile.username")}
-          value={`${userData?.username}`}
-        />
+         {partnerTitle &&(
+             
+             <RenderRow
+             label='Company Name'
+             value={partnerTitle}
+             />
+            )}
+            <RenderRow
+              label={i18n.t("profile-tabs.profile.username")}
+              value={`${userData?.username}`}
+            />
         <RenderRow
           label={i18n.t("profile-tabs.profile.email")}
           value={userData?.email}
@@ -73,23 +100,24 @@ export const ProfInfo = () => {
           label={i18n.t("profile-tabs.profile.mobile")}
           value={`+${userData?.area_code} ${userData?.phone_number}`}
         />
-        {/* {console.log("CARD NUMBER:", userInfo.card_number)} */}
+        
         {!!userData?.card_number &&
           userData?.card_number.trim() != "" &&
           userData?.card_number != "" && (
             <RenderRow
-              label={"Card Number"}
+              label="Card Number"
               value={userData?.card_number
                 ?.toString()
                 .replace(/.{4}/g, `$& `)
                 .trim()}
             />
           )}
+
         {!!userData?.expiry && (
           <>
             {/* <Label>{userInfo.card_valid_date}</Label> */}
             <RenderRow
-              label={"Validity Date"}
+              label="Validity Date"
               value={moment(userData?.expiry).format("MM/YY")}
             />
           </>

@@ -1,7 +1,8 @@
 import "react-native-gesture-handler";
+import { useEffect } from "react";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
 import { StyleSheet, Text, TextInput, View } from "react-native";
-import { ThemeProvider } from "styled-components";
+import { ThemeProvider } from "styled-components/native";
 import { theme } from "./src/infrastructure/theme";
 import { SectionContextProvider } from "./src/services/section/section.context";
 import { AuthContextProvider } from "./src/services/auth/auth.context";
@@ -17,6 +18,9 @@ import PostProvider from "./src/services/post/post.context";
 import { Provider } from "react-redux";
 import configureStore from "./redux/store/postStore";
 import AlertContextProvider from "./src/services/alert/alert.context";
+import { toastConfig } from "./src/Toast";
+import Toast from "react-native-toast-message";
+import { initRecaptcha } from "./src/services/recaptcha/recaptcha.service";
 
 const store = configureStore();
 
@@ -26,17 +30,24 @@ export default function App() {
   TextInput.defaultProps = TextInput.defaultProps || {};
   TextInput.defaultProps.allowFontScaling = false;
 
+  // Initialize the reCAPTCHA Enterprise client once for the app lifetime.
+  useEffect(() => {
+    initRecaptcha().catch(() => {
+      // Already logged inside the service; warming up is best-effort.
+    });
+  }, []);
+
   return (
     <>
       <ThemeProvider theme={theme}>
-        <AlertContextProvider>
-          <TranslationContextProvider>
-            <AppContextProvider>
-              <AuthContextProvider>
-                {/* ^ to be removed*/}
-                <AuthProvider>
-                  <UserProvider>
-                    <Provider store={store}>
+        <Provider store={store}>
+          <AlertContextProvider>
+            <TranslationContextProvider>
+              <AppContextProvider>
+                <AuthContextProvider>
+                  {/* ^ to be removed*/}
+                  <AuthProvider>
+                    <UserProvider>
                       <PostProvider>
                         {/* <UserContextProvider> */}
                         {/* ^ to be removed*/}
@@ -49,14 +60,16 @@ export default function App() {
                         </UploadContextProvider>
                         {/* </UserContextProvider> */}
                       </PostProvider>
-                    </Provider>
-                  </UserProvider>
-                </AuthProvider>
-              </AuthContextProvider>
-            </AppContextProvider>
-          </TranslationContextProvider>
-        </AlertContextProvider>
+                    </UserProvider>
+                  </AuthProvider>
+                </AuthContextProvider>
+              </AppContextProvider>
+            </TranslationContextProvider>
+          </AlertContextProvider>
+        </Provider>
       </ThemeProvider>
+      <Toast config={toastConfig} />
+
       <ExpoStatusBar style="dark" />
     </>
   );

@@ -88,12 +88,14 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
           distance={distance}
         />
       </CustomModal>
+      
       <Label
         style={{
+            
           paddingHorizontal: 16,
         }}
-        size={"heading"}
-        weight={"bold"}
+        size="heading"
+        weight="bold"
       >
         {i18n.t("offer-details.offers")}
       </Label>
@@ -164,7 +166,7 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
               shadowRadius: 4,
             }}
           >
-            <Label style={{ color: "#006EFF" }} size={"subtitle"} weight="bold">
+            <Label style={{ color: "#006EFF" }} size="subtitle" weight="bold">
               {showAll ? "Show less" : "Show all"}
             </Label>
           </TouchableOpacity>

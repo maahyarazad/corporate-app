@@ -54,8 +54,8 @@ export const LocationList = ({
             size={100}
             color="#aaa"
           />
-          <Spacer position={"top"} size="medium" />
-          <Label size={"title"} weight="medium" style={{ color: "#aaa" }}>
+          
+          <Label size="title" weight="medium" style={{ color: "#aaa", marginTop: 8 }}>
             No results found
           </Label>
         </View>
@@ -78,7 +78,7 @@ export const LocationList = ({
         <TouchableHighlight
           style={{ borderRadius: 10 }}
           activeOpacity={0.95}
-          underlayColor={"black"}
+          underlayColor="black"
           onPress={() => selectHandle(item.id)}
         >
           <View
@@ -107,7 +107,7 @@ export const LocationList = ({
               }}
             >
               <Skeleton
-                variant={"square"}
+                variant="square"
                 opacityMax={0.2}
                 opacityMin={0.1}
                 style={{ position: "absolute", zIndex: -1 }}
@@ -121,23 +121,26 @@ export const LocationList = ({
                 uri={`${adminFileBaseURL}${item.file}`}
               />
             </View>
-            <Spacer position={"left"} size={"small"} />
+
+            
+
             <View
               style={{
+                marginLeft: 8,
                 height: "auto",
                 justifyContent: "space-between",
                 width: "70%",
               }}
             >
               <View style={{ margin: 0, padding: 0 }}>
-                <Label numberOfLines={1} size={"subtitle"} weight={"bold"}>
+                <Label numberOfLines={1} size="subtitle" weight="bold">
                   {item.outlet_name}
                 </Label>
                 {item.main_name != undefined && (
                   <Label
                     style={{ color: "#888" }}
-                    size={"caption"}
-                    weight={"medium"}
+                    size="caption"
+                    weight="medium"
                   >
                     {item.main_name}
                   </Label>
@@ -185,7 +188,7 @@ export const LocationList = ({
                           justifyContent: "center",
                         }}
                       >
-                        <Label size={"mini"}>{item.premium_en}</Label>
+                        <Label size="mini">{item.premium_en}</Label>
                       </Chip>
                     );
                   }}
@@ -217,7 +220,7 @@ export const LocationList = ({
         <View style={{ paddingHorizontal: 10 }}>
           <Skeleton
             height={120}
-            width={"100%"}
+            width="100%"
             borderRadius={10}
             opacityMax={0.2}
             opacityMin={0.1}
@@ -225,7 +228,7 @@ export const LocationList = ({
           />
           <Skeleton
             height={120}
-            width={"100%"}
+            width="100%"
             borderRadius={10}
             opacityMax={0.2}
             opacityMin={0.1}
@@ -233,7 +236,7 @@ export const LocationList = ({
           />
           <Skeleton
             height={120}
-            width={"100%"}
+            width="100%"
             borderRadius={10}
             opacityMax={0.2}
             opacityMin={0.1}
@@ -241,7 +244,7 @@ export const LocationList = ({
           />
           <Skeleton
             height={120}
-            width={"100%"}
+            width="100%"
             borderRadius={10}
             opacityMax={0.2}
             opacityMin={0.1}
@@ -249,7 +252,7 @@ export const LocationList = ({
           />
           <Skeleton
             height={120}
-            width={"100%"}
+            width="100%"
             borderRadius={10}
             opacityMax={0.2}
             opacityMin={0.1}
@@ -257,7 +260,7 @@ export const LocationList = ({
           />
           <Skeleton
             height={120}
-            width={"100%"}
+            width="100%"
             borderRadius={10}
             opacityMax={0.2}
             opacityMin={0.1}
@@ -272,7 +275,7 @@ export const LocationList = ({
     return isLoadingMore ? (
       <Skeleton
         height={120}
-        width={"100%"}
+        width="100%"
         borderRadius={10}
         opacityMax={0.2}
         opacityMin={0.1}

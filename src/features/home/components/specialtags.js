@@ -44,25 +44,28 @@ export const SpecialTags = ({ data, handlePress }) => {
     margin-right: ${marginPerItem}px;
   `;
 
-  const OfferItemImageContainer = styled(ImageBackground)`
-    ${() => {
-      return `
-        width: ${itemWidth}px;
-        height: ${itemWidth}px;
-      `;
-    }}
-    border-radius: 10px;
-    background-color: black;
-    /* background-color: lightblue; */
-    elevation: 6;
-    box-shadow: 3px 4px 4px rgba(0, 0, 0, ${Platform.OS === "ios" ? 0.3 : 1});
-    overflow: hidden;
-    justify-content: center;
-    align-items: center;
-    background-color: black;
-    padding: 10px;
-  `;
+const OfferItemImageContainer = styled(ImageBackground)`
+  width: ${({ itemWidth }) => itemWidth}px;
+  height: ${({ itemWidth }) => itemWidth}px;
+  border-radius: 10px;
+  background-color: black;
+  overflow: hidden;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
 
+  /* Shadow for iOS */
+  ${Platform.OS === "ios" &&
+  `
+    shadow-color: #000;
+    shadow-offset: 0px 4px;
+    shadow-opacity: 0.3;
+    shadow-radius: 4px;
+  `}
+
+  /* Shadow for Android */
+  ${Platform.OS === "android" && `elevation: 6;`}
+`;
   const renderOffers = ({ item }) => {
     return (
       <TouchableOpacity onPress={() => handlePress(item)}>
@@ -92,7 +95,7 @@ export const SpecialTags = ({ data, handlePress }) => {
               />
             </OfferItemImageContainer>
           </View>
-          <Spacer position={"top"} size={"small"}>
+           <View style={{marginTop: 6}} />
             <OffersItemLabelContainer>
               <Label
                 style={{ textAlign: "center", textAlignVertical: "center" }}
@@ -101,7 +104,7 @@ export const SpecialTags = ({ data, handlePress }) => {
               </Label>
               <Text></Text>
             </OffersItemLabelContainer>
-          </Spacer>
+          
         </OfferItemContainer>
       </TouchableOpacity>
     );
@@ -110,11 +113,11 @@ export const SpecialTags = ({ data, handlePress }) => {
   return (
     <View>
       <OffersHeaderView>
-        <Spacer position="left" size="medium">
-          <Label size="heading" weight="bold">
+         
+          <Label size="heading" weight="bold" style={{marginLeft: 16}}>
             {i18n.t("offer-details.offers")}
           </Label>
-        </Spacer>
+        
       </OffersHeaderView>
       <OffersContentView>
         <FlatList

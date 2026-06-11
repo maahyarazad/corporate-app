@@ -18,7 +18,7 @@ import { SafeArea } from "../../components/safearea.component";
 import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";
 import { goback, navigate } from "../../navigation/navigate";
-import { useTheme } from "styled-components";
+import { useTheme } from "styled-components/native";
 import PhoneInput from "react-native-phone-number-input";
 import { useEffect } from "react";
 import { useRoute } from "@react-navigation/native";
@@ -99,11 +99,11 @@ export const UpdateMemberScreen = ({ navigation }) => {
       mobileCode: country.callingCode[0],
       mobileCountry: country.cca2,
     });
-    console.log("Country: ", country);
+    // console.log("Country: ", country);
   };
 
   const handleMobileChange = (prev) => {
-    console.log("number: ", prev);
+    // console.log("number: ", prev);
     setState({ ...state, mobileNumber: prev.replace(/[^0-9]/g, ``) });
   };
 
@@ -133,7 +133,7 @@ export const UpdateMemberScreen = ({ navigation }) => {
 
       const response = await UserService.addMember(user);
 
-      console.log("add member: ", response);
+    //   console.log("add member: ", response);
       if (response.status) {
         setUser((prev) => ({
           ...prev,
@@ -155,7 +155,7 @@ export const UpdateMemberScreen = ({ navigation }) => {
         });
       }
 
-      console.log(response);
+    //   console.log(response);
     }
   };
 
@@ -166,8 +166,8 @@ export const UpdateMemberScreen = ({ navigation }) => {
       const response = await UserService.getMemberInfo(member_id);
       if (isMounted) {
         if (response.success) {
-          console.log("success");
-          console.log(response);
+        //   console.log("success");
+        //   console.log(response);
           setState({
             ...state,
             firstname: response.data.first_name ?? "",
@@ -179,14 +179,14 @@ export const UpdateMemberScreen = ({ navigation }) => {
               country.findByPhoneNbr(response.data.phone[0]).code.iso2 ?? "",
             mobileNumber: `${response.data.phone[1]}${response.data.phone[2]}`,
           });
-          console.log(state);
-          console.log(country.findByPhoneNbr(response.data.phone[0]).code.iso2);
+        //   console.log(state);
+        //   console.log(country.findByPhoneNbr(response.data.phone[0]).code.iso2);
           // console.log(response.data.phone[0]);
         } else {
           Alert(response.title, response.message);
         }
       }
-      console.log("Member Response: ", state);
+    //   console.log("Member Response: ", state);
     };
 
     fetchMember();
@@ -209,7 +209,7 @@ export const UpdateMemberScreen = ({ navigation }) => {
           <Animated.View style={[styles.safeArea, shakeAnimatedStyle]}>
             <KeyboardAwareScrollView
               automaticallyAdjustKeyboardInsets={true}
-              keyboardShouldPersistTaps={"always"}
+              keyboardShouldPersistTaps="always"
               style={{ height: "100%" }}
               // contentContainerStyle={{ flexGrow: 1 }}
             >
@@ -220,15 +220,15 @@ export const UpdateMemberScreen = ({ navigation }) => {
                 }}
               >
                 <View>
-                  <Label size={"h4"} weight={"bold"} style={{ color: "white" }}>
+                  <Label size="h4" weight="bold" style={{ color: "white" , ...styles.fixMargin}}>
                     Mitgliedsprofil aktualisieren
                   </Label>
 
-                  <Spacer position={"top"} size={"small"} />
-                  <Label
-                    size={"title"}
-                    weight={"bold"}
-                    style={{ color: "white" }}
+                 
+                  <Label 
+                    size="title"
+                    weight="bold"
+                    style={{ color: "white" , ...styles.fixMargin}}
                   >
                     {/* Keep your information up-to-date. */}
                     Halten Sie Ihre Informationen auf dem neuesten Stand.
@@ -237,38 +237,41 @@ export const UpdateMemberScreen = ({ navigation }) => {
                   ensure that you receive the latest news and benefits. */}
                   </Label>
 
-                  <Spacer position={"top"} size={"large"} />
-                  <CustomTextInput
+               
+                  <CustomTextInput style={styles.fixMargin}
                     value={state.firstname}
                     onChangeText={handleFirstNameChange}
-                    label={"Vorname *"}
+                    label="Vorname *"
                     error={isSubmitted && state.firstname.trim() === ""}
                   ></CustomTextInput>
-                  <Spacer position={"top"} size={"medium"} />
+                  
                   <CustomTextInput
+                  style={styles.fixMargin}
                     value={state.middlename}
                     onChangeText={handleMiddleNameChange}
-                    label={"zweiter Vorname"}
+                    label="zweiter Vorname"
                   ></CustomTextInput>
-                  <Spacer position={"top"} size={"medium"} />
+                  
                   <CustomTextInput
+                  style={styles.fixMargin}
                     value={state.lastname}
                     onChangeText={handleLastNameChange}
-                    label={"Nachname *"}
+                    label="Nachname *"
                     error={isSubmitted && state.lastname.trim() === ""}
                   ></CustomTextInput>
 
-                  <Spacer position={"top"} size={"medium"} />
+                  
                   <CustomTextInput
-                    label={"E-mail *"}
+                  style={styles.fixMargin}
+                    label="E-mail *"
                     value={state.email}
                     // value={route.params.member_id}
                     onChangeText={handleEmailChange}
-                    keyboardType={"email-address"}
+                    keyboardType="email-address"
                     error={isSubmitted && state.email.trim() === ""}
                   />
 
-                  <Spacer size={"medium"} position={"top"} />
+                  <View style={{marginTop: 8}}/>
 
                   {state.mobileCountry || state.mobileNumber ? (
                     <>
@@ -295,7 +298,7 @@ export const UpdateMemberScreen = ({ navigation }) => {
                         }}
                       />
 
-                      <Spacer size={"medium"} position={"top"} />
+                      <View style={{marginTop: 8}}/>
                     </>
                   ) : (
                     <></>
@@ -315,8 +318,8 @@ export const UpdateMemberScreen = ({ navigation }) => {
                   >
                     <Label
                       style={{ color: "white" }}
-                      size={"body"}
-                      weight={"bold"}
+                      size="body"
+                      weight="bold"
                     >
                       aktualisieren
                     </Label>
@@ -336,4 +339,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-start",
   },
+
+  fixMargin: {
+    marginTop: 8
+  }
 });

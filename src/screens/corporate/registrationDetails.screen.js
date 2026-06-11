@@ -7,23 +7,23 @@ import {
   Animated,
   Easing,
   Vibration,
-  Touchable,
+  Keyboard,
   Pressable,
   TouchableWithoutFeedback,
   Platform,
+  ActivityIndicator,
+  BackHandler,
 } from "react-native";
-import { companyLogo, config, honorificList } from "../../utils/constants";
-import { useTheme } from "styled-components";
+import { useNavigation } from "@react-navigation/native";
+import { BlurView } from "expo-blur";
+import { companyLogo, honorificList } from "../../utils/constants";
+import { useTheme } from "styled-components/native";
 import { Button, TextInput } from "react-native-paper";
-import { DatePicker } from "react-native-woodpicker";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { SafeArea } from "../../components/safearea.component";
-import { Spacer } from "../../components/spacer/spacer.component";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { Label } from "../../components/typography/label.component";
-import ModalDropdown from "react-native-modal-dropdown";
-import CountryPicker, {
-  CountryCodeList,
-} from "react-native-country-picker-modal";
+import { showToast } from "../../Toast";
+
 import Background from "../../components/background/background.component";
 import { goback, navigate } from "../../navigation/navigate";
 import { UserService } from "../../services/user/user.service";
@@ -32,12 +32,54 @@ import { CustomTextInput } from "../../components/customTextInput";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import moment from "moment";
 import { CustomModal } from "../../components/modal/customModal.component";
-import Recaptcha from "react-native-recaptcha-that-works";
+import { getRecaptchaToken } from "../../services/recaptcha/recaptcha.service";
+
+import { DropDown } from "../../components/DropDown";
+import { BirthdatePicker } from "../../components/BirthdatePicker";
+import { NationalityInput } from "../../components/NationalityInput";
+import { getDeviceInfo } from "../../services/auth/auth.service";
+const genderItems = [
+  { label: "Select Gender", value: "" },
+  { label: "Male", value: "Male" },
+  { label: "Female", value: "Female" },
+];
+
+// Button label shown while the registration request is in flight. The text stays
+// static while only the trailing dots animate (0→3). The dots live in a
+// fixed-width slot so the text never shifts position as they change. It only
+// renders while loading, so the interval starts and stops with the loading state.
+const SubmittingLabel = () => {
+  const [dots, setDots] = useState("");
+  useEffect(() => {
+    const id = setInterval(() => {
+      setDots((d) => (d.length >= 3 ? "" : d + "."));
+    }, 400);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <View style={{ flexDirection: "row", alignItems: "center" }}>
+      <Label style={{ color: "white", paddingHorizontal: 2 }} size="body" weight="bold">
+        Creating Your Account
+      </Label>
+      <Label
+        style={{ color: "white", width: 22, textAlign: "left" }}
+        size="body"
+        weight="bold"
+      >
+        {dots}
+      </Label>
+    </View>
+  );
+};
 
 export const RegistrationDetailsScreen = ({ route }) => {
+    
+
   const theme = useTheme();
+  const navigation = useNavigation();
   const [showCountries, setShowCountries] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const dateLimit = new Date();
   dateLimit.setFullYear(dateLimit.getFullYear() - 18);
   const [showBdayModal, setShowBdayModal] = useState(false);
@@ -53,6 +95,33 @@ export const RegistrationDetailsScreen = ({ route }) => {
     gender: "",
   });
 
+  // Lock the user on this screen while a submission is in flight. Blocks every
+  // way to leave: the iOS swipe-back gesture, the Android hardware back button,
+  // and any programmatic/header navigation away from the screen.
+  useEffect(() => {
+    navigation.setOptions({ gestureEnabled: !isLoading });
+
+    const backSub = BackHandler.addEventListener(
+      "hardwareBackPress",
+      // Returning true swallows the back press while loading.
+      () => isLoading
+    );
+
+    const removeBeforeRemove = navigation.addListener("beforeRemove", (e) => {
+      if (isLoading) {
+        e.preventDefault();
+      }
+    });
+
+    return () => {
+      backSub.remove();
+      removeBeforeRemove();
+    };
+  }, [navigation, isLoading]);
+
+  const firstname = useRef(null);
+  const lastname = useRef(null);
+  const middlename = useRef(null);
   const animatedShake = useRef(new Animated.Value(0)).current;
 
   const shakeInterpolate = animatedShake.interpolate({
@@ -83,46 +152,82 @@ export const RegistrationDetailsScreen = ({ route }) => {
     ],
   };
 
-  const recaptcha = useRef();
-
-  const sendCaptcha = () => {
+  const sendCaptcha = async () => {
+    console.log("[Register] sendCaptcha pressed");
     setIsSubmitted(true);
-    if (validateInfo()) {
-      const misc = route.params.login.miscellaneous;
-      if (misc === undefined) recaptcha.current.open();
+
+    // Prevent multiple submissions while a request is already in flight.
+    if (isLoading) {
+      console.log("[Register] ignored: already loading");
       return;
+    }
+    if (!validateInfo()) {
+      console.log("[Register] aborted: validation failed");
+      return;
+    }
+
+    const misc = route.params.login.miscellaneous;
+    console.log("[Register] miscellaneous:", misc);
+    if (misc !== undefined) {
+      console.log("[Register] aborted: misc is defined, not requesting captcha");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      console.log("[Register] requesting reCAPTCHA token...");
+      // reCAPTCHA Enterprise runs natively (no WebView) and returns a token.
+      const token = await getRecaptchaToken("register");
+      console.log(
+        "[Register] token received:",
+        token ? `${token.substring(0, 12)}... (len ${token.length})` : token
+      );
+      if (!token) {
+        throw new Error("Could not verify reCAPTCHA. Please try again.");
+      }
+      await submit(token);
+    } catch (err) {
+      console.log("[Register] sendCaptcha error:", err?.message, err);
+      showToast("error", "Error", err?.message || "Something went wrong.");
+    } finally {
+      console.log("[Register] sendCaptcha finished, clearing loading");
+      setIsLoading(false);
     }
   };
 
-  const onVerify = (token) => {
-    console.log("success!", token);
-    submit(token);
-    // nextPage();
-  };
+  // The required fields for registration. Safe against undefined/empty values.
+  const hasRequiredFields =
+    (state.firstname || "").trim() !== "" &&
+    (state.lastname || "").trim() !== "" &&
+    state.birthdate != null &&
+    state.birthdate !== "";
 
-  const onExpire = () => {
-    console.warn("expired!");
-    alert("NOT NICE");
-  };
+  // A red border that stays visible even while the field is focused (the shared
+  // CustomTextInput only shows its own red border when blurred). Same idea as
+  // the mobile field in registration.screen.js.
+  const requiredBorderStyle = (isEmpty) =>
+    isSubmitted && isEmpty
+      ? { borderWidth: 2, borderRadius: 4, borderColor: "red" }
+      : undefined;
 
   const validateInfo = () => {
-    if (
-      state.firstname.trim() === "" ||
-      state.lastname.trim() === "" ||
-      state.birthdate === null ||
-      state.honorifics === "" ||
-      state.gender === ""
-    ) {
+    if (!hasRequiredFields) {
       shake();
-      alert("Some fields are empty.");
+      showToast("error", "Empty Fields", "Please fill in all required fields.");
       return false;
     }
 
     return true;
   };
 
-  const submit = (token) => {
+ const submit = async (token) => {
+  console.log("[Register] submit() called with token:", token ? "present" : "MISSING");
+  try {
     const register1 = route.params.login;
+    const platform = Platform.OS;
+    console.log("[Register] fetching device info...");
+    const deviceInfo = await getDeviceInfo();
+    console.log("[Register] device info:", deviceInfo);
 
     const user = {
       ...register1,
@@ -130,39 +235,32 @@ export const RegistrationDetailsScreen = ({ route }) => {
       birthdate: state.birthdate.toDateString(),
       gender: state.gender.charAt(0),
       token,
+      device_info: deviceInfo,
+      platform,
     };
 
-    console.log(user);
+    console.log("[Register] POST user/register payload:", JSON.stringify(user));
+    const result = await UserService.createUser(user);
+    console.log("[Register] createUser response:", JSON.stringify(result));
 
-    UserService.createUser(user)
-      .then((result) => {
-        if (result) navigate("RegisterSuccess");
-      })
-      .catch((err) => {
-        alert(err.message);
-      });
-  };
-
-  const openBdayModal = () => {
-    setShowBdayModal(true);
-  };
-
-  const closeBdayModal = () => {
-    setState({ ...state, birthdate: tempBday });
-    setShowBdayModal(false);
-  };
-
-  const handleBdayChange = (_, date) => {
-    setTempBday(date);
-  };
-
-  const handleBdayChangeAndroid = (date) => {
-    setState({ ...state, birthdate: date });
-  };
-
-  const handleHonorificChange = (_, value) => {
-    setState({ ...state, honorifics: value });
-  };
+    if (result) {
+      if (result?.redCard) {
+        console.log("[Register] navigating to RegisterSuccessByServices");
+        navigate("RegisterSuccessByServices");
+      } else {
+        console.log("[Register] navigating to RegisterSuccess");
+        navigate("RegisterSuccess");
+      }
+    } else {
+      console.log("[Register] result was falsy, no navigation:", result);
+    }
+  } catch (err) {
+    console.log("[Register] submit error:", err?.message, err?.response?.data, err);
+    showToast("error", "Error", err.message);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleFirstNameChange = (value) => {
     setState({ ...state, firstname: value });
@@ -176,362 +274,220 @@ export const RegistrationDetailsScreen = ({ route }) => {
     setState({ ...state, lastname: value });
   };
 
-  const displayCountries = () => {
-    setShowCountries(true);
-  };
 
-  const handleNationalityChange = (country) => {
-    setState({ ...state, nationality: country.name });
-  };
-
-  const handleGenderChange = (_, value) => {
-    setState({ ...state, gender: value });
-  };
-
+useEffect(() => {
+  const services_data = route.params?.services_data?.services;
+  // Only prefill when we actually have data; an empty {} must not overwrite
+  // the fields with undefined (which crashed validateInfo on `.trim()`).
+  if (services_data && Object.keys(services_data).length > 0) {
+    setState((prev) => ({
+      ...prev,
+      firstname: services_data.firstname ?? prev.firstname,
+      lastname: services_data.lastname ?? prev.lastname,
+      birthdate: services_data.birthday
+        ? new Date(services_data.birthday)
+        : prev.birthdate,
+    }));
+  }
+}, []);
   return (
     <>
-      <CustomModal showModal={showBdayModal}>
-        <View
-          style={{
-            backgroundColor: "#00000088",
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: "white",
-              width: "90%",
-              borderRadius: 10,
-            }}
-          >
-            <DateTimePicker
-              // style={{ flex: 1, height: 200, width: 200 }}
-              themeVariant={"light"}
-              value={tempBday}
-              mode={"date"}
-              display={Platform.OS === "ios" ? "spinner" : "calendar"}
-              maximumDate={dateLimit}
-              onChange={handleBdayChange}
-            />
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "center",
-                paddingBottom: 16,
-              }}
-            >
-              <Button
-                onPress={closeBdayModal}
-                color={theme.colors.icons.active}
-                mode="contained"
-              >
-                Set Birthdate
-              </Button>
-            </View>
-          </View>
-        </View>
-      </CustomModal>
       <Background>
         <SafeArea style={styles.safeArea}>
           <Image style={styles.companyLogo} source={companyLogo} />
           <Animated.View style={[styles.safeArea, shakeAnimatedStyle]}>
             <KeyboardAwareScrollView
-              automaticallyAdjustKeyboardInsets
-              keyboardDismissMode="interactive"
-              keyboardShouldPersistTaps="always"
+              enableOnAndroid
+              extraScrollHeight={20}
+              extraHeight={120}
+              keyboardShouldPersistTaps="handled"
+              keyboardDismissMode="on-drag"
+              showsVerticalScrollIndicator={false}
               contentContainerStyle={{
                 flexGrow: 1,
-                justifyContent: "center",
-                flexDirection: "column",
+                paddingHorizontal: 16,
+                paddingBottom: 40,
               }}
-              style={[
-                {
-                  paddingHorizontal: 16,
-                  flexDirection: "column",
-                  flex: 1,
-                },
-              ]}
+              style={{ flex: 1 }}
             >
-              <View
-                style={{
-                  flexDirection: "row",
-                  marginBottom: 16,
-                }}
-              >
-                <TouchableOpacity
-                  onPress={goback}
+              <View style={{ flex: 1, justifyContent: "center" }}>
+                <View
                   style={{
                     flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                  activeOpacity={0.5}
-                >
-                  <Ionicons name="arrow-back" size={35} color={"#eee"} />
-                  <Label
-                    size={"body"}
-                    weight="bold"
-                    style={{ color: "#dfdfdf", justifyContent: "center" }}
-                  >
-                    Return
-                  </Label>
-                </TouchableOpacity>
-              </View>
-              <View
-                style={{
-                  height: 58,
-                  justifyContent: "center",
-                  position: "relative",
-                }}
-              >
-                <CustomTextInput
-                  value={state.honorifics}
-                  // onChangeText={handleHonorificChange}
-                  label={"Salutation *"}
-                  style={{
-                    width: "100%",
-                    maxHeight: 58,
-                    position: "absolute",
-                    zIndex: -1,
-                  }}
-                  right={<TextInput.Icon name="chevron-down" />}
-                  error={!state.honorifics && isSubmitted}
-                />
-
-                <ModalDropdown
-                  isFullWidth
-                  keyboardShouldPersistTaps="always"
-                  style={{
-                    flex: 1,
-                    position: "absolute",
-                    width: "100%",
-                    height: "100%",
-                    zIndex: 2,
-                  }}
-                  textStyle={{
-                    height: 58,
-                    color: "transparent",
-                  }}
-                  dropdownTextStyle={{ fontSize: 16 }}
-                  dropdownStyle={{
-                    height: "auto",
-                  }}
-                  options={honorificList}
-                  onSelect={handleHonorificChange}
-                />
-              </View>
-              <Spacer position={"top"} size={"small"} />
-              <CustomTextInput
-                value={state.firstname}
-                onChangeText={handleFirstNameChange}
-                label={"First Name *"}
-                error={isSubmitted && state.firstname.trim() === ""}
-              ></CustomTextInput>
-              <Spacer position={"top"} size={"small"} />
-              <CustomTextInput
-                value={state.middlename}
-                onChangeText={handleMiddleNameChange}
-                label={"Middle Name"}
-              ></CustomTextInput>
-              <Spacer position={"top"} size={"small"} />
-              <CustomTextInput
-                value={state.lastname}
-                onChangeText={handleLastNameChange}
-                label={"Last Name *"}
-                error={isSubmitted && state.lastname.trim() === ""}
-              ></CustomTextInput>
-              <Spacer position={"top"} size={"small"} />
-              <View
-                style={{
-                  height: 58,
-                  justifyContent: "center",
-                  position: "relative",
-                }}
-              >
-                <CustomTextInput
-                  value={state.nationality}
-                  label={"Nationality"}
-                  style={{
-                    width: "100%",
-                    height: 58,
-                    position: "absolute",
-                    zIndex: -1,
-                  }}
-                  right={
-                    <TextInput.Icon
-                      name="chevron-down"
-                      onPress={displayCountries}
-                    />
-                  }
-                />
-                <View
-                  style={{
-                    flex: 1,
-                    paddingTop: 10,
-                    position: "absolute",
-                    width: "100%",
-                    height: "100%",
-                    zIndex: 1,
+                    marginBottom: 16,
                   }}
                 >
-                  <CountryPicker
-                    countryCodes={CountryCodeList}
-                    onSelect={handleNationalityChange}
-                    withEmoji={true}
-                    withFilter
-                    placeholder=""
-                    containerButtonStyle={{
-                      height: "100%",
-                      width: "100%",
-                      top: 0,
-                      right: 0,
-                      bottom: 0,
-                      left: 0,
+                  <TouchableOpacity
+                    onPress={() => {
+                      Keyboard.dismiss;
+                      goback();
                     }}
-                    visible={showCountries}
-                  />
+                    disabled={isLoading}
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      opacity: isLoading ? 0.5 : 1,
+                    }}
+                    activeOpacity={0.5}
+                  >
+                    <Ionicons name="arrow-back" size={35} color="#eee" />
+                    <Label
+                      size="body"
+                      weight="bold"
+                      style={{ color: "#dfdfdf", justifyContent: "center" }}
+                    >
+                      Go Back to Registration Data
+                    </Label>
+                  </TouchableOpacity>
                 </View>
-              </View>
-              <Spacer position={"top"} size={"small"} />
-              {/* <DateTimePicker
-                value={new Date()}
-                mode={"date"}
-                display="spinner"
-              /> */}
 
-              <View
-                style={{
-                  flexDirection: "row",
-                  flex: 1,
-                  height: 60,
-                  maxHeight: 60,
-                }}
-              >
-                {Platform.OS === "ios" ? (
-                  <View style={{ marginBottom: 0, flex: 1 }}>
-                    <CustomTextInput
-                      value={
-                        state.birthdate
-                          ? moment(state.birthdate).format("DD.MMM YYYY")
-                          : ""
-                      }
-                      // onChangeText={setBirthdate}
-                      label={"Birthdate *"}
-                      style={{
-                        width: "100%",
-                        maxHeight: 60,
-                        position: "absolute",
-                      }}
-                      error={!state.birthdate && isSubmitted}
-                    ></CustomTextInput>
-                    <Pressable
-                      style={{ flex: 1 }}
-                      onPress={openBdayModal}
-                    ></Pressable>
-                  </View>
-                ) : (
-                  <View style={{ marginBottom: 0, flex: 1 }}>
-                    <CustomTextInput
-                      value={
-                        state.birthdate
-                          ? moment(state.birthdate).format("DD.MMM YYYY")
-                          : ""
-                      }
-                      // onChangeText={setBirthdate}
-                      label={"Birthdate *"}
-                      style={{
-                        width: "100%",
-                        maxHeight: 60,
-                        position: "absolute",
-                      }}
-                      error={!state.birthdate && isSubmitted}
-                    ></CustomTextInput>
-                    <DatePicker
-                      value={state.birthdate}
-                      onDateChange={handleBdayChangeAndroid}
-                      title="Birthdate"
-                      isNullable={false}
-                      iosMode="date"
-                      androidMode="date"
-                      androidDisplay="default"
-                      textColor="black"
-                      maximumDate={dateLimit}
-                      locale="en"
-                      iosDisplay="spinner"
-                      style={{
-                        width: "100%",
-                        height: 58,
-                        marginTop: 6,
-                      }}
-                    />
-                  </View>
-                )}
-                <Spacer position={"left"} size={"small"} />
+                <View style={styles.formControl}>
+                  <DropDown
+                    items={honorificList.map((item) => ({
+                      label: item,
+                      value: item,
+                    }))}
+                    onChange={(e) =>
+                      setState((prev) => ({ ...prev, honorifics: e }))
+                    }
+                    openBelow={true}
+                    placeholder="Salutation"
+                    //   error={!state.honorifics && isSubmitted}
+                  />
+
+                  <View
+                    style={{ zIndex: 2, position: "relative", width: "100%" }}
+                  ></View>
+                </View>
+
                 <View
                   style={{
-                    flex: 1,
-                    height: 58,
+                    ...styles.formControl,
+                    marginTop: 2,
                   }}
                 >
                   <CustomTextInput
-                    value={state.gender}
-                    // onChangeText={setGender}
-                    label={"Gender *"}
-                    style={{
-                      width: "100%",
-                      maxHeight: 58,
-                      position: "absolute",
-                    }}
-                    right={<TextInput.Icon name="chevron-down" />}
-                    error={!state.gender && isSubmitted}
-                  ></CustomTextInput>
-                  <ModalDropdown
-                    textStyle={{
-                      height: 58,
-                      color: "transparent",
-                    }}
-                    dropdownTextStyle={{
-                      fontSize: 16,
-                    }}
-                    dropdownStyle={{ height: 80, width: "46%" }}
-                    options={["Male", "Female"]}
-                    onSelect={handleGenderChange}
+                    ref={firstname}
+                    value={state.firstname}
+                    onChangeText={handleFirstNameChange}
+                    label="First Name *"
+                    error={isSubmitted && (state.firstname || "").trim() === ""}
+                    style={requiredBorderStyle(
+                      (state.firstname || "").trim() === ""
+                    )}
+                    onSubmitEditing={() => middlename.current?.focus()}
                   />
                 </View>
+
+                <View style={styles.formControl}>
+                  <CustomTextInput
+                    ref={middlename}
+                    value={state.middlename}
+                    onChangeText={handleMiddleNameChange}
+                    label="Middle Name"
+                    onSubmitEditing={() => lastname.current?.focus()}
+                  />
+                </View>
+
+                <View style={styles.formControl}>
+                  <CustomTextInput
+                    ref={lastname}
+                    value={state.lastname}
+                    onChangeText={handleLastNameChange}
+                    onSubmitEditing={Keyboard.dismiss}
+                    label="Last Name *"
+                    error={isSubmitted && (state.lastname || "").trim() === ""}
+                    style={requiredBorderStyle(
+                      (state.lastname || "").trim() === ""
+                    )}
+                  />
+                </View>
+
+                <View style={styles.formControl}>
+                  <NationalityInput
+                    value={state.nationality}
+                    onChange={(value) =>
+                      setState((prev) => ({ ...prev, nationality: value }))
+                    }
+                  />
+                </View>
+
+                <View
+                  style={{
+                    ...styles.formControl,
+                    marginTop: 2,
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <View style={{ flex: 1, marginRight: 8 }}>
+                    <BirthdatePicker
+                      value={state.birthdate}
+                      onChange={(date) =>
+                        setState((prev) => ({ ...prev, birthdate: date }))
+                      }
+                      error={!state.birthdate && isSubmitted}
+                    />
+                  </View>
+
+                  <View style={{ flex: 1, marginLeft: 8 }}>
+                    <DropDown
+                      items={genderItems}
+                      onChange={(e) =>
+                        setState((prev) => ({ ...prev, gender: e }))
+                      }
+                      placeholder="Gender"
+                      // error={!state.gender && isSubmitted}
+                    />
+                  </View>
+                </View>
+
+                {/* reCAPTCHA Enterprise is a native module (no UI element). */}
+
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={sendCaptcha}
+                  disabled={isLoading || !hasRequiredFields}
+                  style={{
+                    height: 60,
+                    backgroundColor: theme.colors.ui.button,
+                    borderRadius: 5,
+                    justifyContent: "center",
+                    alignItems: "center",
+                    marginVertical: 2,
+                    opacity: isLoading || !hasRequiredFields ? 0.5 : 1,
+                  }}
+                >
+                  {isLoading ? (
+                    <SubmittingLabel />
+                  ) : (
+                    <Label
+                      style={{ color: "white" }}
+                      size="body"
+                      weight="bold"
+                    >
+                      Next
+                    </Label>
+                  )}
+                </TouchableOpacity>
               </View>
-              <Spacer size={"medium"} position={"top"} />
-              <Recaptcha
-                ref={recaptcha}
-                siteKey="6LfkGVAmAAAAALcsQxnK2wntbm2ccMfBCz0V81M9"
-                baseUrl="http://www.german-emirates-club.com"
-                onVerify={onVerify}
-                onError={(e) => {
-                  console.log("ERROR:", e);
-                }}
-                onExpire={onExpire}
-                size="normal"
-              />
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={sendCaptcha}
-                style={{
-                  height: 60,
-                  backgroundColor: theme.colors.ui.button,
-                  borderRadius: 5,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  marginVertical: 30,
-                }}
-              >
-                <Label style={{ color: "white" }} size={"body"} weight={"bold"}>
-                  Next
-                </Label>
-              </TouchableOpacity>
             </KeyboardAwareScrollView>
           </Animated.View>
         </SafeArea>
       </Background>
+
+      {/* Full-screen blur overlay shown from submit until the server responds.
+          Blocks further taps so the form can't be submitted twice. */}
+      {isLoading && (
+        <BlurView
+          intensity={70}
+          tint="dark"
+          style={styles.loadingOverlay}
+          pointerEvents="auto"
+        >
+          <ActivityIndicator size="large" color="white" />
+        </BlurView>
+      )}
     </>
   );
 };
@@ -547,5 +503,17 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
+  },
+  formControl: {
+    height: 58,
+    justifyContent: "center",
+    position: "relative",
+    marginBottom: 6,
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1000,
   },
 });

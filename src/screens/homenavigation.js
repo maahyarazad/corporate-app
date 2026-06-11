@@ -6,7 +6,7 @@ import {
   CardStyleInterpolators,
   createStackNavigator,
 } from "@react-navigation/stack";
-import { HomeScreen } from "./home.screen";
+import { RenderHome } from "./home.screen";
 import { LocationListScreen } from "./location/location-list.screen";
 import { Label } from "../components/typography/label.component";
 import { SectionContext } from "../services/section/section.context";
@@ -24,7 +24,7 @@ export const HomeNavigation = () => {
       <HomeStack.Navigator detachInactiveScreens={true}>
         <HomeStack.Screen
           name="Home1"
-          component={HomeScreen}
+          component={RenderHome}
           options={{
             headerShown: false,
           }}

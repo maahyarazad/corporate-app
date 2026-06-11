@@ -1,99 +1,135 @@
 import { axiosInstance } from "../interceptor/axiosInstance";
 import * as Location from "expo-location";
-import { config, typeEnum, typeEnumString } from "../../utils/constants";
+import { config } from "../../utils/constants";
+
+/* =======================
+   Location Helpers
+======================= */
 
 export const getUserLocation = async () => {
   try {
-    return new Promise(async (resolve, reject) => {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        reject("Permission to access location was denied");
-      }
+    const { status } = await Location.requestForegroundPermissionsAsync();
 
-      const location = await Location.getCurrentPositionAsync({
-        accuracy: Location.Accuracy.Lowest,
-      });
-      resolve(location);
+    if (status !== "granted") {
+      throw new Error("Permission to access location was denied");
+    }
+
+    const location = await Location.getCurrentPositionAsync({
+      accuracy: Location.Accuracy.Lowest,
     });
+
+    return location;
   } catch (error) {
-    console.error("Failed to get user location:", error);
+    console.log("Failed to get user location:", error);
+    throw error;
   }
 };
 
-export const getCoords = (limit) => {
-  return new Promise((resolve, reject) => {
-    axiosInstance
-      .get(`location/coordinates/${limit}`)
-      .then((response) => {
-        resolve(response.data);
-      })
-      .catch((err) => {
-        console.log(err);
-        reject(err);
-      });
-  });
-};
-// `location?type=${data.type}&search=${data.value}&page=${data.page}&limit=${data.limit}`
-
-export const getLocations = (data) => {
-  return new Promise((resolve, reject) => {
-    axiosInstance
-      .post(`location`, data)
-      .then((response) => {
-        resolve(response.data);
-      })
-      .catch((err) => {
-        console.log(err);
-        reject(err);
-      });
-  });
+export const getCoords = async (limit) => {
+  try {
+    const response = await axiosInstance.get(`location/coordinates/${limit}`);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
 };
 
-export const getOneLocation = (id, lang) => {
-  alert("peste");
-  return new Promise((resolve, reject) => {
-    axiosInstance
-      .get(`location/${id}?app=${config.APP_ID}&lang=${lang}`)
-      .then((response) => {
-        resolve(response.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  });
+export const getLocations = async (data) => {
+  try {
+    const response = await axiosInstance.post(`location`, data);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
 };
+
+export const getOneLocation = async (id, lang) => {
+  try {
+    const response = await axiosInstance.get(
+      `location/${id}?app=${config.APP_ID}&lang=${lang}`
+    );
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+/* =======================
+   Partner Service
+======================= */
 
 const API_URL = "partner";
-const result = (response) => response.data.result;
-const res = (response) => response.data;
 
 export const PartnerService = {
-  getAvailableCategories(data) {
-    return axiosInstance
-      .post(`${API_URL}/category-available2`, {
-        ...data,
-        app_id: config.APP_ID,
-      })
-      .then(result);
+  async getAvailableCategories(data) {
+    try {
+      const response = await axiosInstance.post(
+        `${API_URL}/category-available2`,
+        {
+          ...data,
+          app_id: config.APP_ID,
+        }
+      );
+      return response.data.result;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   },
 
-  getAvailableTags(data) {
-    return axiosInstance
-      .get(`${API_URL}/tags-available?app_id=${config.APP_ID}&lang=${data}`)
-      .then(result);
+  async getAvailableTags(lang) {
+    try {
+      const response = await axiosInstance.get(
+        `${API_URL}/tags-available?app_id=${config.APP_ID}&lang=${lang}`
+      );
+      return response.data.result;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   },
 
-  getAllSpecialtags() {
-    return axiosInstance.get(`${API_URL}/specialtags`).then(result);
+  async getAllSpecialtags() {
+    try {
+      const response = await axiosInstance.get(
+        `${API_URL}/specialtags`
+      );
+      return response.data.result;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   },
 
-  getTopPerCategories(data) {
-    return axiosInstance
-      .post(`location/top-per-category`, { ...data, app_id: config.APP_ID })
-      .then(result);
+  async getTopPerCategories(data) {
+    try {
+      const response = await axiosInstance.post(
+        `location/top-per-category`,
+        {
+          ...data,
+          app_id: config.APP_ID,
+        }
+      );
+      return response.data.result;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   },
 
-  getPartners() {
-    return axiosInstance.get(`${API_URL}/active-partners`).then(res);
+  async getPartners() {
+    try {
+        
+      const response = await axiosInstance.get(
+        `${API_URL}/active-partners`
+      );
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   },
 };

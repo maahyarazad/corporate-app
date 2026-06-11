@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { Alert, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import { Dropdown } from "react-native-element-dropdown";
 import { Button } from "react-native-paper";
@@ -13,15 +13,11 @@ export const PartnerPicker = ({
   data,
   setPartner,
   error,
+  style,
   selectedPartnerName = "",
 }) => {
   const [selectedPartner, setSelectedPartner] = useState("");
   const [openPartner, setOpenPartner] = useState(false);
-  // const [partnerList, setPartnerList] = useState();
-
-  // useEffect(() => {
-  //   setSelectedPartner(selectedPartnerName);
-  // }, []);
 
   const handleSelection = (e) => {
     setOpenPartner(false);
@@ -33,16 +29,20 @@ export const PartnerPicker = ({
     setOpenPartner(!openPartner);
   };
 
+
+
+
   return (
     <>
       <View
         style={{
+          ...style,
           height: 55,
         }}
       >
         <CustomTextInput
           value={selectedPartner ? selectedPartner : selectedPartnerName}
-          label={"Partner *"}
+          label="Partner *"
           style={{
             width: "100%",
             maxHeight: 58,
@@ -53,9 +53,7 @@ export const PartnerPicker = ({
             <MaterialCommunityIcons
               name="chevron-down"
               size={25}
-              onPress={() => {
-                handleToggle;
-              }}
+              onPress={handleToggle}
             />
           }
         ></CustomTextInput>
@@ -71,9 +69,13 @@ export const PartnerPicker = ({
         onSelectItem={handleSelection}
         open={openPartner}
         onClose={handleToggle}
-        // setValue=
         listMode="MODAL"
         searchable
+        modalProps={{
+          animationType: "slide",
+          presentationStyle: "pageSheet", // or 'formSheet' on iOS
+          style: { maxHeight: 400 }, // <-- limit the height here
+        }}
         style={{ borderWidth: 0, height: 56, display: "none" }}
         searchPlaceholder="Type partner name..."
         searchContainerStyle={{ padding: 5 }}

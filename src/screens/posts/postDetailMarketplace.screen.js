@@ -74,7 +74,7 @@ const PostDetailMarketplace = ({ item }) => {
           }
         }
       } catch (error) {
-        console.error("Failed to get post", error);
+        console.log("Failed to get post", error);
       } finally {
         setLoading(false);
       }
@@ -90,10 +90,10 @@ const PostDetailMarketplace = ({ item }) => {
   };
 
   const handlePressSMS = () => {
-    const phoneNumber = "+971543839091";
+    const phoneNumber = state.mobile;
     const link = `https://www.german-emirates-club.com/Marketplace/${state.id}`;
     const message = `Hello, I am interested in your post about the ${state.title}. Is it still available?\n\n${link}`;
-    const url = `sms:+971543839091&body=${encodeURIComponent(message)}`; // The 'sms:' scheme followed by the phone number
+    const url = `sms:${phoneNumber}&body=${encodeURIComponent(message)}`; // The 'sms:' scheme followed by the phone number
     Linking.canOpenURL(url)
       .then((supported) => {
         if (!supported) {
@@ -102,11 +102,11 @@ const PostDetailMarketplace = ({ item }) => {
           return Linking.openURL(url);
         }
       })
-      .catch((err) => console.error("An error occurred", err));
+      .catch((err) => console.log("An error occurred", err));
   };
 
   const handlePressCall = () => {
-    const phoneNumber = "+971543839091";
+    const phoneNumber = state.mobile;
     const url = `tel:${phoneNumber}`; // The 'sms:' scheme followed by the phone number
     Linking.canOpenURL(url)
       .then((supported) => {
@@ -116,7 +116,7 @@ const PostDetailMarketplace = ({ item }) => {
           return Linking.openURL(url);
         }
       })
-      .catch((err) => console.error("An error occurred", err));
+      .catch((err) => console.log("An error occurred", err));
   };
 
   const ModeChip = () => {
@@ -131,7 +131,7 @@ const PostDetailMarketplace = ({ item }) => {
               { backgroundColor: "#f0932b", paddingHorizontal: 12 },
             ]}
           >
-            <Label color={"white"} weight={"bold"}>
+            <Label color="white" weight="bold">
               Angebote
             </Label>
           </View>
@@ -144,7 +144,7 @@ const PostDetailMarketplace = ({ item }) => {
               { backgroundColor: "#436885", paddingHorizontal: 12 },
             ]}
           >
-            <Label color={"white"} weight={"bold"}>
+            <Label color="white" weight="bold">
               Gesuche
             </Label>
           </View>
@@ -162,7 +162,7 @@ const PostDetailMarketplace = ({ item }) => {
           <>
             <View style={styles.container}>
               <View style={styles.header}>
-                <Label weight={"bold"} size={"title"}>
+                <Label weight="bold" size="title">
                   Spezifikation
                 </Label>
               </View>
@@ -203,7 +203,7 @@ const PostDetailMarketplace = ({ item }) => {
             </View>
             <View style={styles.container}>
               <View style={styles.header}>
-                <Label weight={"bold"} size={"title"}>
+                <Label weight="bold" size="title">
                   Ausstattung
                 </Label>
               </View>
@@ -232,7 +232,7 @@ const PostDetailMarketplace = ({ item }) => {
           <>
             <View style={styles.container}>
               <View style={styles.header}>
-                <Label size={"title"} weight={"bold"}>
+                <Label size="title" weight="bold">
                   Spezifikation
                 </Label>
               </View>
@@ -271,7 +271,7 @@ const PostDetailMarketplace = ({ item }) => {
           <>
             <View style={styles.container}>
               <View style={styles.header}>
-                <Label size={"title"} weight={"bold"}>
+                <Label size="title" weight="bold">
                   Spezifikation
                 </Label>
               </View>
@@ -329,7 +329,7 @@ const PostDetailMarketplace = ({ item }) => {
                   key={index}
                   width={index === 0 ? "50%" : "100%"}
                   height={15}
-                  variant={"circle"}
+                  variant="circle"
                   opacityMax={0.4}
                   opacityMin={0.2}
                 />
@@ -394,7 +394,7 @@ const PostDetailMarketplace = ({ item }) => {
           {!state ? (
             <View style={styles.unavailableContainer}>
               <MaterialCommunityIcons name="tools" size={80} />
-              <Label weight={"bold"} size={"h5"}>
+              <Label weight="bold" size="h5">
                 Page Unavailable
               </Label>
               <Button
@@ -406,7 +406,7 @@ const PostDetailMarketplace = ({ item }) => {
                 }}
                 onPress={goback}
               >
-                <Label size={18} color={"white"} weight={"bold"}>
+                <Label size={18} color="white" weight="bold">
                   Return
                 </Label>
               </Button>
@@ -454,12 +454,12 @@ const PostDetailMarketplace = ({ item }) => {
                     <View style={styles.rows}>
                       <ModeChip />
                     </View>
-                    <Label weight={"bold"} size={"heading"}>
+                    <Label weight="bold" size="heading">
                       {state.title}
                     </Label>
                     {state.price_from && (
                       <Label
-                        weight={"bold"}
+                        weight="bold"
                         size={18}
                         color={theme.colors.icons.active}
                       >
@@ -481,21 +481,21 @@ const PostDetailMarketplace = ({ item }) => {
                 {/* Details Section */}
                 <View style={[styles.container]}>
                   <View style={styles.header}>
-                    <Label weight={"bold"} size={"title"}>
+                    <Label weight="bold" size="title">
                       Details
                     </Label>
                   </View>
                   <DetailRow
-                    icon={"format-list-bulleted-type"}
-                    label={"Kategorie"}
+                    icon="format-list-bulleted-type"
+                    label="Kategorie"
                     value={state.category}
                   ></DetailRow>
                   <DetailRow
-                    icon={"calendar"}
-                    label={"Datum der Veröffentlichung"}
+                    icon="calendar"
+                    label="Datum der Veröffentlichung"
                     value={moment(state.date_requested).format("LL")}
                   ></DetailRow>
-                  <DetailRow icon={"account"} label={"Gepostet von"}>
+                  <DetailRow icon="account" label="Gepostet von">
                     {/* Posted By */}
                     <View style={[styles.title]}>
                       {/* avatar */}
@@ -512,14 +512,14 @@ const PostDetailMarketplace = ({ item }) => {
                             {/* name */}
                             <View style={styles.rows}>
                               <View>
-                                <Label size={"body"} weight={"bold"}>
+                                <Label size="body" weight="bold">
                                   {`${state.first_name} ${state.last_name}`}
                                 </Label>
                               </View>
                             </View>
                           </View>
                         </View>
-                        {/* <Label size={"caption"} weight={"regular"}>
+                        {/* <Label size="caption" weight="regular">
                 {data.category}
               </Label> */}
                         {/* Category */}
@@ -531,7 +531,7 @@ const PostDetailMarketplace = ({ item }) => {
                 {/* Description Section */}
                 <View style={[styles.container]}>
                   <View style={styles.header}>
-                    <Label weight={"bold"} size={"title"}>
+                    <Label weight="bold" size="title">
                       Detaillierte Beschreibung
                     </Label>
                   </View>
@@ -545,20 +545,20 @@ const PostDetailMarketplace = ({ item }) => {
                 ]}
               >
                 <CustomButton
-                  icon={"message-outline"}
+                  icon="message-outline"
                   onPress={handlePressSMS}
                   iconSize={18}
                   style={{ flex: 1 }}
                   color={theme.colors.icons.active}
-                  label={"SMS"}
+                  label="SMS"
                 />
                 <CustomButton
-                  icon={"phone"}
+                  icon="phone"
                   onPress={handlePressCall}
                   iconSize={18}
                   style={{ flex: 1 }}
                   color={theme.colors.icons.active}
-                  label={"Call"}
+                  label="Call"
                 />
               </View>
             </>

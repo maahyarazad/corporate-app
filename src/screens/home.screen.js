@@ -1,80 +1,71 @@
-import React, {
-  PureComponent,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
-  Alert,
-  FlatList,
   RefreshControl,
   SafeAreaView,
   ScrollView,
-  Text,
   TouchableHighlight,
   TouchableOpacity,
   View,
+  Platform,
 } from "react-native";
+import styled from "styled-components/native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { StatusBar } from "expo-status-bar";
+import moment from "moment";
+import * as SecureStore from "expo-secure-store";
+
 import FeaturedBanner from "../features/home/components/banner.component";
 import { HomeCategory } from "../features/home/components/category.component";
-import styled from "styled-components/native";
-import { Spacer } from "../components/spacer/spacer.component";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { UserContext } from "../services/user/user.context";
-import { AuthContext } from "../services/auth/auth.context";
-import { navigate } from "../navigation/navigate";
-import { SearchButton } from "../components/searchbutton";
 import TopPartners from "../features/home/components/toppartners.component";
-import { config, typeEnum } from "../utils/constants";
-import { TranslationContext } from "../services/translation/translation.context";
 import Hotpicks from "../components/hotpick/hotpicks.component";
 import { UrlListener } from "../utils/urlRouter";
+import { navigate } from "../navigation/navigate";
+import { config, typeEnum } from "../utils/constants";
+import { TranslationContext } from "../services/translation/translation.context";
 import { LocationContext } from "../services/location/location.context";
-import { StatusBar } from "expo-status-bar";
 import { Label } from "../components/typography/label.component";
-import useAuth from "../../hooks/useAuth";
 import CustomButton from "../components/customButton.component";
 import { theme } from "../infrastructure/theme";
-import useUser from "../../hooks/useUser";
-import moment from "moment";
 import { CustomModal } from "../components/modal/customModal.component";
 import { OrderCardModal } from "../features/offers/components/offerModalForm";
-import * as SecureStore from "expo-secure-store";
-import HomeHeader from "../features/home/components/header.component";
+import useAuth from "../../hooks/useAuth";
+import useUser from "../../hooks/useUser";
 import useRequest from "../../hooks/useRequest";
 
-const HomeContainer = styled(FlatList)`
-  flex: 1;
-`;
-
-const NearMeButton = styled(TouchableHighlight)`
+export const NearMeButton = styled(TouchableHighlight)`
   background-color: white;
   padding: 10px 20px;
   justify-content: center;
   align-items: center;
   border-radius: 5px;
-  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.4);
+
+  ${Platform.OS === "ios" &&
+  `
+    shadow-color: #000;
+    shadow-offset: 2px 2px;
+    shadow-opacity: 0.4;
+    shadow-radius: 2px;
+  `}
+
+  ${Platform.OS === "android" && `elevation: 3;`}
 `;
 
-const RenderHome = ({ handleSearch }) => {
-  const [bannerData, setBannerData] = useState(null);
-  const [hotpickData, setHotpickData] = useState(null);
-  const [categoryData, setCategoryData] = useState(null);
-  const [topPartnersData, setTopPartnersData] = useState(null);
+export const RenderHome = () => {
+  const [bannerData, setBannerData] = useState([]);
+  const [hotpickData, setHotpickData] = useState([]);
+  const [categoryData, setCategoryData] = useState([]);
+  const [topPartnersData, setTopPartnersData] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+
   const { lang } = useContext(TranslationContext);
   const { userData } = useUser();
   const request = useRequest();
 
-  const isMounted = useRef(true);
+  const isMounted = useRef(false);
+  const lastLoadedKey = useRef("");
 
   useEffect(() => {
     isMounted.current = true;
-
-    // if (!isLogout.current) {
-    fetchData();
-    // }
 
     return () => {
       isMounted.current = false;
@@ -82,55 +73,111 @@ const RenderHome = ({ handleSearch }) => {
   }, []);
 
   const fetchData = async () => {
-    try {
-      setRefreshing(true);
+    if (!userData?.user_id || !lang) return;
 
-      const data = {
+    try {
+      if (isMounted.current) {
+        setRefreshing(true);
+      }
+
+      const payload = {
         id: config.APP_ID,
         status: 1,
         user_id: userData.user_id,
       };
 
-      const bannerFetch = request(`/v2/app/get-banners`, "post", data);
-      const hotpicksFetch = request(
-        `/v2/offer/hotpicks?app_id=${config.APP_ID}&lang=${lang}&limit=10`,
-        "get"
-      );
-      const categoryFetch = request(
-        `/v2/partner/category-available2?app_id=${config.APP_ID}&lang=${lang}`,
-        "get"
-      );
-      const topPartnersFetch = request(
-        `/v2/partner/top-per-category?app_id=${config.APP_ID}&lang=${lang}&count=5`,
-        "get"
-      );
+      const results = await Promise.allSettled([
+        request(`/v2/app/get-banners`, "post", payload),
+        request(
+          `/v2/offer/hotpicks?app_id=${config.APP_ID}&lang=${lang}&limit=10`,
+          "get"
+        ),
+        request(
+          `/v2/partner/category-available2?app_id=${config.APP_ID}&lang=${lang}`,
+          "get"
+        ),
+        request(
+          `/v2/partner/top-per-category?app_id=${config.APP_ID}&lang=${lang}&count=5`,
+          "get"
+        ),
+      ]);
+
+      if (!isMounted.current) return;
 
       const [bannerResult, hotpickResult, categoryResult, topPartnersResult] =
-        await Promise.all([
-          bannerFetch,
-          hotpicksFetch,
-          categoryFetch,
-          topPartnersFetch,
-        ]);
+        results;
 
-      console.log("hotpick", hotpickResult);
+      if (bannerResult.status === "fulfilled") {
+        if (bannerResult.value?.success) {
+          setBannerData(bannerResult.value?.data ?? []);
+        } else {
+        //   console.log("Banner request unsuccessful:", bannerResult.value);
+          setBannerData([]);
+        }
+      } else {
+        // console.log("Banner request failed:", bannerResult.reason);
+        setBannerData([]);
+      }
 
-      if (isMounted.current) {
-        if (bannerResult.success) setBannerData(bannerResult.data);
-        if (hotpickResult.success) setHotpickData(hotpickResult.data);
-        if (categoryResult.success) setCategoryData(categoryResult.result);
-        if (topPartnersResult.success)
-          setTopPartnersData(topPartnersResult.result);
+      if (hotpickResult.status === "fulfilled") {
+        if (hotpickResult.value?.success) {
+          setHotpickData(hotpickResult.value?.data ?? []);
+        } else {
+        //   console.log("Hotpicks request unsuccessful:", hotpickResult.value);
+          setHotpickData([]);
+        }
+      } else {
+        // console.log("Hotpicks request failed:", hotpickResult.reason);
+        setHotpickData([]);
+      }
+
+      if (categoryResult.status === "fulfilled") {
+        if (categoryResult.value?.success) {
+          setCategoryData(categoryResult.value?.result ?? []);
+        } else {
+        //   console.log("Category request unsuccessful:", categoryResult.value);
+          setCategoryData([]);
+        }
+      } else {
+        // console.log("Category request failed:", categoryResult.reason);
+        setCategoryData([]);
+      }
+
+      if (topPartnersResult.status === "fulfilled") {
+        if (topPartnersResult.value?.success) {
+          setTopPartnersData(topPartnersResult.value?.result ?? []);
+        } else {
+        //   console.log(
+        //     "Top partners request unsuccessful:",
+        //     topPartnersResult.value
+        //   );
+          setTopPartnersData([]);
+        }
+      } else {
+        // console.log("Top partners request failed:", topPartnersResult.reason);
+        setTopPartnersData([]);
       }
     } catch (error) {
-      setRefreshing(false);
+      console.log("Home fetch unexpected error:", error);
     } finally {
-      setRefreshing(false);
+      if (isMounted.current) {
+        setRefreshing(false);
+      }
     }
   };
 
-  const onRefresh = async () => {
+  useEffect(() => {
+    if (!userData?.user_id || !lang) return;
+
+    const currentKey = `${userData.user_id}-${lang}`;
+    if (lastLoadedKey.current === currentKey) return;
+
+    lastLoadedKey.current = currentKey;
     fetchData();
+  }, [userData?.user_id, lang]);
+
+  const onRefresh = async () => {
+    await fetchData();
   };
 
   return (
@@ -141,9 +188,8 @@ const RenderHome = ({ handleSearch }) => {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
-        style={{ backgroundColor: "#eee", height: "100%" }}
-        nestedScrollEnabled={true}
-        removeClippedSubviews={true}
+        style={{ backgroundColor: "#eee", flex: 1 }}
+        nestedScrollEnabled
       >
         <FeaturedBanner bannerData={bannerData} />
         <Hotpicks hotpickData={hotpickData} />
@@ -154,51 +200,44 @@ const RenderHome = ({ handleSearch }) => {
   );
 };
 
-const MemoeizedHome = React.memo(RenderHome);
+const MemoizedHome = React.memo(RenderHome);
 
-export const HomeScreen = ({ ...props }) => {
-  const { navigation } = props;
+export const HomeScreen = (props) => {
   const { i18n } = useContext(TranslationContext);
-  const { eventList } = useContext(LocationContext);
-  const testing = useRef(false);
-  const { isSkip, goToVerification } = useAuth();
+  const { isSkip } = useAuth();
   const { userData } = useUser();
+
   const [showModal, setShowModal] = useState(false);
   const [closeWarning, setCloseWarning] = useState(false);
   const [expireWarning, setExpireWarning] = useState(0);
 
   useEffect(() => {
-    let isMounted = true;
-    //Handle Push Notification Listener
-
     const checkExpireWarning = async () => {
-      const remainingDays = moment(userData?.expiry).diff(moment(), "days");
+      if (!userData?.expiry) return;
 
-      if (userData?.expiry && remainingDays > 10 && remainingDays <= 40) {
-        const _expireWarning = await getLocalExpireWarning();
-        if (!_expireWarning) {
+      const remainingDays = moment(userData.expiry).diff(moment(), "days");
+
+      if (remainingDays > 10 && remainingDays <= 40) {
+        const localExpireWarning = await getLocalExpireWarning();
+        if (!localExpireWarning) {
           setExpireWarning(1);
         }
       } else {
-        //reset expire warning local store
         setExpireWarning(0);
         saveWarning(0);
       }
     };
-    checkExpireWarning();
 
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+    checkExpireWarning();
+  }, [userData?.expiry]);
 
   const getLocalExpireWarning = async () => {
     try {
-      const _expireWarning = await SecureStore.getItemAsync("expireWarning");
-
-      return parseInt(_expireWarning ?? 0);
+      const value = await SecureStore.getItemAsync("expireWarning");
+      return parseInt(value ?? "0", 10);
     } catch (error) {
-      console.error("Failed to get local storage [Home]:", error);
+      console.log("Failed to get local storage [Home]:", error);
+      return 0;
     }
   };
 
@@ -206,22 +245,8 @@ export const HomeScreen = ({ ...props }) => {
     try {
       await SecureStore.setItemAsync("expireWarning", value.toString());
     } catch (error) {
-      console.error("Failed to save local storage [Home]:", error);
+      console.log("Failed to save local storage [Home]:", error);
     }
-  };
-
-  const handleSearch = () => {
-    // setSectionTitle("Search All");
-
-    navigate("LocationList", {
-      type: typeEnum.category,
-      search: 0,
-      page: 1,
-      limit: 20,
-      source: 2,
-      headerTitle: i18n.t("search-all"),
-      focus: true,
-    });
   };
 
   const closeModal = () => {
@@ -236,6 +261,32 @@ export const HomeScreen = ({ ...props }) => {
   const handleOrderCard = () => {
     setShowModal(true);
   };
+
+  const calculateRemainingTime = () => {
+    const remainingDays = moment(userData?.expiry).diff(moment(), "days");
+
+    if (!(remainingDays > 0)) {
+      const remainingHours = moment(userData?.expiry).diff(moment(), "hours");
+
+      if (!(remainingHours > 0)) {
+        const remainingMinutes = moment(userData?.expiry).diff(
+          moment(),
+          "minutes"
+        );
+
+        if (!(remainingMinutes > 0)) {
+          return "less than a minute";
+        }
+
+        return `${remainingMinutes} minutes`;
+      }
+
+      return `${remainingHours} hours`;
+    }
+
+    return `${remainingDays} days`;
+  };
+
   const WarningBar = ({ msg, canClose = false }) => {
     return (
       <View
@@ -252,13 +303,10 @@ export const HomeScreen = ({ ...props }) => {
         }}
       >
         <View style={{ flexDirection: "row", gap: 8, flex: 1 }}>
-          <View
-            style={{
-              flex: 1,
-            }}
-          >
-            <Label color={"white"}>{msg}</Label>
+          <View style={{ flex: 1 }}>
+            <Label color="white">{msg}</Label>
           </View>
+
           <CustomButton
             onPress={handleOrderCard}
             style={{
@@ -272,16 +320,17 @@ export const HomeScreen = ({ ...props }) => {
               },
               shadowRadius: 5,
             }}
-            label={"Order Card"}
+            label="Order Card"
             labelStyle={{ color: "white" }}
           />
+
           {canClose && (
             <View style={{ justifyContent: "center" }}>
               <TouchableOpacity onPress={handleCloseWarning}>
                 <MaterialCommunityIcons
                   name="close"
                   size={25}
-                  color={"white"}
+                  color="white"
                 />
               </TouchableOpacity>
             </View>
@@ -292,62 +341,41 @@ export const HomeScreen = ({ ...props }) => {
   };
 
   const RenderWarning = () => {
-    if (userData) {
-      if (userData.expired) {
+    if (!userData) return null;
+
+    if (userData.expired) {
+      return (
+        <WarningBar
+          msg={`Your card has already expired on ${moment(
+            userData.expiry
+          ).format("MMM YYYY")}. Please upload your new card.`}
+        />
+      );
+    }
+
+    if (!closeWarning && !isSkip) {
+      if (expireWarning) {
         return (
           <WarningBar
-            msg={`Your card has already expired on ${moment(
-              userData.expiry
-            ).format("MMM YYYY")}. Please upload your new card.`}
+            canClose={true}
+            msg={`Your card will expire in ${moment(userData.expiry).diff(
+              moment(),
+              "days"
+            )} days. Please order a new card and upload it.`}
           />
         );
-      } else if (!closeWarning && !isSkip) {
-        if (expireWarning) {
-          return (
-            <WarningBar
-              canClose={true}
-              msg={`Your card will expire in ${moment(userData.expiry).diff(
-                moment(),
-                "days"
-              )} days. Please order a new card and upload it.`}
-            />
-          );
-        } else if (moment(userData?.expiry).diff(moment(), "days") <= 10) {
-          return (
-            <WarningBar
-              msg={`Your card will expire in ${calculateRemainingTime()}. Please order a new card and upload it.`}
-            />
-          );
-        }
+      }
+
+      if (moment(userData?.expiry).diff(moment(), "days") <= 10) {
+        return (
+          <WarningBar
+            msg={`Your card will expire in ${calculateRemainingTime()}. Please order a new card and upload it.`}
+          />
+        );
       }
     }
 
     return null;
-  };
-
-  const calculateRemainingTime = () => {
-    const remainingDays = moment(userData?.expiry).diff(moment(), "days");
-
-    if (!(remainingDays > 0)) {
-      const remainingHours = moment(userData?.expiry).diff(moment(), "hours");
-
-      if (!(remainingHours > 0)) {
-        const remainingMinutes = moment(userData?.expiry).diff(
-          moment(),
-          "minutes"
-        );
-
-        if (!(remainingMinutes > 0)) {
-          return `less than a minute`;
-        }
-
-        return remainingMinutes + ` minutes`;
-      }
-
-      return remainingHours + ` hours`;
-    }
-
-    return remainingDays + ` days`;
   };
 
   return (
@@ -356,7 +384,7 @@ export const HomeScreen = ({ ...props }) => {
       <CustomModal showModal={showModal}>
         <OrderCardModal onClose={closeModal} />
       </CustomModal>
-      <MemoeizedHome handleSearch={handleSearch} />
+      <MemoizedHome />
     </SafeAreaView>
   );
 };

@@ -23,6 +23,7 @@ import { Offer } from "./offer.component";
 import useRequest from "../../../../hooks/useRequest";
 import useUser from "../../../../hooks/useUser";
 import useAuth from "../../../../hooks/useAuth";
+import { fontSizes } from "../../../infrastructure/theme/fonts";
 
 export const OfferModalInfo = ({
   onCloseModal,
@@ -45,16 +46,22 @@ export const OfferModalInfo = ({
         return;
       }
       setLoading(true);
+
+    
       const data = {
         user_id: userData.user_id,
         offer_id: offerInfo.id,
         category: offerInfo.category,
       };
-
+      
+            
       const response = await request(`/v2/offer/generate`, "post", data);
 
+      
       if (response && response.result) {
-        setLoading(false);
+         
+
+        
         const _initials = response.result.initials;
         const _series = response.result.series;
         let _leadZeroes = "";
@@ -62,15 +69,19 @@ export const OfferModalInfo = ({
           _leadZeroes += "0";
         }
         const offerCode = `${_initials}${_leadZeroes}${_series}`;
+   
 
         onCloseModal();
         navigate("AvailOffer", {
-          state: { location, distance, offerInfo, offerCode },
+            state: { location, distance, offerInfo, offerCode },
         });
+        return;
       }
     } catch (error) {
       setLoading(false);
       console.log("Failed to generate offer:", error);
+    }finally{
+        setLoading(false);
     }
   };
 
@@ -113,9 +124,9 @@ export const OfferModalInfo = ({
           <LocationInfo
             location={location}
             distance={distance}
-            headerSize={"title"}
-            subheaderSize={"subtitle"}
-            infoSize={"body"}
+            headerSize="title"
+            subheaderSize="subtitle"
+            infoSize="body"
             imageH={80}
             imageW={80}
             showContact={false}
@@ -191,7 +202,7 @@ export const OfferModalInfo = ({
           }}
           mode="contained"
         >
-          <Text allowFontScaling={false}>
+          <Text allowFontScaling={false} style={{fontSize: fontSizes.subtitle}}>
             {i18n.t("redeem-offer.avail-offer")}
           </Text>
         </Button>
@@ -206,10 +217,14 @@ export const OfferModalInfo = ({
             flex: 1,
             backgroundColor: "#1282FF",
             borderRadius: 10,
+            
           }}
           mode="contained"
         >
+             <Text allowFontScaling={false} style={{fontSize: fontSizes.subtitle}}>
+         
           {i18n.t("close")}
+          </Text>
         </Button>
       </View>
     </View>
@@ -272,10 +287,11 @@ export const OrderCardModal = ({ onClose }) => {
             rippleColor="#ccc"
           ></IconButton>
         </View>
-        <Label size={"heading"} weight={"bold"}>
+        <Label size="heading" weight="bold">
           {i18n.t("offer-restriction.title")}
         </Label>
-        <Spacer position={"top"} size={"medium"} />
+        <View style={{marginTop: 8}} />
+        <View style={{marginTop: 8}} />
         <Label>{i18n.t("offer-restriction.message")}</Label>
         <View style={{ flexDirection: "row", marginTop: 20, gap: 12 }}>
           <Button

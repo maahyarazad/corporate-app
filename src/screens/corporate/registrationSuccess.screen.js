@@ -57,6 +57,7 @@ export const RegistrationSuccessfulScreen = () => {
   };
 
   const fadeInAnimationStyle = {
+    
     opacity: fadeInValue,
   };
 
@@ -90,17 +91,17 @@ export const RegistrationSuccessfulScreen = () => {
         >
           <Animated.View style={fadeInAnimationStyle}>
             <Label
-              size={"h4"}
-              weight={"bold"}
+              size="h4"
+              weight="bold"
               style={{ color: "white", textAlign: "center" }}
             >
               Your account has been created!
             </Label>
-            <Spacer position={"top"} size="medium" />
+            
             <Label
-              size={"title"}
-              weight={"medium"}
-              style={{ color: "white", textAlign: "center" }}
+              size="title"
+              weight="medium"
+              style={{ color: "white", textAlign: "center" , ...styles.marginFix}}
             >
               Before you can login, please activate your account by clicking the
               verification link we have sent to your email.
@@ -117,8 +118,8 @@ export const RegistrationSuccessfulScreen = () => {
               }}
             >
               <Label
-                size={"title"}
-                weight={"bold"}
+                size="title"
+                weight="bold"
                 style={{ color: "black", textAlign: "center" }}
               >
                 Back to Login
@@ -137,4 +138,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  marginFix:{
+    marginTop: 8
+  }
 });

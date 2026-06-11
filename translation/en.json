@@ -25,6 +25,7 @@
             "profile": "Profile"
         },
         "profile-tabs": {
+            "page-title": "Profile",
             "user-profile": "User Profile",
             "savings": "Savings",
             "settings": "Settings",
@@ -116,6 +117,7 @@
             "done": "Done"
         },
         "events": {
+            "no-upcoming-events": "No upcoming event at the moment",
             "title": "Upcoming Events",
             "include-guests": "include guests",
             "attend": "Attend",

@@ -18,6 +18,7 @@ import { config, searchSource } from "../../utils/constants";
 import { io } from "socket.io-client";
 import { TranslationContext } from "../../services/translation/translation.context";
 import useRequest from "../../../hooks/useRequest";
+import { Text } from "react-native";
 
 const Search = styled(Searchbar)`
   margin: 0 12px;
@@ -39,11 +40,17 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
   const [filters, setFilters] = useState("");
   const [isEOF, setIsEOF] = useState(false);
   const [searchBarFocused, setSearchBarFocused] = useState(false);
-  const [resultCount, setResultCount] = useState();
+  const [resultCount, setResultCount] = useState(0);
   const [hasSubmitted, setHasSubmitted] = useState(true);
+
   const isMounted = useRef(true);
   const searchRef = useRef();
   const modeRef = useRef(0);
+  const isShort = useRef(false);
+  const request = useRequest();
+  const timeoutRef = useRef(null);
+  const prevFiltersRef = useRef("");
+
   const searchData = useRef({
     type: type,
     value: search,
@@ -51,33 +58,24 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
     limit: limit,
     source: source,
   });
-  const isShort = useRef(false);
-  const request = useRequest();
 
   useEffect(() => {
     let mounted = true;
     isMounted.current = true;
     const _socket = io(config.WEBSOCKET_URL, { path: "/admin/node/" });
-    // const testSocket = new WebSocket(
-    //   "http://staging.german-emirates-club.com/admin/node/"
-    // );
-    // testSocket.onopen = () => socket.send(new Date().toLocaleString());
 
-    // testSocket.onmessage = ({ data }) => {
-    //   console.log(data);
-    //   this.setState({ echo: data });
-    // };
-
-    // console.log(_socket);
-    // const _socket = io(config.WEBSOCKET_URL, {});
-    // console.log(_socket);
     if (mounted) {
       setSocket(_socket);
     }
 
     setIsLoading(true);
     changeHeader(route.params.headerTitle);
+
     return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
       _socket.close();
       mounted = false;
       isMounted.current = false;
@@ -93,38 +91,71 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
         setSuggestedList(result);
       }
     });
+
     return () => {
       mounted = false;
+      socket.off("search results");
     };
   }, [socket]);
 
   const changeHeader = (title) => {
     navigation.setOptions({
-      headerTitle: () => {
+       headerRight: () => {
         return (
-          <Label numberOfLines={1} size={"title"} weight={"bold"}>
-            {title}
+          <Label numberOfLines={1} size="title" weight="bold" style={{paddingRight: 15}}>
+            {title} 
           </Label>
+            
         );
       },
     });
   };
 
   useEffect(() => {
-    let isMounted = true;
+    let mounted = true;
 
-    if (isMounted) {
+    if (mounted) {
       if (hasSubmitted || searchData.current.page !== currentPage) {
-        searchData.current.page = currentPage;
-
-        loadData();
-        setHasSubmitted(false);
-      }
+          searchData.current.page = currentPage;
+          
+          loadData();
+          
+          setHasSubmitted(false);
+        }
     }
+
     return () => {
-      isMounted = false;
+      mounted = false;
     };
   }, [currentPage, hasSubmitted]);
+
+  useEffect(() => {
+    const previousValue = prevFiltersRef.current;
+    const currentValue = filters;
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
+    const justCleared = previousValue.length > 0 && currentValue === "";
+
+    if (justCleared) {
+      timeoutRef.current = setTimeout(() => {
+        onSearch("", 0);
+        timeoutRef.current = null;
+      }, 100);
+    }
+
+    prevFiltersRef.current = currentValue;
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+  }, [filters]);
 
   const loadData = () => {
     loadLocations(searchData.current);
@@ -137,6 +168,8 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
         app_id: config.APP_ID,
         lang,
       });
+
+
       if (response) {
         if (response.data.length === 0) {
           setIsEOF(true);
@@ -144,15 +177,17 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
         } else if (response.data.length < limit) {
           setIsEOF(true);
         }
+
         if (modeRef.current) {
-          setResultCount(response.totalCount);
+          setResultCount(response.data.length);
           setLocations(response.data);
         } else {
-          setLocations([...locations, ...response.data]);
+          setLocations((prev) => [...prev, ...response.data]);
+        setResultCount((prev) => prev + response.data.length);
         }
       }
     } catch (error) {
-      console.error("Failed to load location list:", error);
+      console.log("Failed to load location list:", error);
     } finally {
       setIsLoading(false);
       setIsLoadingMore(false);
@@ -164,7 +199,7 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
 
     if (filters.length >= 3) {
       isShort.current = false;
-      if (mounted) {
+      if (mounted && socket) {
         socket.emit("search", filters);
       }
     } else {
@@ -177,13 +212,12 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
     return () => {
       mounted = false;
     };
-    // onSearch(filters);
-  }, [filters]);
+  }, [filters, socket]);
 
   const loadMore = () => {
     if (!isEOF) {
       setIsLoadingMore(true);
-      setCurrentPage(currentPage + 1);
+      setCurrentPage((prev) => prev + 1);
     }
   };
 
@@ -191,13 +225,13 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
     setHasSubmitted(true);
     setSuggestedList([]);
     setLocations([]);
-    setResultCount(undefined);
+    setResultCount(0);
     setIsLoading(true);
-    setFilters(keyword);
     setIsEOF(false);
     modeRef.current = 1;
     changeHeader(`Keyword: ${keyword}`);
     Keyboard.dismiss();
+
     searchData.current = {
       type: 0,
       value: 0,
@@ -206,15 +240,12 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
       source: mode,
       keyword: keyword,
     };
+
     setCurrentPage(1);
   };
 
-  const onFilterChange = (e) => {
-    setFilters(e);
-  };
-
   const onScroll = () => {
-    searchRef.current.blur();
+    searchRef.current?.blur();
   };
 
   const onSearchFocus = () => {
@@ -226,12 +257,11 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
   };
 
   const focusSearchbar = () => {
-    // alert("atay");
-    searchRef.current.focus();
+    searchRef.current?.focus();
   };
 
   const blueSearchbar = () => {
-    searchRef.current.blur();
+    searchRef.current?.blur();
   };
 
   const handleSubmitSearch = () => {
@@ -241,46 +271,56 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
     }
   };
 
-  return (
-    <>
-      <View style={{ flex: 1 }}>
-        <View style={{ backgroundColor: "white" }}>
-          <Search
-            ref={searchRef}
-            numberOfLines={1}
-            inputStyle={{
-              alignSelf: "center",
-            }}
-            value={filters}
-            enablesReturnKeyAutomatically
-            onLayout={route.params.focus ? focusSearchbar : blueSearchbar}
-            onFocus={onSearchFocus}
-            onBlur={onSearchBlur}
-            onSubmitEditing={handleSubmitSearch}
-            onChangeText={onFilterChange}
-            autoCorrect={false}
-            placeholder={"Search"}
-          ></Search>
-          <View style={{ paddingVertical: 10, paddingHorizontal: 12 }}>
-            {resultCount != undefined && (
-              <Label weight={"bold"}>{resultCount} Results</Label>
-            )}
-          </View>
-        </View>
+  const onFilterChange = (text) => {
+    setFilters(text);
+  };
 
-        <LocationList
-          onScrollBegin={onScroll}
-          navigation={navigation}
-          locations={locations}
-          isLoading={isLoading}
-          isLoadingMore={isLoadingMore}
-          // loadMore={loadMore}
-          onMomentumScrollEnd={loadMore}
+  const handleClear = () => {
+    setFilters("");
+    setSuggestedList([]);
+  };
+
+  return (
+    <View style={{ flex: 1 }}>
+        
+      <View style={{ backgroundColor: "white" }}>
+        
+        <Search
+          ref={searchRef}
+          numberOfLines={1}
+          inputStyle={{
+            alignSelf: "center",
+          }}
+          onClearIconPress={handleClear}
+          value={filters}
+          enablesReturnKeyAutomatically
+          onLayout={route.params.focus ? focusSearchbar : blueSearchbar}
+          onFocus={onSearchFocus}
+          onBlur={onSearchBlur}
+          onSubmitEditing={handleSubmitSearch}
+          onChangeText={onFilterChange}
+          autoCorrect={false}
+          placeholder="Search"
         />
-        {suggestedList.length > 0 && searchBarFocused && (
-          <Suggestion onPress={onSearch} suggestedList={suggestedList} />
-        )}
+        <View style={{ paddingVertical: 10, paddingHorizontal: 12 }}>
+          {resultCount != undefined && (
+            <Label weight="bold">{resultCount} Results</Label>
+          )}
+        </View>
       </View>
-    </>
+
+      <LocationList
+        onScrollBegin={onScroll}
+        navigation={navigation}
+        locations={locations}
+        isLoading={isLoading}
+        isLoadingMore={isLoadingMore}
+        onMomentumScrollEnd={loadMore}
+      />
+
+      {suggestedList.length > 0 && searchBarFocused && (
+        <Suggestion onPress={onSearch} suggestedList={suggestedList} />
+      )}
+    </View>
   );
 };

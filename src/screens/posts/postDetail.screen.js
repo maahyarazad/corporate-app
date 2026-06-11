@@ -182,7 +182,7 @@ export default function PostDetailScreen() {
       // console.log("update", JSON.stringify(postComments.data));
       const response = await addComment(post.id, newComment);
       if (!response.success) {
-        console.log(response.success);
+        // console.log(response.success);
         const revert = localComments.filter(
           (comment) => comment.id !== response.id
         );
@@ -297,7 +297,7 @@ export default function PostDetailScreen() {
           {post.id === null ? (
             <View style={styles.unavailableContainer}>
               <MaterialCommunityIcons name="tools" size={80} />
-              <Label weight={"bold"} size={"h5"}>
+              <Label weight="bold" size="h5">
                 Page Unavailable
               </Label>
               <Button
@@ -309,7 +309,7 @@ export default function PostDetailScreen() {
                 }}
                 onPress={goback}
               >
-                <Label size={18} color={"white"} weight={"bold"}>
+                <Label size={18} color="white" weight="bold">
                   Return
                 </Label>
               </Button>
@@ -370,9 +370,9 @@ export default function PostDetailScreen() {
                   <>
                     <Label>
                       {`Replying to `}
-                      <Label weight={"bold"}>{replyTo.name}</Label>
+                      <Label weight="bold">{replyTo.name}</Label>
                     </Label>
-                    <Spacer position={"bottom"} size={"small"} />
+                    <View style={{marginBottom: 6}}/>
                   </>
                 )}
                 <View
@@ -396,7 +396,7 @@ export default function PostDetailScreen() {
                         onBlur={fieldOnBlur}
                         multiline={true}
                         areaHeight={20}
-                        placeholder={"Add a comment"}
+                        placeholder="Add a comment"
                         onChangeText={handleCommentChange}
                         value={comment}
                         maxLength={COMMENT_MAXLENGTH}
@@ -418,7 +418,9 @@ export default function PostDetailScreen() {
                       ></View>
                     }
                   </View>
-                  <Spacer position={"right"} size={"small"} />
+
+                  <View style={{marginRight: 6}}/>
+
                   <View>
                     <Button
                       mode="contained"
@@ -430,7 +432,7 @@ export default function PostDetailScreen() {
                       disabled={!comment}
                       onPress={handleCommentSend}
                     >
-                      <Label color="white" weight={"bold"}>
+                      <Label color="white" weight="bold">
                         Reply
                       </Label>
                     </Button>

@@ -1,0 +1,87 @@
+import axios from "axios";
+import * as SecureStore from "expo-secure-store";
+import { Alert } from "react-native";
+import { config } from "../../utils/constants";
+import { showToast } from "../../Toast"; 
+
+
+
+// 0 (Axios default) → no timeout (not recommended for production)
+// 5,000 – 10,000 ms (5–10s) → common for APIs (fast services)
+// 10,000 – 30,000 ms (10–30s) → typical for production apps
+// >30,000 ms → only for long-running operations (uploads, reports, etc.)
+export const axiosInstance = axios.create({
+  baseURL: config.SERVICES_BASE_URL,
+  timeout: 60000,
+  timeoutErrorMessage: "Server Error, Please contact the developer!",
+});
+
+/* ================= REQUEST ================= */
+
+axiosInstance.interceptors.request.use(
+  async (config) => {
+    const token = await SecureStore.getItemAsync("token");
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+/* ================= RESPONSE ================= */
+
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (!error.response) {
+
+      showToast(
+        "error",
+        "Network Error",
+        "Unable to reach server"
+      );
+
+      return Promise.reject({
+        status: 0,
+        title: "Network Error",
+        message: "Unable to reach server",
+      });
+    }
+
+    const { status, data } = error.response;
+
+    const title = data?.title ?? "Alert";
+    const message = data?.message ?? "Error Occurred";
+
+    if (status === 403) {
+
+      showToast(
+        "error",
+        "Unauthorized",
+        message
+      );
+
+      return Promise.reject(message);
+    }
+
+    if (status === 503) {
+
+      showToast(
+        "error",
+        "Service Unavailable",
+        "Could not reach the server"
+      );
+
+      return Promise.reject(error.response);
+    }
+
+    return Promise.reject({
+      status,
+      title,
+      message,
+    });
+  }
+);

@@ -70,7 +70,7 @@ export const ProfRedeemHistory = () => {
           flexDirection: "row",
         }}
       >
-        <Label weight={"bold"}>Total</Label>
+        <Label weight="bold">Total</Label>
         <Label>{parseFloat(total).toFixed(2)}</Label>
       </View>
     );
@@ -88,8 +88,9 @@ export const ProfRedeemHistory = () => {
           }}
         >
           <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Label weight={"bold"}>{item.title}</Label>
-            <Spacer position={"left"} size="small" />
+            <Label weight="bold">{item.title}</Label>
+            <View style={{marginLeft: 6}} />
+            
             <MaterialCommunityIcons
               name={
                 item.total > 0 ? "emoticon-outline" : "emoticon-sad-outline"
@@ -98,10 +99,10 @@ export const ProfRedeemHistory = () => {
             />
           </View>
           <View style={{ alignItems: "flex-end" }}>
-            <Label size={"mini"} weight={"regular"}>
+            <Label size="mini" weight="regular">
               Total
             </Label>
-            <Label weight={"bold"}>{item.total.toFixed(2)}</Label>
+            <Label weight="bold">{item.total.toFixed(2)}</Label>
           </View>
         </View>
       </>
@@ -182,7 +183,7 @@ export const ProfRedeemHistory = () => {
             {overall != undefined ? (
               <>
                 <Label
-                  weight={"bold"}
+                  weight="bold"
                   size="h4"
                   style={{
                     textAlign: "center",
@@ -192,7 +193,7 @@ export const ProfRedeemHistory = () => {
                   {limitToTwoDecimalPlaces(overall)}
                 </Label>
                 <Label
-                  weight={"bold"}
+                  weight="bold"
                   size="h5"
                   style={{
                     textAlign: "center",
@@ -205,7 +206,7 @@ export const ProfRedeemHistory = () => {
             ) : (
               <ActivityIndicator
                 animating={true}
-                size={"large"}
+                size="large"
                 color={theme.colors.icons.active}
               />
             )}
@@ -290,7 +291,7 @@ export const ProfRedeemHistory = () => {
             ) : (
               <ActivityIndicator
                 color={theme.colors.icons.active}
-                size={"large"}
+                size="large"
                 animating={true}
               />
             )}

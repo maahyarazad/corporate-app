@@ -40,22 +40,32 @@ export const PostCardUpload = () => {
   return (
     <View style={styles.container}>
       <Animated.View style={[styles.animatedView, animatedStyle]}>
-        <Label size={"h5"} weight={"bold"} style={styles.label}>
-          {i18n.t("card-upload.uploaded.heading")}
-        </Label>
-        <Spacer position={"top"} size={"medium"} />
-        <Label size={"h5"} weight={"bold"} style={styles.label}>
-          {i18n.t("card-upload.uploaded.heading2")}
-        </Label>
-        <Spacer position={"top"} size={"medium"} />
-        <Label size={"title"} weight={"medium"} style={styles.label}>
+        <View style={styles.wrapper}>
+
+            <Label size="h5" weight="bold" style={styles.label}>
+            {i18n.t("card-upload.uploaded.heading")}
+            </Label>
+        </View>
+        
+        <View style={styles.wrapper}>
+
+            <Label size="h5" weight="bold" style={styles.label}>
+            {i18n.t("card-upload.uploaded.heading2")}
+            </Label>
+        </View>
+        
+          <View style={styles.wrapper}>
+
+        <Label size="title" weight="medium" style={styles.label}>
           {i18n.t("card-upload.uploaded.message")}
         </Label>
-        <Spacer position={"top"} size={"large"} />
+          </View>
+        
+
         <View style={styles.notecontainer}>
           <Label
-            size={"body"}
-            weight={"regular"}
+            size="body"
+            weight="regular"
             style={[styles.label, styles.notelabel]}
           >
             {i18n.t("card-upload.uploaded.note")}
@@ -75,7 +85,7 @@ export const PostCardUpload = () => {
               backgroundColor: theme.colors.icons.active,
             }}
           >
-            <Ionicons name="refresh" size={30} color={"white"} />
+            <Ionicons name="refresh" size={30} color="white" />
           </View>
         </TouchableOpacity>
       </View>
@@ -98,6 +108,7 @@ const styles = StyleSheet.create({
     color: "white",
     textAlign: "center",
     lineHeight: 35,
+    
   },
   notecontainer: {
     alignSelf: "flex-start",
@@ -105,4 +116,7 @@ const styles = StyleSheet.create({
   notelabel: {
     textAlign: "left",
   },
+  wrapper:{
+    marginBottom: 10
+  }
 });

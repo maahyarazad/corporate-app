@@ -4,7 +4,7 @@ import styled from "styled-components/native";
 
 const StyledSafeArea = styled(SafeAreaView)`
   flex: 1;
-  ${Platform.OS === "android" && `padding-top: ${StatusBar.currentHeight}px`}
+  ${Platform.OS === "android" ? `padding-top: ${StatusBar.currentHeight}px;` : ""}
 `;
 
 export const SafeArea = ({ style, children, pointerEvents }) => {

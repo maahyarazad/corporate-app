@@ -50,10 +50,10 @@ const PostEntryCategorySelect = () => {
         return (
           <View style={styles.bodyContainer}>
             <View style={styles.titleContainer}>
-              <Label size={25} weight={"bold"}>
+              <Label size={25} weight="bold">
                 Forum-Kategorie
               </Label>
-              <Label size={"subtitle"} weight={"medium"}>
+              <Label size="subtitle" weight="medium">
                 What do you want to talk about?
               </Label>
             </View>
@@ -83,10 +83,10 @@ const PostEntryCategorySelect = () => {
         return (
           <View style={styles.bodyContainer}>
             <View style={styles.titleContainer}>
-              <Label size={25} weight={"bold"}>
+              <Label size={25} weight="bold">
                 Marktplatz-Kategorie
               </Label>
-              <Label size={"subtitle"} weight={"medium"}>
+              <Label size="subtitle" weight="medium">
                 {type.id === 2
                   ? "Was möchten Sie anbieten?"
                   : "Was möchten Sie suchen??"}

@@ -6,7 +6,6 @@ import {
   Text,
   View,
 } from "react-native";
-import { DatePicker } from "react-native-woodpicker";
 import { SafeArea } from "../../components/safearea.component";
 import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";
@@ -27,7 +26,7 @@ export const VerifyInfo = ({ route, navigation }) => {
     birthday.getDate(),
     birthday.getFullYear(),
   ].join(".");
-  console.log(birthdayDate);
+  
 
   const birthdayString = new Date(birthday.getTime()).toDateString();
 
@@ -40,7 +39,7 @@ export const VerifyInfo = ({ route, navigation }) => {
   }, []);
 
   const handleUpdate = () => {
-    console.log({ firstname, lastname, birthdayDate, email, mobile });
+    // console.log({ firstname, lastname, birthdayDate, email, mobile });
   };
 
   return (
@@ -68,16 +67,16 @@ export const VerifyInfo = ({ route, navigation }) => {
           <Label
             shadow={true}
             style={{ color: "white" }}
-            size={"h5"}
-            weight={"medium"}
+            size="h5"
+            weight="medium"
           >
             Hallo, {firstname}
           </Label>
           <Label
             shadow={true}
             style={{ color: "white" }}
-            size={"body"}
-            weight={"medium"}
+            size="body"
+            weight="medium"
           >
             Bitte stellen Sie sicher, dass alle Informationen aktueil und
             korrekt sind.
@@ -86,22 +85,22 @@ export const VerifyInfo = ({ route, navigation }) => {
             value={firstname}
             onChangeText={setFirstname}
             mode="outlined"
-            activeOutlineColor={"#B57000"}
-            label={"Vorname"}
+            activeOutlineColor="#B57000"
+            label="Vorname"
           ></TextInputForm>
           {/* <LoginTextInput
             value={middlename}
             onChangeText={setMiddlename}
             mode="outlined"
-            activeOutlineColor={"#B57000"}
-            label={"Zweiter Vorname"}
+            activeOutlineColor="#B57000"
+            label="Zweiter Vorname"
           ></LoginTextInput> */}
           <TextInputForm
             value={lastname}
             onChangeText={setLastname}
             mode="outlined"
-            activeOutlineColor={"#B57000"}
-            label={"Nachname"}
+            activeOutlineColor="#B57000"
+            label="Nachname"
           ></TextInputForm>
           <View style={{ marginBottom: 0 }}>
             <TextInputForm
@@ -112,14 +111,32 @@ export const VerifyInfo = ({ route, navigation }) => {
               })}
               onChangeText={setBirthday}
               mode="outlined"
-              activeOutlineColor={"#B57000"}
-              label={"Geburtsdatum"}
+              activeOutlineColor="#B57000"
+              label="Geburtsdatum"
               style={{
                 width: "100%",
                 position: "absolute",
               }}
             ></TextInputForm>
-            <DatePicker
+
+               <DateTimePicker onChange={setBirthday}
+          value={birthday || new Date()}
+          mode="date"
+         title="Geburtsdatum"
+          display={Platform.OS === "ios" ? "spinner" : "default"}
+          maximumDate={dateLimit}
+          iosMode="date"
+           locale="de"
+           isNullable={false}
+           style={{
+                width: "100%",
+                height: 60,
+                marginTop: 6,
+              }}
+        />
+
+
+            {/* <DatePicker
               value={birthday}
               onDateChange={setBirthday}
               title="Geburtsdatum"
@@ -135,15 +152,15 @@ export const VerifyInfo = ({ route, navigation }) => {
                 height: 60,
                 marginTop: 6,
               }}
-            />
+            /> */}
           </View>
 
           <TextInputForm
             value={email}
             onChangeText={setEmail}
             mode="outlined"
-            activeOutlineColor={"#B57000"}
-            label={"E-Mail Adresse"}
+            activeOutlineColor="#B57000"
+            label="E-Mail Adresse"
             keyboardType="email-address"
           ></TextInputForm>
           {/* <TextInput keyboardType="email-address" */}
@@ -152,17 +169,17 @@ export const VerifyInfo = ({ route, navigation }) => {
             value={mobile}
             onChangeText={setMobile}
             mode="outlined"
-            activeOutlineColor={"#B57000"}
-            label={"Mobilnummer"}
+            activeOutlineColor="#B57000"
+            label="Mobilnummer"
           ></TextInputForm>
 
-          <Spacer position={"top"} size={"medium"} />
+          <View style={{marginTop: 8}} />
           <LoginButton
             onPress={handleUpdate}
             activeOpacity={0.8}
             checked={true}
           >
-            <Label style={{ color: "white" }} weight={"bold"}>
+            <Label style={{ color: "white" }} weight="bold">
               Telefonnummer Verifizieren
             </Label>
           </LoginButton>

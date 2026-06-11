@@ -52,12 +52,12 @@ const renderCategory = ({ item, navigation }) => {
           >
             <CategoryItemImages
               resizeMode="contain"
-              style={{ tintColor: "white" }}
+              style={{ tintColor: "white"}}
               source={categorylogo[item.id]}
             />
           </CategoryImageContainer>
           <CategoryLabelContainer>
-            <CategoryItemLabels size={"caption"} weight={"bold"}>
+            <CategoryItemLabels size="caption" weight="bold">
               {item.pcategory_en}
             </CategoryItemLabels>
           </CategoryLabelContainer>
@@ -71,7 +71,7 @@ const SkeletonCategoryHome = () => {
   return (
     <>
       <Skeleton
-        variant={"square"}
+        variant="square"
         width={100}
         height={140}
         opacityMin={0.1}
@@ -80,7 +80,7 @@ const SkeletonCategoryHome = () => {
         style={{ marginRight: 16 }}
       />
       <Skeleton
-        variant={"square"}
+        variant="square"
         width={100}
         height={140}
         opacityMin={0.1}
@@ -89,7 +89,7 @@ const SkeletonCategoryHome = () => {
         style={{ marginRight: 16 }}
       />
       <Skeleton
-        variant={"square"}
+        variant="square"
         width={100}
         height={140}
         opacityMin={0.1}
@@ -98,7 +98,7 @@ const SkeletonCategoryHome = () => {
         style={{ marginRight: 16 }}
       />
       <Skeleton
-        variant={"square"}
+        variant="square"
         width={100}
         height={140}
         opacityMin={0.1}
@@ -117,20 +117,13 @@ export const HomeCategory = ({ size, categoryData }) => {
 
   return (
     <>
-      <View
-        style={{
-          flex: 1,
-          // justifyContent: "flex-start",
-          // backgroundColor: "green",
-          // marginTop: 12,
-        }}
-      >
+      <View>
         <CategoryHeaderView>
-          <Spacer position="left" size="medium">
-            <Label size="heading" weight="bold">
+          
+            <Label size="heading" weight="bold" style={{marginLeft: 16}}>
               {i18n.t("categories")}
             </Label>
-          </Spacer>
+          
         </CategoryHeaderView>
         <CategoryContentView>
           {categoryData ? (
@@ -142,8 +135,8 @@ export const HomeCategory = ({ size, categoryData }) => {
                 fadingEdgeLength={100}
                 snapToAlignment="start"
                 snapToInterval={100 + 16}
-                decelerationRate={"fast"}
-                overScrollMode={"always"}
+                decelerationRate="fast"
+                overScrollMode="always"
                 renderItem={({ item }) =>
                   renderCategory({
                     item,
@@ -152,7 +145,7 @@ export const HomeCategory = ({ size, categoryData }) => {
                   })
                 }
                 keyExtractor={(item) => item.id}
-                keyboardDismissMode={"interactive"}
+                keyboardDismissMode="interactive"
                 showsHorizontalScrollIndicator={false}
                 ItemSeparatorComponent={itemSeparatorHM}
                 contentContainerStyle={{

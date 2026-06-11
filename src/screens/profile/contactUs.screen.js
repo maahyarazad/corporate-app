@@ -113,7 +113,7 @@ export const ContactUsScreen = () => {
   };
 
   return (
-    <View style={[styles.container, { gap: 16 }]}>
+    <View style={[styles.container, { marginTop: 30 }]}>
       <TouchableOpacity
         onPress={goback}
         style={{
@@ -122,9 +122,9 @@ export const ContactUsScreen = () => {
         }}
         activeOpacity={0.5}
       >
-        <Ionicons name="arrow-back" size={35} color={"#555"} />
+        <Ionicons name="arrow-back" size={35} color="#555" />
         <Label
-          size={"body"}
+          size="body"
           weight="bold"
           style={{ color: "#555", justifyContent: "center" }}
         >
@@ -134,9 +134,9 @@ export const ContactUsScreen = () => {
       <View style={styles.contactContainer}>
         <View style={{ marginBottom: 24 }}>
           <Label
-            size={"h5"}
+            size="h5"
             weight="bold"
-            style={{ color: "#555", justifyContent: "center" }}
+            style={{ color: "#555", justifyContent: "center" , marginTop: 10}}
           >
             {i18n.t("profile-tabs.settings-menu.contact-us")}
           </Label>
@@ -166,7 +166,7 @@ export const ContactUsScreen = () => {
               onChangeText={handleNameChange}
               label={`${i18n.t("contact-us.form-name")} *`}
             />
-            <Spacer position={"top"} size="medium" />
+            <View style={{marginTop: 8}}/>
             <CustomTextInput
               disable={true}
               value={state.email}
@@ -181,7 +181,7 @@ export const ContactUsScreen = () => {
               onChangeText={handleEmailChange}
               label={`${i18n.t("contact-us.form-email")} *`}
             />
-            <Spacer position={"top"} size="medium" />
+            <View style={{marginTop: 8}}/>
             <CustomTextInput
               disable={true}
               value={state.mobile}
@@ -196,7 +196,7 @@ export const ContactUsScreen = () => {
               onChangeText={handleMobileChange}
               label={`${i18n.t("contact-us.form-phone-number")} *`}
             />
-            <Spacer position={"top"} size="medium" />
+            <View style={{marginTop: 8}}/>
             <CustomTextInput
               value={state.message}
               style={{
@@ -215,16 +215,16 @@ export const ContactUsScreen = () => {
               label={`${i18n.t("contact-us.form-message")} *`}
               multiline={true}
             />
-            <Spacer position={"top"} size="medium" />
+            <View style={{marginTop: 8}}/>
             <Button
               loading={isLoading}
               disabled={disableButton || isLoading}
               onPress={handleSubmit}
               contentStyle={{ paddingVertical: 8 }}
-              color={"orange"}
+              color="orange"
               mode="contained"
             >
-              <Label size={"body"} weight={"medium"}>
+              <Label size="body" weight="medium">
                 {i18n.t("submit")}
               </Label>
             </Button>

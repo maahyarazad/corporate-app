@@ -66,6 +66,8 @@ export default function useRequest() {
         isAuthorized === 1 &&
         hasSubmit === 1
       ) {
+
+        
         //Update user status to unauthorized in Server
         const unauth = await httpRequest("/v2/auth/unauthorize", "put");
         if (unauth.success) {
@@ -80,13 +82,13 @@ export default function useRequest() {
       }
 
       if (retry > 0) {
-        console.log(
-          `----------------------------------------------\nRetry #${retry}\nAccess Token: ${token}`
-        );
+        // console.log(
+        //   `----------------------------------------------\nRetry #${retry}\nAccess Token: ${token}`
+        // );
       }
-      console.log(`URL Called: (${method.toUpperCase()})`, url);
+    //   console.log(`URL Called: (${method.toUpperCase()})`, url);
 
-      if (url) console.log("REQ RESPONSE", options);
+    //   if (url) console.log("REQ RESPONSE", options);
 
       const response = await axios.request({
         timeoutErrorMessage: "Request Timeout",
@@ -94,13 +96,31 @@ export default function useRequest() {
       });
 
       return Promise.resolve(response.data);
+      
     } catch (error) {
+
       if (error.code === "ECONNABORTED") {
-        Alert.alert(
-          "Request Timeout Error",
-          "The request took too long to complete. Please check your network connection and try again."
+
+        if (retry >= MAX_RETRY) {
+          Alert.alert(
+            "Request Timeout Error",
+            "The request took too long to complete. Please check your network connection and try again."
+          );
+          return;
+        }
+
+        //retry
+        return await httpRequest(
+          url,
+          method,
+          body,
+          header,
+          signal,
+          token,
+          ++retry
         );
-        return;
+  
+
       }
       // Alert.alert(
       //   "Error",
@@ -108,11 +128,11 @@ export default function useRequest() {
       // );
       if (error && error.response && error.response.status >= 0) {
         // Alert.alert("Error Code", error.response.status);
-        console.log("ERROR:", error.response.status, error.response.data);
+        // console.log("ERROR:", error.response.status, error.response.data);
 
         switch (error.response.status) {
           case 0:
-            console.log("NO CONNECTION", config.SERVER_HOST + url);
+            // console.log("NO CONNECTION", config.SERVER_HOST + url);
             if (retry >= MAX_RETRY) {
               setNoConnection(true);
               setNoConnectionRetry({
@@ -134,7 +154,10 @@ export default function useRequest() {
             );
 
           case 401:
-            console.log("401 ERROR", error.response.data);
+            // console.log("401 ERROR", error.response.data);
+
+
+
             if (error.response.data.expired) {
               alert(
                 "Your card has expired, please upload a new one and change your card details in the profile page."
@@ -168,7 +191,7 @@ export default function useRequest() {
             );
 
             if (response) {
-              console.log("REFRESHING TOKEN");
+            //   console.log("REFRESHING TOKEN");
               renewAccessToken(response);
               //retry
               return await httpRequest(
@@ -188,7 +211,7 @@ export default function useRequest() {
             Alert.alert(title, message);
             throw JSON.parse(JSON.stringify(error.response));
           case 500:
-            console.error(error.response);
+            console.log(error.response);
             throw error.response;
           default:
             return error.response.data;

@@ -52,7 +52,7 @@ const PostDetailMagazine = () => {
         setArticle(response.data);
       }
     } catch (error) {
-      console.error("Failed to get magazine: ", error);
+      console.log("Failed to get magazine: ", error);
     }
   };
 
@@ -73,34 +73,34 @@ const PostDetailMagazine = () => {
       return (
         <View style={{ gap: 6 }}>
           <Skeleton
-            width={"100%"}
+            width="100%"
             height={16}
             opacityMax={0.2}
-            variant={"circle"}
+            variant="circle"
           />
           <Skeleton
-            width={"100%"}
+            width="100%"
             height={16}
             opacityMax={0.2}
-            variant={"circle"}
+            variant="circle"
           />
           <Skeleton
-            width={"100%"}
+            width="100%"
             height={16}
             opacityMax={0.2}
-            variant={"circle"}
+            variant="circle"
           />
           <Skeleton
-            width={"100%"}
+            width="100%"
             height={16}
             opacityMax={0.2}
-            variant={"circle"}
+            variant="circle"
           />
           <Skeleton
-            width={"40%"}
+            width="40%"
             height={16}
             opacityMax={0.2}
-            variant={"circle"}
+            variant="circle"
           />
         </View>
       );
@@ -109,16 +109,16 @@ const PostDetailMagazine = () => {
       <View style={{ gap: 16 }}>
         <View style={{ gap: 8 }}>
           <Skeleton
-            width={"100%"}
+            width="100%"
             height={40}
             opacityMax={0.2}
-            variant={"circle"}
+            variant="circle"
           />
           <Skeleton
-            width={"50%"}
+            width="50%"
             height={40}
             opacityMax={0.2}
-            variant={"circle"}
+            variant="circle"
           />
         </View>
         <View style={{ flexDirection: "row", gap: 6 }}>
@@ -126,28 +126,28 @@ const PostDetailMagazine = () => {
             width={50}
             height={50}
             opacityMax={0.2}
-            variant={"circle"}
+            variant="circle"
           />
           <View style={{ flex: 1, gap: 4, justifyContent: "center" }}>
             <Skeleton
-              width={"50%"}
+              width="50%"
               height={16}
               opacityMax={0.2}
-              variant={"circle"}
+              variant="circle"
             />
             <Skeleton
-              width={"50%"}
+              width="50%"
               height={16}
               opacityMax={0.2}
-              variant={"circle"}
+              variant="circle"
             />
           </View>
         </View>
         <Skeleton
-          width={"100%"}
+          width="100%"
           height={300}
           opacityMax={0.2}
-          variant={"square"}
+          variant="square"
           borderRadius={10}
         />
 
@@ -171,10 +171,10 @@ const PostDetailMagazine = () => {
         {article && article.body ? (
           <View style={{ gap: 14 }}>
             <View>
-              <Label size={"heading"} weight={"bold"}>
+              <Label size="heading" weight="bold">
                 {article.title}
               </Label>
-              <Spacer position={"top"} size={"small"} />
+              <View style={{marginTop: 6}}/>
               <View style={styles.row}>
                 <View style={styles.avatarContainer}>
                   <View
@@ -205,12 +205,12 @@ const PostDetailMagazine = () => {
                   </View>
                 </View>
                 <View style={{ gap: 4 }}>
-                  <Label size={"caption"} weight={"bold"}>
+                  <Label size="caption" weight="bold">
                     {article.author
                       ? article.author.name
                       : "German Emirates Club"}
                   </Label>
-                  <Label size={"caption"}>
+                  <Label size="caption">
                     {moment(article.starttime).format("DD.MM.YYYY, HH:mm")}
                   </Label>
                 </View>

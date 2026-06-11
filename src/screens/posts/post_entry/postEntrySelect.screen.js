@@ -76,12 +76,12 @@ const PostEntrySelect = () => {
             responseForum.success &&
             isMounted
           ) {
-            console.log("SAVING CATEGORIES");
+            
             setCategories([responseForum.data, responseMarketplace.data]);
             setLoading(false);
           }
         } catch (error) {
-          console.error("Failed to preload categories: ", error);
+          console.log("Failed to preload categories: ", error);
         }
       };
 
@@ -125,10 +125,10 @@ const PostEntrySelect = () => {
               color={theme.colors.icons.active}
             />
             <View style={{ flex: 1 }}>
-              <Label size={20} weight={"bold"}>
+              <Label size={20} weight="bold">
                 {type.label}
               </Label>
-              <Label size={16} weight={"medium"} color={"#999"}>
+              <Label size={16} weight="medium" color="#999">
                 {type.subtitle}
               </Label>
             </View>
@@ -156,12 +156,12 @@ const PostEntrySelect = () => {
               </View>
             </TouchableOpacity>
           </View>
-          <Spacer size={"large"} position={"top"} />
+          <View style={{marginTop: 10}}/>
 
           {/* Body */}
           <View style={styles.body}>
             <View style={{ gap: 10 }}>
-              <Label size={25} weight={"bold"} style={{ textAlign: "center" }}>
+              <Label size={25} weight="bold" style={{ textAlign: "center" }}>
                 Was möchten Sie tun?
               </Label>
             </View>

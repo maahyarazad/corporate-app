@@ -23,9 +23,9 @@ const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       const flags = await retrieveInfo();
-      console.log("FLAG", flags);
+    //   console.log("FLAG", flags);
       if (flags && isMounted.current) {
-        await setTimeout(() => {
+        setTimeout(() => {
           setRefreshToken(flags._refreshToken);
           setAccessToken(flags._accessToken);
           setIsAuthorized(parseInt(flags._isAuthorized));
@@ -64,7 +64,7 @@ const AuthProvider = ({ children }) => {
       await SecureStorage.setItemAsync("refreshToken", refToken);
       await SecureStorage.setItemAsync("accessToken", accToken);
     } catch (error) {
-      console.error("Failed in storing the tokens:", error);
+      console.log("Failed in storing the tokens:", error);
     }
   };
 
@@ -126,7 +126,7 @@ const AuthProvider = ({ children }) => {
           }
         });
     } catch (error) {
-      console.error("Failed in removing the tokens:", error);
+      console.log("Failed in removing the tokens:", error);
     }
   };
 
@@ -144,7 +144,7 @@ const AuthProvider = ({ children }) => {
 
       await SecureStorage.setItemAsync("verified", "true");
     } catch (error) {
-      console.error("Failed to store: ", error);
+      console.log("Failed to store: ", error);
     }
   };
 
@@ -159,7 +159,7 @@ const AuthProvider = ({ children }) => {
       setHasSubmit(1);
       await SecureStorage.setItemAsync("hasSubmit", "1");
     } catch (error) {
-      console.error("Failed to store: ", error);
+      console.log("Failed to store: ", error);
     }
   };
 
@@ -168,7 +168,7 @@ const AuthProvider = ({ children }) => {
       setIsAuthorized(1);
       await SecureStorage.setItemAsync("isAuthorized", "1");
     } catch (error) {
-      console.error("Failed to store: ", error);
+      console.log("Failed to store: ", error);
     }
   };
 
@@ -179,9 +179,9 @@ const AuthProvider = ({ children }) => {
 
       await SecureStorage.setItemAsync("hasSubmit", "0");
       await SecureStorage.setItemAsync("isAuthorized", "0");
-      console.log("unauth");
+    //   console.log("unauth");
     } catch (error) {
-      console.error("Failed to store: ", error);
+      console.log("Failed to store: ", error);
     }
   };
 
@@ -196,7 +196,7 @@ const AuthProvider = ({ children }) => {
       setIsSkip(true);
       await SecureStorage.setItemAsync("isSkip", "1");
     } catch (error) {
-      console.error("Failed to store: ", error);
+      console.log("Failed to store: ", error);
     }
   };
 

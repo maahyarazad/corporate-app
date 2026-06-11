@@ -5,9 +5,10 @@ import {
   Linking,
   RefreshControl,
   StyleSheet,
+  Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  View,
+  View, Platform
 } from "react-native";
 import { SafeArea } from "../../components/safearea.component";
 import { Label } from "../../components/typography/label.component";
@@ -100,7 +101,7 @@ export const LocationViewScreen = ({ route, navigation }) => {
         }
       }
     } catch (error) {
-      console.error("Failed to get location:", error);
+      console.log("Failed to get location:", error);
     }
   };
 
@@ -121,7 +122,7 @@ export const LocationViewScreen = ({ route, navigation }) => {
     const label = location?.name;
     const url = Platform.select({
       ios: `${scheme}${encodeURIComponent(label)}@${latLng}`,
-      android: `${scheme}${latLng}(${encodeURIComponent(labe)})`,
+      android: `${scheme}${latLng}(${encodeURIComponent(label)})`,
     });
     Linking.openURL(url);
   };
@@ -129,13 +130,14 @@ export const LocationViewScreen = ({ route, navigation }) => {
   const navigateBack = () => {
     navigation.goBack();
   };
-
+const SLIDESHOW_HEIGHT = Math.floor(width * 9 / 16);
   const renderPartner = () => {
     return (
       <>
         <View style={{ backgroundColor: "#efefef" }}>
+             
           <View>
-            <View style={{ height: width * (9 / 16) }}>
+            <View style={{ height: SLIDESHOW_HEIGHT }}>
               {width != undefined && location != undefined && (
                 <>
                   <Slideshow images={location.images} />
@@ -144,8 +146,9 @@ export const LocationViewScreen = ({ route, navigation }) => {
             </View>
 
             <View>
-              {/* New Component */}
+               
               <View style={{ padding: 16 }}>
+              
                 <LocationInfo
                   location={location}
                   distance={distance}
@@ -235,7 +238,6 @@ export const LocationViewScreen = ({ route, navigation }) => {
                           mode="contained"
                           labelStyle={{
                             color: "#1282FF",
-
                             fontWeight: "bold",
                           }}
                           contentStyle={{ height: 50 }}
@@ -297,7 +299,7 @@ export const LocationViewScreen = ({ route, navigation }) => {
                     alignItems: "center",
                   }}
                 >
-                  <Ionicons name={"arrow-back"} color="white" size={35} />
+                  <Ionicons name="arrow-back" color="white" size={35} />
                 </View>
               </TouchableRipple>
             </View>
@@ -325,7 +327,7 @@ export const LocationViewScreen = ({ route, navigation }) => {
 
   useEffect(() => {
     if (animatedValue > 2) {
-      console.log("yey");
+    //   console.log("yey");
     }
   }, [animatedValue]);
 

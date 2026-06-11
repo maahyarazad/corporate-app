@@ -11,7 +11,7 @@ export const Map = ({ lat, lng, zoom = 14 }) => {
           <MapView
             pointerEvents="none"
             showsUserLocation
-            provider={"google"}
+            provider="google"
             style={styles.map}
             camera={{
               center: {
