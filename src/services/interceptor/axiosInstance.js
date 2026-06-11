@@ -14,7 +14,11 @@ export const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   async (config) => {
-    console.log(config.baseURL);
+    console.log(
+      "[axios →]",
+      (config.method || "get").toUpperCase(),
+      `${config.baseURL || ""}${config.url || ""}`
+    );
     const token = await SecureStore.getItemAsync("token");
 
     if (token) {
@@ -23,14 +27,35 @@ axiosInstance.interceptors.request.use(
 
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    console.log("[axios request error]", error?.message);
+    return Promise.reject(error);
+  }
 );
 
 /* ================= RESPONSE ================= */
 
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log(
+      "[axios ←]",
+      response.status,
+      response.config?.url,
+      JSON.stringify(response.data)
+    );
+    return response;
+  },
   (error) => {
+    console.log(
+      "[axios ✕]",
+      error?.config?.url,
+      "status:",
+      error?.response?.status,
+      "data:",
+      JSON.stringify(error?.response?.data),
+      "message:",
+      error?.message
+    );
     if (!error.response) {
 
       showToast(

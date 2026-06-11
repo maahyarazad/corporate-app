@@ -37,7 +37,6 @@ export const RegistrationScreen = () => {
   const theme = useTheme();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [disable, setDisable] = useState(false);
-  const [isPasswordMatch, setIsPasswordMatch] = useState(false);
   const [state, setState] = useState({
     username: "",
     password: "",
@@ -92,19 +91,36 @@ export const RegistrationScreen = () => {
   };
 
   const validateInfo = () => {
+    const username = state.username.trim();
+    // Passwords are NOT trimmed: spaces can be valid characters, and trimming
+    // here previously made length/match checks disagree with what was typed.
+    const password = state.password;
+    const cpassword = state.cpassword;
+    const email = state.email.trim();
+    const mobile = state.mobile.trim();
+
+    console.log("[validateInfo] field lengths:", {
+      username: username.length,
+      password: password.length,
+      cpassword: cpassword.length,
+      email: email.length,
+      mobile: mobile.length,
+      passwordsEqual: password === cpassword,
+    });
+
     if (
-      state.username.trim() === "" ||
-      state.password.trim() === "" ||
-      state.cpassword.trim() === "" ||
-      state.email.trim() === "" ||
-      state.mobile.trim() === ""
+      username === "" ||
+      password === "" ||
+      cpassword === "" ||
+      email === "" ||
+      mobile === ""
     ) {
       shake();
       showToast("error", "Empty Fields", "Some fields are empty.");
       return false;
     }
 
-    if (state.username.trim().length < 8) {
+    if (username.length < 8) {
       shake();
       showToast(
         "error",
@@ -114,10 +130,10 @@ export const RegistrationScreen = () => {
       return false;
     }
 
-    if (
-      !(state.password.trim().length >= 8) ||
-      !(state.cpassword.trim().length >= 8)
-    ) {
+    // Check each password field on its own so the message points at the
+    // correct field (the old combined check blamed "Password" for a short
+    // Confirm Password).
+    if (password.length < 8) {
       shake();
       showToast(
         "error",
@@ -127,13 +143,27 @@ export const RegistrationScreen = () => {
       return false;
     }
 
-    if (state.password !== state.cpassword) {
+    if (cpassword.length < 8) {
       shake();
-      showToast("error", "Invalid Password", "Password does not match!");
+      showToast(
+        "error",
+        "Confirm Password too short",
+        "Confirm Password must be at least 8 characters long!"
+      );
       return false;
     }
 
-    if (!isValidEmail(state.email.trim().toLowerCase())) {
+    if (password !== cpassword) {
+      shake();
+      showToast(
+        "error",
+        "Passwords do not match",
+        "Password and Confirm Password must be the same."
+      );
+      return false;
+    }
+
+    if (!isValidEmail(email.toLowerCase())) {
       shake();
       showToast(
         "error",
@@ -143,18 +173,12 @@ export const RegistrationScreen = () => {
       return false;
     }
 
-    if (!state.mobile) {
+    if (!mobile) {
       shake();
-      showToast(
-        "error",
-        "Mobile is required",
-      );
+      showToast("error", "Mobile is required");
       return false;
     }
 
-    // if (!_isFutureExpiry) {
-
-    setIsPasswordMatch(true);
     return true;
   };
 
@@ -213,7 +237,7 @@ export const RegistrationScreen = () => {
           ...state,
         };
         const response = await UserService.validateDetails(data);
-        console.log(response);
+        
         if (response.success) {
           navigate("RegisterDetails", { login: data, services_data: response});
         } else {
@@ -318,8 +342,8 @@ export const RegistrationScreen = () => {
                 label="Password *"
                 error={
                   isSubmitted &&
-                  state.password.trim() === "" &&
-                  !isPasswordMatch
+                  (state.password.trim() === "" ||
+                    state.password !== state.cpassword)
                 }
                 secureTextEntry={true}
                 showEye={true}
@@ -335,8 +359,8 @@ export const RegistrationScreen = () => {
                 label="Confirm Password *"
                 error={
                   isSubmitted &&
-                  state.cpassword.trim() === "" &&
-                  !isPasswordMatch
+                  (state.cpassword.trim() === "" ||
+                    state.cpassword !== state.password)
                 }
                 secureTextEntry={true}
                 showEye={true}

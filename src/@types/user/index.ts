@@ -16,6 +16,7 @@ export interface IUser{
     mobileCode?: string;
     nationality: string | TranslationLanguageCodeMap;
     partner_id: number;
+    token: string;
 }
 
 export interface IUserDetails {

@@ -12,11 +12,12 @@ const resData = (response: AxiosResponse) => response.data.data;
 
 export const UserService: UserServiceType = {
   async createUser(user): Promise<any> {
+    console.log("[UserService.createUser] POST", `${API_URL}/register`, "payload:", JSON.stringify(user));
     const response = await axiosInstance.post<any>(
       `${API_URL}/register`,
       user
     );
-    
+    console.log("[UserService.createUser] raw response.data:", JSON.stringify(response.data));
     return responseData(response);
   },
 

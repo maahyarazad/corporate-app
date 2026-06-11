@@ -11,8 +11,9 @@ import {
   Pressable,
   TouchableWithoutFeedback,
   Platform,
+  ActivityIndicator,
 } from "react-native";
-import { companyLogo, config, honorificList } from "../../utils/constants";
+import { companyLogo, honorificList } from "../../utils/constants";
 import { useTheme } from "styled-components/native";
 import { Button, TextInput } from "react-native-paper";
 import { SafeArea } from "../../components/safearea.component";
@@ -28,7 +29,7 @@ import { CustomTextInput } from "../../components/customTextInput";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import moment from "moment";
 import { CustomModal } from "../../components/modal/customModal.component";
-import Recaptcha from "react-native-recaptcha-that-works";
+import { getRecaptchaToken } from "../../services/recaptcha/recaptcha.service";
 
 import { DropDown } from "../../components/DropDown";
 import { BirthdatePicker } from "../../components/BirthdatePicker";
@@ -46,6 +47,7 @@ export const RegistrationDetailsScreen = ({ route }) => {
   const theme = useTheme();
   const [showCountries, setShowCountries] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const dateLimit = new Date();
   dateLimit.setFullYear(dateLimit.getFullYear() - 18);
   const [showBdayModal, setShowBdayModal] = useState(false);
@@ -94,35 +96,68 @@ export const RegistrationDetailsScreen = ({ route }) => {
     ],
   };
 
-  const recaptcha = useRef();
-
-  const sendCaptcha = () => {
+  const sendCaptcha = async () => {
+    console.log("[Register] sendCaptcha pressed");
     setIsSubmitted(true);
-    if (validateInfo()) {
-      const misc = route.params.login.miscellaneous;
-      if (misc === undefined) recaptcha.current.open();
+
+    // Prevent multiple submissions while a request is already in flight.
+    if (isLoading) {
+      console.log("[Register] ignored: already loading");
       return;
+    }
+    if (!validateInfo()) {
+      console.log("[Register] aborted: validation failed");
+      return;
+    }
+
+    const misc = route.params.login.miscellaneous;
+    console.log("[Register] miscellaneous:", misc);
+    if (misc !== undefined) {
+      console.log("[Register] aborted: misc is defined, not requesting captcha");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      console.log("[Register] requesting reCAPTCHA token...");
+      // reCAPTCHA Enterprise runs natively (no WebView) and returns a token.
+      const token = await getRecaptchaToken("register");
+      console.log(
+        "[Register] token received:",
+        token ? `${token.substring(0, 12)}... (len ${token.length})` : token
+      );
+      if (!token) {
+        throw new Error("Could not verify reCAPTCHA. Please try again.");
+      }
+      await submit(token);
+    } catch (err) {
+      console.log("[Register] sendCaptcha error:", err?.message, err);
+      showToast("error", "Error", err?.message || "Something went wrong.");
+    } finally {
+      console.log("[Register] sendCaptcha finished, clearing loading");
+      setIsLoading(false);
     }
   };
 
-  const onVerify = (token) => {
-    submit(token);
-    // nextPage();
-  };
+  // The required fields for registration. Safe against undefined/empty values.
+  const hasRequiredFields =
+    (state.firstname || "").trim() !== "" &&
+    (state.lastname || "").trim() !== "" &&
+    state.birthdate != null &&
+    state.birthdate !== "";
 
-  const onExpire = () => {
-    console.warn("expired!");
-    showToast("error", "Expired", "NOT NICE");
-  };
+  // A red border that stays visible even while the field is focused (the shared
+  // CustomTextInput only shows its own red border when blurred). Same idea as
+  // the mobile field in registration.screen.js.
+  const requiredBorderStyle = (isEmpty) =>
+    isSubmitted && isEmpty
+      ? { borderWidth: 2, borderRadius: 4, borderColor: "red" }
+      : undefined;
 
   const validateInfo = () => {
-    if (
-      state.firstname.trim() === "" ||
-      state.lastname.trim() === "" ||
-      state.birthdate === null
-    ) {
+    if (!hasRequiredFields) {
       shake();
-      showToast("error", "Empty Fields", "Some fields are empty.");
+      showToast("error", "Empty Fields", "Please fill in all required fields.");
       return false;
     }
 
@@ -130,10 +165,13 @@ export const RegistrationDetailsScreen = ({ route }) => {
   };
 
  const submit = async (token) => {
+  console.log("[Register] submit() called with token:", token ? "present" : "MISSING");
   try {
     const register1 = route.params.login;
     const platform = Platform.OS;
+    console.log("[Register] fetching device info...");
     const deviceInfo = await getDeviceInfo();
+    console.log("[Register] device info:", deviceInfo);
 
     const user = {
       ...register1,
@@ -145,18 +183,26 @@ export const RegistrationDetailsScreen = ({ route }) => {
       platform,
     };
 
+    console.log("[Register] POST user/register payload:", JSON.stringify(user));
     const result = await UserService.createUser(user);
+    console.log("[Register] createUser response:", JSON.stringify(result));
 
-    
     if (result) {
       if (result?.redCard) {
+        console.log("[Register] navigating to RegisterSuccessByServices");
         navigate("RegisterSuccessByServices");
       } else {
+        console.log("[Register] navigating to RegisterSuccess");
         navigate("RegisterSuccess");
       }
+    } else {
+      console.log("[Register] result was falsy, no navigation:", result);
     }
   } catch (err) {
+    console.log("[Register] submit error:", err?.message, err?.response?.data, err);
     showToast("error", "Error", err.message);
+  } finally {
+    setIsLoading(false);
   }
 };
 
@@ -175,16 +221,17 @@ export const RegistrationDetailsScreen = ({ route }) => {
 
 useEffect(() => {
   const services_data = route.params?.services_data?.services;
-  if (services_data) {
-    
-
-    setState(prev => ({
+  // Only prefill when we actually have data; an empty {} must not overwrite
+  // the fields with undefined (which crashed validateInfo on `.trim()`).
+  if (services_data && Object.keys(services_data).length > 0) {
+    setState((prev) => ({
       ...prev,
-      firstname: services_data.firstname,
-      lastname: services_data.lastname,
-      birthdate : services_data.birthday ? new Date(services_data.birthday) : ""
+      firstname: services_data.firstname ?? prev.firstname,
+      lastname: services_data.lastname ?? prev.lastname,
+      birthdate: services_data.birthday
+        ? new Date(services_data.birthday)
+        : prev.birthdate,
     }));
-    
   }
 }, []);
   return (
@@ -246,7 +293,7 @@ useEffect(() => {
                       setState((prev) => ({ ...prev, honorifics: e }))
                     }
                     openBelow={true}
-                    placeholder="Salutation *"
+                    placeholder="Salutation"
                     //   error={!state.honorifics && isSubmitted}
                   />
 
@@ -266,7 +313,10 @@ useEffect(() => {
                     value={state.firstname}
                     onChangeText={handleFirstNameChange}
                     label="First Name *"
-                    error={isSubmitted && state.firstname.trim() === ""}
+                    error={isSubmitted && (state.firstname || "").trim() === ""}
+                    style={requiredBorderStyle(
+                      (state.firstname || "").trim() === ""
+                    )}
                     onSubmitEditing={() => middlename.current?.focus()}
                   />
                 </View>
@@ -288,7 +338,10 @@ useEffect(() => {
                     onChangeText={handleLastNameChange}
                     onSubmitEditing={Keyboard.dismiss}
                     label="Last Name *"
-                    error={isSubmitted && state.lastname.trim() === ""}
+                    error={isSubmitted && (state.lastname || "").trim() === ""}
+                    style={requiredBorderStyle(
+                      (state.lastname || "").trim() === ""
+                    )}
                   />
                 </View>
 
@@ -325,37 +378,18 @@ useEffect(() => {
                       onChange={(e) =>
                         setState((prev) => ({ ...prev, gender: e }))
                       }
-                      placeholder="Gender *"
+                      placeholder="Gender"
                       // error={!state.gender && isSubmitted}
                     />
                   </View>
                 </View>
 
-                <View
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <Recaptcha
-                    ref={recaptcha}
-                    siteKey="6LfkGVAmAAAAALcsQxnK2wntbm2ccMfBCz0V81M9"
-                    baseUrl="http://www.german-emirates-club.com"
-                    onVerify={onVerify}
-                    onError={(e) => console.log("ERROR:", e)}
-                    onExpire={onExpire}
-                    size="small"
-                  />
-                </View>
+                {/* reCAPTCHA Enterprise is a native module (no UI element). */}
 
                 <TouchableOpacity
                   activeOpacity={0.8}
                   onPress={sendCaptcha}
+                  disabled={isLoading || !hasRequiredFields}
                   style={{
                     height: 60,
                     backgroundColor: theme.colors.ui.button,
@@ -363,15 +397,20 @@ useEffect(() => {
                     justifyContent: "center",
                     alignItems: "center",
                     marginVertical: 30,
+                    opacity: isLoading || !hasRequiredFields ? 0.5 : 1,
                   }}
                 >
-                  <Label
-                    style={{ color: "white" }}
-                    size="body"
-                    weight="bold"
-                  >
-                    Next
-                  </Label>
+                  {isLoading ? (
+                    <ActivityIndicator color="white" />
+                  ) : (
+                    <Label
+                      style={{ color: "white" }}
+                      size="body"
+                      weight="bold"
+                    >
+                      Next
+                    </Label>
+                  )}
                 </TouchableOpacity>
               </View>
             </KeyboardAwareScrollView>

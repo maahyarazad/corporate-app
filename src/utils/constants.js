@@ -20,6 +20,16 @@ export const config = {
   APP_ID: 2,
   CURRENCY: "AED",
   DEV: process.env.EXPO_PUBLIC_DEV === "true",
+  RECAPTCHA_V3_SITE_KEY: process.env.EXPO_PUBLIC_RECAPTCHA_V3_SITE_KEY,
+  // reCAPTCHA Enterprise keys (KEY_ID) created in the Google Cloud console.
+  // Enterprise keys are PLATFORM-SPECIFIC: an Android key (tied to the package
+  // name + signing SHA-256) cannot be used by the iOS SDK and vice-versa.
+  // Passing the wrong platform's key to the native SDK throws "Key type invalid".
+  // Used by @google-cloud/recaptcha-enterprise-react-native.
+  RECAPTCHA_SITE_KEY_ANDROID: process.env.EXPO_PUBLIC_RECAPTCHA_SITE_KEY_ANDROID,
+  RECAPTCHA_SITE_KEY_IOS: process.env.EXPO_PUBLIC_RECAPTCHA_SITE_KEY_IOS,
+  // Legacy single-key fallback (kept so existing builds don't break).
+  RECAPTCHA_SITE_KEY: process.env.EXPO_PUBLIC_RECAPTCHA_SITE_KEY,
 };
 
 export const EULAPrivacyLink = `https://www.buenapublica.com/privacy-policy`;

@@ -1,4 +1,5 @@
 import "react-native-gesture-handler";
+import { useEffect } from "react";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 import { ThemeProvider } from "styled-components/native";
@@ -19,6 +20,7 @@ import configureStore from "./redux/store/postStore";
 import AlertContextProvider from "./src/services/alert/alert.context";
 import { toastConfig } from "./src/Toast";
 import Toast from "react-native-toast-message";
+import { initRecaptcha } from "./src/services/recaptcha/recaptcha.service";
 
 const store = configureStore();
 
@@ -27,6 +29,13 @@ export default function App() {
   Text.defaultProps.allowFontScaling = false;
   TextInput.defaultProps = TextInput.defaultProps || {};
   TextInput.defaultProps.allowFontScaling = false;
+
+  // Initialize the reCAPTCHA Enterprise client once for the app lifetime.
+  useEffect(() => {
+    initRecaptcha().catch(() => {
+      // Already logged inside the service; warming up is best-effort.
+    });
+  }, []);
 
   return (
     <>

@@ -61,3 +61,4 @@ google-services.json
 *.jks
 *.keystore
 *.cer
+eas.json
