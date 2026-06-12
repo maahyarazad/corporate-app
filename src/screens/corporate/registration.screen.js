@@ -7,7 +7,10 @@ import {
   Animated,
   Easing,
   Vibration,
+  ActivityIndicator,
+  BackHandler,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "styled-components/native";
 import { SafeArea } from "../../components/safearea.component";
 import { Spacer } from "../../components/spacer/spacer.component";
@@ -31,25 +34,71 @@ import { DropDown } from "../../components/DropDown";
 import { PhoneInput } from "../../components/PhoneInput";
 import { showToast } from "../../Toast";
 
+const INITIAL_REGISTRATION_STATE = {
+  username: "",
+  password: "",
+  cpassword: "",
+  email: "",
+  mobile: "",
+  mobileCode: "971",
+  mobileCountry: "AE",
+  partner_id: null,
+  app_id: config.APP_ID,
+  card_valid_date: "",
+  miscellaneous: undefined,
+};
+
+// Module-level cache so the entered form survives this screen unmounting.
+// A stack pop (e.g. tapping "Login" to go back) unmounts RegistrationScreen,
+// which would otherwise reset every field. Keeping the last state here lets the
+// user return and continue where they left off. Reset via resetRegistrationState
+// once registration actually completes.
+let cachedRegistrationState = { ...INITIAL_REGISTRATION_STATE };
+
+export const resetRegistrationState = () => {
+  cachedRegistrationState = { ...INITIAL_REGISTRATION_STATE };
+};
+
 export const RegistrationScreen = () => {
 
 
   const theme = useTheme();
+  const navigation = useNavigation();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [disable, setDisable] = useState(false);
-  const [state, setState] = useState({
-    username: "",
-    password: "",
-    cpassword: "",
-    email: "",
-    mobile: "",
-    mobileCode: "971",
-    mobileCountry: "AE",
-    partner_id: null,
-    app_id: config.APP_ID,
-    card_valid_date: "",
-    miscellaneous: undefined,
-  });
+  const [isLoading, setIsLoading] = useState(false);
+  // Seed from the module-level cache so returning to this screen restores the
+  // previously entered data instead of starting blank.
+  const [state, setState] = useState(cachedRegistrationState);
+
+  // Keep the cache in sync with every edit so it's current when the screen
+  // unmounts (navigating back) and is read again on the next mount.
+  useEffect(() => {
+    cachedRegistrationState = state;
+  }, [state]);
+
+  // Lock the user on this screen while the validate-details request is in
+  // flight: disable the iOS swipe-back gesture, the Android hardware back
+  // button, and any programmatic removal of the screen.
+  useEffect(() => {
+    navigation.setOptions({ gestureEnabled: !isLoading });
+
+    const backSub = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => isLoading // returning true swallows the back press while loading
+    );
+
+    const removeBeforeRemove = navigation.addListener("beforeRemove", (e) => {
+      if (isLoading) {
+        e.preventDefault();
+      }
+    });
+
+    return () => {
+      backSub.remove();
+      removeBeforeRemove();
+    };
+  }, [navigation, isLoading]);
 
   const dateLimit = new Date();
   const usernameRef = useRef(null);
@@ -231,24 +280,30 @@ export const RegistrationScreen = () => {
   const nextPage = async () => {
     setIsSubmitted(true);
 
-    if (validateInfo()) {
-      try {
-        const data = {
-          ...state,
-        };
-        const response = await UserService.validateDetails(data);
-        
-        if (response.success) {
-          navigate("RegisterDetails", { login: data, services_data: response});
-        } else {
-          shake();
-          showToast("error", "Validation Error", response.message);
-        }
-      } catch (error) {
-        console.log("Validation Error:", error);
+    // Guard against duplicate submissions while a request is already running.
+    if (isLoading) return;
+    if (!validateInfo()) return;
+
+    try {
+      setIsLoading(true);
+      const data = {
+        ...state,
+      };
+      const response = await UserService.validateDetails(data);
+
+      if (response.success) {
+        // Only advance after a successful server response.
+        navigate("RegisterDetails", { login: data, services_data: response });
+      } else {
         shake();
-        showToast("error", "Server Error", error);
+        showToast("error", "Validation Error", response.message);
       }
+    } catch (error) {
+      console.log("Validation Error:", error);
+      shake();
+      showToast("error", "Server Error", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -306,9 +361,11 @@ export const RegistrationScreen = () => {
               >
                 <TouchableOpacity
                   onPress={goback}
+                  disabled={isLoading}
                   style={{
                     flexDirection: "row",
                     alignItems: "center",
+                    opacity: isLoading ? 0.5 : 1,
                   }}
                   activeOpacity={0.5}
                 >
@@ -380,7 +437,8 @@ export const RegistrationScreen = () => {
               />
 
               <PhoneInput
-                defaultCode="AE"
+                defaultCode={state.mobileCountry || "AE"}
+                value={state.mobile}
                 placeholder="541234567"
                 onChangeText={handleMobileChange}
                 onChangeCountry={handleMobileCountryChange}
@@ -419,6 +477,7 @@ export const RegistrationScreen = () => {
               <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={nextPage}
+                disabled={isLoading}
                 style={{
                   height: 55,
                   backgroundColor: theme.colors.ui.button,
@@ -426,11 +485,16 @@ export const RegistrationScreen = () => {
                   justifyContent: "center",
                   alignItems: "center",
                   marginVertical: 8,
+                  opacity: isLoading ? 0.7 : 1,
                 }}
               >
-                <Label style={{ color: "white" }} size="body" weight="bold">
-                  Next
-                </Label>
+                {isLoading ? (
+                  <ActivityIndicator color="white" />
+                ) : (
+                  <Label style={{ color: "white" }} size="body" weight="bold">
+                    Next
+                  </Label>
+                )}
               </TouchableOpacity>
                 </View>
             </KeyboardAwareScrollView>

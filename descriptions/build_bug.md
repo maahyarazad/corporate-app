@@ -251,3 +251,25 @@ Updated             3 years ago
     credentials.json: Upload/Download credentials between EAS servers and your local json 
     Go back
     Exit
+
+
+# Feature - Automatically Retrieve OTP from SMS
+
+## Description
+
+In `otpVerification.js`, add support for automatically detecting and retrieving the OTP from incoming SMS messages.
+
+When an OTP message is received, the application should automatically populate the OTP input field and submit the code to the server for verification without requiring manual user input.
+
+## Expected Behavior
+
+- Detect incoming SMS messages containing the OTP.
+- Automatically extract the OTP code from the message.
+- Populate the OTP input field with the extracted code.
+- Automatically send the OTP to the server for verification.
+- If verification is successful, continue to the next step of the authentication flow.
+
+## Notes
+
+- The implementation should follow platform-specific best practices for OTP autofill on both iOS and Android.
+- Users should still be able to manually enter the OTP if automatic detection is unavailable or fails.

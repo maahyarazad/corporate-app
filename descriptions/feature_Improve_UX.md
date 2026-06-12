@@ -77,3 +77,63 @@ const handleRedeem = async () => {
     });
   };
 ```
+
+
+
+# Bug - NationalityInput and DropDown Modal Jumps to Top on Close
+
+## Description
+
+The `NationalityInput` and `DropDown` components exhibit an unexpected UI behavior when being dismissed.
+
+When the modal is closed, it briefly jumps or scrolls to the top before disappearing. This creates a noticeable visual flicker and results in a poor user experience.
+
+## Expected Behavior
+
+The modal should close smoothly from its current position without changing its scroll position or jumping to the top.
+
+## Actual Behavior
+
+When the modal is dismissed, it jumps to the top momentarily before disappearing.
+
+
+
+
+# Bug - Registration State Is Not Being Preserved
+
+## Description
+
+In `registration.screen.js`, when a user navigates away from the registration screen and returns to the login page, all entered form data is lost.
+
+The registration state should be preserved so that users can continue where they left off without having to re-enter their information.
+
+## Expected Behavior
+
+When a user navigates away from the registration screen and then returns, the previously entered data should remain intact.
+
+## Actual Behavior
+
+When a user leaves the registration screen and returns, all form state is reset and the entered data is lost.
+
+
+# Feature - Add Loading State to Registration Button
+
+## Description
+
+In `registration.screen.js`, when a user submits the registration form, a loading indicator should be displayed on the submit button while the request is being processed by the server.
+
+Additionally, navigation should be temporarily disabled during the request to prevent users from leaving the screen or triggering duplicate submissions before the request completes.
+
+## Expected Behavior
+
+- Display a loading indicator on the submit button immediately after the user submits the form.
+- Disable the submit button to prevent multiple submissions.
+- Prevent navigation away from the screen while the request is in progress.
+- Re-enable navigation and remove the loading indicator once the request completes, whether successfully or with an error.
+- Navigate to the next screen only after receiving a successful response from the server.
+
+## Actual Behavior
+
+- No loading indicator is displayed while the request is being processed.
+- Users can navigate away from the screen during the request.
+- Multiple submissions may be triggered before the initial request completes.

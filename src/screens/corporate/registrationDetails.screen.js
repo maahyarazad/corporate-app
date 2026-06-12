@@ -33,6 +33,7 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import moment from "moment";
 import { CustomModal } from "../../components/modal/customModal.component";
 import { getRecaptchaToken } from "../../services/recaptcha/recaptcha.service";
+import { resetRegistrationState } from "./registration.screen";
 
 import { DropDown } from "../../components/DropDown";
 import { BirthdatePicker } from "../../components/BirthdatePicker";
@@ -244,6 +245,9 @@ export const RegistrationDetailsScreen = ({ route }) => {
     console.log("[Register] createUser response:", JSON.stringify(result));
 
     if (result) {
+      // Registration completed — clear the preserved first-step form so a
+      // future registration starts blank (and no password lingers in memory).
+      resetRegistrationState();
       if (result?.redCard) {
         console.log("[Register] navigating to RegisterSuccessByServices");
         navigate("RegisterSuccessByServices");
