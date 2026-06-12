@@ -137,3 +137,46 @@ Additionally, navigation should be temporarily disabled during the request to pr
 - No loading indicator is displayed while the request is being processed.
 - Users can navigate away from the screen during the request.
 - Multiple submissions may be triggered before the initial request completes.
+
+
+# Feature - Automatically Retrieve OTP from SMS
+
+## Description
+
+In `otpVerification.js`, add support for automatically detecting and retrieving the OTP from incoming SMS messages.
+
+When an OTP message is received, the application should automatically populate the OTP input field and submit the code to the server for verification without requiring manual user input.
+
+## Expected Behavior
+
+- Detect incoming SMS messages containing the OTP.
+- Automatically extract the OTP code from the message.
+- Populate the OTP input field with the extracted code.
+- Automatically send the OTP to the server for verification.
+- If verification is successful, continue to the next step of the authentication flow.
+
+## Notes
+
+- The implementation should follow platform-specific best practices for OTP autofill on both iOS and Android.
+- Users should still be able to manually enter the OTP if automatic detection is unavailable or fails.
+
+
+
+# Feature - Add Support Link to Login Page
+
+## Description
+
+Add a **Support** link to the Login page, similar to the **Contact Us** option in `profSettings`, so that users who are unable to log in or are experiencing issues can access the support portal.
+
+### Implementation
+
+```js
+const handleContactUs = async () => {
+  try {
+    await WebBrowser.openBrowserAsync(
+      "https://services.german-emirates-club.com/support"
+    );
+  } catch (error) {
+    showToast("error", "Error Occurred", "Cannot Open Support Page");
+  }
+};

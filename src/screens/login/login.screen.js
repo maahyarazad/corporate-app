@@ -4,6 +4,7 @@ import {
   Keyboard,
   Platform,
   StyleSheet,
+  Text,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -223,6 +224,18 @@ export const LoginScreen = ({ navigation }) => {
     }
   };
 
+  // Opens the support portal in the in-app browser so users who can't log in can
+  // still reach help. Mirrors the Contact Us behaviour in profSettings.
+  const handleSupport = async () => {
+    try {
+      await WebBrowser.openBrowserAsync(
+        "https://services.german-emirates-club.com/support"
+      );
+    } catch (error) {
+      showToast("error", "Error Occurred", "Cannot Open Support Page");
+    }
+  };
+
   if (loading) {
     return (
       <View style={{ flex: 1, backgroundColor: "white", justifyContent: "center", alignItems: "center" }}>
@@ -272,6 +285,17 @@ export const LoginScreen = ({ navigation }) => {
                 />
 
                 {canRegister && <RegisterSection navigation={navigation} theme={theme} />}
+
+                {/* Support link — lets users who can't log in reach the portal */}
+                <TouchableOpacity
+                  onPress={handleSupport}
+                  activeOpacity={0.7}
+                  style={styles.supportLink}
+                >
+                  <Text style={styles.supportText}>
+                    Having trouble? Contact Support
+                  </Text>
+                </TouchableOpacity>
               </View>
             </KeyboardAwareScrollView>
           </SafeArea>
@@ -281,4 +305,16 @@ export const LoginScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  supportLink: {
+    alignItems: "center",
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+  },
+  supportText: {
+    color: "#ffffff",
+    fontSize: 14,
+    fontWeight: "600",
+    textDecorationLine: "underline",
+  },
+});
