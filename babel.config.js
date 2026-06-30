@@ -6,5 +6,13 @@ module.exports = function (api) {
       '@babel/plugin-proposal-optional-chaining',
       'react-native-reanimated/plugin'
     ],
+    // Strip all console.* statements from production bundles. They remain in
+    // development builds for debugging but are removed entirely from production
+    // output, so they neither run nor ship to end users.
+    env: {
+      production: {
+        plugins: ['transform-remove-console'],
+      },
+    },
   };
 };

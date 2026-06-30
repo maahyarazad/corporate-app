@@ -1,5 +1,6 @@
-import { View, Text, Alert } from "react-native";
+import { View, Text } from "react-native";
 import React, { Children, createContext, useEffect, useState } from "react";
+import { showToast } from "../../Toast";
 import useRequest from "../../../hooks/useRequest";
 import * as SecureStorage from "expo-secure-store";
 import useAuth from "../../../hooks/useAuth";
@@ -107,7 +108,8 @@ const UserProvider = ({ children }) => {
         response?.hasSubmit === 1
       ) {
         updateAuthDB();
-        Alert.alert(
+        showToast(
+          "error",
           "Card Expired",
           "Your card has expired. Please contact your HR Department to renew your card."
         );

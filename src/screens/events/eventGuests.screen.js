@@ -2,13 +2,13 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import React, { useContext, useEffect, useState } from "react";
 import {
-  Alert,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { showToast } from "../../Toast";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Button } from "react-native-paper";
 import { CustomTextInput } from "../../components/customTextInput";
@@ -117,10 +117,11 @@ export const EventGuestsScreen = () => {
         navigation.popToTop();
       } else {
         const { title = "Error Occurred" } = response;
-        Alert.alert(title, response.message);
+        showToast("error", title, response.message);
       }
     } catch (error) {
-      Alert.alert(
+      showToast(
+        "error",
         "Error Occurred",
         "Something went wrong while processing your request"
       );

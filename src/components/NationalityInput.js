@@ -172,11 +172,12 @@ export function NationalityInput({
 
 
   const handleClose = () => {
+    // Only hide the modal. Do NOT reset anchor/menuHeight/menuReady here: while
+    // the modal plays its fade-out, those values still drive the menu's absolute
+    // position. Nulling them makes menuTop/menuLeft fall back to 0/padding, so
+    // the menu visibly jumps to the top-left before disappearing. They are
+    // re-initialized on the next open (measureAndOpen).
     setOpen(false);
-    setMenuReady(false);
-    setMenuHeight(0);
-    setAnchor(null);
-    setQuery("");
   };
 
   const pick = (item) => {

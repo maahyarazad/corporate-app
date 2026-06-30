@@ -1,5 +1,4 @@
 import {
-  Alert,
   Image,
   Modal,
   SafeAreaView,
@@ -13,6 +12,7 @@ import {
   View,
 } from "react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { showToast } from "../../Toast";
 import usePosts from "./post_card/usePosts";
 import PostCard from "./post_card/postCard.component";
 import { KeyboardAwareFlatList } from "react-native-keyboard-aware-scroll-view";
@@ -78,7 +78,7 @@ const PostCardModified = ({ item, ...props }) => {
 
 const RenderRowPostCard = ({ item, index, magazines }) => {
   const handleTitlePress = () => {
-    alert("Go to profile page");
+    showToast("info", "Profile", "Go to profile page");
   };
 
   const handleCommentPress = () => {
@@ -204,7 +204,7 @@ export default function PostsScreen() {
           loadOldPosts(moment().unix());
         }
       } catch (error) {
-        alert("Failed to retrieve last viewed post");
+        showToast("error", "Error", "Failed to retrieve last viewed post");
         console.log(error);
       }
     };
@@ -389,7 +389,7 @@ export default function PostsScreen() {
     const response = await addPost(newPost);
     setShowNewPostModal(false);
     setNewPostState(newPostDefault);
-    Alert.alert("Post Pending", "Your post will be reviewed by an admin. ");
+    showToast("info", "Post Pending", "Your post will be reviewed by an admin.");
   };
 
   const insertSeparator = () => {

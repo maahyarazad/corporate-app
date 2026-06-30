@@ -1,5 +1,4 @@
 import {
-  Alert,
   StyleSheet,
   Text,
   TextInput,
@@ -7,6 +6,7 @@ import {
   View,
 } from "react-native";
 import React, { useState } from "react";
+import { showToast } from "../../../../Toast";
 import { SegmentedButtons } from "react-native-paper";
 import { theme } from "../../../../infrastructure/theme";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -79,7 +79,7 @@ const PostEntryJobs = ({ onSubmit, mode }) => {
     ) {
       return false;
     } else {
-      Alert.alert("Fehler", "Bitte füllen Sie alle Felder aus.");
+      showToast("error", "Fehler", "Bitte füllen Sie alle Felder aus.");
       return true;
     }
   };

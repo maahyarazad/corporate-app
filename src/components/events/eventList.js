@@ -3,13 +3,14 @@ import { useNavigation } from "@react-navigation/native";
 import moment from "moment";
 import React, { useContext, useEffect, useState } from "react";
 import {
-  Alert,
   FlatList,
   Pressable,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
+import { showToast } from "../../Toast";
+import { showConfirm } from "../confirmDialog.component";
 import { Button, Card, Checkbox, Modal } from "react-native-paper";
 import { theme } from "../../infrastructure/theme";
 import { navigate } from "../../navigation/navigate";
@@ -44,64 +45,44 @@ export const EventList = () => {
   }, []);
 
   const confirmAttendance = (eventId) => {
-    Alert.alert(
-      i18n.t("events.confirm-attendance"),
-      i18n.t("events.confirm-attendance-msg"),
-      [
-        {
-          text: i18n.t("return"),
-          onPress: () => {},
-        },
-        {
-          text: i18n.t("proceed"),
-          onPress: () => {
-            handleAttend(eventId);
-          },
-        },
-      ]
-    );
+    showConfirm({
+      title: i18n.t("events.confirm-attendance"),
+      message: i18n.t("events.confirm-attendance-msg"),
+      confirmText: i18n.t("proceed"),
+      cancelText: i18n.t("return"),
+      onConfirm: () => {
+        handleAttend(eventId);
+      },
+    });
   };
 
   const confirmAttendanceGuests = (eventId) => {
-    Alert.alert(
-      i18n.t("events.confirm-attendance"),
-      i18n.t("events.confirm-attendance-w-msg"),
-      [
-        {
-          text: i18n.t("return"),
-          onPress: () => {},
-        },
-        {
-          text: i18n.t("proceed"),
-          onPress: () => {
-            navigate("Attend Guests", {
-              id: eventId,
-              user_id: user.user_id,
-              origin: "Events",
-            });
-          },
-        },
-      ]
-    );
+    showConfirm({
+      title: i18n.t("events.confirm-attendance"),
+      message: i18n.t("events.confirm-attendance-w-msg"),
+      confirmText: i18n.t("proceed"),
+      cancelText: i18n.t("return"),
+      onConfirm: () => {
+        navigate("Attend Guests", {
+          id: eventId,
+          user_id: user.user_id,
+          origin: "Events",
+        });
+      },
+    });
   };
 
   const confirmCancel = (eventId) => {
-    Alert.alert(
-      i18n.t("events.cancel-attendance"),
-      i18n.t("events.cancel-attendance-msg"),
-      [
-        {
-          text: i18n.t("return"),
-          onPress: () => {},
-        },
-        {
-          text: i18n.t("events.action-button"),
-          onPress: () => {
-            handleCancel(eventId);
-          },
-        },
-      ]
-    );
+    showConfirm({
+      title: i18n.t("events.cancel-attendance"),
+      message: i18n.t("events.cancel-attendance-msg"),
+      confirmText: i18n.t("events.action-button"),
+      cancelText: i18n.t("return"),
+      destructive: true,
+      onConfirm: () => {
+        handleCancel(eventId);
+      },
+    });
   };
 
   const handleCancel = async (eventId) => {
@@ -123,7 +104,8 @@ export const EventList = () => {
       }
     } catch (err) {
       console.log(err);
-      Alert.alert(
+      showToast(
+        "error",
         "Error Occurred",
         "Something went wrong while processing your request."
       );
@@ -153,7 +135,8 @@ export const EventList = () => {
       }
     } catch (err) {
       console.log(err);
-      Alert.alert(
+      showToast(
+        "error",
         "Error Occurred",
         "Something went wrong while processing your request."
       );

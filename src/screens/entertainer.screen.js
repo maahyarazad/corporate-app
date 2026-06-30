@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState, useCallback } from "react";
-import { Alert, Image, Platform, TouchableOpacity, View } from "react-native";
+import { Image, Platform, TouchableOpacity, View } from "react-native";
 import { useTheme } from "styled-components/native";
+import { showToast } from "../Toast";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { useNavigation } from "@react-navigation/native";
@@ -198,7 +199,8 @@ export const EntertainerScreen = () => {
       );
 
       if (!response?.success) {
-        Alert.alert(
+        showToast(
+          "error",
           response?.title || "Error",
           response?.message || "Failed to store push token"
         );
@@ -209,7 +211,8 @@ export const EntertainerScreen = () => {
       return token;
     } catch (error) {
       console.log("Failed to register for push notifications:", error);
-      Alert.alert(
+      showToast(
+        "error",
         "Push notification setup failed",
         error?.message || "Unknown error"
       );

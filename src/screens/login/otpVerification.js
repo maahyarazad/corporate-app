@@ -25,6 +25,7 @@ import { config } from "../../utils/constants";
 import useRequest from "../../../hooks/useRequest";
 import useAuth from "../../../hooks/useAuth";
 import useUser from "../../../hooks/useUser";
+import { useOtpAutoRead } from "../../../hooks/useOtpAutoRead";
 import { navigate } from "../../navigation/navigate";
 import { showToast } from "../../Toast";
 import { fontSizes } from "../../infrastructure/theme/fonts";
@@ -100,6 +101,18 @@ export const OtpVerification = ({ route, navigation }) => {
       setIsLoading(false);
     }
   };
+
+  // Android: auto-read the incoming OTP SMS (User Consent prompt) and submit it.
+  // Paused while a verify request is in flight. No-ops on iOS, where the
+  // CodeInputField's `oneTimeCode` keyboard autofill handles suggestions.
+  useOtpAutoRead({
+    length: MAX_CODE_LENGTH,
+    enabled: !isLoading,
+    onCode: (otp) => {
+      setCode(otp); // populate the visible input boxes
+      handleVerify(otp); // auto-submit to the server
+    },
+  });
 
   useEffect(() => {
     let isMounted = true;

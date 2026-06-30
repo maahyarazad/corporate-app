@@ -1,5 +1,4 @@
 import {
-  Alert,
   StyleSheet,
   Text,
   TextInput,
@@ -7,6 +6,7 @@ import {
   View,
 } from "react-native";
 import React, { memo, useState } from "react";
+import { showToast } from "../../../../Toast";
 import { Button, SegmentedButtons } from "react-native-paper";
 import { Label } from "../../../../components/typography/label.component";
 import DropDownPicker from "react-native-dropdown-picker";
@@ -154,29 +154,30 @@ const PostEntryRealEstate = ({ onSubmit, mode }) => {
     ) {
       //price from should be greater than 0
       if (state.price_from <= 0) {
-        Alert.alert("Fehler", "Preis muss größer als 0 sein.");
+        showToast("error", "Fehler", "Preis muss größer als 0 sein.");
         return true;
       }
 
       //Price to is less than price from
       if (mode === 2 && state.price_to <= state.price_from) {
-        Alert.alert("Fehler", "Bitte geben Sie eine gültige Preisspanne an.");
+        showToast("error", "Fehler", "Bitte geben Sie eine gültige Preisspanne an.");
         return true;
       }
 
       //Kilometer to is less than kilometer from
       if (mode === 2 && state.living_space_end <= state.living_space_start) {
-        Alert.alert(
+        showToast(
+          "error",
           "Fehler",
           "Bitte geben Sie eine gültige Wohnflächenbereich ein."
         );
         return true;
       }
 
-      alert("success");
+      showToast("success", "Success");
       return false;
     } else {
-      Alert.alert("Fehler", "Bitte füllen Sie alle Felder aus.");
+      showToast("error", "Fehler", "Bitte füllen Sie alle Felder aus.");
       return true;
     }
   };

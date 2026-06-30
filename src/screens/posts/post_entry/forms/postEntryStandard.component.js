@@ -1,5 +1,4 @@
 import {
-  Alert,
   Image,
   StyleSheet,
   Text,
@@ -7,6 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { showToast } from "../../../../Toast";
 import React, { useEffect, useState } from "react";
 import { theme } from "../../../../infrastructure/theme";
 import { Label } from "../../../../components/typography/label.component";
@@ -53,7 +53,7 @@ const PostEntryStandard = ({ onSubmit, mode }) => {
     if (state.title && state.content) {
       return false;
     } else {
-      Alert.alert("Fehler", "Bitte füllen Sie alle Felder aus.");
+      showToast("error", "Fehler", "Bitte füllen Sie alle Felder aus.");
       return true;
     }
   };

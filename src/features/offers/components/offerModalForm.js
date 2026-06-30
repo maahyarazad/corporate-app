@@ -1,13 +1,13 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useContext, useState } from "react";
 import {
-  Alert,
   Linking,
   StyleSheet,
   Text,
   TouchableHighlight,
   View,
 } from "react-native";
+import { showToast } from "../../../Toast";
 import { Button, IconButton } from "react-native-paper";
 import WebView from "react-native-webview";
 import { LoadingOverlay } from "../../../components/loading/loading.component";
@@ -248,7 +248,7 @@ export const OrderCardModal = ({ onClose }) => {
   const handleCall = () => {
     Linking.openURL(`tel:${encodeURIComponent("+971562050066")}`).catch(
       (err) => {
-        alert("Unable to call this number");
+        showToast("error", "Call Failed", "Unable to call this number");
       }
     );
   };

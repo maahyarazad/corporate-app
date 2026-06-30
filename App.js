@@ -20,7 +20,23 @@ import configureStore from "./redux/store/postStore";
 import AlertContextProvider from "./src/services/alert/alert.context";
 import { toastConfig } from "./src/Toast";
 import Toast from "react-native-toast-message";
+import { ConfirmDialogHost } from "./src/components/confirmDialog.component";
 import { initRecaptcha } from "./src/services/recaptcha/recaptcha.service";
+
+// Restrict console output to development only. In production builds __DEV__ is
+// false, so every console method becomes a no-op — debugging statements never
+// run or leak information to end users. This is a runtime safety net that works
+// regardless of bundler config; babel.config.js additionally strips the calls
+// from the production bundle entirely (transform-remove-console).
+if (!__DEV__) {
+  const noop = () => {};
+  console.log = noop;
+  console.info = noop;
+  console.debug = noop;
+  console.warn = noop;
+  console.error = noop;
+  console.trace = noop;
+}
 
 const store = configureStore();
 
@@ -69,6 +85,7 @@ export default function App() {
         </Provider>
       </ThemeProvider>
       <Toast config={toastConfig} />
+      <ConfirmDialogHost />
 
       <ExpoStatusBar style="dark" />
     </>

@@ -1,5 +1,4 @@
 import {
-  Alert,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -7,6 +6,8 @@ import {
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
+import { showToast } from "../../../Toast";
+import { showConfirm } from "../../../components/confirmDialog.component";
 import Avatar from "../avatar/avatar.component";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Label } from "../../../components/typography/label.component";
@@ -27,23 +28,19 @@ const PostCardHeader = ({ item }) => {
       description: "Deinen Beitrag entfernen",
       logo: "trash-can-outline",
       onPress: () => {
-        Alert.alert(
-          "Beitrag löschen",
-          "Bist du sicher, dass du diesen Beitrag löschen möchtest?",
-          [
-            { text: "Abbrechen", onPress: () => {}, isPreferred: true },
-            {
-              text: "Löschen",
-              style: "destructive",
-              onPress: () => {
-                //Call Remove Comment API
-                Alert.alert("Hinweis", "Dein Beitrag wurde gelöscht");
-                removePost(item.post_id, false);
-                onDrawerClose();
-              },
-            },
-          ]
-        );
+        showConfirm({
+          title: "Beitrag löschen",
+          message: "Bist du sicher, dass du diesen Beitrag löschen möchtest?",
+          confirmText: "Löschen",
+          cancelText: "Abbrechen",
+          destructive: true,
+          onConfirm: () => {
+            //Call Remove Comment API
+            showToast("info", "Hinweis", "Dein Beitrag wurde gelöscht");
+            removePost(item.post_id, false);
+            onDrawerClose();
+          },
+        });
       },
     },
     // {
@@ -91,7 +88,7 @@ const PostCardHeader = ({ item }) => {
             <View style={styles.row}>
               <TouchableWithoutFeedback
                 onPress={() => {
-                  alert("on Title Press");
+                  showToast("info", "Profile", "on Title Press");
                 }}
               >
                 <View>
