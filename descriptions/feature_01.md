@@ -19,3 +19,5 @@ Additionally, after the registration request is submitted:
 
 ## Description
 Add console log where ever you can so I can debug it 
+
+
