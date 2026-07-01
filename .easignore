@@ -36,3 +36,4 @@ yarn-error.*
 # Native folders
 /ios
 /android
+eas.json
