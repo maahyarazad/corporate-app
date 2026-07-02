@@ -1,4 +1,11 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   RefreshControl,
   SafeAreaView,
@@ -50,6 +57,64 @@ export const NearMeButton = styled(TouchableHighlight)`
   ${Platform.OS === "android" && `elevation: 3;`}
 `;
 
+// ---- static styles (hoisted so they aren't rebuilt on every render) --------
+const scrollViewStyle = { backgroundColor: "#eee", flex: 1 };
+const safeAreaStyle = { backgroundColor: "white", flex: 1 };
+const warningBarStyle = {
+  backgroundColor: "red",
+  padding: 12,
+  flexDirection: "row",
+  justifyContent: "space-between",
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 5 },
+  shadowOpacity: 0.4,
+  shadowRadius: 5,
+  zIndex: 1,
+};
+const warningRowStyle = { flexDirection: "row", gap: 8, flex: 1 };
+const warningMsgStyle = { flex: 1 };
+const warningCloseWrapStyle = { justifyContent: "center" };
+const orderButtonStyle = {
+  backgroundColor: theme.colors.icons.active,
+  borderWidth: 0,
+  shadowOpacity: 0.5,
+  shadowColor: "black",
+  shadowOffset: { width: 2, height: 2 },
+  shadowRadius: 5,
+};
+const orderButtonLabelStyle = { color: "white" };
+
+// ---- WarningBar ------------------------------------------------------------
+// Lifted out of HomeScreen. Defining it inside a component recreates the type
+// on every render, which remounts the subtree; as a module-level memoized
+// component it only re-renders when its props actually change.
+const WarningBar = React.memo(
+  ({ msg, canClose = false, onOrderCard, onCloseWarning }) => (
+    <View style={warningBarStyle}>
+      <View style={warningRowStyle}>
+        <View style={warningMsgStyle}>
+          <Label color="white">{msg}</Label>
+        </View>
+
+        <CustomButton
+          onPress={onOrderCard}
+          style={orderButtonStyle}
+          label="Order Card"
+          labelStyle={orderButtonLabelStyle}
+        />
+
+        {canClose && (
+          <View style={warningCloseWrapStyle}>
+            <TouchableOpacity onPress={onCloseWarning}>
+              <MaterialCommunityIcons name="close" size={25} color="white" />
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+    </View>
+  )
+);
+
 export const RenderHome = () => {
   const [bannerData, setBannerData] = useState([]);
   const [hotpickData, setHotpickData] = useState([]);
@@ -72,7 +137,7 @@ export const RenderHome = () => {
     };
   }, []);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     if (!userData?.user_id || !lang) return;
 
     try {
@@ -111,7 +176,7 @@ export const RenderHome = () => {
         if (bannerResult.value?.success) {
           setBannerData(bannerResult.value?.data ?? []);
         } else {
-        //   console.log("Banner request unsuccessful:", bannerResult.value);
+          //   console.log("Banner request unsuccessful:", bannerResult.value);
           setBannerData([]);
         }
       } else {
@@ -123,7 +188,7 @@ export const RenderHome = () => {
         if (hotpickResult.value?.success) {
           setHotpickData(hotpickResult.value?.data ?? []);
         } else {
-        //   console.log("Hotpicks request unsuccessful:", hotpickResult.value);
+          //   console.log("Hotpicks request unsuccessful:", hotpickResult.value);
           setHotpickData([]);
         }
       } else {
@@ -135,7 +200,7 @@ export const RenderHome = () => {
         if (categoryResult.value?.success) {
           setCategoryData(categoryResult.value?.result ?? []);
         } else {
-        //   console.log("Category request unsuccessful:", categoryResult.value);
+          //   console.log("Category request unsuccessful:", categoryResult.value);
           setCategoryData([]);
         }
       } else {
@@ -147,10 +212,10 @@ export const RenderHome = () => {
         if (topPartnersResult.value?.success) {
           setTopPartnersData(topPartnersResult.value?.result ?? []);
         } else {
-        //   console.log(
-        //     "Top partners request unsuccessful:",
-        //     topPartnersResult.value
-        //   );
+          //   console.log(
+          //     "Top partners request unsuccessful:",
+          //     topPartnersResult.value
+          //   );
           setTopPartnersData([]);
         }
       } else {
@@ -164,7 +229,15 @@ export const RenderHome = () => {
         setRefreshing(false);
       }
     }
-  };
+  }, [userData?.user_id, lang, request]);
+
+  // Keep a live reference to fetchData so the trigger effect and pull-to-refresh
+  // always call the latest version without re-subscribing the effect whenever
+  // `request` gets a new identity.
+  const fetchDataRef = useRef(fetchData);
+  useEffect(() => {
+    fetchDataRef.current = fetchData;
+  }, [fetchData]);
 
   useEffect(() => {
     if (!userData?.user_id || !lang) return;
@@ -173,22 +246,23 @@ export const RenderHome = () => {
     if (lastLoadedKey.current === currentKey) return;
 
     lastLoadedKey.current = currentKey;
-    fetchData();
+    fetchDataRef.current();
   }, [userData?.user_id, lang]);
 
-  const onRefresh = async () => {
-    await fetchData();
-  };
+  const onRefresh = useCallback(() => fetchDataRef.current(), []);
+
+  const refreshControl = useMemo(
+    () => <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />,
+    [refreshing, onRefresh]
+  );
 
   return (
     <>
       <UrlListener />
       <StatusBar style="dark" />
       <ScrollView
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        style={{ backgroundColor: "#eee", flex: 1 }}
+        refreshControl={refreshControl}
+        style={scrollViewStyle}
         nestedScrollEnabled
       >
         <FeaturedBanner bannerData={bannerData} />
@@ -211,6 +285,33 @@ export const HomeScreen = (props) => {
   const [closeWarning, setCloseWarning] = useState(false);
   const [expireWarning, setExpireWarning] = useState(0);
 
+  // Mount / unmount guard for setState after the awaits below.
+  const isMounted = useRef(true);
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
+  const getLocalExpireWarning = useCallback(async () => {
+    try {
+      const value = await SecureStore.getItemAsync("expireWarning");
+      return parseInt(value ?? "0", 10);
+    } catch (error) {
+      console.log("Failed to get local storage [Home]:", error);
+      return 0;
+    }
+  }, []);
+
+  const saveWarning = useCallback(async (value) => {
+    try {
+      await SecureStore.setItemAsync("expireWarning", value.toString());
+    } catch (error) {
+      console.log("Failed to save local storage [Home]:", error);
+    }
+  }, []);
+
   useEffect(() => {
     const checkExpireWarning = async () => {
       if (!userData?.expiry) return;
@@ -219,6 +320,7 @@ export const HomeScreen = (props) => {
 
       if (remainingDays > 10 && remainingDays <= 40) {
         const localExpireWarning = await getLocalExpireWarning();
+        if (!isMounted.current) return; // could have unmounted during the await
         if (!localExpireWarning) {
           setExpireWarning(1);
         }
@@ -229,40 +331,22 @@ export const HomeScreen = (props) => {
     };
 
     checkExpireWarning();
-  }, [userData?.expiry]);
+  }, [userData?.expiry, getLocalExpireWarning, saveWarning]);
 
-  const getLocalExpireWarning = async () => {
-    try {
-      const value = await SecureStore.getItemAsync("expireWarning");
-      return parseInt(value ?? "0", 10);
-    } catch (error) {
-      console.log("Failed to get local storage [Home]:", error);
-      return 0;
-    }
-  };
-
-  const saveWarning = async (value) => {
-    try {
-      await SecureStore.setItemAsync("expireWarning", value.toString());
-    } catch (error) {
-      console.log("Failed to save local storage [Home]:", error);
-    }
-  };
-
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setShowModal(false);
-  };
+  }, []);
 
-  const handleCloseWarning = () => {
+  const handleCloseWarning = useCallback(() => {
     setCloseWarning(true);
     saveWarning(1);
-  };
+  }, [saveWarning]);
 
-  const handleOrderCard = () => {
+  const handleOrderCard = useCallback(() => {
     setShowModal(true);
-  };
+  }, []);
 
-  const calculateRemainingTime = () => {
+  const calculateRemainingTime = useCallback(() => {
     const remainingDays = moment(userData?.expiry).diff(moment(), "days");
 
     if (!(remainingDays > 0)) {
@@ -285,67 +369,18 @@ export const HomeScreen = (props) => {
     }
 
     return `${remainingDays} days`;
-  };
+  }, [userData?.expiry]);
 
-  const WarningBar = ({ msg, canClose = false }) => {
-    return (
-      <View
-        style={{
-          backgroundColor: "red",
-          padding: 12,
-          flexDirection: "row",
-          justifyContent: "space-between",
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 5 },
-          shadowOpacity: 0.4,
-          shadowRadius: 5,
-          zIndex: 1,
-        }}
-      >
-        <View style={{ flexDirection: "row", gap: 8, flex: 1 }}>
-          <View style={{ flex: 1 }}>
-            <Label color="white">{msg}</Label>
-          </View>
-
-          <CustomButton
-            onPress={handleOrderCard}
-            style={{
-              backgroundColor: theme.colors.icons.active,
-              borderWidth: 0,
-              shadowOpacity: 0.5,
-              shadowColor: "black",
-              shadowOffset: {
-                width: 2,
-                height: 2,
-              },
-              shadowRadius: 5,
-            }}
-            label="Order Card"
-            labelStyle={{ color: "white" }}
-          />
-
-          {canClose && (
-            <View style={{ justifyContent: "center" }}>
-              <TouchableOpacity onPress={handleCloseWarning}>
-                <MaterialCommunityIcons
-                  name="close"
-                  size={25}
-                  color="white"
-                />
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
-      </View>
-    );
-  };
-
-  const RenderWarning = () => {
+  // Was <RenderWarning />, a component redefined every render. Now a memoized
+  // element that only recomputes when the values it depends on change.
+  const warningContent = useMemo(() => {
     if (!userData) return null;
 
     if (userData.expired) {
       return (
         <WarningBar
+          onOrderCard={handleOrderCard}
+          onCloseWarning={handleCloseWarning}
           msg={`Your card has already expired on ${moment(
             userData.expiry
           ).format("MMM YYYY")}. Please upload your new card.`}
@@ -357,7 +392,9 @@ export const HomeScreen = (props) => {
       if (expireWarning) {
         return (
           <WarningBar
-            canClose={true}
+            canClose
+            onOrderCard={handleOrderCard}
+            onCloseWarning={handleCloseWarning}
             msg={`Your card will expire in ${moment(userData.expiry).diff(
               moment(),
               "days"
@@ -369,6 +406,8 @@ export const HomeScreen = (props) => {
       if (moment(userData?.expiry).diff(moment(), "days") <= 10) {
         return (
           <WarningBar
+            onOrderCard={handleOrderCard}
+            onCloseWarning={handleCloseWarning}
             msg={`Your card will expire in ${calculateRemainingTime()}. Please order a new card and upload it.`}
           />
         );
@@ -376,11 +415,19 @@ export const HomeScreen = (props) => {
     }
 
     return null;
-  };
+  }, [
+    userData,
+    isSkip,
+    closeWarning,
+    expireWarning,
+    calculateRemainingTime,
+    handleOrderCard,
+    handleCloseWarning,
+  ]);
 
   return (
-    <SafeAreaView style={{ backgroundColor: "white", flex: 1 }}>
-      <RenderWarning />
+    <SafeAreaView style={safeAreaStyle}>
+      {warningContent}
       <CustomModal showModal={showModal}>
         <OrderCardModal onClose={closeModal} />
       </CustomModal>

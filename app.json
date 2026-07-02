@@ -4,7 +4,7 @@
     "scheme": "gecmobile",
     "name": "GEC Mobile",
     "slug": "GEC-Rewards",
-    "version": "3.2.0",
+    "version": "3.2.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -75,7 +75,7 @@
       "associatedDomains": [
         "applinks:buenapublica.com"
       ],
-      "buildNumber": "64",
+      "buildNumber": "66",
       "supportsTablet": true,
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Turning on location services allows us to show you nearby shops with offers.",
@@ -93,7 +93,7 @@
     },
     "android": {
       "enableProguardInReleaseBuilds": true,
-      "versionCode": 64,
+      "versionCode": 66,
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyBdMYAFwnxqA6KI4AE31v8BWBsr1ZDRogQ"

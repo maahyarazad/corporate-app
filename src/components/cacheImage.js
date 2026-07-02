@@ -1,22 +1,37 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Animated, Image, StyleSheet, View, Platform } from "react-native";
 import { File, Directory, Paths } from "expo-file-system";
 import shorthash from "shorthash";
 import { LinearGradient } from "expo-linear-gradient";
+
 const getSafeExtension = (url = "") => {
   const cleanUrl = url.split("?")[0];
   const match = cleanUrl.match(/\.(jpg|jpeg|png|webp|gif)$/i);
   return match ? `.${match[1].toLowerCase()}` : ".jpg";
 };
 
-
-
 const SHIMMER_WIDTH = 200;
 
 // iOS gets a softer shimmer; Android keeps the original punch
-const IOS_SHIMMER_OPACITY = 0.45;   // ← tune this (0.3–0.5 feels subtle)
-const IOS_SHIMMER_COLOR  = "rgba(255,255,255,0.15)"; // ← softer white peak
-const AND_SHIMMER_COLOR  = "rgba(255,255,255,0.7)";  // ← original
+const IOS_SHIMMER_OPACITY = 0.45; // ← tune this (0.3–0.5 feels subtle)
+const IOS_SHIMMER_COLOR = "rgba(255,255,255,0.15)"; // ← softer white peak
+const AND_SHIMMER_COLOR = "rgba(255,255,255,0.7)"; // ← original
+
+// Platform.OS can't change at runtime, so resolve the shimmer config once at
+// module load instead of recomputing it on every render.
+const IS_IOS = Platform.OS === "ios";
+const SHIMMER_OPACITY = IS_IOS ? IOS_SHIMMER_OPACITY : 1;
+const SHIMMER_COLORS = [
+  "transparent",
+  IS_IOS ? IOS_SHIMMER_COLOR : AND_SHIMMER_COLOR,
+  "transparent",
+];
 
 const SkeletonLoader = ({ style }) => {
   const shimmer = useRef(new Animated.Value(0)).current;
@@ -34,37 +49,36 @@ const SkeletonLoader = ({ style }) => {
     return () => loop.stop();
   }, [shimmer]);
 
-  const translateX = shimmer.interpolate({
-    inputRange: [0, 1],
-    outputRange: [-SHIMMER_WIDTH, containerWidth + SHIMMER_WIDTH],
-  });
+  // Recreate the interpolation only when the measured width changes.
+  const translateX = useMemo(
+    () =>
+      shimmer.interpolate({
+        inputRange: [0, 1],
+        outputRange: [-SHIMMER_WIDTH, containerWidth + SHIMMER_WIDTH],
+      }),
+    [shimmer, containerWidth]
+  );
 
-  const isIOS = Platform.OS === "ios";
+  const handleLayout = useCallback((e) => {
+    setContainerWidth(e.nativeEvent.layout.width);
+  }, []);
+
+  const animatedStyle = useMemo(
+    () => [
+      StyleSheet.absoluteFill,
+      { transform: [{ translateX }], opacity: SHIMMER_OPACITY },
+    ],
+    [translateX]
+  );
 
   return (
-    <View
-      style={[styles.skeletonWrapper, style]}
-      onLayout={(e) => setContainerWidth(e.nativeEvent.layout.width)}
-    >
-      <Animated.View
-        style={[
-          StyleSheet.absoluteFill,
-          {
-            transform: [{ translateX }],
-            // iOS only: reduce overall shimmer brightness via opacity
-            opacity: isIOS ? IOS_SHIMMER_OPACITY : 1,
-          },
-        ]}
-      >
+    <View style={[styles.skeletonWrapper, style]} onLayout={handleLayout}>
+      <Animated.View style={animatedStyle}>
         <LinearGradient
-          colors={[
-            "transparent",
-            isIOS ? IOS_SHIMMER_COLOR : AND_SHIMMER_COLOR,
-            "transparent",
-          ]}
+          colors={SHIMMER_COLORS}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
-          style={{ width: SHIMMER_WIDTH, height: "100%" }}
+          style={styles.shimmerGradient}
         />
       </Animated.View>
     </View>
@@ -75,6 +89,10 @@ const styles = StyleSheet.create({
   skeletonWrapper: {
     backgroundColor: "#E0E0E0",
     overflow: "hidden",
+  },
+  shimmerGradient: {
+    width: SHIMMER_WIDTH,
+    height: "100%",
   },
 });
 
@@ -88,7 +106,7 @@ export const CacheImage = ({
   onLoad,
   onLoadStart,
   pointerEvents,
-  resizeMode = "cover",
+  resizeMode = "contain",
   defaultResizeMode = "contain",
   local = false,
   defaultImage = require("../../assets/icon.png"),
@@ -97,8 +115,26 @@ export const CacheImage = ({
   const [isFallback, setIsFallback] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  // True while the component is mounted (covers the genuine unmount case).
+  const isMountedRef = useRef(true);
+  // Identifies the latest caching request, so a slow download for a previous
+  // `uri` can't overwrite the result of a newer one.
+  const requestIdRef = useRef(0);
+
+  // Mount / unmount tracking — runs once.
   useEffect(() => {
-    let isMounted = true;
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    const requestId = ++requestIdRef.current;
+    // Only commit state if we're still mounted AND this is still the newest request.
+    const isActive = () =>
+      isMountedRef.current && requestId === requestIdRef.current;
+
     setIsLoading(true);
     setSource(null);
     setIsFallback(false);
@@ -106,7 +142,7 @@ export const CacheImage = ({
     const cacheImage = async () => {
       try {
         if (!uri) {
-          if (isMounted) {
+          if (isActive()) {
             setSource(defaultImage);
             setIsFallback(true);
             setIsLoading(false);
@@ -115,7 +151,7 @@ export const CacheImage = ({
         }
 
         if (local) {
-          if (isMounted) {
+          if (isActive()) {
             setSource({ uri });
             setIsFallback(false);
             // isLoading stays true until Image onLoad fires
@@ -133,7 +169,7 @@ export const CacheImage = ({
         const file = new File(cacheDir, fileName);
 
         if (file.exists) {
-          if (isMounted) {
+          if (isActive()) {
             setSource({ uri: file.uri });
             setIsFallback(false);
           }
@@ -142,12 +178,12 @@ export const CacheImage = ({
 
         const downloadedFile = await File.downloadFileAsync(encodedUri, cacheDir);
 
-        if (isMounted) {
+        if (isActive()) {
           setSource({ uri: downloadedFile.uri });
           setIsFallback(false);
         }
       } catch (error) {
-        if (isMounted) {
+        if (isActive()) {
           if (uri) {
             setSource({ uri: encodeURI(uri) });
             setIsFallback(false);
@@ -161,52 +197,66 @@ export const CacheImage = ({
     };
 
     cacheImage();
-    return () => { isMounted = false; };
+    // No cleanup flag needed: bumping requestIdRef on the next run invalidates
+    // this run, and isMountedRef handles unmount.
   }, [uri, local, defaultImage]);
 
-  const deleteCachedImage = async (_uri) => {
-    try {
-      if (!_uri || local) return;
-      const encodedUri = encodeURI(_uri);
-      const extension = getSafeExtension(encodedUri);
-      const fileName = `${shorthash.unique(encodedUri)}${extension}`;
-      const file = new File(new Directory(Paths.cache, "images"), fileName);
-      if (file.exists) file.delete();
-    } catch (_) {}
-  };
+  const deleteCachedImage = useCallback(
+    async (_uri) => {
+      try {
+        if (!_uri || local) return;
+        const encodedUri = encodeURI(_uri);
+        const extension = getSafeExtension(encodedUri);
+        const fileName = `${shorthash.unique(encodedUri)}${extension}`;
+        const file = new File(new Directory(Paths.cache, "images"), fileName);
+        if (file.exists) file.delete();
+      } catch (_) {}
+    },
+    [local]
+  );
 
-  const handleOnError = async () => {
+  const handleOnError = useCallback(async () => {
     await deleteCachedImage(uri);
+    if (!isMountedRef.current) return; // component may have unmounted during the await
     setSource(defaultImage);
     setIsFallback(true);
     setIsLoading(false);
-  };
+  }, [deleteCachedImage, uri, defaultImage]);
 
-  const handleOnLoad = (e) => {
-    setIsLoading(false);
-    onLoad?.(e);
-  };
+  const handleOnLoad = useCallback(
+    (e) => {
+      setIsLoading(false);
+      onLoad?.(e);
+    },
+    [onLoad]
+  );
 
-  const appliedResizeMode = isFallback ? defaultResizeMode : resizeMode;
+  const appliedResizeMode = useMemo(
+    () => (isFallback ? defaultResizeMode : resizeMode),
+    [isFallback, defaultResizeMode, resizeMode]
+  );
 
   const appliedStyle = useMemo(() => {
     if (!isFallback) return style;
     return [style, { maxWidth: "100%", maxHeight: "100%", alignSelf: "center" }];
   }, [style, isFallback]);
 
+  const imageStyle = useMemo(
+    () => [appliedStyle, isLoading && { opacity: 0 }],
+    [appliedStyle, isLoading]
+  );
+
   return (
     <View style={style}>
       {/* Skeleton shown while image hasn't fired onLoad yet */}
-      {isLoading && (
-        <SkeletonLoader style={StyleSheet.absoluteFill} />
-      )}
+      {isLoading && <SkeletonLoader style={StyleSheet.absoluteFill} />}
 
       {/* Image rendered as soon as we have a source (hidden via opacity until loaded) */}
       {source && (
         <Image
           key={imgKey}
           source={source}
-          style={[appliedStyle, isLoading && { opacity: 0 }]}
+          style={imageStyle}
           resizeMode={appliedResizeMode}
           onLoad={handleOnLoad}
           onLoadStart={onLoadStart}
