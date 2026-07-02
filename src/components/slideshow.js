@@ -20,7 +20,7 @@ const { width } = Dimensions.get("window");
 
 export const Slideshow = ({ images }) => {
   const [loading, setLoading] = useState(true);
-
+    console.log(images);
   const imageLoaded = () => {
     setLoading(false);
   };

@@ -15,6 +15,7 @@ import { config, searchSource } from "../../utils/constants";
 import { io } from "socket.io-client";
 import { TranslationContext } from "../../services/translation/translation.context";
 import useRequest from "../../../hooks/useRequest";
+import { makeCacheKey, readCache, writeCache } from "../../../utils/apiCache";
 
 const Search = styled(Searchbar)`
   margin: 0 12px;
@@ -25,6 +26,10 @@ const Search = styled(Searchbar)`
 
 const SUGGESTION_MIN_CHARS = 3;
 const SUGGESTION_DEBOUNCE_MS = 300;
+
+// The endpoint whose responses we cache, and how long a cached page stays fresh.
+const PARTNER_ENDPOINT = "/v2/partner/";
+const PARTNER_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 export const LocationListScreen = ({ navigation, route, ...props }) => {
   const { type, search, limit, source } = route.params;
@@ -126,6 +131,7 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
     const onResults = (result) => {
       // Ignore results that arrive after the query dropped below the
       // threshold (or after unmount).
+
       if (isMounted.current && !isShort.current) {
         setSuggestedList(result);
       }
@@ -138,36 +144,62 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
   }, [socket]);
 
   // ---- data loading ------------------------------------------------------
+  // Applies one page of results to state. Shared by the cache-hit and the
+  // network path so the two stay in lockstep (replace vs append, EOF, counts).
+  const applyLocationData = useCallback(
+    (dataArr) => {
+      if (!dataArr || dataArr.length === 0) {
+        setIsEOF(true);
+        return;
+      }
+      // A short page means the server has nothing more to give.
+      if (dataArr.length < limit) {
+        setIsEOF(true);
+      }
+
+      if (modeRef.current) {
+        // New search -> replace the list, then fall back to append mode so that
+        // subsequent "load more" pages are appended, not replaced.
+        setLocations(dataArr);
+        setResultCount(dataArr.length);
+        modeRef.current = 0;
+      } else {
+        setLocations((prev) => [...prev, ...dataArr]);
+        setResultCount((prev) => prev + dataArr.length);
+      }
+    },
+    [limit]
+  );
+
   const loadLocations = useCallback(
     async (data) => {
+      // The exact body we post is also the cache identity: same body (page,
+      // filters, lang, ...) -> same cached file.
+      const body = { ...data, app_id: config.APP_ID, lang };
+      const cacheKey = makeCacheKey(PARTNER_ENDPOINT, body);
+
       try {
-        const response = await request("/v2/partner/", "post", {
-          ...data,
-          app_id: config.APP_ID,
-          lang,
-        });
+        // 1) Cache first. A fresh hit (< 1h old) is applied straight to state
+        //    and the request to the server is skipped entirely.
+        const cached = readCache(cacheKey, PARTNER_CACHE_TTL_MS);
+        if (cached) {
+          if (!isMounted.current) return; // guard against setState after unmount
+          applyLocationData(cached);
+          return;
+        }
+
+        // 2) Miss -> hit the server, then cache the result for one hour.
+        const response = await request(PARTNER_ENDPOINT, "post", body);
 
         if (!isMounted.current) return; // guard against setState after unmount
 
         if (response) {
-          if (response.data.length === 0) {
-            setIsEOF(true);
-            return;
+          // Only cache non-empty pages, so an empty page can't pin "no results"
+          // for an hour.
+          if (response.data.length > 0) {
+            writeCache(cacheKey, response.data);
           }
-          if (response.data.length < limit) {
-            setIsEOF(true);
-          }
-
-          if (modeRef.current) {
-            // New search -> replace the list, then fall back to append mode so
-            // that subsequent "load more" pages are appended, not replaced.
-            setLocations(response.data);
-            setResultCount(response.data.length);
-            modeRef.current = 0;
-          } else {
-            setLocations((prev) => [...prev, ...response.data]);
-            setResultCount((prev) => prev + response.data.length);
-          }
+          applyLocationData(response.data);
         }
       } catch (error) {
         console.log("Failed to load location list:", error);
@@ -178,7 +210,7 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
         }
       }
     },
-    [request, lang, limit]
+    [request, lang, applyLocationData]
   );
 
   // Keep a live reference to loadLocations so the trigger effect can call the
