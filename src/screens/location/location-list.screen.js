@@ -170,16 +170,20 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
   const loadLocations = useCallback(
     async (data, signal) => {
       // The exact body we post is also the cache identity: same body (page,
-      // filters, lang, ...) -> same cached file.
+      // filters, lang, ...) -> same cached row.
       const body = { ...data, app_id: config.APP_ID, lang };
       const cacheKey = makeCacheKey(PARTNER_ENDPOINT, body);
 
       try {
         // 1) Cache first. A fresh hit (< 1h old) is applied straight to state
         //    and the request to the server is skipped entirely.
-        const cached = readCache(cacheKey, PARTNER_CACHE_TTL_MS);
+        const cached = await readCache(cacheKey, PARTNER_CACHE_TTL_MS);
+
+        // The SQLite read is async, so a newer load may have superseded this one
+        // while it was in flight. Re-check before touching state.
+        if (signal?.aborted) return;
+
         if (cached) {
-          if (signal?.aborted) return;
           applyLocationData(cached);
           return;
         }
@@ -195,7 +199,8 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
 
         if (response) {
           // Only cache non-empty pages, so an empty page can't pin "no results"
-          // for an hour.
+          // for an hour. The write is fire-and-forget (and never throws): the
+          // list shouldn't wait on bookkeeping to render.
           if (response.data.length > 0) {
             writeCache(cacheKey, response.data);
           }

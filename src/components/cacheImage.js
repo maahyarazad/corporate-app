@@ -1,35 +1,32 @@
 import React, {
+  memo,
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
-import { Animated, Image, StyleSheet, View, Platform } from "react-native";
-import { File, Directory, Paths } from "expo-file-system";
-import shorthash from "shorthash";
+import { Animated, Image, Platform, StyleSheet, View } from "react-native";
+import { File } from "expo-file-system";
 import { LinearGradient } from "expo-linear-gradient";
+import {
+  fileForUrl,
+  getCachedImage,
+  putCachedImage,
+  removeCachedImage,
+} from "../../utils/imageCache";
 
-const getSafeExtension = (url = "") => {
-  const cleanUrl = url.split("?")[0];
-  const match = cleanUrl.match(/\.(jpg|jpeg|png|webp|gif)$/i);
-  return match ? `.${match[1].toLowerCase()}` : ".jpg";
-};
+// ─── Skeleton ────────────────────────────────────────────────────────────────
 
 const SHIMMER_WIDTH = 200;
 
-// iOS gets a softer shimmer; Android keeps the original punch
-const IOS_SHIMMER_OPACITY = 0.45; // ← tune this (0.3–0.5 feels subtle)
-const IOS_SHIMMER_COLOR = "rgba(255,255,255,0.15)"; // ← softer white peak
-const AND_SHIMMER_COLOR = "rgba(255,255,255,0.7)"; // ← original
-
-// Platform.OS can't change at runtime, so resolve the shimmer config once at
-// module load instead of recomputing it on every render.
+// iOS gets a softer shimmer; Android keeps the original punch.
+// Platform.OS can't change at runtime, so resolve this once at module load.
 const IS_IOS = Platform.OS === "ios";
-const SHIMMER_OPACITY = IS_IOS ? IOS_SHIMMER_OPACITY : 1;
+const SHIMMER_OPACITY = IS_IOS ? 0.45 : 1;
 const SHIMMER_COLORS = [
   "transparent",
-  IS_IOS ? IOS_SHIMMER_COLOR : AND_SHIMMER_COLOR,
+  IS_IOS ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.7)",
   "transparent",
 ];
 
@@ -85,21 +82,49 @@ const SkeletonLoader = ({ style }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  skeletonWrapper: {
-    backgroundColor: "#E0E0E0",
-    overflow: "hidden",
-  },
-  shimmerGradient: {
-    width: SHIMMER_WIDTH,
-    height: "100%",
-  },
-});
+export default memo(SkeletonLoader);
 
-export default SkeletonLoader;
-// ─────────────────────────────────────────────────────────────────────────────
+// ─── Resolution + de-duplication ─────────────────────────────────────────────
 
-export const CacheImage = ({
+// Module scope on purpose. Twenty rows sharing one avatar URL should produce
+// one download and one SQLite write, not twenty of each. Entries are removed
+// as soon as they settle, so this never grows without bound.
+const inFlight = new Map();
+
+const resolveImage = (encodedUri) => {
+  const existing = inFlight.get(encodedUri);
+  if (existing) return existing;
+
+  const promise = (async () => {
+    // Hit: SQLite knows this url and the bytes it points at are still on disk.
+    // (getCachedImage verifies the file and self-heals if it's gone.)
+    const cachedPath = await getCachedImage(encodedUri);
+    if (cachedPath) return cachedPath;
+
+    // Miss: download to a deterministic path, then record where it landed.
+    const target = fileForUrl(encodedUri);
+    const downloadedFile = await File.downloadFileAsync(encodedUri, target);
+
+    // Bookkeeping only — never block display on it. If the insert fails we
+    // just re-download next time.
+    putCachedImage(encodedUri, downloadedFile).catch(() => {});
+
+    return downloadedFile.uri;
+  })();
+
+  inFlight.set(encodedUri, promise);
+  const forget = () => inFlight.delete(encodedUri);
+  promise.then(forget, forget);
+
+  return promise;
+};
+
+// ─── CacheImage ──────────────────────────────────────────────────────────────
+
+// Hoisted so the default param is one stable reference, not a fresh one per render.
+const FALLBACK_IMAGE = require("../../assets/icon.png");
+
+const CacheImageBase = ({
   uri,
   style,
   imgKey,
@@ -109,108 +134,60 @@ export const CacheImage = ({
   resizeMode = "contain",
   defaultResizeMode = "contain",
   local = false,
-  defaultImage = require("../../assets/icon.png"),
+  defaultImage = FALLBACK_IMAGE,
 }) => {
-  const [source, setSource] = useState(null); // null = still loading
+  const [source, setSource] = useState(null); // null = still resolving
   const [isFallback, setIsFallback] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Read at call time, never a dependency. A caller passing an inline object
+  // (defaultImage={{ uri }}) would otherwise re-trigger the effect forever.
+  const defaultImageRef = useRef(defaultImage);
+  defaultImageRef.current = defaultImage;
+
+  // Monotonic token: only the newest run is allowed to write state. Covers a
+  // slow download for a previous `uri` as well as unmount.
+  const requestId = useRef(0);
+
   useEffect(() => {
-    // expo-file-system downloads can't be aborted, so this run always finishes;
-    // it just may no longer be the one whose result matters. Cleanup runs both
-    // when `uri` changes and on unmount, so this single flag covers a slow
-    // download for a previous `uri` as well as the unmount case.
-    let cancelled = false;
-    const isActive = () => !cancelled;
+    const id = ++requestId.current;
+    const isActive = () => requestId.current === id;
 
     setIsLoading(true);
     setSource(null);
     setIsFallback(false);
 
-    const cacheImage = async () => {
-      try {
-        if (!uri) {
-          if (isActive()) {
-            setSource(defaultImage);
-            setIsFallback(true);
-            setIsLoading(false);
-          }
-          return;
-        }
-
-        if (local) {
-          if (isActive()) {
-            setSource({ uri });
-            setIsFallback(false);
-            // isLoading stays true until Image onLoad fires
-          }
-          return;
-        }
-
-        const encodedUri = encodeURI(uri);
-        const extension = getSafeExtension(encodedUri);
-        const fileName = `${shorthash.unique(encodedUri)}${extension}`;
-
-        const cacheDir = new Directory(Paths.cache, "images");
-        cacheDir.create({ idempotent: true, intermediates: true });
-
-        const file = new File(cacheDir, fileName);
-
-        if (file.exists) {
-          if (isActive()) {
-            setSource({ uri: file.uri });
-            setIsFallback(false);
-          }
-          return;
-        }
-
-        const downloadedFile = await File.downloadFileAsync(encodedUri, cacheDir);
-
+    (async () => {
+      if (!uri) {
         if (isActive()) {
-          setSource({ uri: downloadedFile.uri });
-          setIsFallback(false);
+          setSource(defaultImageRef.current);
+          setIsFallback(true);
+          setIsLoading(false);
         }
-      } catch (error) {
-        if (isActive()) {
-          if (uri) {
-            setSource({ uri: encodeURI(uri) });
-            setIsFallback(false);
-          } else {
-            setSource(defaultImage);
-            setIsFallback(true);
-            setIsLoading(false);
-          }
-        }
+        return;
       }
-    };
 
-    cacheImage();
+      if (local) {
+        // isLoading stays true until Image fires onLoad.
+        if (isActive()) setSource({ uri });
+        return;
+      }
+
+      const encodedUri = encodeURI(uri);
+
+      try {
+        const path = await resolveImage(encodedUri);
+        if (isActive()) setSource({ uri: path });
+      } catch {
+        // Cache path failed — let Image try the remote URL directly.
+        if (isActive()) setSource({ uri: encodedUri });
+      }
+    })();
 
     return () => {
-      cancelled = true;
+      requestId.current++;
     };
-  }, [uri, local, defaultImage]);
-
-  const deleteCachedImage = useCallback(
-    async (_uri) => {
-      try {
-        if (!_uri || local) return;
-        const encodedUri = encodeURI(_uri);
-        const extension = getSafeExtension(encodedUri);
-        const fileName = `${shorthash.unique(encodedUri)}${extension}`;
-        const file = new File(new Directory(Paths.cache, "images"), fileName);
-        if (file.exists) file.delete();
-      } catch (_) {}
-    },
-    [local]
-  );
-
-  const handleOnError = useCallback(async () => {
-    await deleteCachedImage(uri);
-    setSource(defaultImage);
-    setIsFallback(true);
-    setIsLoading(false);
-  }, [deleteCachedImage, uri, defaultImage]);
+  }, [uri, local]);
 
   const handleOnLoad = useCallback(
     (e) => {
@@ -220,33 +197,37 @@ export const CacheImage = ({
     [onLoad]
   );
 
-  const appliedResizeMode = useMemo(
-    () => (isFallback ? defaultResizeMode : resizeMode),
-    [isFallback, defaultResizeMode, resizeMode]
-  );
+  // A broken image means the cached bytes are bad, so drop the file *and* the
+  // row that points at it — leaving the row would keep serving the bad path.
+  const handleOnError = useCallback(async () => {
+    // The fallback itself failed to decode. Stop, or we loop.
+    if (isFallback) {
+      setIsLoading(false);
+      return;
+    }
 
-  const appliedStyle = useMemo(() => {
-    if (!isFallback) return style;
-    return [style, { maxWidth: "100%", maxHeight: "100%", alignSelf: "center" }];
-  }, [style, isFallback]);
+    if (uri && !local) {
+      await removeCachedImage(encodeURI(uri)).catch(() => {});
+    }
 
-  const imageStyle = useMemo(
-    () => [appliedStyle, isLoading && { opacity: 0 }],
-    [appliedStyle, isLoading]
-  );
+    setSource(defaultImageRef.current);
+    setIsFallback(true);
+    setIsLoading(false);
+  }, [uri, local, isFallback]);
+
+  // Remounting on source change kills the stale-onError race and replays the fade.
+  const imageKey = `${imgKey ?? ""}:${source?.uri ?? "fallback"}`;
 
   return (
-    <View style={style}>
-      {/* Skeleton shown while image hasn't fired onLoad yet */}
+    <View style={[styles.container, style]}>
       {isLoading && <SkeletonLoader style={StyleSheet.absoluteFill} />}
 
-      {/* Image rendered as soon as we have a source (hidden via opacity until loaded) */}
       {source && (
         <Image
-          key={imgKey}
+          key={imageKey}
           source={source}
-          style={imageStyle}
-          resizeMode={appliedResizeMode}
+          style={[StyleSheet.absoluteFill, isLoading && styles.hidden]}
+          resizeMode={isFallback ? defaultResizeMode : resizeMode}
           onLoad={handleOnLoad}
           onLoadStart={onLoadStart}
           onError={handleOnError}
@@ -257,3 +238,27 @@ export const CacheImage = ({
     </View>
   );
 };
+
+// Without this, the useCallbacks above buy nothing: a parent re-render walks
+// every CacheImage in the list regardless.
+export const CacheImage = memo(CacheImageBase);
+
+// ─── Styles ──────────────────────────────────────────────────────────────────
+
+const styles = StyleSheet.create({
+  container: {
+    // Lets a borderRadius on the passed-in `style` actually clip the image.
+    overflow: "hidden",
+  },
+  hidden: {
+    opacity: 0,
+  },
+  skeletonWrapper: {
+    backgroundColor: "#E0E0E0",
+    overflow: "hidden",
+  },
+  shimmerGradient: {
+    width: SHIMMER_WIDTH,
+    height: "100%",
+  },
+});
