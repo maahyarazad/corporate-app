@@ -36,6 +36,13 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
+    // An aborted request has no `error.response`. It must short-circuit before
+    // the network-error branch below, and keep its identity: reshaping it into a
+    // plain object would strip `name`/`code` and defeat `axios.isCancel`.
+    if (axios.isCancel(error)) {
+      return Promise.reject(error);
+    }
+
     if (!error.response) {
 
       showToast(

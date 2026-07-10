@@ -22,6 +22,7 @@ import { StatusBar } from "expo-status-bar";
 import { Button } from "react-native-paper";
 import { CacheImage } from "../components/cacheImage";
 import { SafeArea } from "../components/safearea.component";
+import { ignoreCancel, isCancel } from "../utils/cancellation";
 
 const RenderNotification = memo(({ item, index }) => {
   const [hasRead, setHasRead] = useState(item.read);
@@ -169,33 +170,37 @@ const RenderNotification = memo(({ item, index }) => {
 
 const NotificationsScreen = () => {
   const { i18n } = useTranslation();
-  const isMounted = useRef(false);
   const request = useRequest();
   const [notifications, setNotifications] = useState(null);
   const videoRef = useRef(null);
   // const [videoStatus, setVideoStatus] = useState({});
 
   useEffect(() => {
-    isMounted.current = true;
+    const controller = new AbortController();
 
     // alert(window.location.host);
 
-    getNotifications();
+    getNotifications(controller.signal).catch(ignoreCancel);
 
-    return () => {
-      isMounted.current = true;
-    };
+    return () => controller.abort();
   }, []);
 
-  const getNotifications = async () => {
+  const getNotifications = async (signal) => {
     try {
-      const response = await request("/v2/user/notifications", "GET");
+      const response = await request(
+        "/v2/user/notifications",
+        "GET",
+        undefined,
+        undefined,
+        signal
+      );
 
       if (response.success) {
         setNotifications(response.data);
         console.log("notifications", response.data);
       }
     } catch (error) {
+      if (isCancel(error)) throw error;
       console.log("error", error);
     }
   };

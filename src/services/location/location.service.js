@@ -1,6 +1,7 @@
 import { axiosInstance } from "../interceptor/axiosInstance";
 import * as Location from "expo-location";
 import { config } from "../../utils/constants";
+import { isCancel } from "../../utils/cancellation";
 
 /* =======================
    Location Helpers
@@ -25,34 +26,37 @@ export const getUserLocation = async () => {
   }
 };
 
-export const getCoords = async (limit) => {
+export const getCoords = async (limit, signal) => {
   try {
-    const response = await axiosInstance.get(`location/coordinates/${limit}`);
+    const response = await axiosInstance.get(`location/coordinates/${limit}`, {
+      signal,
+    });
     return response.data;
   } catch (error) {
-    console.log(error);
+    if (!isCancel(error)) console.log(error);
     throw error;
   }
 };
 
-export const getLocations = async (data) => {
+export const getLocations = async (data, signal) => {
   try {
-    const response = await axiosInstance.post(`location`, data);
+    const response = await axiosInstance.post(`location`, data, { signal });
     return response.data;
   } catch (error) {
-    console.log(error);
+    if (!isCancel(error)) console.log(error);
     throw error;
   }
 };
 
-export const getOneLocation = async (id, lang) => {
+export const getOneLocation = async (id, lang, signal) => {
   try {
     const response = await axiosInstance.get(
-      `location/${id}?app=${config.APP_ID}&lang=${lang}`
+      `location/${id}?app=${config.APP_ID}&lang=${lang}`,
+      { signal }
     );
     return response.data;
   } catch (error) {
-    console.log(error);
+    if (!isCancel(error)) console.log(error);
     throw error;
   }
 };
@@ -64,71 +68,73 @@ export const getOneLocation = async (id, lang) => {
 const API_URL = "partner";
 
 export const PartnerService = {
-  async getAvailableCategories(data) {
+  async getAvailableCategories(data, signal) {
     try {
       const response = await axiosInstance.post(
         `${API_URL}/category-available2`,
         {
           ...data,
           app_id: config.APP_ID,
-        }
+        },
+        { signal }
       );
       return response.data.result;
     } catch (error) {
-      console.log(error);
+      if (!isCancel(error)) console.log(error);
       throw error;
     }
   },
 
-  async getAvailableTags(lang) {
+  async getAvailableTags(lang, signal) {
     try {
       const response = await axiosInstance.get(
-        `${API_URL}/tags-available?app_id=${config.APP_ID}&lang=${lang}`
+        `${API_URL}/tags-available?app_id=${config.APP_ID}&lang=${lang}`,
+        { signal }
       );
       return response.data.result;
     } catch (error) {
-      console.log(error);
+      if (!isCancel(error)) console.log(error);
       throw error;
     }
   },
 
-  async getAllSpecialtags() {
+  async getAllSpecialtags(signal) {
     try {
-      const response = await axiosInstance.get(
-        `${API_URL}/specialtags`
-      );
+      const response = await axiosInstance.get(`${API_URL}/specialtags`, {
+        signal,
+      });
       return response.data.result;
     } catch (error) {
-      console.log(error);
+      if (!isCancel(error)) console.log(error);
       throw error;
     }
   },
 
-  async getTopPerCategories(data) {
+  async getTopPerCategories(data, signal) {
     try {
       const response = await axiosInstance.post(
         `location/top-per-category`,
         {
           ...data,
           app_id: config.APP_ID,
-        }
+        },
+        { signal }
       );
       return response.data.result;
     } catch (error) {
-      console.log(error);
+      if (!isCancel(error)) console.log(error);
       throw error;
     }
   },
 
-  async getPartners() {
+  async getPartners(signal) {
     try {
-        
-      const response = await axiosInstance.get(
-        `${API_URL}/active-partners`
-      );
+      const response = await axiosInstance.get(`${API_URL}/active-partners`, {
+        signal,
+      });
       return response.data;
     } catch (error) {
-      console.log(error);
+      if (!isCancel(error)) console.log(error);
       throw error;
     }
   },

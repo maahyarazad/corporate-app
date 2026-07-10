@@ -7,14 +7,20 @@ const success = (response) => response.data.success;
 const resData = (response) => response.data;
 
 export const OfferService = {
-  generateOfferCode(data) {
-    return axiosInstance.post(`${API_URL}/generate`, data).then(result);
+  generateOfferCode(data, signal) {
+    return axiosInstance
+      .post(`${API_URL}/generate`, data, { signal })
+      .then(result);
   },
 
-  consumeOfferCode(data) {
-    return axiosInstance.post(`${API_URL}/consume`, data).then(resData);
+  consumeOfferCode(data, signal) {
+    return axiosInstance
+      .post(`${API_URL}/consume`, data, { signal })
+      .then(resData);
   },
-  getHotpicks(data) {
-    return axiosInstance.post(`${API_URL}/hotpicks2`, data).then(resData);
+  getHotpicks(data, signal) {
+    return axiosInstance
+      .post(`${API_URL}/hotpicks2`, data, { signal })
+      .then(resData);
   },
 };
