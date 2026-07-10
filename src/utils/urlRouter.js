@@ -8,8 +8,6 @@ import { config } from "./constants";
 export const UrlListener = () => {
   const { eventList } = useContext(LocationContext);
   useEffect(() => {
-    let isMounted = true;
-
     //Event Listener for Deep linking
     const handleOpenURL = async (event) => {
       const { url } = event;
@@ -40,10 +38,7 @@ export const UrlListener = () => {
 
     const subscription = Linking.addEventListener("url", handleOpenURL);
 
-    return () => {
-      isMounted = false;
-      subscription.remove();
-    };
+    return () => subscription.remove();
   }, []);
 
   return <></>;

@@ -90,9 +90,10 @@ export const UserService: UserServiceType = {
     return responseData(response);
   },
 
-  async getMemberInfo(user_id): Promise<any> {
+  async getMemberInfo(user_id, signal): Promise<any> {
     const response = await axiosInstance.get(
-      `${API_URL}/getMemberInfo/${user_id}`
+      `${API_URL}/getMemberInfo/${user_id}`,
+      { signal }
     );
     return responseData(response);
   },

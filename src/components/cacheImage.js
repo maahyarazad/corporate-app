@@ -115,25 +115,13 @@ export const CacheImage = ({
   const [isFallback, setIsFallback] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // True while the component is mounted (covers the genuine unmount case).
-  const isMountedRef = useRef(true);
-  // Identifies the latest caching request, so a slow download for a previous
-  // `uri` can't overwrite the result of a newer one.
-  const requestIdRef = useRef(0);
-
-  // Mount / unmount tracking — runs once.
   useEffect(() => {
-    isMountedRef.current = true;
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    const requestId = ++requestIdRef.current;
-    // Only commit state if we're still mounted AND this is still the newest request.
-    const isActive = () =>
-      isMountedRef.current && requestId === requestIdRef.current;
+    // expo-file-system downloads can't be aborted, so this run always finishes;
+    // it just may no longer be the one whose result matters. Cleanup runs both
+    // when `uri` changes and on unmount, so this single flag covers a slow
+    // download for a previous `uri` as well as the unmount case.
+    let cancelled = false;
+    const isActive = () => !cancelled;
 
     setIsLoading(true);
     setSource(null);
@@ -197,8 +185,10 @@ export const CacheImage = ({
     };
 
     cacheImage();
-    // No cleanup flag needed: bumping requestIdRef on the next run invalidates
-    // this run, and isMountedRef handles unmount.
+
+    return () => {
+      cancelled = true;
+    };
   }, [uri, local, defaultImage]);
 
   const deleteCachedImage = useCallback(
@@ -217,7 +207,6 @@ export const CacheImage = ({
 
   const handleOnError = useCallback(async () => {
     await deleteCachedImage(uri);
-    if (!isMountedRef.current) return; // component may have unmounted during the await
     setSource(defaultImage);
     setIsFallback(true);
     setIsLoading(false);

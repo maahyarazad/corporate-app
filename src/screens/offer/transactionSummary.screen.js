@@ -30,8 +30,6 @@ export const TransactionSummaryScreen = () => {
   });
 
   useEffect(() => {
-    let isMounted = true;
-
     Animated.sequence([
       Animated.timing(animatedOpacity, {
         toValue: 1,
@@ -51,10 +49,6 @@ export const TransactionSummaryScreen = () => {
         delay: 1000,
       }).start(animatedOpacity3.setValue(0)),
     ]);
-
-    return () => {
-      isMounted = false;
-    };
   }, []);
 
   const handleDone = () => {

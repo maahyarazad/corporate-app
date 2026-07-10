@@ -3,7 +3,6 @@ import React, {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import { View, StyleSheet, FlatList } from "react-native";
@@ -16,6 +15,7 @@ import { width } from "../components/styles";
 import { SearchButton } from "../components/searchbutton";
 import { TranslationContext } from "../services/translation/translation.context";
 import useRequest from "../../hooks/useRequest";
+import { isCancel } from "../utils/cancellation";
 
 const OffersStack = createStackNavigator();
 
@@ -24,34 +24,36 @@ export const SpecialsScreen = () => {
   const { i18n, lang } = useContext(TranslationContext);
   const request = useRequest();
 
-  // Tracks whether the component is still mounted so we don't call
-  // setState after unmount (replaces the old `let isMounted` closure flag).
-  const isMountedRef = useRef(true);
-
   // `width` is a module constant, so this only ever needs to compute once.
   const cellSize = useMemo(() => (width - 60) / 4, []);
 
-  const getAvailableTags = useCallback(async () => {
-    try {
-      const response = await request(
-        `/v2/partner/tags-available?app_id=${config.APP_ID}&lang=${lang}`,
-        "get"
-      );
-      if (response && isMountedRef.current) {
-        setSpecialTagList(response.result);
+  const getAvailableTags = useCallback(
+    async (signal) => {
+      try {
+        const response = await request(
+          `/v2/partner/tags-available?app_id=${config.APP_ID}&lang=${lang}`,
+          "get",
+          undefined,
+          undefined,
+          signal
+        );
+        if (response) {
+          setSpecialTagList(response.result);
+        }
+      } catch (error) {
+        if (isCancel(error)) return;
+        console.log("Failed to get available tags: ", error);
       }
-    } catch (error) {
-      console.log("Failed to get available tags: ", error);
-    }
-  }, [request, lang]);
+    },
+    [request, lang]
+  );
 
   useEffect(() => {
-    isMountedRef.current = true;
-    getAvailableTags();
+    const controller = new AbortController();
 
-    return () => {
-      isMountedRef.current = false;
-    };
+    getAvailableTags(controller.signal);
+
+    return () => controller.abort();
     // Fetch once on mount (matches the original behaviour). If you want the
     // list to refetch when the language changes, add `getAvailableTags` here.
     // eslint-disable-next-line react-hooks/exhaustive-deps

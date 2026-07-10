@@ -115,15 +115,11 @@ export const OtpVerification = ({ route, navigation }) => {
   });
 
   useEffect(() => {
-    let isMounted = true;
     let subInterval = setInterval(() => {
       cooldownTimer(subInterval);
     }, 1000);
 
-    return () => {
-      isMounted = false;
-      clearInterval(subInterval);
-    };
+    return () => clearInterval(subInterval);
   }, [resendStatus]);
 
   const cooldownTimer = (interval) => {

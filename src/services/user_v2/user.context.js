@@ -22,8 +22,6 @@ const UserProvider = ({ children }) => {
   const request = useRequest();
 
   useEffect(() => {
-    let isMounted = true;
-
     //Retrieve Data from Device during startup
     const retrieveUserData = async () => {
       try {
@@ -34,10 +32,6 @@ const UserProvider = ({ children }) => {
     };
 
     if (refreshToken && accessToken && !userData) retrieveUserData();
-
-    return () => {
-      isMounted = false;
-    };
   }, [refreshToken, accessToken]);
 
   const syncUserInfo = async () => {

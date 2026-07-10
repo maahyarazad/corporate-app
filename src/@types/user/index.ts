@@ -55,6 +55,6 @@ export type UserServiceType = {
     changePassword: (data: any) => Promise<any>
     resendEmailVerification: (userId: number) => Promise<boolean>;
     removeUser: (userId: number) => Promise<boolean>;
-    getMemberInfo: (user_id: number) => Promise<any>;
+    getMemberInfo: (user_id: number, signal?: AbortSignal) => Promise<any>;
     addMember: (data: IMemberInfo) => Promise<boolean>;
 }

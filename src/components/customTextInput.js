@@ -1,7 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, {
   forwardRef,
-  useEffect,
   useImperativeHandle,
   useLayoutEffect,
   useRef,
@@ -106,18 +105,10 @@ export const CustomTextInput = forwardRef(
     });
 
     useLayoutEffect(() => {
-      let isMounted = true;
-
       if (value != undefined && value.trim() != "") {
-        if (isMounted) {
-          floatUp();
-          // animatedValue.setValue(100);
-        }
+        floatUp();
+        // animatedValue.setValue(100);
       }
-
-      return () => {
-        isMounted = false;
-      };
     }, [value]);
 
     const floatUp = () => {

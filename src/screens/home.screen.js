@@ -38,6 +38,7 @@ import { OrderCardModal } from "../features/offers/components/offerModalForm";
 import useAuth from "../../hooks/useAuth";
 import useUser from "../../hooks/useUser";
 import useRequest from "../../hooks/useRequest";
+import { ignoreCancel } from "../utils/cancellation";
 
 export const NearMeButton = styled(TouchableHighlight)`
   background-color: white;
@@ -126,110 +127,117 @@ export const RenderHome = () => {
   const { userData } = useUser();
   const request = useRequest();
 
-  const isMounted = useRef(false);
   const lastLoadedKey = useRef("");
 
-  useEffect(() => {
-    isMounted.current = true;
+  const fetchData = useCallback(
+    async (signal) => {
+      if (!userData?.user_id || !lang) return;
 
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
-
-  const fetchData = useCallback(async () => {
-    if (!userData?.user_id || !lang) return;
-
-    try {
-      if (isMounted.current) {
+      try {
         setRefreshing(true);
-      }
 
-      const payload = {
-        id: config.APP_ID,
-        status: 1,
-        user_id: userData.user_id,
-      };
+        const payload = {
+          id: config.APP_ID,
+          status: 1,
+          user_id: userData.user_id,
+        };
 
-      const results = await Promise.allSettled([
-        request(`/v2/app/get-banners`, "post", payload),
-        request(
-          `/v2/offer/hotpicks?app_id=${config.APP_ID}&lang=${lang}&limit=10`,
-          "get"
-        ),
-        request(
-          `/v2/partner/category-available2?app_id=${config.APP_ID}&lang=${lang}`,
-          "get"
-        ),
-        request(
-          `/v2/partner/top-per-category?app_id=${config.APP_ID}&lang=${lang}&count=5`,
-          "get"
-        ),
-      ]);
+        const results = await Promise.allSettled([
+          request(`/v2/app/get-banners`, "post", payload, undefined, signal),
+          request(
+            `/v2/offer/hotpicks?app_id=${config.APP_ID}&lang=${lang}&limit=10`,
+            "get",
+            undefined,
+            undefined,
+            signal
+          ),
+          request(
+            `/v2/partner/category-available2?app_id=${config.APP_ID}&lang=${lang}`,
+            "get",
+            undefined,
+            undefined,
+            signal
+          ),
+          request(
+            `/v2/partner/top-per-category?app_id=${config.APP_ID}&lang=${lang}&count=5`,
+            "get",
+            undefined,
+            undefined,
+            signal
+          ),
+        ]);
 
-      if (!isMounted.current) return;
+        // `allSettled` never rejects, so an abort surfaces as four rejected
+        // results rather than a thrown CanceledError. Without this bail-out the
+        // handlers below would read that as "every request failed" and blank
+        // the screen out from under a fresher load.
+        if (signal?.aborted) return;
 
-      const [bannerResult, hotpickResult, categoryResult, topPartnersResult] =
-        results;
+        const [bannerResult, hotpickResult, categoryResult, topPartnersResult] =
+          results;
 
-      if (bannerResult.status === "fulfilled") {
-        if (bannerResult.value?.success) {
-          setBannerData(bannerResult.value?.data ?? []);
+        if (bannerResult.status === "fulfilled") {
+          if (bannerResult.value?.success) {
+            setBannerData(bannerResult.value?.data ?? []);
+          } else {
+            //   console.log("Banner request unsuccessful:", bannerResult.value);
+            setBannerData([]);
+          }
         } else {
-          //   console.log("Banner request unsuccessful:", bannerResult.value);
+          // console.log("Banner request failed:", bannerResult.reason);
           setBannerData([]);
         }
-      } else {
-        // console.log("Banner request failed:", bannerResult.reason);
-        setBannerData([]);
-      }
 
-      if (hotpickResult.status === "fulfilled") {
-        if (hotpickResult.value?.success) {
-          setHotpickData(hotpickResult.value?.data ?? []);
+        if (hotpickResult.status === "fulfilled") {
+          if (hotpickResult.value?.success) {
+            setHotpickData(hotpickResult.value?.data ?? []);
+          } else {
+            //   console.log("Hotpicks request unsuccessful:", hotpickResult.value);
+            setHotpickData([]);
+          }
         } else {
-          //   console.log("Hotpicks request unsuccessful:", hotpickResult.value);
+          // console.log("Hotpicks request failed:", hotpickResult.reason);
           setHotpickData([]);
         }
-      } else {
-        // console.log("Hotpicks request failed:", hotpickResult.reason);
-        setHotpickData([]);
-      }
 
-      if (categoryResult.status === "fulfilled") {
-        if (categoryResult.value?.success) {
-          setCategoryData(categoryResult.value?.result ?? []);
+        if (categoryResult.status === "fulfilled") {
+          if (categoryResult.value?.success) {
+            setCategoryData(categoryResult.value?.result ?? []);
+          } else {
+            //   console.log("Category request unsuccessful:", categoryResult.value);
+            setCategoryData([]);
+          }
         } else {
-          //   console.log("Category request unsuccessful:", categoryResult.value);
+          // console.log("Category request failed:", categoryResult.reason);
           setCategoryData([]);
         }
-      } else {
-        // console.log("Category request failed:", categoryResult.reason);
-        setCategoryData([]);
-      }
 
-      if (topPartnersResult.status === "fulfilled") {
-        if (topPartnersResult.value?.success) {
-          setTopPartnersData(topPartnersResult.value?.result ?? []);
+        if (topPartnersResult.status === "fulfilled") {
+          if (topPartnersResult.value?.success) {
+            setTopPartnersData(topPartnersResult.value?.result ?? []);
+          } else {
+            //   console.log(
+            //     "Top partners request unsuccessful:",
+            //     topPartnersResult.value
+            //   );
+            setTopPartnersData([]);
+          }
         } else {
-          //   console.log(
-          //     "Top partners request unsuccessful:",
-          //     topPartnersResult.value
-          //   );
+          // console.log("Top partners request failed:", topPartnersResult.reason);
           setTopPartnersData([]);
         }
-      } else {
-        // console.log("Top partners request failed:", topPartnersResult.reason);
-        setTopPartnersData([]);
+      } catch (error) {
+        console.log("Home fetch unexpected error:", error);
+      } finally {
+        // An aborted run has been superseded; leave `refreshing` to the run that
+        // replaced it, otherwise the spinner clears while a load is still going.
+        if (!signal?.aborted) {
+          setRefreshing(false);
+        }
       }
-    } catch (error) {
-      console.log("Home fetch unexpected error:", error);
-    } finally {
-      if (isMounted.current) {
-        setRefreshing(false);
-      }
-    }
-  }, [userData?.user_id, lang, request]);
+    },
+    [userData?.user_id, lang, request]
+  );
 
   // Keep a live reference to fetchData so the trigger effect and pull-to-refresh
   // always call the latest version without re-subscribing the effect whenever
@@ -246,10 +254,26 @@ export const RenderHome = () => {
     if (lastLoadedKey.current === currentKey) return;
 
     lastLoadedKey.current = currentKey;
-    fetchDataRef.current();
+
+    const controller = new AbortController();
+    fetchDataRef.current(controller.signal).catch(ignoreCancel);
+
+    return () => controller.abort();
   }, [userData?.user_id, lang]);
 
-  const onRefresh = useCallback(() => fetchDataRef.current(), []);
+  // Pull-to-refresh runs outside any effect, so it carries its own controller:
+  // a second pull supersedes the first, and unmounting aborts whatever is live.
+  const refreshControllerRef = useRef(null);
+
+  const onRefresh = useCallback(() => {
+    refreshControllerRef.current?.abort();
+
+    const controller = new AbortController();
+    refreshControllerRef.current = controller;
+    fetchDataRef.current(controller.signal).catch(ignoreCancel);
+  }, []);
+
+  useEffect(() => () => refreshControllerRef.current?.abort(), []);
 
   const refreshControl = useMemo(
     () => <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />,
@@ -285,15 +309,6 @@ export const HomeScreen = (props) => {
   const [closeWarning, setCloseWarning] = useState(false);
   const [expireWarning, setExpireWarning] = useState(0);
 
-  // Mount / unmount guard for setState after the awaits below.
-  const isMounted = useRef(true);
-  useEffect(() => {
-    isMounted.current = true;
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
-
   const getLocalExpireWarning = useCallback(async () => {
     try {
       const value = await SecureStore.getItemAsync("expireWarning");
@@ -313,6 +328,10 @@ export const HomeScreen = (props) => {
   }, []);
 
   useEffect(() => {
+    // SecureStore reads can't be aborted, so this only stops a resolved-but-
+    // stale read from writing state after the effect has been superseded.
+    let cancelled = false;
+
     const checkExpireWarning = async () => {
       if (!userData?.expiry) return;
 
@@ -320,7 +339,7 @@ export const HomeScreen = (props) => {
 
       if (remainingDays > 10 && remainingDays <= 40) {
         const localExpireWarning = await getLocalExpireWarning();
-        if (!isMounted.current) return; // could have unmounted during the await
+        if (cancelled) return;
         if (!localExpireWarning) {
           setExpireWarning(1);
         }
@@ -331,6 +350,10 @@ export const HomeScreen = (props) => {
     };
 
     checkExpireWarning();
+
+    return () => {
+      cancelled = true;
+    };
   }, [userData?.expiry, getLocalExpireWarning, saveWarning]);
 
   const closeModal = useCallback(() => {

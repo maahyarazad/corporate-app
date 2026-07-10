@@ -5,8 +5,8 @@ const API_URL = `event`;
 const res = (response) => response.data;
 
 export const EventService = {
-  getEvents(data) {
-    return axiosInstance.post(`${API_URL}/get`, data).then(res);
+  getEvents(data, signal) {
+    return axiosInstance.post(`${API_URL}/get`, data, { signal }).then(res);
   },
   // getOneEvent(data) {
   //   return axiosInstance.post(`${API_URL}/detail`, data).then(res);

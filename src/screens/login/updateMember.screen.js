@@ -23,6 +23,7 @@ import PhoneInput from "react-native-phone-number-input";
 import { useEffect } from "react";
 import { useRoute } from "@react-navigation/native";
 import { UserService } from "../../services/user/user.service";
+import { isCancel } from "../../utils/cancellation";
 import country from "country-list-js";
 import { AuthContext } from "../../services/auth/auth.context";
 import { UserContext } from "../../services/user/user.context";
@@ -160,11 +161,15 @@ export const UpdateMemberScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
-    let isMounted = true;
+    const controller = new AbortController();
 
     const fetchMember = async () => {
-      const response = await UserService.getMemberInfo(member_id);
-      if (isMounted) {
+      try {
+        const response = await UserService.getMemberInfo(
+          member_id,
+          controller.signal
+        );
+
         if (response.success) {
         //   console.log("success");
         //   console.log(response);
@@ -185,15 +190,16 @@ export const UpdateMemberScreen = ({ navigation }) => {
         } else {
           Alert(response.title, response.message);
         }
+      } catch (error) {
+        if (isCancel(error)) return;
+        console.log("Failed to load member info:", error);
       }
     //   console.log("Member Response: ", state);
     };
 
     fetchMember();
 
-    return () => {
-      isMounted = false;
-    };
+    return () => controller.abort();
   }, []);
 
   return (

@@ -6,6 +6,7 @@ import refreshAccessToken from "../helper/refreshAccessToken";
 import { navigate } from "../src/navigation/navigate";
 import useUser from "./useUser";
 import useAlert from "./useAlert";
+import { isCancel } from "../src/utils/cancellation";
 
 const MAX_RETRY = 3;
 
@@ -98,6 +99,15 @@ export default function useRequest() {
       return Promise.resolve(response.data);
       
     } catch (error) {
+
+      // A caller aborted via `signal`. Rethrow ahead of the retry/status
+      // handling below: a cancelled request has no `error.response`, so it
+      // would otherwise fall through the whole block and resolve to
+      // `undefined`, making an abort indistinguishable from an empty response.
+      // It must also never be retried.
+      if (isCancel(error)) {
+        throw error;
+      }
 
       if (error.code === "ECONNABORTED") {
 

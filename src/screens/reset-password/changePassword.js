@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Alert,
   Animated,
@@ -24,7 +24,6 @@ export const ChangePasswordScreen = ({ route }) => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [password, setPassword] = useState("");
   const [cpassword, setCpassword] = useState("");
-  const isMounted = useRef(true);
   const navigation = useNavigation();
 
   const animatedShake = useRef(new Animated.Value(0)).current;
@@ -56,14 +55,6 @@ export const ChangePasswordScreen = ({ route }) => {
       },
     ],
   };
-
-  useEffect(() => {
-    isMounted.current = true;
-
-    return () => {
-      isMounted.current = true;
-    };
-  }, []);
 
   const handleSubmit = async () => {
     setIsSubmitted(true);
@@ -99,24 +90,12 @@ export const ChangePasswordScreen = ({ route }) => {
 
     const response = await UserService.changePassword(data);
 
-    if (isMounted.current) {
-      
-      if (response.success) {
-         showToast(
-                "success",
-               response.title,
-              response.message
-              );
-        
-        navigation.reset({ routes: [{ name: "Login" }] });
-      } else {
-         showToast(
-                "error",
-                 response.title,
-              response.message
-              );
-        
-      }
+    if (response.success) {
+      showToast("success", response.title, response.message);
+
+      navigation.reset({ routes: [{ name: "Login" }] });
+    } else {
+      showToast("error", response.title, response.message);
     }
   };
 

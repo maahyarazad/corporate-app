@@ -1,6 +1,7 @@
 import { axiosInstance } from "../interceptor/axiosInstance";
 import * as Location from "expo-location";
 import { config } from "../../utils/constants";
+import { isCancel } from "../../utils/cancellation";
 
 /* =======================
    Location Helpers
@@ -120,15 +121,14 @@ export const PartnerService = {
     }
   },
 
-  async getPartners() {
+  async getPartners(signal) {
     try {
-        
-      const response = await axiosInstance.get(
-        `${API_URL}/active-partners`
-      );
+      const response = await axiosInstance.get(`${API_URL}/active-partners`, {
+        signal,
+      });
       return response.data;
     } catch (error) {
-      console.log(error);
+      if (!isCancel(error)) console.log(error);
       throw error;
     }
   },

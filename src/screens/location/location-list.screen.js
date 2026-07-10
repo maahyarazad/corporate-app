@@ -16,6 +16,7 @@ import { io } from "socket.io-client";
 import { TranslationContext } from "../../services/translation/translation.context";
 import useRequest from "../../../hooks/useRequest";
 import { makeCacheKey, readCache, writeCache } from "../../../utils/apiCache";
+import { isCancel } from "../../utils/cancellation";
 
 const Search = styled(Searchbar)`
   margin: 0 12px;
@@ -52,7 +53,6 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
   const [headerTitle, setHeaderTitle] = useState(route.params.headerTitle);
 
   // ---- refs --------------------------------------------------------------
-  const isMounted = useRef(true);
   const searchRef = useRef();
   const socketRef = useRef(null);
   const debounceRef = useRef(null);
@@ -91,14 +91,11 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
 
   // ---- mount / unmount ---------------------------------------------------
   useEffect(() => {
-    isMounted.current = true;
-
     const _socket = io(config.WEBSOCKET_URL, { path: "/admin/node/" });
     socketRef.current = _socket;
     setSocket(_socket);
 
     return () => {
-      isMounted.current = false;
       if (debounceRef.current) {
         clearTimeout(debounceRef.current);
         debounceRef.current = null;
@@ -129,10 +126,9 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
     if (!socket) return;
 
     const onResults = (result) => {
-      // Ignore results that arrive after the query dropped below the
-      // threshold (or after unmount).
-
-      if (isMounted.current && !isShort.current) {
+      // Ignore results that arrive after the query dropped below the threshold.
+      // Post-unmount delivery is already handled by the `socket.off` below.
+      if (!isShort.current) {
         setSuggestedList(result);
       }
     };
@@ -172,7 +168,7 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
   );
 
   const loadLocations = useCallback(
-    async (data) => {
+    async (data, signal) => {
       // The exact body we post is also the cache identity: same body (page,
       // filters, lang, ...) -> same cached file.
       const body = { ...data, app_id: config.APP_ID, lang };
@@ -183,15 +179,19 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
         //    and the request to the server is skipped entirely.
         const cached = readCache(cacheKey, PARTNER_CACHE_TTL_MS);
         if (cached) {
-          if (!isMounted.current) return; // guard against setState after unmount
+          if (signal?.aborted) return;
           applyLocationData(cached);
           return;
         }
 
         // 2) Miss -> hit the server, then cache the result for one hour.
-        const response = await request(PARTNER_ENDPOINT, "post", body);
-
-        if (!isMounted.current) return; // guard against setState after unmount
+        const response = await request(
+          PARTNER_ENDPOINT,
+          "post",
+          body,
+          undefined,
+          signal
+        );
 
         if (response) {
           // Only cache non-empty pages, so an empty page can't pin "no results"
@@ -202,9 +202,12 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
           applyLocationData(response.data);
         }
       } catch (error) {
+        if (isCancel(error)) return;
         console.log("Failed to load location list:", error);
       } finally {
-        if (isMounted.current) {
+        // A superseded load must not clear the spinner the load that replaced
+        // it just turned on.
+        if (!signal?.aborted) {
           setIsLoading(false);
           setIsLoadingMore(false);
         }
@@ -220,16 +223,33 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
     loadLocationsRef.current = loadLocations;
   }, [loadLocations]);
 
-  // Fires the initial load, new searches, and pagination.
+  // Tracks the load that is currently in flight so a newer one can supersede it.
+  const loadControllerRef = useRef(null);
+
+  // Fires the initial load, new searches, and pagination. Every load flows
+  // through here, so aborting the previous controller is what stops a slow
+  // response to an old query from landing on top of a newer one.
+  //
+  // The abort deliberately does *not* live in this effect's cleanup: the effect
+  // calls setHasSubmitted(false), which re-runs it, and a cleanup abort would
+  // then cancel the request this very run just started.
   useEffect(() => {
-    if (hasSubmitted || searchData.current.page !== currentPage) {
-      searchData.current.page = currentPage;
-      loadLocationsRef.current(searchData.current);
-      if (hasSubmitted) {
-        setHasSubmitted(false);
-      }
+    if (!hasSubmitted && searchData.current.page === currentPage) return;
+
+    loadControllerRef.current?.abort();
+    const controller = new AbortController();
+    loadControllerRef.current = controller;
+
+    searchData.current.page = currentPage;
+    loadLocationsRef.current(searchData.current, controller.signal);
+
+    if (hasSubmitted) {
+      setHasSubmitted(false);
     }
   }, [currentPage, hasSubmitted]);
+
+  // Abort whatever is still in flight when the screen goes away.
+  useEffect(() => () => loadControllerRef.current?.abort(), []);
 
   // ---- live suggestions (properly debounced) ----------------------------
   useEffect(() => {

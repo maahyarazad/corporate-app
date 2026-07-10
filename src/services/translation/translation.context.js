@@ -18,21 +18,21 @@ export const TranslationContextProvider = ({ children }) => {
   const [lang, setLang] = useState("en"); // Default language is set to 'en'
 
   useEffect(() => {
-    // Flag to manage effect cleanup
-    let isMounted = true;
+    // SecureStorage reads can't be aborted; this only discards a resolved-but-
+    // stale read.
+    let cancelled = false;
 
     // Function to retrieve the stored language and set it
     const getLanguage = async () => {
       const storedLang = await SecureStorage.getItemAsync("language");
       // Use stored language or fallback to 'en' if null
-      if (isMounted) setLang(storedLang || "en");
+      if (!cancelled) setLang(storedLang || "en");
     };
 
     getLanguage();
 
-    // Cleanup function to set isMounted to false when the component unmounts
     return () => {
-      isMounted = false;
+      cancelled = true;
     };
   }, []);
 

@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useRef, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import * as SecureStorage from "expo-secure-store";
 import useUser from "../../../hooks/useUser";
 import useRequest from "../../../hooks/useRequest";
@@ -18,13 +18,16 @@ const AuthProvider = ({ children }) => {
   const [noConnection, setNoConnection] = useState(false);
   const [noConnectionRetry, setNoConnectionRetry] = useState({});
   // const request = useRequest();
-  const isMounted = useRef(true);
-  const initialize = async () => {
+
+  // `retrieveInfo` reads SecureStore and can't be aborted. Callers that care
+  // whether their run is still current pass an `isActive` probe; external
+  // callers (e.g. the no-connection retry) always are.
+  const initialize = async (isActive = () => true) => {
     try {
       setLoading(true);
       const flags = await retrieveInfo();
     //   console.log("FLAG", flags);
-      if (flags && isMounted.current) {
+      if (flags && isActive()) {
         setTimeout(() => {
           setRefreshToken(flags._refreshToken);
           setAccessToken(flags._accessToken);
@@ -42,10 +45,12 @@ const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    initialize();
+    let cancelled = false;
+
+    initialize(() => !cancelled);
 
     return () => {
-      isMounted.current = false;
+      cancelled = true;
     };
   }, []);
 
