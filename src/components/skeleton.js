@@ -14,28 +14,27 @@ export const Skeleton = ({
   const animatedValue = useRef(new Animated.Value(opacityMin)).current;
 
   useEffect(() => {
-    let isMounted = true;
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(animatedValue, {
+          toValue: opacityMax,
+          useNativeDriver: true,
+          duration: 300,
+          delay: 200,
+          easing: Easing.linear,
+        }),
+        Animated.timing(animatedValue, {
+          toValue: opacityMin,
+          useNativeDriver: true,
+          duration: 700,
+          easing: Easing.linear,
+        }),
+      ])
+    );
+    loop.start();
 
-    if (isMounted)
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(animatedValue, {
-            toValue: opacityMax,
-            useNativeDriver: true,
-            duration: 300,
-            delay: 200,
-            easing: Easing.linear,
-          }),
-          Animated.timing(animatedValue, {
-            toValue: opacityMin,
-            useNativeDriver: true,
-            duration: 700,
-            easing: Easing.linear,
-          }),
-        ])
-      ).start();
     return () => {
-      isMounted = false;
+      loop.stop();
       animatedValue.setValue(0);
     };
   }, []);

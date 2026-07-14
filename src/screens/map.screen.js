@@ -15,6 +15,7 @@ import { TranslationContext } from "../services/translation/translation.context"
 import { adminFileBaseURL } from "../utils/constants";
 import useRequest from "../../hooks/useRequest";
 import { theme } from "../infrastructure/theme";
+import { isCancel } from "../utils/cancellation";
 
 // Styled components for the map and markers
 export const StyledMap = styled(MapView)`
@@ -65,19 +66,26 @@ export const MapScreen = ({ navigation }) => {
 
   // Fetch partner locations and user location on component mount
   useEffect(() => {
-    let isMounted = true;
+    const controller = new AbortController();
+    // expo-location has no abort support, so the position lookup runs to
+    // completion regardless; this just stops it writing state afterwards.
+    let cancelled = false;
 
     // Function to fetch partner coordinates
     const getCoordinates = async (count) => {
       try {
         const response = await request(
           `/v2/partner/coordinates/${count}`,
-          "get"
+          "get",
+          undefined,
+          undefined,
+          controller.signal
         );
-        if (response && isMounted) {
+        if (response) {
           setPartnerLocations(response);
         }
       } catch (error) {
+        if (isCancel(error)) return;
         console.log("Failed to get coordinates:", error);
       }
     };
@@ -87,15 +95,15 @@ export const MapScreen = ({ navigation }) => {
     // Fetch the user's current location
     getUserLocation()
       .then((response) => {
-        if (isMounted) setMyLocation(response.coords);
+        if (!cancelled) setMyLocation(response.coords);
       })
       .catch((err) => {
         console.log("error: ", err);
       });
 
-    // Cleanup function to prevent state updates on unmounted component
     return () => {
-      isMounted = false;
+      cancelled = true;
+      controller.abort();
     };
   }, []);
 

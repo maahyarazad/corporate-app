@@ -25,6 +25,18 @@ import { Switch } from "react-native-paper";
 import * as SecureStore from "expo-secure-store";
 import useBiometrics from "../../../hooks/useBiometrics";
 import useUser from "../../../hooks/useUser";
+import { clearAllCaches, getCacheSize } from "../../../utils/cacheDb";
+
+const formatBytes = (bytes) => {
+  if (!bytes) return "0 B";
+  const units = ["B", "KB", "MB", "GB"];
+  const i = Math.min(
+    Math.floor(Math.log(bytes) / Math.log(1024)),
+    units.length - 1
+  );
+  const value = bytes / 1024 ** i;
+  return `${i === 0 ? value : value.toFixed(1)} ${units[i]}`;
+};
 
 export const ProfSettings = () => {
   const { signout } = useAuth();
@@ -32,9 +44,25 @@ export const ProfSettings = () => {
   const { setUserData } = useUser();
   const biometric = useBiometrics();
 
+  const [cacheStats, setCacheStats] = useState(null);
+  const [isClearingCache, setIsClearingCache] = useState(false);
+
   useEffect(() => {
     return () => {};
   }, [biometric.available, biometric.token]);
+
+  // SQLite reads can't be aborted, so this only discards a stale result.
+  useEffect(() => {
+    let cancelled = false;
+
+    getCacheSize().then((stats) => {
+      if (!cancelled) setCacheStats(stats);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const settingsList = [
     {
@@ -195,6 +223,38 @@ export const ProfSettings = () => {
     }
   };
 
+  const handleClearCache = () => {
+    showConfirm({
+      title: "Clear Cache",
+      message:
+        "This removes cached images and saved responses. They will be downloaded again the next time you need them.",
+      confirmText: i18n.t("yes"),
+      cancelText: i18n.t("no"),
+      destructive: true,
+      onConfirm: async () => {
+        if (isClearingCache) return;
+        setIsClearingCache(true);
+        try {
+          const { files, bytes } = await clearAllCaches();
+          setCacheStats(await getCacheSize());
+          showToast(
+            "success",
+            "Cache Cleared",
+            files > 0
+              ? `Freed ${formatBytes(bytes)} across ${files} file${
+                  files === 1 ? "" : "s"
+                }.`
+              : "There was nothing left to clear."
+          );
+        } catch (error) {
+          showToast("error", "Error Occured", "Could not clear the cache");
+        } finally {
+          setIsClearingCache(false);
+        }
+      },
+    });
+  };
+
   const actions = [
     handleLogout,
     handleDelete,
@@ -216,7 +276,7 @@ export const ProfSettings = () => {
     );
   };
 
-  const Settings = ({ onPress, icon, label, type = "button" }) => {
+  const Settings = ({ onPress, icon, label, detail, type = "button" }) => {
     const [switchValue, setSwitchValue] = useState(!!biometric.token);
 
     const handleBiometric = async (value) => {
@@ -270,6 +330,15 @@ export const ProfSettings = () => {
                 }}
                 style={{ alignSelf: "flex-end" }}
               />
+            )}
+            {detail != undefined && (
+              <Label
+                size="subtitle"
+                color={theme.colors.ui.lightGray2}
+                style={{ alignSelf: "flex-end" }}
+              >
+                {detail}
+              </Label>
             )}
           </View>
         </View>
@@ -335,6 +404,20 @@ export const ProfSettings = () => {
               icon="face-agent"
               label={i18n.t("profile-tabs.settings-menu.contact-us")}
               onPress={handleContactUs}
+            />
+          </Section>
+          <Section title="Storage">
+            <Settings
+              icon="trash-can-outline"
+              label="Clear Cache"
+              detail={
+                isClearingCache
+                  ? "Clearing…"
+                  : cacheStats
+                  ? formatBytes(cacheStats.bytes)
+                  : undefined
+              }
+              onPress={handleClearCache}
             />
           </Section>
           <Section title="Account">

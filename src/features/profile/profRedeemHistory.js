@@ -25,6 +25,7 @@ import useRequest from "../../../hooks/useRequest";
 import useUser from "../../../hooks/useUser";
 import { useTranslation } from "../../../hooks/useTranslation";
 import useMath from "../../../hooks/useMath";
+import { isCancel } from "../../utils/cancellation";
 
 const TOGGLE_BUTTON_BREAKDOWN_HEIGHT = 40;
 
@@ -38,22 +39,32 @@ export const ProfRedeemHistory = () => {
   const { lang } = useContext(TranslationContext);
 
   useEffect(() => {
-    let isMounted = true;
+    const controller = new AbortController();
 
     const getUserTransactions = async () => {
-      const response = await request(`/v2/user/history?lang=${lang}`, "get");
+      try {
+        const response = await request(
+          `/v2/user/history?lang=${lang}`,
+          "get",
+          undefined,
+          undefined,
+          controller.signal
+        );
 
-      if (response.success) {
-        setData(response.data.rows);
-        setHeaderList(response.data.headers);
-        setOverall(response.data.overall);
+        if (response.success) {
+          setData(response.data.rows);
+          setHeaderList(response.data.headers);
+          setOverall(response.data.overall);
+        }
+      } catch (error) {
+        if (isCancel(error)) return;
+        console.log("Failed to get redemption history:", error);
       }
     };
 
     getUserTransactions();
-    return () => {
-      isMounted = false;
-    };
+
+    return () => controller.abort();
   }, []);
 
   const renderRecord = (item) => {

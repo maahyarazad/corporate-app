@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Label } from "../../../components/typography/label.component";
 import { goback, navigate } from "../../../navigation/navigate";
@@ -17,6 +17,7 @@ import { theme } from "../../../infrastructure/theme";
 import useRequest from "../../../../hooks/useRequest";
 import { LoadingOverlay } from "../../../components/loading/loading.component";
 import { useNavigation } from "@react-navigation/native";
+import { isCancel } from "../../../utils/cancellation";
 
 const POST_TYPE = [
   {
@@ -50,14 +51,13 @@ const PostEntrySelect = () => {
   const [categories, setCategories] = useState(null);
   const [hasPressed, setHasPressed] = useState(false);
   const [selectedType, setSelectedType] = useState(null);
-  const isMounted = useRef(true);
 
   const onReturn = () => {
     goback();
   };
 
   useEffect(() => {
-    isMounted.current = true;
+    const controller = new AbortController();
 
     if (!categories && selectedType === null) {
       const preloadCategries = async () => {
@@ -65,22 +65,24 @@ const PostEntrySelect = () => {
           setLoading(true);
           const responseForum = await request(
             "/v2/post/forum/categories",
-            "get"
+            "get",
+            undefined,
+            undefined,
+            controller.signal
           );
           const responseMarketplace = await request(
             "/v2/post/marketplace/categories",
-            "get"
+            "get",
+            undefined,
+            undefined,
+            controller.signal
           );
-          if (
-            responseMarketplace.success &&
-            responseForum.success &&
-            isMounted
-          ) {
-            
+          if (responseMarketplace.success && responseForum.success) {
             setCategories([responseForum.data, responseMarketplace.data]);
             setLoading(false);
           }
         } catch (error) {
+          if (isCancel(error)) return;
           console.log("Failed to preload categories: ", error);
         }
       };
@@ -94,9 +96,7 @@ const PostEntrySelect = () => {
       });
     }
 
-    return () => {
-      isMounted.current = false;
-    };
+    return () => controller.abort();
   }, [selectedType, categories]);
 
   const TypeButton = ({ type }) => {

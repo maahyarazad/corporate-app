@@ -9,6 +9,7 @@ import {
   getCoords,
 } from "./location.service";
 import useUser from "../../../hooks/useUser";
+import { ignoreCancel } from "../../utils/cancellation";
 
 export const LocationContext = createContext();
 
@@ -21,35 +22,40 @@ export const LocationContextProvider = ({ children }) => {
   const { lang } = useContext(TranslationContext);
 
   useEffect(() => {
-    let isMounted = true;
+    const controller = new AbortController();
+    // expo-location can't be aborted, so the position lookup runs to completion
+    // regardless; this only stops it writing state afterwards.
+    let cancelled = false;
+
     (async () => {
     //   console.log("LOCATION");
       if (userData) {
         getUserLocation()
           .then((response) => {
-            if (isMounted) setUserLocation(response);
+            if (!cancelled) setUserLocation(response);
             // console.log("CORRECT"), response;
           })
           .catch((err) => {
             console.log("Location Context Error: ", err);
           });
 
-        getEventsList();
+        getEventsList(controller.signal).catch(ignoreCancel);
       }
     })();
 
     return () => {
-      isMounted = false;
+      cancelled = true;
+      controller.abort();
     };
   }, [userData]);
 
-  const getEventsList = async () => {
+  const getEventsList = async (signal) => {
     const data = {
       user_id: userData.user_id,
       lang,
     };
     // console.log("CHECKING EVENTS LIST");
-    const response = await EventService.getEvents(data);
+    const response = await EventService.getEvents(data, signal);
     setEventList(response.data);
   };
 

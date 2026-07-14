@@ -12,16 +12,18 @@ export const CameraScreen = () => {
     //   const { status } = await Camera.requestCameraPermissionsAsync();
     //   setHasPermission(status === "granted");
     // })();
-    let isMounted = true;
+    // The permission prompt can't be aborted; it resolves whenever the user
+    // answers it. This only discards the answer if we're no longer listening.
+    let cancelled = false;
 
     Camera.requestCameraPermissionsAsync().then(({ status }) => {
       if (status === "granted") {
-        if (isMounted) setHasPermission(true);
+        if (!cancelled) setHasPermission(true);
       }
     });
 
     return () => {
-      isMounted = false;
+      cancelled = true;
     };
   }, []);
 

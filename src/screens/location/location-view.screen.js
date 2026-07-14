@@ -27,6 +27,7 @@ import { LocationInfo } from "../../components/location/LocationInfo.component";
 import { TranslationContext } from "../../services/translation/translation.context";
 import useRequest from "../../../hooks/useRequest";
 import { config } from "../../utils/constants";
+import { isCancel } from "../../utils/cancellation";
 
 const { width, height } = Dimensions.get("window");
 
@@ -38,31 +39,20 @@ export const LocationViewScreen = ({ route, navigation }) => {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [distance, setDistance] = useState();
-  const isMounted = useRef(true);
   const request = useRequest();
 
   useEffect(() => {
-    isMounted.current = true;
     if (location != undefined && userLocation != undefined) {
-      if (isMounted.current) setLoading(false);
+      setLoading(false);
     }
-
-    return () => {
-      isMounted.current = false;
-    };
   }, [location, userLocation]);
 
   useEffect(() => {
     const controller = new AbortController();
-    const signal = controller.signal;
-    isMounted.current = true;
 
-    onRefresh(signal);
+    onRefresh(controller.signal);
 
-    return () => {
-      // controller.abort();
-      isMounted.current = false;
-    };
+    return () => controller.abort();
   }, [userLocation]);
 
   const onRefresh = (signal) => {
@@ -80,28 +70,29 @@ export const LocationViewScreen = ({ route, navigation }) => {
         signal
       );
 
-      if (isMounted.current && response) {
-        setLocation(response);
-        setLoading(false);
+      if (!response) return;
 
-        if (
-          response.lat != undefined &&
-          response.lng != undefined &&
-          userLocation != undefined
-        ) {
-          setDistance(() => {
-            const _distance = getPreciseDistance(
-              {
-                latitude: userLocation.coords.latitude,
-                longitude: userLocation.coords.longitude,
-              },
-              { latitude: response.lat, longitude: response.lng }
-            );
-            return (_distance / 1000).toFixed(2); //Unit: Kilometer
-          });
-        }
+      setLocation(response);
+      setLoading(false);
+
+      if (
+        response.lat != undefined &&
+        response.lng != undefined &&
+        userLocation != undefined
+      ) {
+        setDistance(() => {
+          const _distance = getPreciseDistance(
+            {
+              latitude: userLocation.coords.latitude,
+              longitude: userLocation.coords.longitude,
+            },
+            { latitude: response.lat, longitude: response.lng }
+          );
+          return (_distance / 1000).toFixed(2); //Unit: Kilometer
+        });
       }
     } catch (error) {
+      if (isCancel(error)) return;
       console.log("Failed to get location:", error);
     }
   };

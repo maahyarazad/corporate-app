@@ -12,7 +12,9 @@ export const UserContextProvider = ({ children }) => {
   const [isHomeInit, setIsHomeInit] = useState(false);
 
   useEffect(() => {
-    let isMounted = true;
+    // SecureStorage reads can't be aborted; this only discards a resolved-but-
+    // stale read.
+    let cancelled = false;
     (async () => {
     //   console.log("test");
     //   console.log("RETRIEVE AGAIN", user.token);
@@ -24,18 +26,18 @@ export const UserContextProvider = ({ children }) => {
         // console.log("------- retrieve (user_details) -------");
         // console.log(user.user_id);
 
-        if (isMounted) setUserInfo(JSON.parse(info));
+        if (!cancelled) setUserInfo(JSON.parse(info));
       } else {
         // console.log("test2");
 
         // console.log("------- retrieve (server)-------");
         // console.log(user.user_id);
-        if (isMounted) getUserInfo(user.user_id);
+        if (!cancelled) getUserInfo(user.user_id);
       }
     })();
 
     return () => {
-      isMounted = false;
+      cancelled = true;
     };
   }, []);
 

@@ -122,11 +122,8 @@ export const EntertainerScreen = () => {
   useEffect(() => {
     if (!userData?.user_id) return;
 
-    let isMounted = true;
-
     const getPushToken = async () => {
       try {
-        if (!isMounted) return;
         await registerForPushNotificationsAsync();
       } catch (error) {
         console.log("Failed to register push notifications:", error);
@@ -134,10 +131,6 @@ export const EntertainerScreen = () => {
     };
 
     getPushToken();
-
-    return () => {
-      isMounted = false;
-    };
   }, [userData?.user_id]);
 
   const registerForPushNotificationsAsync = async () => {

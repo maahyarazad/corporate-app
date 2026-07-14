@@ -35,9 +35,7 @@ export const ContactUsScreen = () => {
   const request = useRequest();
 
   useLayoutEffect(() => {
-    let isMounted = true;
-
-    if (userData != undefined && isMounted) {
+    if (userData != undefined) {
       setState({
         ...state,
         name: `${userData.first_name} ${userData.last_name}`,
@@ -45,10 +43,6 @@ export const ContactUsScreen = () => {
         mobile: `+${userData.area_code} ${userData.phone_number}`,
       });
     }
-
-    return () => {
-      isMounted = false;
-    };
   }, []);
 
   useEffect(() => {

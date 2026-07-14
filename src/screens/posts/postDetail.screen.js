@@ -22,6 +22,7 @@ import useUser from "../../../hooks/useUser";
 import PostPromptMessage from "./post_card/postPromptMessage/postPromptMessage.component";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { goback } from "../../navigation/navigate";
+import { ignoreCancel, isCancel } from "../../utils/cancellation";
 
 const COMMENT_MAXLENGTH = 500;
 
@@ -46,7 +47,6 @@ export default function PostDetailScreen() {
   const { userData } = useUser();
   const [comment, setComment] = useState("");
   const [postComments, setPostComments] = useState(null);
-  const isMounted = useRef(true);
   const keyboardRef = useRef(null);
   const scrollRef = useRef(null);
   const [focus, setFocus] = useState(false);
@@ -58,40 +58,45 @@ export default function PostDetailScreen() {
   const { author, updateData, post: homePost } = router.params;
 
   useEffect(() => {
-    isMounted.current = true;
+    const controller = new AbortController();
+    // `changeHeader` is a navigation side effect rather than a setState, so it
+    // isn't covered by the abort alone — the flag stops it from firing for a
+    // post the user has already navigated away from.
+    let cancelled = false;
 
     const getComments = async (_id) => {
-      const response = await fetchComments(_id, 0);
-      if (isMounted && response.success) {
-        // const tree = makeTree(response.data);
-        setPostComments(response.data);
-        setRemainingComments(response.remaining);
-        if (response.data.length > 0) setOldest(response.data[0].id);
+      const response = await fetchComments(_id, 0, 0, controller.signal);
+      if (cancelled || !response?.success) return;
 
-        // setOgPostComments(response.data);
-        // console.log(
-        //   "ver 1",
-        //   JSON.stringify(makeHierarchy(response.data))
-        // );
-        // console.log("ver 2", JSON.stringify(makeTree(response.data)));
-      }
+      // const tree = makeTree(response.data);
+      setPostComments(response.data);
+      setRemainingComments(response.remaining);
+      if (response.data.length > 0) setOldest(response.data[0].id);
+
+      // setOgPostComments(response.data);
+      // console.log(
+      //   "ver 1",
+      //   JSON.stringify(makeHierarchy(response.data))
+      // );
+      // console.log("ver 2", JSON.stringify(makeTree(response.data)));
     };
 
     const getPost = async () => {
       try {
-        const response = await fetchPost(router.params.id);
+        const response = await fetchPost(router.params.id, controller.signal);
 
-        if (response.success) {
-          setPost(response.data[0]);
-          changeHeader(
-            response.data[0].id === null
-              ? ``
-              : `${response.data[0].first_name}s Beitrag`
-          );
+        if (cancelled || !response?.success) return;
 
-          getComments(response.data[0].id);
-        }
+        setPost(response.data[0]);
+        changeHeader(
+          response.data[0].id === null
+            ? ``
+            : `${response.data[0].first_name}s Beitrag`
+        );
+
+        await getComments(response.data[0].id);
       } catch (error) {
+        if (isCancel(error)) return;
         console.log("Unable to fetch post: ", error);
       }
     };
@@ -102,11 +107,12 @@ export default function PostDetailScreen() {
       changeHeader(`${router.params.post.first_name}s Beitrag`);
       setPost(router.params.post);
 
-      getComments(router.params.post.id);
+      getComments(router.params.post.id).catch(ignoreCancel);
     }
 
     return () => {
-      isMounted.current = false;
+      cancelled = true;
+      controller.abort();
     };
   }, []);
 
@@ -125,17 +131,11 @@ export default function PostDetailScreen() {
   // }, [elapsedTime]);
 
   useEffect(() => {
-    isMounted.current = true;
-
     if (replyTo && keyboardRef && keyboardRef.current) {
       keyboardRef.current.focus();
       setFocus(true);
       setComment(`@${replyTo.name} `);
     }
-
-    return () => {
-      isMounted.current = false;
-    };
   }, [replyTo]);
 
   const changeHeader = (label) => {

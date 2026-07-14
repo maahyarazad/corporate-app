@@ -1,70 +1,67 @@
-// A tiny file-backed response cache, built on the same expo-file-system
-// mechanism as CacheImage: hash the request into a filename under the OS cache
-// directory and read/write it synchronously. The only addition here is a TTL —
-// images are immutable so they never expire, but API results do, so each entry
-// stores the time it was written and is treated as a miss once it's too old.
+// A SQLite-backed response cache. Each entry is a whole JSON payload keyed by
+// request identity, stamped with the time it was written; images are immutable
+// so they never expire, but API results do, and an entry past its TTL is treated
+// as a miss.
+//
+// This replaced a file-per-entry cache built on expo-file-system. Reads used to
+// be synchronous (`textSync`); SQLite is async-only, so `readCache`, `writeCache`
+// and `clearCache` now return promises.
 
-import { File, Directory, Paths } from "expo-file-system";
 import shorthash from "shorthash";
+import { getDb } from "./cacheDb";
 
-const CACHE_DIR_NAME = "api-cache";
 const CACHE_VERSION = "v1"; // bump to invalidate every entry after a shape change
 const DEFAULT_TTL_MS = 60 * 60 * 1000; // 1 hour
 
-const getCacheDir = () => {
-  const dir = new Directory(Paths.cache, CACHE_DIR_NAME);
-  dir.create({ idempotent: true, intermediates: true });
-  return dir;
-};
-
-const fileForKey = (key) => new File(getCacheDir(), `${key}.json`);
-
 // Stable key from the endpoint + the exact request body. Two requests that post
-// the same body (same page, filters, lang, ...) map to the same file.
+// the same body (same page, filters, lang, ...) map to the same row.
 export const makeCacheKey = (endpoint, body) =>
   shorthash.unique(`${CACHE_VERSION}::${endpoint}::${JSON.stringify(body)}`);
 
-// Returns the cached payload if present and still fresh, otherwise null.
-// Synchronous — expo-file-system's text read is sync (`textSync`).
-export const readCache = (key, ttl = DEFAULT_TTL_MS) => {
+// Resolves to the cached payload if present and still fresh, otherwise null.
+// Any failure — including a row whose `value` won't parse — is just a miss.
+export const readCache = async (key, ttl = DEFAULT_TTL_MS) => {
   try {
-    const file = fileForKey(key);
-    if (!file.exists) return null;
+    const db = await getDb();
+    const row = await db.getFirstAsync(
+      "SELECT value, saved_at FROM api_cache WHERE key = ?",
+      key
+    );
 
-    const entry = JSON.parse(file.textSync());
-    if (!entry || typeof entry.savedAt !== "number") {
-      file.delete(); // corrupt / unexpected shape -> drop it
+    if (!row) return null;
+
+    if (typeof row.saved_at !== "number" || Date.now() - row.saved_at > ttl) {
+      // Stale (or a corrupt timestamp) -> drop it so it doesn't linger.
+      await clearCache(key);
       return null;
     }
 
-    if (Date.now() - entry.savedAt > ttl) {
-      file.delete(); // stale -> drop it so it doesn't linger
-      return null;
-    }
-
-    return entry.data;
+    return JSON.parse(row.value);
   } catch (_) {
-    return null; // any read failure is just a cache miss
+    return null;
   }
 };
 
 // Persists a payload stamped with the current time. Best-effort: never throws,
 // so a failed cache write can't break the request it was trying to speed up.
-export const writeCache = (key, data) => {
+export const writeCache = async (key, data) => {
   try {
-    const file = fileForKey(key);
-    if (file.exists) file.delete(); // overwrite cleanly
-    file.create();
-    file.write(JSON.stringify({ savedAt: Date.now(), data }));
+    const db = await getDb();
+    await db.runAsync(
+      "INSERT OR REPLACE INTO api_cache (key, value, saved_at) VALUES (?, ?, ?)",
+      key,
+      JSON.stringify(data),
+      Date.now()
+    );
   } catch (_) {
     // ignore cache-write failures
   }
 };
 
 // Remove a single entry (e.g. to force a refetch).
-export const clearCache = (key) => {
+export const clearCache = async (key) => {
   try {
-    const file = fileForKey(key);
-    if (file.exists) file.delete();
+    const db = await getDb();
+    await db.runAsync("DELETE FROM api_cache WHERE key = ?", key);
   } catch (_) {}
 };

@@ -1,12 +1,6 @@
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import moment from "moment";
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { Platform, StyleSheet, TouchableOpacity, View, KeyboardAvoidingView, ScrollView } from "react-native";
 
 import { Button } from "react-native-paper";
@@ -29,6 +23,7 @@ import { DropDown } from "../../components/DropDown";
 import { PartnerService } from "../../services/location/location.service";
 import { NationalityInput } from "../../components/NationalityInput";
 import { showToast } from "../../Toast";
+import { isCancel } from "../../utils/cancellation";
 
 export const AuthEditProfileScreen = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -57,7 +52,6 @@ export const AuthEditProfileScreen = () => {
   // Honorifics items for the custom DropDown
   const honorificItems = honorificList.map((x) => ({ label: x, value: x }));
 
-  const isMounted = useRef(true);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { i18n, lang } = useContext(TranslationContext);
 
@@ -71,20 +65,28 @@ export const AuthEditProfileScreen = () => {
   const [userData, setUserData] = useState(null);
   const [partnerList, setPartnerList] = useState([]);
 
-  const getPartners = useCallback(async () => {
+  const getPartners = useCallback(async (signal) => {
     try {
-      const response = await PartnerService.getPartners();
+      const response = await PartnerService.getPartners(signal);
       const response_userInfo = await getUserInfo();
+      // getUserInfo goes through the user context and takes no signal, so its
+      // result is discarded explicitly once the effect has been torn down.
+      if (signal?.aborted) return;
       if (response_userInfo) setUserData(response_userInfo);
       if (response.success) setPartnerList(response.data);
     } catch (error) {
+      if (isCancel(error)) return;
       console.log(error);
       showToast("error", "Server Error", error);
     }
   }, []);
 
   useEffect(() => {
-    getPartners();
+    const controller = new AbortController();
+
+    getPartners(controller.signal);
+
+    return () => controller.abort();
   }, [getPartners]);
 
   useEffect(() => {
@@ -141,7 +143,7 @@ export const AuthEditProfileScreen = () => {
       if (checkForEmpty()) return null;
       setIsLoading(true);
       const response = await request("/v2/user/update", "post", data);
-      if (response && isMounted.current) {
+      if (response) {
         setIsLoading(false);
         showToast(
           "success",

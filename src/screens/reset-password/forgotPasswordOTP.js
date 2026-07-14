@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -27,15 +27,6 @@ export const ForgotPasswordOTPScreen = ({ route }) => {
   //   const [mobileNum, setMobileNum] = useState("");
   const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const isMounted = useRef(true);
-
-  useEffect(() => {
-    isMounted.current = true;
-
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
 
   const handleResend = async () => {
     const data = {
@@ -62,15 +53,12 @@ export const ForgotPasswordOTPScreen = ({ route }) => {
 
     setIsLoading(true);
     const response = await UserService.verifyForgetPass(data);
-    if (isMounted.current) {
-      if (response) {
-        navigate("ChangePassword", { user_id });
-        setIsLoading(false);
-      } else {
-        const { title = "Alert", message = "Something went wrong" } = response;
-        setIsLoading(false);
-        showToast("error", title, message);
-      }
+    if (response) {
+      navigate("ChangePassword", { user_id });
+      setIsLoading(false);
+    } else {
+      setIsLoading(false);
+      showToast("error", "Alert", "Something went wrong");
     }
   };
 

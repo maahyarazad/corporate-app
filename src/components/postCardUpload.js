@@ -14,17 +14,15 @@ export const PostCardUpload = () => {
   const { i18n } = useContext(TranslationContext);
 
   useEffect(() => {
-    let isMounted = true;
-
-    if (isMounted)
-      Animated.timing(animatedValue, {
-        toValue: 1,
-        duration: 500,
-        useNativeDriver: true,
-      }).start();
+    const animation = Animated.timing(animatedValue, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    });
+    animation.start();
 
     return () => {
-      isMounted = false;
+      animation.stop();
       animatedValue.setValue(0);
     };
   }, []);

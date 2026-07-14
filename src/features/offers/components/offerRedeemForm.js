@@ -37,13 +37,7 @@ export const OfferRedeemForm = ({
   const { i18n } = useContext(TranslationContext);
 
   useEffect(() => {
-    let isMounted = true;
-
     calculate();
-
-    return () => {
-      isMounted = false;
-    };
   }, []);
 
   const calculate = () => {

@@ -38,7 +38,6 @@ export const AuthContextProvider = ({ children }) => {
 
   // Refs keep a stable identity across renders, so they never need to be deps.
   const isLogout = useRef(false);
-  const isMounted = useRef(true);
 
   // --- Callbacks -------------------------------------------------------------
 
@@ -187,14 +186,16 @@ export const AuthContextProvider = ({ children }) => {
 
   // Bootstrap once on mount: load skip flag, device info and token.
   useEffect(() => {
-    isMounted.current = true;
+    // SecureStore and device-info reads can't be aborted; this only discards
+    // their results once the provider has gone away.
+    let cancelled = false;
 
     (async () => {
       const getSkip = parseInt(await SecureStore.getItemAsync("skip"));
       const deviceInfo = await getDeviceInfo();
       const token = await retrieveToken();
 
-      if (!isMounted.current) return; // guard against setState after unmount
+      if (cancelled) return;
 
       setSkip(getSkip);
       setUser((prev) => ({ ...prev, ...deviceInfo, token }));
@@ -202,7 +203,7 @@ export const AuthContextProvider = ({ children }) => {
     })();
 
     return () => {
-      isMounted.current = false;
+      cancelled = true;
     };
   }, []);
 

@@ -5,6 +5,7 @@ import useRequest from "../../../hooks/useRequest";
 import useAuth from "../../../hooks/useAuth";
 import { debounce } from "lodash";
 import moment from "moment";
+import { isCancel } from "../../utils/cancellation";
 
 export const PostContext = createContext(null);
 
@@ -261,27 +262,40 @@ export default function PostProvider({ children }) {
     setRootPosts([]);
   };
 
-  const fetchPost = async (post_id) => {
+  const fetchPost = async (post_id, signal) => {
     try {
-      const response = await request(`/v2/post/${post_id}`, "get");
+      const response = await request(
+        `/v2/post/${post_id}`,
+        "get",
+        undefined,
+        undefined,
+        signal
+      );
 
       return response;
     } catch (error) {
+      // Swallowing a cancellation here would return `undefined` and make the
+      // caller read `.success` off it. Let the caller see the abort instead.
+      if (isCancel(error)) throw error;
       console.log("Failed to get post:", error);
     }
   };
 
-  const fetchComments = async (postId, mode = 0, prev = 0) => {
+  const fetchComments = async (postId, mode = 0, prev = 0, signal) => {
     try {
       const response = await request(
         `/v2/post/comments?id=${postId}&prev=${prev}&mode=${mode}`,
-        "get"
+        "get",
+        undefined,
+        undefined,
+        signal
       );
 
       // const _comments = posts.filter((comment) => comment.orderId === postId);
       // setTestComment(response.data);
       return response;
     } catch (error) {
+      if (isCancel(error)) throw error;
       console.log("Failed to get comments:", error);
     }
   };

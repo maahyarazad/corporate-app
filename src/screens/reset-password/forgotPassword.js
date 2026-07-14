@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Animated,
   Easing,
@@ -31,7 +31,6 @@ export const ForgotPasswordScreen = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [login, setLogin] = useState("");
   const [loading, setLoading] = useState(false);
-  const isMounted = useRef(true);
   const theme = useTheme();
 
   const animatedShake = useRef(new Animated.Value(0)).current;
@@ -64,14 +63,6 @@ export const ForgotPasswordScreen = () => {
     ],
   };
 
-  useEffect(() => {
-    isMounted.current = true;
-
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
-
   const goback = () => {
     navigate("Login");
   };
@@ -97,21 +88,19 @@ export const ForgotPasswordScreen = () => {
 
       setLoading(true);
       const result = await UserService.requestForgetPass(data);
-      if (isMounted.current) {
-        
-        if (result.success) {
-          setLoading(false);
-            
-          navigate("ForgotPasswordOTP", {
-            mobileCode,
-            mobile,
-            login,
-            user_id: result.data.user_id,
-          });
-        } else {
-          setLoading(false);
-          showToast("error", result.title, result.message);
-        }
+
+      if (result.success) {
+        setLoading(false);
+
+        navigate("ForgotPasswordOTP", {
+          mobileCode,
+          mobile,
+          login,
+          user_id: result.data.user_id,
+        });
+      } else {
+        setLoading(false);
+        showToast("error", result.title, result.message);
       }
     } catch (error) {
       console.log(error);
