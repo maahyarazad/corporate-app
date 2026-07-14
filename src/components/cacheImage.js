@@ -102,8 +102,14 @@ const resolveImage = (encodedUri) => {
     if (cachedPath) return cachedPath;
 
     // Miss: download to a deterministic path, then record where it landed.
+    // `idempotent` is required, not cosmetic: a miss can coexist with an
+    // existing file (an install predating this SQLite table, or a crash between
+    // the download and the insert), and without it downloadFileAsync throws
+    // DestinationAlreadyExists instead of overwriting.
     const target = fileForUrl(encodedUri);
-    const downloadedFile = await File.downloadFileAsync(encodedUri, target);
+    const downloadedFile = await File.downloadFileAsync(encodedUri, target, {
+      idempotent: true,
+    });
 
     // Bookkeeping only — never block display on it. If the insert fails we
     // just re-download next time.
