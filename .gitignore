@@ -63,3 +63,9 @@ google-services.json
 *.keystore
 *.cer
 eas.json
+
+# test coverage
+coverage/
+
+# logs
+*.log

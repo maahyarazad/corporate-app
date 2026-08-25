@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useState, useCallback } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+} from "react";
 import { Image, Platform, TouchableOpacity, View } from "react-native";
 import { useTheme } from "styled-components/native";
 import { showToast } from "../Toast";
@@ -22,6 +28,7 @@ import { navigate } from "../navigation/navigate";
 import { NotificationsService } from "../services/notifications/notifications.service";
 import { CacheImage } from "../components/cacheImage";
 import { typeEnum } from "../utils/constants";
+import { resolvePushDestination } from "../utils/pushDestination";
 import { LogBox } from "react-native";
 
 LogBox.ignoreLogs([
@@ -52,38 +59,38 @@ export const EntertainerScreen = () => {
 
   const [hasNotification, setHasNotification] = useState(false);
 
+  // A single tap must produce exactly one navigation: on a cold start the
+  // one-shot getLastNotificationResponseAsync replay and the live listener can
+  // both fire for the same notification.
+  const handledNotificationIds = useRef(new Set());
+
   const handleNotificationResponse = useCallback((response) => {
-    // console.log("CHECKING NOTIF RESPONSE");
+    const notificationId = response?.notification?.request?.identifier;
+
+    if (notificationId) {
+      if (handledNotificationIds.current.has(notificationId)) {
+        return;
+      }
+      handledNotificationIds.current.add(notificationId);
+    }
 
     const notificationData =
       response?.notification?.request?.content?.data || {};
-    // console.log("NOTIFICATION DATA:", notificationData);
 
-    const path = notificationData?.path;
-    const id = notificationData?.id;
-
-    if (!path) return;
-
-    switch (path) {
-      case "partner":
-        navigate("Location View", { locId: id });
-        break;
-
-      case "event":
-        navigate("Event Detail", { id });
-        break;
-
-      case "post":
-        navigate("post-detail", {
-          id,
-          origin: "push",
-        });
-        break;
-
-      default:
-        // console.log("Unhandled notification path:", path);
-        break;
+    if (__DEV__) {
+      console.log(
+        "[push] raw notification data:",
+        JSON.stringify(notificationData)
+      );
     }
+
+    const destination = resolvePushDestination(notificationData);
+
+    // An unresolvable payload is a no-op: the app stays on its default screen.
+    // resolvePushDestination has already logged the diagnostic in dev builds.
+    if (!destination) return;
+
+    navigate(destination.screen, destination.params);
   }, []);
 
   useEffect(() => {

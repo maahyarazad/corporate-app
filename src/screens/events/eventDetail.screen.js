@@ -3,6 +3,7 @@ import { useRoute } from "@react-navigation/native";
 import moment from "moment";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
+  ActivityIndicator,
   Image,
   Linking,
   Platform,
@@ -33,6 +34,9 @@ export const EventDetailScreen = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [attendLoading, setAttendLoading] = useState(false);
   const [eventDetails, setEventDetails] = useState(null);
+  // idle -> loading -> loaded | empty | error. Every non-loaded state must
+  // render something visible with a working back control.
+  const [loadState, setLoadState] = useState("loading");
   const [includeGuests, setIncludeGuests] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [actions, setActions] = useState(false);
@@ -50,6 +54,7 @@ export const EventDetailScreen = () => {
     const fetchEventData = async () => {
       try {
         setIsLoading(true);
+        if (!cancelled) setLoadState("loading");
 
         const data = {
           id,
@@ -57,15 +62,34 @@ export const EventDetailScreen = () => {
         };
 
         const response = await request("/v1/api/event/detail", "post", data);
-        console.log("=============================================================================")
-        console.log("=============================================================================")
-        console.log("=============================================================================")
-        if (!cancelled && response?.success) {
-          console.log("event detail:", response.data);
-          setEventDetails(response.data);
+
+        if (cancelled) return;
+
+        if (__DEV__) {
+          console.log("[event detail] response for id", id, response?.success);
         }
+
+        if (!response?.success) {
+          setEventDetails(null);
+          setLoadState("error");
+          showToast("error", "Error Occurred", "Could not get the event");
+
+          return;
+        }
+
+        if (!response.data) {
+          setEventDetails(null);
+          setLoadState("empty");
+
+          return;
+        }
+
+        setEventDetails(response.data);
+        setLoadState("loaded");
       } catch (err) {
         if (!cancelled) {
+          setEventDetails(null);
+          setLoadState("error");
           showToast("error", "Error Occurred", "Could not get the event");
         }
       } finally {
@@ -330,21 +354,65 @@ export const EventDetailScreen = () => {
         >
           <StatusModal message={confirmationMSG} />
 
-          {eventDetails && (
-            <View>
-              <View style={styles.headerRow}>
-                <TouchableOpacity
-                  onPress={goback}
-                  style={styles.backButton}
-                  activeOpacity={0.5}
-                >
-                  <Ionicons name="arrow-back" size={35} color="#111" />
-                  <Label weight="bold" style={styles.backLabel}>
-                    {i18n.t("bottom-tabs.events")}
-                  </Label>
-                </TouchableOpacity>
-              </View>
+          {/* The back control is mounted in every state: a member must never be
+              stranded on a screen with no way out. */}
+          <View style={styles.headerRow}>
+            <TouchableOpacity
+              onPress={goback}
+              style={styles.backButton}
+              activeOpacity={0.5}
+            >
+              <Ionicons name="arrow-back" size={35} color="#111" />
+              <Label weight="bold" style={styles.backLabel}>
+                {i18n.t("bottom-tabs.events")}
+              </Label>
+            </TouchableOpacity>
+          </View>
 
+          {loadState !== "loaded" && (
+            <View style={styles.stateContainer}>
+              {loadState === "loading" ? (
+                <>
+                  <ActivityIndicator
+                    size="large"
+                    color={theme.colors.icons.active}
+                  />
+                  <Label style={styles.stateLabel}>
+                    {i18n.t("events.loading")}
+                  </Label>
+                </>
+              ) : (
+                <>
+                  <Ionicons
+                    name={
+                      loadState === "error"
+                        ? "alert-circle-outline"
+                        : "calendar-outline"
+                    }
+                    size={48}
+                    color="#888"
+                  />
+                  <Label style={styles.stateLabel}>
+                    {loadState === "error"
+                      ? i18n.t("events.load-error")
+                      : i18n.t("events.not-found")}
+                  </Label>
+                  {loadState === "error" && (
+                    <Button
+                      mode="contained"
+                      style={styles.stateButton}
+                      onPress={() => setActions((prev) => !prev)}
+                    >
+                      {i18n.t("events.retry")}
+                    </Button>
+                  )}
+                </>
+              )}
+            </View>
+          )}
+
+          {loadState === "loaded" && eventDetails && (
+            <View>
               <Image
                 style={styles.coverImage}
                 source={{
@@ -478,6 +546,22 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     color: "#111",
     flexWrap: "wrap",
+  },
+  stateContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 32,
+    paddingVertical: 64,
+    gap: 12,
+  },
+  stateLabel: {
+    textAlign: "center",
+    color: "#555",
+  },
+  stateButton: {
+    marginTop: 8,
+    borderRadius: 10,
   },
   modalContainer: {
     flex: 1,
