@@ -392,15 +392,15 @@ const SLIDESHOW_HEIGHT = Math.floor(width * 9 / 16);
           </View>
         </SafeArea>
       </Animated.View>
-      <Animated.FlatList
+      <Animated.ScrollView
         scrollEventThrottle={16}
         onScroll={scrollHandler}
-        // ListHeaderComponent={renderPartnerHeader}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
-        ListFooterComponent={renderPartner}
-      />
+      >
+        {renderPartner()}
+      </Animated.ScrollView>
     </>
   );
 };

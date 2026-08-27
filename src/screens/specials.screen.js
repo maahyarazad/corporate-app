@@ -5,7 +5,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { View, StyleSheet, FlatList } from "react-native";
+import { View, StyleSheet, ScrollView } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { SpecialTags } from "../features/home/components/specialtags";
 import { navigate } from "../navigation/navigate";
@@ -100,7 +100,7 @@ export const SpecialsScreen = () => {
   const OffersScreen = useCallback(
     () => (
       <View style={styles.centeredView}>
-        <FlatList ListFooterComponent={renderSpecials} />
+        <ScrollView>{renderSpecials()}</ScrollView>
       </View>
     ),
     [renderSpecials]
