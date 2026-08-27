@@ -137,10 +137,10 @@ scenarios. Priorities reflect value-to-risk, not user value.
 
 **Independent test**: Sweep scenario D3. Scrolling is not misaligned and nothing jumps.
 
-- [ ] T040 [P] [US5] Add `getItemLayout` to `src/components/events/eventList.js:361` after confirming the row height from its `StyleSheet` and adding the separator height
-- [ ] T041 [P] [US5] Add `getItemLayout` to `src/components/NationalityInput.js:297` and `src/components/PhoneInput.js:352` — country rows are uniform height
-- [ ] T042 [P] [US5] Add `getItemLayout` to `src/components/slideshow.js:134` and `src/features/home/components/category.component.js:131` using the **fixed item width** (these are horizontal lists, so `length` is width)
-- [ ] T043 [US5] Audit every candidate row for text that can wrap to a second line. **Skip `getItemLayout` for any variable-height row** and record the skip in `specs/003-flatlist-optimization/follow-ups.md`
+- [~] T040 [P] [US5] Add `getItemLayout` to `src/components/events/eventList.js:361` after confirming the row height from its `StyleSheet` and adding the separator height
+- [~] T041 [P] [US5] Add `getItemLayout` to `src/components/NationalityInput.js:297` and `src/components/PhoneInput.js:352` — country rows are uniform height
+- [~] T042 [P] [US5] Add `getItemLayout` to `src/components/slideshow.js:134` and `src/features/home/components/category.component.js:131` using the **fixed item width** (these are horizontal lists, so `length` is width)
+- [X] T043 [US5] Audit every candidate row for text that can wrap to a second line. **Skip `getItemLayout` for any variable-height row** and record the skip in `specs/003-flatlist-optimization/follow-ups.md`
 - [ ] T044 [US5] Run sweep scenario D3 from `specs/003-flatlist-optimization/quickstart.md` on both platforms, then commit
 
 ---
@@ -156,8 +156,8 @@ scenarios. Priorities reflect value-to-risk, not user value.
 - [ ] T045 [US6] Confirm the realistic maximum item count for each `scrollEnabled={false}` instance against the API. Record each answer in `specs/003-flatlist-optimization/follow-ups.md`. **This gates every task below** — convert only where the bound is known
 - [ ] T046 [US6] Convert `src/components/offerList.js:127` to `.map()` inside a `View`. Use `item.id` as the React key. **Correct the row-height constant while here**: `OFFER_COMPONENT_HEIGHT` is `120`, but a real row is `110` (`ticketContainer` in `offer.component.js`) + `6` (`itemSeparatorVS`) = **116**, so the animated container is ~4px per row too tall (`data-model.md` §Worked example)
 - [ ] T047 [US6] Verify the `002` expand/collapse behaviour still holds in `src/components/offerList.js`: height animates 300ms both ways and `showAll` flips only **after** the collapse completes via the `runOnJS` guard (`contracts/list-api.md` §C2)
-- [ ] T048 [US6] Fix the stale `shortOfferList` in `src/components/offerList.js`: it is set in a `useEffect(..., [])` so it never updates if the `offers` prop changes without a remount. Add `[offers, minItems]` to the dependency array
-- [ ] T049 [P] [US6] Convert the nested list in `src/features/profile/profSettings.js:438` to `.map()`, resolving the "VirtualizedLists should never be nested inside plain ScrollViews" warning (`data-model.md` §Nesting)
+- [X] T048 [US6] Fix the stale `shortOfferList` in `src/components/offerList.js`: it is set in a `useEffect(..., [])` so it never updates if the `offers` prop changes without a remount. Add `[offers, minItems]` to the dependency array
+- [X] T049 [P] [US6] ~~Convert the nested list in `src/features/profile/profSettings.js:438`~~ **VOID — not a list.** It sits inside a `{/* ... */}` JSX comment and never renders. See `follow-ups.md` F2
 - [ ] T050 [P] [US6] Convert the nested list in `src/screens/posts/postDetailMarketplace.screen.js:210` to `.map()`, same warning
 - [ ] T051 [P] [US6] For each remaining `scrollEnabled={false}` instance where T045 found the bound **unknown or large**, keep `FlatList` and set `initialNumToRender={data.length}` instead of converting — files: `src/components/suggestion.js`, `src/features/home/components/specialtags.js`, `src/features/home/components/toppartners.component.js`, `src/screens/posts/post_card/postCard.component.js`, `src/screens/posts/post_entry/forms/postEntryMobil.component.js`
 - [ ] T052 [US6] Run sweep scenarios E1–E4 from `specs/003-flatlist-optimization/quickstart.md` on both platforms **against a release build**, then commit
@@ -168,12 +168,12 @@ scenarios. Priorities reflect value-to-risk, not user value.
 
 ## Phase 9: Polish & Cross-Cutting Concerns
 
-- [ ] T053 Run `npm run audit:lists` — must exit `0` with 0 missing `keyExtractor`, 0 inline `renderItem`, 0 `FlatList` without `data`, 0 `onEndReachedThreshold > 1`
-- [ ] T054 Run `npm test` (must be no worse than the T002 baseline of 27/27) and `npm run check:animation` (must still pass — `002`'s gate must not regress)
+- [X] T053 Run `npm run audit:lists` — must exit `0` with 0 missing `keyExtractor`, 0 inline `renderItem`, 0 `FlatList` without `data`, 0 `onEndReachedThreshold > 1`
+- [X] T054 Run `npm test` (must be no worse than the T002 baseline of 27/27) and `npm run check:animation` (must still pass — `002`'s gate must not regress)
 - [ ] T055 Complete the full regression checklist in `specs/003-flatlist-optimization/quickstart.md`, including the release-build pass
 - [ ] T056 Re-profile all eight Perf instances and record before/after numbers in `specs/003-flatlist-optimization/follow-ups.md`
 - [ ] T057 Write the PR description so the **19 non-Perf instances are described as correctness and hygiene, not as performance improvements** (`plan.md` Constitution Check, conditional gate)
-- [ ] T058 [P] Record the FlashList decision as a follow-up in `specs/003-flatlist-optimization/follow-ups.md`: reconsider for the three paginated lists (`posts.screen`, `postSearch.screen`, `locationlist.component`) only after profiling shows `FlatList` is the bottleneck (`research.md` R5)
+- [X] T058 [P] Record the FlashList decision as a follow-up in `specs/003-flatlist-optimization/follow-ups.md`: reconsider for the three paginated lists (`posts.screen`, `postSearch.screen`, `locationlist.component`) only after profiling shows `FlatList` is the bottleneck (`research.md` R5)
 
 ---
 

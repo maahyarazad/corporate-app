@@ -63,3 +63,38 @@ final checks (T055, T056). **No performance claim in this branch has been verifi
 The highest-risk item is T008: `src/screens/location/location-view.screen.js` swapped
 `Animated.FlatList` for `Animated.ScrollView`, and that component drives the `002` sticky header.
 Quickstart scenarios A2–A4 must pass before this merges.
+
+## F7 — `getItemLayout` skipped everywhere (T043, US5 not delivered)
+
+`contracts/list-api.md` §C4 requires that `getItemLayout` be supplied only where the row size is
+**genuinely fixed**, because wrong values misalign scrolling and break `scrollToIndex` — worse than
+omitting it. Every candidate was checked against its `StyleSheet` and **none qualified**:
+
+| Candidate | Why skipped |
+|---|---|
+| `components/events/eventList.js` | `styles.cardButton` declares only shadow/elevation. Cards size to their content (title, date, guest count) — variable height |
+| `components/NationalityInput.js`, `components/PhoneInput.js` | `styles.itemRow` is `paddingVertical: 11` + hairline border. Height is *derived* from the text line height, never declared. `numberOfLines={1}` makes it effectively uniform, but the value would be a guess |
+| `features/home/components/category.component.js` | `snapToInterval={100 + 16}` implies a 16px gap, but `itemSeparatorHM` is `marginLeft: 8`. The two disagree, so the true item pitch is ambiguous — resolve that first |
+| `components/slideshow.js` | Items are full screen width (`width: width`), so this is derivable. Skipped anyway: it is a short, full-bleed carousel with no `scrollToIndex`, so `getItemLayout` buys essentially nothing against a non-zero misalignment risk |
+
+**The codebase still has zero `getItemLayout` uses.** That is a deliberate outcome, not an
+oversight. Revisit per list once row heights are measured on a device — the `category`
+`snapToInterval`/separator disagreement is worth fixing regardless.
+
+## F8 — US6 `.map()` conversions blocked on T045
+
+T045 requires confirming the realistic maximum item count for each `scrollEnabled={false}` list
+**against the API**, and it gates T046, T049, T050 and T051. That is a product/data question that
+cannot be answered from the source tree, so no `.map()` conversion was made.
+
+What was done instead:
+- **T048 delivered** (independent of T045): `src/components/offerList.js` set `shortOfferList` in a
+  `useEffect(..., [])`, so the collapsed list never updated if the `offers` prop changed without a
+  remount. Dependencies corrected to `[offers, minItems]`.
+- **T049 is void**: the `profSettings.js` list does not exist (see F2).
+- **T046, T047, T050, T051 remain open.**
+
+Also still open from the original `offerList` review: `OFFER_COMPONENT_HEIGHT` is `120`, but a real
+row is `110` (`ticketContainer`) + `6` (`itemSeparatorVS`) = **116**, so the animated container runs
+~4px per row too tall. Left alone because changing it alters the `002` expand/collapse geometry,
+which needs device verification to confirm.

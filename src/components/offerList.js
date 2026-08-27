@@ -89,7 +89,7 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
 
   useEffect(() => {
     setShortOfferList(offers.slice(0, minItems));
-  }, []);
+  }, [offers, minItems]);
 
   const onSelectOffer = useCallback((item) => {
     setSelectedOffer(item);
