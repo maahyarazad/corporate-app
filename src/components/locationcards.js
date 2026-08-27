@@ -1,5 +1,5 @@
 import { getPreciseDistance } from "geolib";
-import React, { useContext } from "react";
+import React, { useCallback, useContext } from "react";
 import {
   Dimensions,
   FlatList,
@@ -21,6 +21,8 @@ import { Label } from "./typography/label.component";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export const LocationCards = ({ label, locationList }) => {
+  const keyExtractor = useCallback((item) => String(item.id), []);
+
   const { width } = Dimensions.get("window");
   const { userLocation } = useContext(LocationContext);
   const { i18n } = useContext(TranslationContext);
@@ -245,7 +247,7 @@ export const LocationCards = ({ label, locationList }) => {
             snapToInterval={width - 16}
             decelerationRate="fast"
             overScrollMode="always"
-            //   keyExtractor={(item) => item.id}
+            keyExtractor={keyExtractor}
             keyboardDismissMode="interactive"
             contentContainerStyle={{ paddingHorizontal: 16 }}
             ItemSeparatorComponent={itemSeparatorHM}

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   FlatList,
   StyleSheet,
@@ -91,10 +91,19 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
     setShortOfferList(offers.slice(0, minItems));
   }, []);
 
-  const onSelectOffer = (item) => {
+  const onSelectOffer = useCallback((item) => {
     setSelectedOffer(item);
     setShowModal(true);
-  };
+  }, []);
+
+  const keyExtractor = useCallback((item) => String(item.id), []);
+
+  // Passes onSelectOffer directly rather than a per-item closure, so the
+  // memoized Offer can actually hit. See contracts/list-api.md C1.
+  const renderOffer = useCallback(
+    ({ item }) => <Offer onPress={onSelectOffer} offer={item} />,
+    [onSelectOffer]
+  );
 
   const onCloseModal = () => {
     setShowModal(false);
@@ -133,15 +142,8 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
               paddingTop: 0,
             }}
             ItemSeparatorComponent={itemSeparatorVS}
-            renderItem={({ item, index }) => {
-              return (
-                <Offer
-                  key={index}
-                  onPress={() => onSelectOffer(item)}
-                  offer={item}
-                />
-              );
-            }}
+            keyExtractor={keyExtractor}
+            renderItem={renderOffer}
           />
           {/* <View style={{ backgroundColor: "red", flex: 1, height: 300 }}></View>
           <LinearGradient

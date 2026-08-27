@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   Dimensions,
   FlatList,
@@ -66,6 +66,13 @@ export const LocationList = ({
   const renderChip = (item) => {
     return <MaterialCommunityIcons size={55} name={offerChipIcon[item.id]} />;
   };
+
+  // offer_types exposes no confirmed id field - prefer premium_id when present,
+  // fall back to the label, never the index. See follow-ups.md F1.
+  const offerTypeKeyExtractor = useCallback(
+    (item) => String(item.premium_id ?? item.premium_en),
+    []
+  );
 
   const renderLocations = ({ item }) => {
     return (
@@ -165,6 +172,7 @@ export const LocationList = ({
                   data={item.offer_types}
                   horizontal
                   scrollEnabled={false}
+                  keyExtractor={offerTypeKeyExtractor}
                   renderItem={({ item }) => {
                     return (
                       <Chip

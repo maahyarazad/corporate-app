@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import moment from "moment";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   FlatList,
   Pressable,
@@ -155,6 +155,8 @@ export const EventList = () => {
       />
     );
   };
+
+  const keyExtractor = useCallback((item) => String(item.id), []);
 
   const renderCard = ({ item, index }) => {
     // console.log(item);
@@ -361,6 +363,7 @@ export const EventList = () => {
         <FlatList
           data={eventList}
           extraData={eventList}
+          keyExtractor={keyExtractor}
           renderItem={renderCard}
           contentContainerStyle={styles.eventListContainer}
           ItemSeparatorComponent={() => {

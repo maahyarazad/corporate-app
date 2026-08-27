@@ -9,9 +9,12 @@
  *   3. No inline `renderItem={({item}) => ...}` (new identity every render)
  *   4. No `onEndReachedThreshold` > 1     (unit is multiples of viewport)
  *
- * Comments are stripped before matching. This is not optional: `keyExtractor` on
- * locationcards.js and `scrollEnabled={false}` on posts.screen.js are both present
- * but commented out, and a naive matcher reports them as active.
+ * Comments are blanked (offsets preserved) before ANY matching. This is not
+ * optional, and it matters at two levels:
+ *   - props: `keyExtractor` on locationcards.js and `scrollEnabled={false}` on
+ *     posts.screen.js are present but commented out.
+ *   - instances: profSettings.js contains an entire <FlatList> inside a {/* *\/}
+ *     block. It is not a list and must not be inventoried.
  *
  * Usage: npm run audit:lists [--json]
  */
@@ -45,25 +48,26 @@ function openingTagEnd(src, from) {
   return -1;
 }
 
-function stripComments(block) {
-  return block
-    .split("\n")
-    .filter((line) => !/^\s*\/\//.test(line))
-    .join("\n")
-    .replace(/\{\s*\/\*[\s\S]*?\*\/\s*\}/g, "")
-    .replace(/\/\*[\s\S]*?\*\//g, "");
+// Blank out comments while preserving byte offsets, so reported line numbers
+// still match the original file. A commented-out <FlatList> is not an instance.
+function blankComments(src) {
+  const keepNewlines = (m) => m.replace(/[^\n]/g, " ");
+  return src
+    .replace(/\/\*[\s\S]*?\*\//g, keepNewlines)
+    .replace(/(^|[^:])\/\/[^\n]*/g, (m, p1) => p1 + " ".repeat(m.length - p1.length));
 }
 
 function analyze() {
   const rows = [];
   for (const file of collect(SRC)) {
-    const src = fs.readFileSync(file, "utf8");
+    const raw = fs.readFileSync(file, "utf8");
+    const src = blankComments(raw);
     TAG.lastIndex = 0;
     let m;
     while ((m = TAG.exec(src))) {
       const end = openingTagEnd(src, m.index + m[1].length + 1);
       if (end < 0) continue;
-      const block = stripComments(src.slice(m.index, end + 1));
+      const block = src.slice(m.index, end + 1);
       const thresholdMatch = block.match(/onEndReachedThreshold=\{([\d.]+)\}/);
       rows.push({
         file: path.relative(ROOT, file),

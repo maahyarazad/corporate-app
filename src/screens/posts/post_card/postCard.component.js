@@ -8,7 +8,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { showToast } from "../../../Toast";
 import { showConfirm } from "../../../components/confirmDialog.component";
 import { Button } from "react-native-paper";
@@ -258,6 +258,9 @@ const PostCard = ({
       console.log("Failed to get thumbnail", error);
     }
   };
+
+  // thumbnails entries are { uri, videoURI, type }; uri is the stable media URL
+  const keyExtractor = useCallback((item) => String(item.uri), []);
 
   const renderImageGrid = ({ item, index }) => {
     const handlePress = () => {
@@ -532,12 +535,14 @@ const PostCard = ({
               data={thumbnails}
               scrollEnabled={false}
               renderItem={renderImageGrid}
+              keyExtractor={keyExtractor}
             />
           ) : (
             <FlatList
               data={thumbnails}
               numColumns={2}
               scrollEnabled={false}
+              keyExtractor={keyExtractor}
               columnWrapperStyle={{ columnGap: 2 }}
               style={{ rowGap: 2, maxHeight: width, overflow: "hidden" }}
               renderItem={renderImageGrid}

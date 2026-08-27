@@ -8,7 +8,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import React, { memo, useEffect, useRef, useState } from "react";
+import React, { useCallback, memo, useEffect, useRef, useState } from "react";
 import { Label } from "../components/typography/label.component";
 import { goback, navigate } from "../navigation/navigate";
 import { Ionicons } from "@expo/vector-icons";
@@ -205,6 +205,11 @@ const NotificationsScreen = () => {
     }
   };
 
+  const keyExtractor = useCallback(
+    (item) => String(item.msg_id ?? item.id),
+    []
+  );
+
   const renderSeparator = () => {
     return (
       <View
@@ -270,6 +275,7 @@ const NotificationsScreen = () => {
           <FlatList
             data={notifications}
             renderItem={renderItem}
+            keyExtractor={keyExtractor}
             style={{ marginHorizontal: -8 }}
             ItemSeparatorComponent={renderSeparator}
             ListEmptyComponent={() => {

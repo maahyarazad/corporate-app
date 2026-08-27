@@ -74,16 +74,16 @@ scenarios. Priorities reflect value-to-risk, not user value.
 
 **Independent test**: Sweep scenarios C1–C4. `loadNextPage` fires once per page boundary; filtering and reordering lists keep row state attached to the right item.
 
-- [ ] T010 [US2] Fix defect D2: change `onEndReachedThreshold={5}` to `0.5` at `src/screens/posts/posts.screen.js:521`. The unit is multiples of visible list length, so `5` fires pagination immediately and repeatedly. Match the sibling `postSearch.screen.js:249`, which uses `0.5` (`research.md` R7)
+- [X] T010 [US2] Fix defect D2: change `onEndReachedThreshold={5}` to `0.5` at `src/screens/posts/posts.screen.js:521`. The unit is multiples of visible list length, so `5` fires pagination immediately and repeatedly. Match the sibling `postSearch.screen.js:249`, which uses `0.5` (`research.md` R7)
 - [ ] T011 [US2] Verify T010 in `src/screens/posts/posts.screen.js` with the network panel against the T004 baseline: `loadNextPage` must fire **once** on cold open, not per frame
-- [ ] T012 [P] [US2] Fix defect D1: restore the commented-out `keyExtractor` at `src/components/locationcards.js:248` and wrap it in `useCallback`
-- [ ] T013 [P] [US2] Add a `useCallback`-stable `keyExtractor` to `src/features/home/components/toppartners.component.js:40` per `contracts/list-api.md` §C3
-- [ ] T014 [P] [US2] Add `keyExtractor` to `src/features/locations/components/locationlist.component.js:164` (the horizontal, non-scrolling inner list). Also confirm whether `horizontal` + `scrollEnabled={false}` together is intended, and record the answer
-- [ ] T015 [P] [US2] Add `keyExtractor` to both lists in `src/screens/posts/post_card/postCard.component.js` (lines 531 and 537)
-- [ ] T016 [P] [US2] Add `keyExtractor` to `src/components/events/eventList.js:361` and hoist its inline style into a `StyleSheet`
-- [ ] T017 [P] [US2] Add `keyExtractor` to `src/features/profile/profSettings.js:438` and hoist its inline style
-- [ ] T018 [P] [US2] Add `keyExtractor` to `src/screens/notifications.screen.js:270` and hoist its inline style
-- [ ] T019 [US2] For any list in T012–T018 whose data has no stable domain id, **do not fall back to the index** — record it in `specs/003-flatlist-optimization/follow-ups.md` as a data problem to raise (`contracts/list-api.md` §C3)
+- [X] T012 [P] [US2] Fix defect D1: restore the commented-out `keyExtractor` at `src/components/locationcards.js:248` and wrap it in `useCallback`
+- [X] T013 [P] [US2] Add a `useCallback`-stable `keyExtractor` to `src/features/home/components/toppartners.component.js:40` per `contracts/list-api.md` §C3
+- [X] T014 [P] [US2] Add `keyExtractor` to `src/features/locations/components/locationlist.component.js:164` (the horizontal, non-scrolling inner list). Also confirm whether `horizontal` + `scrollEnabled={false}` together is intended, and record the answer
+- [X] T015 [P] [US2] Add `keyExtractor` to both lists in `src/screens/posts/post_card/postCard.component.js` (lines 531 and 537)
+- [X] T016 [P] [US2] Add `keyExtractor` to `src/components/events/eventList.js:361` and hoist its inline style into a `StyleSheet`
+- [X] T017 [P] [US2] ~~Add `keyExtractor` to `src/features/profile/profSettings.js:438`~~ **VOID — not a list.** That `<FlatList>` sits inside a `{/* ... */}` JSX comment and never renders. The audit script was inventorying commented-out instances; fixed. See `follow-ups.md` F2
+- [X] T018 [P] [US2] Add `keyExtractor` to `src/screens/notifications.screen.js:270` and hoist its inline style
+- [X] T019 [US2] For any list in T012–T018 whose data has no stable domain id, **do not fall back to the index** — record it in `specs/003-flatlist-optimization/follow-ups.md` as a data problem to raise (`contracts/list-api.md` §C3)
 - [ ] T020 [US2] Run sweep scenarios C1–C4 from `specs/003-flatlist-optimization/quickstart.md` on both platforms, then commit
 
 **Checkpoint**: `npm run audit:lists` reports 0 missing `keyExtractor`, 0 threshold violations
@@ -98,7 +98,7 @@ scenarios. Priorities reflect value-to-risk, not user value.
 
 **Independent test**: Sweep scenarios D1–D2 with the profiler. Rows do not re-render on unrelated parent state, and every press target still resolves to the correct item.
 
-- [ ] T021 [US3] In `src/features/offers/components/offer.component.js`, wrap `Offer` in `React.memo` and change its `onPress` contract to `(offer) => void`, calling `onPress(offer)` from its own `TouchableHighlight` handler. Update the caller in `src/components/offerList.js` in the same commit
+- [X] T021 [US3] In `src/features/offers/components/offer.component.js`, wrap `Offer` in `React.memo` and change its `onPress` contract to `(offer) => void`, calling `onPress(offer)` from its own `TouchableHighlight` handler. Update the caller in `src/components/offerList.js` in the same commit
 - [ ] T022 [P] [US3] Memoize `renderItem` with `useCallback` and stabilise `keyExtractor` in `src/components/NationalityInput.js:297` (instance 14 — filters ~250 countries per keystroke)
 - [ ] T023 [P] [US3] Same treatment for `src/components/PhoneInput.js:352` (instance 15). Wrap the row in `React.memo` with the `(item) => void` contract
 - [ ] T024 [P] [US3] In `src/features/locations/components/locationlist.component.js:299` (paginated), hoist the inline style into a `StyleSheet` and wrap the row component in `React.memo` with the `(item) => void` contract
