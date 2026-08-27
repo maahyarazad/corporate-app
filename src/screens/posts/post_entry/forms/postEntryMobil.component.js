@@ -9,7 +9,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { showToast } from "../../../../Toast";
 import DropDownPicker from "react-native-dropdown-picker";
 import {
@@ -145,6 +145,15 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
     price_to: 0,
     images: null,
   });
+
+  const inclusionKeyExtractor = useCallback((item) => String(item.value), []);
+
+  const renderInclusion = useCallback(
+    ({ item }) => (
+      <MemoizedRenderTick item={item} state={state} setValue={setState} />
+    ),
+    [state]
+  );
 
   const validationCheck = () => {
     if (
@@ -828,11 +837,9 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
         </View>
         <FlatList
           data={inclusions}
-          keyExtractor={(item) => item.value}
+          keyExtractor={inclusionKeyExtractor}
           scrollEnabled={false}
-          renderItem={({ item }) => (
-            <MemoizedRenderTick item={item} state={state} setValue={setState} />
-          )}
+          renderItem={renderInclusion}
           horizontal={false}
           numColumns={2}
           initialNumToRender={35}

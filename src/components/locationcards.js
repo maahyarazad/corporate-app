@@ -23,6 +23,11 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 export const LocationCards = ({ label, locationList }) => {
   const keyExtractor = useCallback((item) => String(item.id), []);
 
+  const renderLocation = useCallback(
+    ({ item }) => <RenderLocation item={item} />,
+    []
+  );
+
   const { width } = Dimensions.get("window");
   const { userLocation } = useContext(LocationContext);
   const { i18n } = useContext(TranslationContext);
@@ -240,7 +245,7 @@ export const LocationCards = ({ label, locationList }) => {
             horizontal
             data={locationList}
             showsHorizontalScrollIndicator={false}
-            renderItem={({ item }) => <RenderLocation item={item} />}
+            renderItem={renderLocation}
             pagingEnabled={true}
             fadingEdgeLength={100}
             snapToAlignment="start"

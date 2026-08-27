@@ -1,5 +1,5 @@
 // Dropdown.js
-import React, { useMemo, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
   Dimensions,
   FlatList,
@@ -156,6 +156,48 @@ export function DropDown({
     return `${item?.label ?? "item"}-${index}`;
   };
 
+  const renderRow = useCallback(
+({ item }) => {
+              const selected = selectedItem
+                ? Object.is(item.value, selectedItem.value)
+                : false;
+
+              return (
+                <Pressable
+                  onPress={() => pick(item)}
+                  disabled={!!item.disabled}
+                >
+                  {renderItem ? (
+                    renderItem(item, { selected, disabled: !!item.disabled })
+                  ) : (
+                    <View
+                      style={[
+                        styles.itemRow,
+                        selected && styles.itemRowSelected,
+                        item.disabled && styles.itemRowDisabled,
+                        itemStyle,
+                      ]}
+                    >
+                      <Text
+                        numberOfLines={1}
+                        style={[
+                          styles.itemText,
+                          selected && styles.itemTextSelected,
+                          item.disabled && { opacity: 0.4 },
+                          itemTextStyle,
+                        ]}
+                      >
+                        {item.label}
+                      </Text>
+                      {selected && <Text style={styles.check}>✓</Text>}
+                    </View>
+                  )}
+                </Pressable>
+              );
+            },
+    [selectedItem, pick, renderItem, itemStyle, itemTextStyle]
+  );
+
   // ── styles (derived) ──────────────────────────────────────────────────────
 
   const borderStyle = showError
@@ -260,44 +302,7 @@ export function DropDown({
             data={filteredItems}
             keyboardShouldPersistTaps="handled"
             keyExtractor={keyExtractor ?? defaultKeyExtractor}
-            renderItem={({ item }) => {
-              const selected = selectedItem
-                ? Object.is(item.value, selectedItem.value)
-                : false;
-
-              return (
-                <Pressable
-                  onPress={() => pick(item)}
-                  disabled={!!item.disabled}
-                >
-                  {renderItem ? (
-                    renderItem(item, { selected, disabled: !!item.disabled })
-                  ) : (
-                    <View
-                      style={[
-                        styles.itemRow,
-                        selected && styles.itemRowSelected,
-                        item.disabled && styles.itemRowDisabled,
-                        itemStyle,
-                      ]}
-                    >
-                      <Text
-                        numberOfLines={1}
-                        style={[
-                          styles.itemText,
-                          selected && styles.itemTextSelected,
-                          item.disabled && { opacity: 0.4 },
-                          itemTextStyle,
-                        ]}
-                      >
-                        {item.label}
-                      </Text>
-                      {selected && <Text style={styles.check}>✓</Text>}
-                    </View>
-                  )}
-                </Pressable>
-              );
-            }}
+            renderItem={renderRow}
             ListEmptyComponent={
               <View style={styles.empty}>
                 <Text style={styles.emptyText}>No results</Text>

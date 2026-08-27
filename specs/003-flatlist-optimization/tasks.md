@@ -99,13 +99,13 @@ scenarios. Priorities reflect value-to-risk, not user value.
 **Independent test**: Sweep scenarios D1–D2 with the profiler. Rows do not re-render on unrelated parent state, and every press target still resolves to the correct item.
 
 - [X] T021 [US3] In `src/features/offers/components/offer.component.js`, wrap `Offer` in `React.memo` and change its `onPress` contract to `(offer) => void`, calling `onPress(offer)` from its own `TouchableHighlight` handler. Update the caller in `src/components/offerList.js` in the same commit
-- [ ] T022 [P] [US3] Memoize `renderItem` with `useCallback` and stabilise `keyExtractor` in `src/components/NationalityInput.js:297` (instance 14 — filters ~250 countries per keystroke)
-- [ ] T023 [P] [US3] Same treatment for `src/components/PhoneInput.js:352` (instance 15). Wrap the row in `React.memo` with the `(item) => void` contract
+- [X] T022 [P] [US3] Memoize `renderItem` with `useCallback` and stabilise `keyExtractor` in `src/components/NationalityInput.js:297` (instance 14 — filters ~250 countries per keystroke)
+- [X] T023 [P] [US3] Same treatment for `src/components/PhoneInput.js:352` (instance 15). Wrap the row in `React.memo` with the `(item) => void` contract
 - [ ] T024 [P] [US3] In `src/features/locations/components/locationlist.component.js:299` (paginated), hoist the inline style into a `StyleSheet` and wrap the row component in `React.memo` with the `(item) => void` contract
-- [ ] T025 [P] [US3] In `src/screens/posts/posts.screen.js:477`, wrap the inline `keyExtractor={(item) => item?.post_id?.toString()}` in `useCallback` and hoist the `style={[styles.container, { backgroundColor: "#eee" }]}` array into a `StyleSheet` entry
-- [ ] T026 [P] [US3] In `src/screens/posts/postSearch.screen.js:242`, hoist the inline style and wrap the row in `React.memo` with the `(item) => void` contract
-- [ ] T027 [P] [US3] In `src/components/slideshow.js:134`, hoist the inline style and stabilise `renderItem`
-- [ ] T028 [P] [US3] In `src/features/home/components/category.component.js:131`, memoize `renderItem`, hoist the inline style, and wrap the row in `React.memo` with the `(item) => void` contract (home screen, affects first paint)
+- [X] T025 [P] [US3] In `src/screens/posts/posts.screen.js:477`, wrap the inline `keyExtractor={(item) => item?.post_id?.toString()}` in `useCallback` and hoist the `style={[styles.container, { backgroundColor: "#eee" }]}` array into a `StyleSheet` entry
+- [X] T026 [P] [US3] In `src/screens/posts/postSearch.screen.js:242`, hoist the inline style and wrap the row in `React.memo` with the `(item) => void` contract
+- [X] T027 [P] [US3] In `src/components/slideshow.js:134`, hoist the inline style and stabilise `renderItem`
+- [X] T028 [P] [US3] In `src/features/home/components/category.component.js:131`, memoize `renderItem`, hoist the inline style, and wrap the row in `React.memo` with the `(item) => void` contract (home screen, affects first paint)
 - [ ] T029 [US3] Re-profile all eight Perf instances listed in `specs/003-flatlist-optimization/quickstart.md` against the T003 baseline. **If a row still re-renders on unrelated parent state, the `onPress` closure was missed** — go back to §C1 rather than declaring success
 - [ ] T030 [US3] Run sweep scenarios D1–D2 from `specs/003-flatlist-optimization/quickstart.md` on both platforms, then commit
 
@@ -117,15 +117,15 @@ scenarios. Priorities reflect value-to-risk, not user value.
 
 **Independent test**: Screens render identically; `npm run audit:lists` reports 0 inline `renderItem`.
 
-- [ ] T031 [P] [US4] Memoize `renderItem` and hoist the inline style in `src/components/suggestion.js:16`
-- [ ] T032 [P] [US4] Hoist the inline style in `src/features/home/components/specialtags.js:123`
-- [ ] T033 [P] [US4] Memoize `renderItem` and hoist the inline style in `src/screens/posts/post_entry/forms/postEntryMobil.component.js:829`
-- [ ] T034 [P] [US4] Memoize the derived `data` expression in `src/screens/posts/postDetailMarketplace.screen.js:210` with `useMemo` so it does not rebuild every render
-- [ ] T035 [P] [US4] Memoize `renderItem` in `src/components/DropDown.js:259`
-- [ ] T036 [P] [US4] Hoist the inline style in `src/screens/soleil.screen.js:82`
-- [ ] T037 [P] [US4] Memoize `renderItem` and hoist inline styles in **both** lists in `src/screens/posts/post_entry/postEntryCategorySelect.screen.js` (lines 60 and 95)
-- [ ] T038 [P] [US4] Hoist the inline style in `src/components/mediaUploader.js/mediaUploader.component.js:417`
-- [ ] T039 [US4] Run `npm run audit:lists`; confirm 0 inline `renderItem` remain, then commit
+- [X] T031 [P] [US4] Memoize `renderItem` and hoist the inline style in `src/components/suggestion.js:16`
+- [X] T032 [P] [US4] Hoist the inline style in `src/features/home/components/specialtags.js:123`
+- [X] T033 [P] [US4] Memoize `renderItem` and hoist the inline style in `src/screens/posts/post_entry/forms/postEntryMobil.component.js:829`
+- [X] T034 [P] [US4] Memoize the derived `data` expression in `src/screens/posts/postDetailMarketplace.screen.js:210` with `useMemo` so it does not rebuild every render
+- [X] T035 [P] [US4] Memoize `renderItem` in `src/components/DropDown.js:259`
+- [X] T036 [P] [US4] Hoist the inline style in `src/screens/soleil.screen.js:82`
+- [X] T037 [P] [US4] Memoize `renderItem` and hoist inline styles in **both** lists in `src/screens/posts/post_entry/postEntryCategorySelect.screen.js` (lines 60 and 95)
+- [X] T038 [P] [US4] Hoist the inline style in `src/components/mediaUploader.js/mediaUploader.component.js:417`
+- [X] T039 [US4] Run `npm run audit:lists`; confirm 0 inline `renderItem` remain, then commit
 
 ---
 

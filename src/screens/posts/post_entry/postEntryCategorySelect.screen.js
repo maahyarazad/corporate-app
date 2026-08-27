@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { goback, navigate } from "../../../navigation/navigate";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Label } from "../../../components/typography/label.component";
@@ -15,6 +15,13 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import useRequest from "../../../../hooks/useRequest";
 
 const PostEntryCategorySelect = () => {
+  const keyExtractor = useCallback((item) => String(item.id), []);
+
+  const renderCategoryItem = useCallback(
+    ({ item }) => <CategoryButton category={item} />,
+    []
+  );
+
   const router = useRoute();
   const { type, list } = router.params;
   const navigation = useNavigation();
@@ -59,10 +66,8 @@ const PostEntryCategorySelect = () => {
             </View>
             <FlatList
               data={list}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => {
-                return <CategoryButton category={item} />;
-              }}
+              keyExtractor={keyExtractor}
+              renderItem={renderCategoryItem}
               style={{ flex: 1, marginHorizontal: -20 }}
               overScrollMode="always"
               fadingEdgeLength={100}
@@ -94,10 +99,8 @@ const PostEntryCategorySelect = () => {
             </View>
             <FlatList
               data={list}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => {
-                return <CategoryButton category={item} />;
-              }}
+              keyExtractor={keyExtractor}
+              renderItem={renderCategoryItem}
               style={{ flex: 1, marginHorizontal: -20 }}
               overScrollMode="always"
               fadingEdgeLength={100}
