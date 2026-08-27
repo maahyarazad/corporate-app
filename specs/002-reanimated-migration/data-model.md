@@ -195,14 +195,17 @@ takes its initial argument once — if `offers` can change after mount, add an e
 
 ### G4 `src/features/profile/profRedeemHistory.js` (locators 141, 149, 157)
 
-Breakdown panel height, seeded from `viewHeight` state set by `onLayout`.
-Declared `useNativeDriver: true` **while animating height**, which the native driver does not
-support — see §Defects D4. Converting to Reanimated removes the contradiction, but means the
-animation may start working where it previously did nothing. **Confirm the intended behaviour
-with the product owner before assuming the new behaviour is correct.**
+**CORRECTED after reading the JSX.** This animates **`translateY`**, not height (see the style at
+line ~235), so `useNativeDriver: true` is correct and the animation works today. It does **not**
+belong in class G at all — it is a native-driver conversion of the same difficulty as class D,
+and needs no product decision. Defect D4 below is withdrawn.
 
-`useSharedValue(viewHeight)` captures `0` at mount (state initialises to `0`); an effect must
-push `viewHeight` into the shared value once `onLayout` fires.
+The shared value is seeded from `viewHeight` and pushed directly in `onLayout`
+(`animatedValue.setValue(height)` → `animatedValue.value = height`), so no extra resync effect is
+needed either.
+
+Both `showBreakdown` and `hideBreakdown` call `.start(setDisplayBreakdown(!displayBreakdown))` —
+the D3 pattern, handled the same way as `customTextInput`.
 
 Both `showBreakdown` and `hideBreakdown` call `.start(setDisplayBreakdown(!displayBreakdown))` —
 same defect class as D3.
@@ -255,9 +258,11 @@ state immediately, before starting the animation) or fix it (`runOnJS` in the co
 callback). **Default to preserving current behaviour** — this refactor should not silently change
 UX — and log each site for a follow-up decision.
 
-**D4 — `profRedeemHistory.js:149,157`: `useNativeDriver: true` on a height animation.**
-The native driver supports only `opacity` and `transform`. Animating height under it is a no-op
-or a warning, so the panel likely does not animate today. See G4.
+**D4 — WITHDRAWN. Not a defect.**
+Originally recorded as "`useNativeDriver: true` on a height animation". That was inferred from the
+`toValue: TOGGLE_BUTTON_BREAKDOWN_HEIGHT` / `viewHeight` naming without reading the style. The
+animated value drives `transform: [{ translateY }]`, which the native driver fully supports. The
+animation works today and the conversion is mechanical. No product decision required.
 
 ---
 

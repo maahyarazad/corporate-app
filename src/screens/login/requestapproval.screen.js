@@ -2,7 +2,6 @@ import { MaterialCommunityIcons, SimpleLineIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import {
-  Animated,
   ImageBackground,
   Linking,
   Pressable,
@@ -12,6 +11,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated, {
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withSpring,
+} from "react-native-reanimated";
 import { showConfirm } from "../../components/confirmDialog.component";
 import { SafeArea } from "../../components/safearea.component";
 import { Spacer } from "../../components/spacer/spacer.component";
@@ -52,9 +58,11 @@ export const RequestApprovalScreen = () => {
     useContext(UploadContext);
   const { i18n } = useContext(TranslationContext);
 
-  const cameraContainerAnimated = useRef(
-    new Animated.Value(width * cardRatio)
-  ).current;
+  const cameraContainerAnimated = useSharedValue(width * cardRatio);
+
+  // The legacy spring took `speed: 40`; Reanimated only implements the
+  // physical model, so this is a starting point to tune on device.
+  const cameraSpringConfig = { damping: 20, stiffness: 90 };
 
   useEffect(() => {
     if (scrollRef.current?.flashScrollIndicators) {
@@ -139,22 +147,24 @@ export const RequestApprovalScreen = () => {
   };
 
   const openCamera = () => {
-    Animated.spring(cameraContainerAnimated, {
-      toValue: imageHeightRatio + 150,
-      speed: 40,
-      useNativeDriver: false,
-    }).start();
+    cameraContainerAnimated.value = withSpring(
+      imageHeightRatio + 150,
+      cameraSpringConfig
+    );
   };
 
   const closeCamera = () => {
-    Animated.spring(cameraContainerAnimated, {
-      toValue: width * cardRatio,
-      speed: 40,
-      delay: 200,
-      useNativeDriver: false,
-    }).start(() => {
-      setIsCameraOpen(false);
-    });
+    // withSpring has no delay option, hence withDelay. The completion callback
+    // runs on the UI thread, so setIsCameraOpen must hop back to JS - without
+    // runOnJS this fails silently in release and the camera never unmounts.
+    cameraContainerAnimated.value = withDelay(
+      200,
+      withSpring(width * cardRatio, cameraSpringConfig, (finished) => {
+        if (finished) {
+          runOnJS(setIsCameraOpen)(false);
+        }
+      })
+    );
   };
 
   const checkPermission = async () => {
@@ -230,9 +240,9 @@ export const RequestApprovalScreen = () => {
     setPhoto(null);
   };
 
-  const cameraContainerAnimatedStyle = {
-    height: cameraContainerAnimated,
-  };
+  const cameraContainerAnimatedStyle = useAnimatedStyle(() => ({
+    height: cameraContainerAnimated.value,
+  }));
 
   return (
     <>

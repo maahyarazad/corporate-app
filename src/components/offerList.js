@@ -1,12 +1,17 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
-  Animated,
-  Easing,
   FlatList,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated, {
+  Easing,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { Offer } from "../features/offers/components/offer.component";
 import { OfferModalInfo } from "../features/offers/components/offerModalForm";
 import { TranslationContext } from "../services/translation/translation.context";
@@ -37,24 +42,41 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
       ? OFFER_COMPONENT_HEIGHT * minItems
       : OFFER_COMPONENT_HEIGHT * offers.length;
 
-  const animatedValue = useRef(new Animated.Value(initialHeight)).current;
+  const animatedValue = useSharedValue(initialHeight);
+
+  // useSharedValue only reads its argument once, but initialHeight is
+  // recomputed from offers.length on every render. Resync when it changes.
+  useEffect(() => {
+    if (!showAll) {
+      animatedValue.value = initialHeight;
+    }
+  }, [initialHeight]);
+
+  const containerAnimatedStyle = useAnimatedStyle(() => ({
+    overflow: "hidden",
+    height: animatedValue.value,
+  }));
 
   const expand = () => {
-    Animated.timing(animatedValue, {
-      toValue: OFFER_COMPONENT_HEIGHT * offers.length,
-      useNativeDriver: false,
+    animatedValue.value = withTiming(OFFER_COMPONENT_HEIGHT * offers.length, {
       duration: 300,
-    }).start(() => {});
+      easing: Easing.inOut(Easing.ease),
+    });
   };
 
   const collapse = () => {
-    Animated.timing(animatedValue, {
-      toValue: OFFER_COMPONENT_HEIGHT * minItems,
-      useNativeDriver: false,
-      duration: 300,
-    }).start(() => {
-      setShowAll(!showAll);
-    });
+    animatedValue.value = withTiming(
+      OFFER_COMPONENT_HEIGHT * minItems,
+      { duration: 300, easing: Easing.inOut(Easing.ease) },
+      (finished) => {
+        // Completion callbacks run on the UI thread, so the state setter must
+        // hop back to JS. Guarded on `finished` so an interrupted collapse
+        // does not commit a transition that never visually happened.
+        if (finished) {
+          runOnJS(setShowAll)(false);
+        }
+      }
+    );
   };
 
   // useEffect(() => {
@@ -101,7 +123,7 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
       </Label>
       {/* <Offer /> */}
       {shortOfferList != undefined && (
-        <Animated.View style={{ overflow: "hidden", height: animatedValue }}>
+        <Animated.View style={containerAnimatedStyle}>
           <FlatList
             collapsable={true}
             data={showAll ? offers : shortOfferList}
