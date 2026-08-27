@@ -90,6 +90,7 @@ const TimeoutStackScreen = () => {
 // reveals from the bottom - so declaring it here is what gives both platforms
 // the same horizontal slide. It cannot be dropped and inferred.
 const slideFromRight = {
+  headerShown: false,
   cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
   gestureDirection: "horizontal",
   gestureResponseDistance: 200,
@@ -114,13 +115,13 @@ const AuthStackScreen = () => {
       <AuthStack.Screen
         name="Unverified Email"
         component={UnverifiedEmailScreen}
-        options={noSwipeBack}
+        options={slideFromRight}
       />
 
       <AuthStack.Screen
         name="ChangePassword"
         component={ChangePasswordScreen}
-        options={noSwipeBack}
+        options={slideFromRight}
       />
 
       <AuthStack.Screen
@@ -132,7 +133,7 @@ const AuthStackScreen = () => {
       <AuthStack.Screen
         name="ForgotPasswordOTP"
         component={ForgotPasswordOTPScreen}
-        options={noSwipeBack}
+        options={slideFromRight}
       />
 
       <AuthStack.Screen
@@ -383,7 +384,7 @@ const MainScreen = () => {
       <MainStack.Screen
         name="Profile"
         component={ProfileScreen}
-        options={{ headerShown: false }}
+        options={slideFromRight}
       />
 
       <MainStack.Screen
@@ -395,12 +396,7 @@ const MainScreen = () => {
       <MainStack.Screen
         name="Map"
         component={MapScreen}
-        options={{
-          headerShown: false,
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
+         options={slideFromRight}
       />
 
       <MainStack.Screen

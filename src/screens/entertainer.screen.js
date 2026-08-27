@@ -1,11 +1,12 @@
 import React, {
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
   useCallback,
 } from "react";
-import { Image, Platform, TouchableOpacity, View } from "react-native";
+import { Platform, StyleSheet, TouchableOpacity, View } from "react-native";
 import { useTheme } from "styled-components/native";
 import { showToast } from "../Toast";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -36,6 +37,11 @@ LogBox.ignoreLogs([
 ]);
 const Tab = createMaterialTopTabNavigator();
 
+// Bounds the de-duplication set below. It only needs to span the cold-start
+// replay window, where getLastNotificationResponseAsync and the live listener
+// can both deliver the same tap.
+const MAX_HANDLED_NOTIFICATION_IDS = 50;
+
 /**
  * REQUIRED:
  * This controls what happens when a push arrives while the app is OPEN.
@@ -50,6 +56,86 @@ Notifications.setNotificationHandler({
   }),
 });
 
+// Module scope: none of these depend on props, state or theme, and Platform.OS
+// cannot change at runtime. Declaring them here keeps their identity stable
+// instead of minting fresh objects on every render.
+const TAB_NAVIGATOR_SCREEN_OPTIONS = {
+  lazy: true,
+  tabBarItemStyle: {
+    paddingTop: 6,
+    margin: 0,
+  },
+  tabBarIndicatorStyle: {
+    color: "transparent",
+    backgroundColor: "transparent",
+  },
+  tabBarIconStyle: {
+    width: 30,
+    height: 30,
+    alignItems: "center",
+  },
+  tabBarInactiveTintColor: "#999",
+  tabBarStyle: { backgroundColor: "red" },
+};
+
+const TAB_BAR_LABEL_STYLE = {
+  fontSize: 10,
+  fontWeight: "bold",
+};
+
+const TAB_BAR_STYLE = {
+  height: Platform.OS === "ios" ? "10%" : "auto",
+};
+
+const styles = StyleSheet.create({
+  headerRight: {
+    width: "100%",
+    flexDirection: "row",
+    alignContent: "center",
+    justifyContent: "flex-end",
+    paddingRight: 4,
+  },
+  greeting: {
+    paddingRight: 8,
+    textAlign: "right",
+    alignSelf: "center",
+  },
+  actions: {
+    flexDirection: "row",
+    gap: 4,
+    alignSelf: "center",
+  },
+  searchIcon: {
+    width: 30,
+    aspectRatio: 1,
+    justifyContent: "flex-end",
+    alignItems: "flex-end",
+  },
+  actionIcon: {
+    width: 28,
+    marginRight: 5,
+    justifyContent: "flex-end",
+    alignItems: "flex-end",
+  },
+  unreadDot: {
+    position: "absolute",
+    top: 2,
+    right: 6,
+    backgroundColor: "red",
+    borderRadius: 25,
+    width: 10,
+    aspectRatio: 1,
+  },
+  avatarClip: {
+    borderRadius: 25,
+    overflow: "hidden",
+  },
+  avatar: {
+    width: 30,
+    aspectRatio: 1,
+  },
+});
+
 export const EntertainerScreen = () => {
   const { i18n } = useContext(TranslationContext);
   const { userData } = useUser();
@@ -62,6 +148,11 @@ export const EntertainerScreen = () => {
   // A single tap must produce exactly one navigation: on a cold start the
   // one-shot getLastNotificationResponseAsync replay and the live listener can
   // both fire for the same notification.
+  //
+  // Capped: the set only has to out-live the cold-start replay window, so the
+  // most recent handful of ids is enough. Uncapped it grew for the lifetime of
+  // the process. A Set preserves insertion order, so the oldest entry is the
+  // first key.
   const handledNotificationIds = useRef(new Set());
 
   const handleNotificationResponse = useCallback((response) => {
@@ -72,6 +163,11 @@ export const EntertainerScreen = () => {
         return;
       }
       handledNotificationIds.current.add(notificationId);
+
+      if (handledNotificationIds.current.size > MAX_HANDLED_NOTIFICATION_IDS) {
+        const oldest = handledNotificationIds.current.values().next().value;
+        handledNotificationIds.current.delete(oldest);
+      }
     }
 
     const notificationData =
@@ -95,9 +191,9 @@ export const EntertainerScreen = () => {
 
   useEffect(() => {
     const responseSubscription =
-      Notifications.addNotificationResponseReceivedListener((response) => {
-        handleNotificationResponse(response);
-      });
+      Notifications.addNotificationResponseReceivedListener(
+        handleNotificationResponse
+      );
 
     const receivedSubscription = Notifications.addNotificationReceivedListener(
       (notification) => {
@@ -120,27 +216,7 @@ export const EntertainerScreen = () => {
     };
   }, [handleNotificationResponse]);
 
-  useEffect(() => {
-    if (!userData) return;
-    // changeHeaderRight(userData?.member === 1 ? "Feed" : "Home");
-    changeHeaderRight(userData?.member === 1 ? "Home" : "Home");
-  }, [userData, hasNotification]);
-
-  useEffect(() => {
-    if (!userData?.user_id) return;
-
-    const getPushToken = async () => {
-      try {
-        await registerForPushNotificationsAsync();
-      } catch (error) {
-        console.log("Failed to register push notifications:", error);
-      }
-    };
-
-    getPushToken();
-  }, [userData?.user_id]);
-
-  const registerForPushNotificationsAsync = async () => {
+  const registerForPushNotificationsAsync = useCallback(async () => {
     try {
       if (Platform.OS === "android") {
         await Notifications.setNotificationChannelAsync("default", {
@@ -218,10 +294,24 @@ export const EntertainerScreen = () => {
       );
       return null;
     }
-  };
+  }, [userData?.user_id]);
 
-  const changeHeaderRight = (route) => {
-    const handleSearch = () => {
+  useEffect(() => {
+    if (!userData?.user_id) return;
+
+    const getPushToken = async () => {
+      try {
+        await registerForPushNotificationsAsync();
+      } catch (error) {
+        console.log("Failed to register push notifications:", error);
+      }
+    };
+
+    getPushToken();
+  }, [userData?.user_id, registerForPushNotificationsAsync]);
+
+  const handleSearch = useCallback(
+    (route) => {
       switch (route) {
         case "Feed":
           navigate("post-search");
@@ -239,122 +329,95 @@ export const EntertainerScreen = () => {
           });
           break;
       }
-    };
+    },
+    [i18n]
+  );
 
-    navigation.setOptions({
-      headerRight: () => (
-        <View
-          style={{
-            width: "100%",
-            flexDirection: "row",
-            alignContent: "center",
-            justifyContent: "flex-end",
-            paddingRight: 4,
-          }}
-        >
-          <Label
-            style={{
-              paddingRight: 8,
-              textAlign: "right",
-              alignSelf: "center",
-            }}
-            numberOfLines={1}
-            size="subtitle"
-            weight="bold"
-          >
-            {i18n.t("user_greeting", {
-              name: userData ? userData.first_name?.split(" ")[0] : "",
-            })}
-          </Label>
+  const openNotifications = useCallback(() => {
+    setHasNotification(false);
+    navigate("notifications");
+  }, []);
 
-          <View
-            style={{
-              flexDirection: "row",
-              gap: 4,
-              alignSelf: "center",
-            }}
-          >
-            <TouchableOpacity onPress={handleSearch}>
-              <View
-                style={{
-                  width: 30,
-                  aspectRatio: 1,
-                  justifyContent: "flex-end",
-                  alignItems: "flex-end",
-                }}
-              >
-                <MaterialCommunityIcons name="magnify" size={30} />
-              </View>
-            </TouchableOpacity>
+  const openMap = useCallback(() => navigate("Map"), []);
+  const openProfile = useCallback(() => navigate("Profile"), []);
 
-            {route === "Home" && (
-              <TouchableOpacity onPress={() => navigate("Map")}>
-                <View
-                  style={{
-                    width: 28,
-                    marginRight: 5,
-                    justifyContent: "flex-end",
-                    alignItems: "flex-end",
-                  }}
-                >
-                  <MaterialCommunityIcons name="map-search" size={28} />
+  const changeHeaderRight = useCallback(
+    (route) => {
+      navigation.setOptions({
+        headerRight: () => (
+          <View style={styles.headerRight}>
+            <Label
+              style={styles.greeting}
+              numberOfLines={1}
+              size="subtitle"
+              weight="bold"
+            >
+              {i18n.t("user_greeting", {
+                name: userData ? userData.first_name?.split(" ")[0] : "",
+              })}
+            </Label>
+
+            <View style={styles.actions}>
+              <TouchableOpacity onPress={() => handleSearch(route)}>
+                <View style={styles.searchIcon}>
+                  <MaterialCommunityIcons name="magnify" size={30} />
                 </View>
               </TouchableOpacity>
-            )}
 
-            {userData.member === 1 && (
-              <TouchableOpacity
-                onPress={() => {
-                  setHasNotification(false);
-                  navigate("notifications");
-                }}
-              >
-                <View
-                  style={{
-                    width: 28,
-                    marginRight: 5,
-                    justifyContent: "flex-end",
-                    alignItems: "flex-end",
-                  }}
-                >
-                  <MaterialCommunityIcons name="bell-outline" size={28} />
-                </View>
+              {route === "Home" && (
+                <TouchableOpacity onPress={openMap}>
+                  <View style={styles.actionIcon}>
+                    <MaterialCommunityIcons name="map-search" size={28} />
+                  </View>
+                </TouchableOpacity>
+              )}
 
-                {hasNotification && (
-                  <View
-                    style={{
-                      position: "absolute",
-                      top: 2,
-                      right: 6,
-                      backgroundColor: "red",
-                      borderRadius: 25,
-                      width: 10,
-                      aspectRatio: 1,
-                    }}
-                  />
+              {userData?.member === 1 && (
+                <TouchableOpacity onPress={openNotifications}>
+                  <View style={styles.actionIcon}>
+                    <MaterialCommunityIcons name="bell-outline" size={28} />
+                  </View>
+
+                  {hasNotification && <View style={styles.unreadDot} />}
+                </TouchableOpacity>
+              )}
+
+              <TouchableOpacity onPress={openProfile}>
+                {userData && userData.member_image ? (
+                  <View style={styles.avatarClip}>
+                    <CacheImage
+                      style={styles.avatar}
+                      uri={userData.member_image}
+                    />
+                  </View>
+                ) : (
+                  <MaterialCommunityIcons name="account-circle" size={30} />
                 )}
               </TouchableOpacity>
-            )}
-
-            <TouchableOpacity onPress={() => navigate("Profile")}>
-              {userData && userData.member_image ? (
-                <View style={{ borderRadius: 25, overflow: "hidden" }}>
-                  <CacheImage
-                    style={{ width: 30, aspectRatio: 1 }}
-                    uri={userData.member_image}
-                  />
-                </View>
-              ) : (
-                <MaterialCommunityIcons name="account-circle" size={30} />
-              )}
-            </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      ),
-    });
-  };
+        ),
+      });
+    },
+    [
+      navigation,
+      i18n,
+      userData,
+      hasNotification,
+      handleSearch,
+      openMap,
+      openNotifications,
+      openProfile,
+    ]
+  );
 
-  const TabItems = React.useMemo(
+  useEffect(() => {
+    if (!userData) return;
+    // changeHeaderRight(userData?.member === 1 ? "Feed" : "Home");
+    changeHeaderRight(userData?.member === 1 ? "Home" : "Home");
+  }, [userData, hasNotification, changeHeaderRight]);
+
+  const TabItems = useMemo(
     () => [
       // {
       //   route: "Feed",
@@ -388,36 +451,34 @@ export const EntertainerScreen = () => {
     [i18n]
   );
 
-  const visibleTabs = TabItems.filter((tab) => {
-    return true;
-    if (tab.route === "Events" && !eventList.length) return false;
-    //   if (tab.route === "Feed" && userData && !userData.member) return false;
-    return true;
-  });
+  const visibleTabs = useMemo(
+    () =>
+      TabItems.filter((tab) => {
+        return true;
+        if (tab.route === "Events" && !eventList.length) return false;
+        //   if (tab.route === "Feed" && userData && !userData.member) return false;
+        return true;
+      }),
+    [TabItems, eventList]
+  );
 
-  return (
-    <Tab.Navigator
-      tabBarPosition="bottom"
-      screenOptions={{
-        lazy: true,
-        tabBarItemStyle: {
-          paddingTop: 6,
-          margin: 0,
-        },
-        tabBarIndicatorStyle: {
-          color: "transparent",
-          backgroundColor: "transparent",
-        },
-        tabBarIconStyle: {
-          width: 30,
-          height: 30,
-          alignItems: "center",
-        },
-        tabBarInactiveTintColor: "#999",
-        tabBarStyle: { backgroundColor: "red" },
-      }}
-    >
-      {visibleTabs.map((tab) => (
+  const renderTabIcon = useCallback(
+    (iconName) =>
+      ({ focused }) => (
+        <MaterialCommunityIcons
+          name={iconName}
+          size={30}
+          color={
+            focused ? theme.colors.icons.active : theme.colors.icons.inactive
+          }
+        />
+      ),
+    [theme]
+  );
+
+  const tabScreens = useMemo(
+    () =>
+      visibleTabs.map((tab) => (
         <Tab.Screen
           key={tab.route}
           name={tab.route}
@@ -429,28 +490,22 @@ export const EntertainerScreen = () => {
           }}
           options={{
             tabBarLabel: tab.name,
-            tabBarLabelStyle: {
-              fontSize: 10,
-              fontWeight: "bold",
-            },
-            tabBarStyle: {
-              height: Platform.OS === "ios" ? "10%" : "auto",
-            },
-            tabBarIcon: ({ focused }) => (
-              <MaterialCommunityIcons
-                name={tab.inactiveIcon}
-                size={30}
-                color={
-                  focused
-                    ? theme.colors.icons.active
-                    : theme.colors.icons.inactive
-                }
-              />
-            ),
+            tabBarLabelStyle: TAB_BAR_LABEL_STYLE,
+            tabBarStyle: TAB_BAR_STYLE,
+            tabBarIcon: renderTabIcon(tab.inactiveIcon),
             tabBarActiveTintColor: theme.colors.icons.active,
           }}
         />
-      ))}
+      )),
+    [visibleTabs, changeHeaderRight, renderTabIcon, theme]
+  );
+
+  return (
+    <Tab.Navigator
+      tabBarPosition="bottom"
+      screenOptions={TAB_NAVIGATOR_SCREEN_OPTIONS}
+    >
+      {tabScreens}
     </Tab.Navigator>
   );
 };
