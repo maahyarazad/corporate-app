@@ -1,8 +1,17 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import moment from "moment";
-import React, { useContext, useEffect, useRef } from "react";
-import { Animated, ScrollView, StyleSheet, View } from "react-native";
+import React, { useContext, useEffect } from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
+import Animated, {
+  Easing,
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 import { Button } from "react-native-paper";
 import { Label } from "../../components/typography/label.component";
 import { theme } from "../../infrastructure/theme";
@@ -10,46 +19,51 @@ import { TranslationContext } from "../../services/translation/translation.conte
 import { config } from "../../utils/constants";
 
 export const TransactionSummaryScreen = () => {
-  const animatedOpacity = useRef(new Animated.Value(0)).current;
-  const animatedOpacity2 = useRef(new Animated.Value(0)).current;
-  const animatedOpacity3 = useRef(new Animated.Value(0.6)).current;
+  const animatedOpacity = useSharedValue(0);
+  const animatedOpacity2 = useSharedValue(0);
+  const animatedOpacity3 = useSharedValue(0);
   const route = useRoute();
   const navigation = useNavigation();
   const { i18n } = useContext(TranslationContext);
   const { discount, merchant, paid, prodname, transactDate, refCode } =
     route.params;
 
-  const translateInterpolation = animatedOpacity.interpolate({
-    inputRange: [0.5, 1],
-    outputRange: [100, 0],
-  });
 
-  const opacityInterpolation = animatedOpacity3.interpolate({
-    inputRange: [0.3, 1],
-    outputRange: [0, 1],
-  });
 
   useEffect(() => {
-    Animated.sequence([
-      Animated.timing(animatedOpacity, {
-        toValue: 1,
-        duration: 600,
-        useNativeDriver: true,
-        delay: 200,
-      }).start(animatedOpacity.setValue(0)),
-      Animated.timing(animatedOpacity2, {
-        toValue: 1,
-        duration: 400,
-        useNativeDriver: true,
-        delay: 700,
-      }).start(animatedOpacity2.setValue(0)),
-      Animated.spring(animatedOpacity3, {
-        toValue: 1,
-        useNativeDriver: true,
-        delay: 1000,
-      }).start(animatedOpacity3.setValue(0)),
-    ]);
+    // The original wrapped these in a legacy RN sequence() that was never
+    // started - each .start() had already fired independently, and each
+    // `.start(value.setValue(0))` reset its value first because JS evaluates
+    // arguments before the call. Net effect preserved: three independent
+    // animations from 0, staggered by their own delays.
+    animatedOpacity.value = withDelay(
+      200,
+      withTiming(1, { duration: 600, easing: Easing.inOut(Easing.ease) })
+    );
+
+    animatedOpacity2.value = withDelay(
+      700,
+      withTiming(1, { duration: 400, easing: Easing.inOut(Easing.ease) })
+    );
+
+    animatedOpacity3.value = withDelay(1000, withSpring(1));
   }, []);
+
+  const rectangleStyle = useAnimatedStyle(() => ({
+    opacity: animatedOpacity.value,
+    transform: [
+      { translateY: interpolate(animatedOpacity.value, [0.5, 1], [100, 0]) },
+    ],
+  }));
+
+  const secondaryStyle = useAnimatedStyle(() => ({
+    opacity: animatedOpacity2.value,
+  }));
+
+  const tertiaryStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(animatedOpacity3.value, [0.3, 1], [0, 1]),
+    transform: [{ scale: animatedOpacity3.value }],
+  }));
 
   const handleDone = () => {
     navigation.reset({
@@ -70,10 +84,7 @@ export const TransactionSummaryScreen = () => {
         <Animated.View
           style={[
             styles.rectangle,
-            {
-              opacity: animatedOpacity,
-              transform: [{ translateY: translateInterpolation }],
-            },
+            rectangleStyle,
           ]}
         >
           <MaterialCommunityIcons
@@ -129,7 +140,7 @@ export const TransactionSummaryScreen = () => {
           </View>
         </Animated.View>
         <Animated.View
-          style={[styles.secondary, { opacity: animatedOpacity2 }]}
+          style={[styles.secondary, secondaryStyle]}
         >
           <Label
             style={{
@@ -154,12 +165,7 @@ export const TransactionSummaryScreen = () => {
             </Label>
           </View>
         </Animated.View>
-        <Animated.View
-          style={{
-            opacity: opacityInterpolation,
-            transform: [{ scale: animatedOpacity3 }],
-          }}
-        >
+        <Animated.View style={tertiaryStyle}>
           <Button
             mode="contained"
             contentStyle={{ paddingVertical: 12 }}

@@ -1,6 +1,13 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { Animated, StyleSheet, TouchableOpacity, View } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
+import Animated, {
+  cancelAnimation,
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { Button } from "react-native-paper";
 import { TranslationContext } from "../services/translation/translation.context";
 import { Spacer } from "./spacer/spacer.component";
@@ -9,27 +16,25 @@ import useUser from "../../hooks/useUser";
 import { theme } from "../infrastructure/theme";
 
 export const PostCardUpload = () => {
-  const animatedValue = useRef(new Animated.Value(0)).current;
+  const animatedValue = useSharedValue(0);
   const { checkAuthorization } = useUser();
   const { i18n } = useContext(TranslationContext);
 
   useEffect(() => {
-    const animation = Animated.timing(animatedValue, {
-      toValue: 1,
+    animatedValue.value = withTiming(1, {
       duration: 500,
-      useNativeDriver: true,
+      easing: Easing.inOut(Easing.ease),
     });
-    animation.start();
 
     return () => {
-      animation.stop();
-      animatedValue.setValue(0);
+      cancelAnimation(animatedValue);
+      animatedValue.value = 0;
     };
   }, []);
 
-  const animatedStyle = {
-    opacity: animatedValue,
-  };
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: animatedValue.value,
+  }));
 
   const handleRefresh = async () => {
     checkAuthorization();
