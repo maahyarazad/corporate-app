@@ -1,5 +1,15 @@
-import React, { useEffect, useRef } from "react";
-import { Animated, Easing, StyleSheet, View } from "react-native";
+import React, { useEffect } from "react";
+import { StyleSheet } from "react-native";
+import Animated, {
+  cancelAnimation,
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from "react-native-reanimated";
 
 export const Skeleton = ({
   variant,
@@ -11,37 +21,33 @@ export const Skeleton = ({
   opacityMax = 1,
   style,
 }) => {
-  const animatedValue = useRef(new Animated.Value(opacityMin)).current;
+  const opacity = useSharedValue(opacityMin);
 
   useEffect(() => {
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(animatedValue, {
-          toValue: opacityMax,
-          useNativeDriver: true,
-          duration: 300,
-          delay: 200,
-          easing: Easing.linear,
-        }),
-        Animated.timing(animatedValue, {
-          toValue: opacityMin,
-          useNativeDriver: true,
-          duration: 700,
-          easing: Easing.linear,
-        }),
-      ])
+    // reverse:false - the sequence already returns to opacityMin on its own.
+    opacity.value = withRepeat(
+      withSequence(
+        withDelay(
+          200,
+          withTiming(opacityMax, { duration: 300, easing: Easing.linear })
+        ),
+        withTiming(opacityMin, { duration: 700, easing: Easing.linear })
+      ),
+      -1,
+      false
     );
-    loop.start();
 
+    // withRepeat returns no stoppable handle, unlike the Animated.loop it
+    // replaces. Without this the loop outlives the component, and Skeleton
+    // renders inside lists.
     return () => {
-      loop.stop();
-      animatedValue.setValue(0);
+      cancelAnimation(opacity);
     };
   }, []);
 
-  const skeletonPulseStyle = {
-    opacity: animatedValue,
-  };
+  const skeletonPulseStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
 
   const skeletonShape = (variant) => {
     switch (variant) {
