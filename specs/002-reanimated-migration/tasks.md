@@ -110,8 +110,8 @@ Priorities reflect risk-ordering from `research.md` R7, not user value.
 
 **Independent test**: Sweep scenario B6. Press-in scales to 0.9 and dims; press-out springs back; feel matches baseline. Rapid repeated presses no longer reset mid-animation.
 
-- [ ] T025 [US4] Convert `src/components/animatedButton.js` (locators 4, 22, 26–42, 44, 52) to `useSharedValue` + `useAnimatedStyle`. This inherently fixes **defect D1**: line 22 is `const buttonScale = new Animated.Value(1)` with no `useRef`/`useMemo`, so every re-render discards the in-flight animation. Call the fix out in the commit message so it is not read as refactor noise
-- [ ] T026 [US4] Map the `speed` prop (default `200`) onto `withSpring({ damping, stiffness })` inside `src/components/animatedButton.js`. Per `research.md` R5 there is no algebraic conversion from the legacy `speed`/`bounciness` model — start at `{ damping: 15, stiffness: 150 }` and tune on device. **The `speed` prop name and default must not change** (`contracts/animation-api.md` §C1); higher must still mean faster
+- [X] T025 [US4] Convert `src/components/animatedButton.js` (locators 4, 22, 26–42, 44, 52) to `useSharedValue` + `useAnimatedStyle`. This inherently fixes **defect D1**: line 22 is `const buttonScale = new Animated.Value(1)` with no `useRef`/`useMemo`, so every re-render discards the in-flight animation. Call the fix out in the commit message so it is not read as refactor noise
+- [X] T026 [US4] Map the `speed` prop (default `200`) onto `withSpring({ damping, stiffness })` inside `src/components/animatedButton.js`. Per `research.md` R5 there is no algebraic conversion from the legacy `speed`/`bounciness` model — start at `{ damping: 15, stiffness: 150 }` and tune on device. **The `speed` prop name and default must not change** (`contracts/animation-api.md` §C1); higher must still mean faster
 - [ ] T027 [US4] Smoke-test the single consumer at `src/screens/login/requestapproval.screen.js:604` and run sweep scenario B6 on both platforms, then commit
 
 ---
