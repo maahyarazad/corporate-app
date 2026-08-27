@@ -11,8 +11,8 @@
     "web": "expo start --web",
     "eject": "expo eject",
     "test": "NODE_ENV=test jest",
-    "lint": "eslint app/",
-    "lint:fix": "eslint app/ --fix",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
     "build:ios": " npx eas build -p ios --profile development",
     "check:animation": "./scripts/check-animation.sh"
   },
@@ -129,6 +129,7 @@
     "babel-plugin-transform-remove-console": "^6.9.4",
     "eslint": "^8.57.0",
     "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-jsx-a11y": "^6.8.0",
     "eslint-plugin-prettier": "^5.2.1",
