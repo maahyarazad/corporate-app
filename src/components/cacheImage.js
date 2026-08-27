@@ -45,7 +45,7 @@ const SkeletonLoader = ({ style }) => {
 
   useEffect(() => {
     shimmer.value = 0;
-    // Easing spelled out because Animated.timing defaulted to inOut(ease)
+    // Easing spelled out because the legacy RN timing default was inOut(ease)
     // while withTiming defaults to inOut(quad) - keep the original feel.
     shimmer.value = withRepeat(
       withTiming(1, { duration: 1200, easing: Easing.inOut(Easing.ease) }),
@@ -53,7 +53,7 @@ const SkeletonLoader = ({ style }) => {
       false
     );
 
-    // withRepeat has no stoppable handle, unlike the Animated.loop it replaces.
+    // withRepeat has no stoppable handle, unlike the RN loop it replaces.
     return () => {
       cancelAnimation(shimmer);
     };

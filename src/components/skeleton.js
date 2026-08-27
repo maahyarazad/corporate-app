@@ -37,9 +37,9 @@ export const Skeleton = ({
       false
     );
 
-    // withRepeat returns no stoppable handle, unlike the Animated.loop it
-    // replaces. Without this the loop outlives the component, and Skeleton
-    // renders inside lists.
+    // withRepeat returns no stoppable handle, unlike the RN loop it replaces.
+    // Without this the loop outlives the component, and Skeleton renders
+    // inside lists.
     return () => {
       cancelAnimation(opacity);
     };
