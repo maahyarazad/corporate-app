@@ -1,13 +1,12 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import {
   Alert,
-  Animated,
-  Easing,
   StyleSheet,
-  Vibration,
   Platform,
 } from "react-native";
+import Animated from "react-native-reanimated";
+import { useShakeAnimation } from "../../hooks/useShakeAnimation";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Button } from "react-native-paper";
 import Background from "../../components/background/background.component";
@@ -26,35 +25,7 @@ export const ChangePasswordScreen = ({ route }) => {
   const [cpassword, setCpassword] = useState("");
   const navigation = useNavigation();
 
-  const animatedShake = useRef(new Animated.Value(0)).current;
-
-  const shakeInterpolate = animatedShake.interpolate({
-    inputRange: [0, 0.5, 1, 1.5, 2],
-    outputRange: [0, -10, 0, 10, 0],
-  });
-
-  const shake = () => {
-    Vibration.vibrate();
-    Animated.loop(
-      Animated.timing(animatedShake, {
-        toValue: 2,
-        useNativeDriver: true,
-        easing: Easing.linear,
-        duration: 120,
-      }),
-      {
-        iterations: 2,
-      }
-    ).start(animatedShake.setValue(0));
-  };
-
-  const shakeAnimatedStyle = {
-    transform: [
-      {
-        translateX: shakeInterpolate,
-      },
-    ],
-  };
+  const { shakeStyle, shake } = useShakeAnimation();
 
   const handleSubmit = async () => {
     setIsSubmitted(true);
@@ -114,7 +85,7 @@ export const ChangePasswordScreen = ({ route }) => {
             alignItems: "center",
           }}
         >
-          <Animated.View style={[styles.container, shakeAnimatedStyle]}>
+          <Animated.View style={[styles.container, shakeStyle]}>
             <Label style={{ color: "white", marginBottom: 10 }} size="title" weight="bold">
               Enter your new password
             </Label>

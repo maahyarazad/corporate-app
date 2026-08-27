@@ -4,9 +4,6 @@ import {
   View,
   Image,
   StyleSheet,
-  Animated,
-  Easing,
-  Vibration,
   Keyboard,
   Pressable,
   TouchableWithoutFeedback,
@@ -14,6 +11,8 @@ import {
   ActivityIndicator,
   BackHandler,
 } from "react-native";
+import Animated from "react-native-reanimated";
+import { useShakeAnimation } from "../../hooks/useShakeAnimation";
 import { useNavigation } from "@react-navigation/native";
 import { BlurView } from "expo-blur";
 import { companyLogo, honorificList } from "../../utils/constants";
@@ -123,35 +122,7 @@ export const RegistrationDetailsScreen = ({ route }) => {
   const firstname = useRef(null);
   const lastname = useRef(null);
   const middlename = useRef(null);
-  const animatedShake = useRef(new Animated.Value(0)).current;
-
-  const shakeInterpolate = animatedShake.interpolate({
-    inputRange: [0, 0.5, 1, 1.5, 2],
-    outputRange: [0, -10, 0, 10, 0],
-  });
-
-  const shake = () => {
-    Vibration.vibrate();
-    Animated.loop(
-      Animated.timing(animatedShake, {
-        toValue: 2,
-        useNativeDriver: true,
-        easing: Easing.linear,
-        duration: 120,
-      }),
-      {
-        iterations: 2,
-      }
-    ).start(animatedShake.setValue(0));
-  };
-
-  const shakeAnimatedStyle = {
-    transform: [
-      {
-        translateX: shakeInterpolate,
-      },
-    ],
-  };
+  const { shakeStyle, shake } = useShakeAnimation();
 
   const sendCaptcha = async () => {
     console.log("[Register] sendCaptcha pressed");
@@ -299,7 +270,7 @@ useEffect(() => {
       <Background>
         <SafeArea style={styles.safeArea}>
           <Image style={styles.companyLogo} source={companyLogo} />
-          <Animated.View style={[styles.safeArea, shakeAnimatedStyle]}>
+          <Animated.View style={[styles.safeArea, shakeStyle]}>
             <KeyboardAwareScrollView
               enableOnAndroid
               extraScrollHeight={20}

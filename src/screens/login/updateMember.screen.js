@@ -1,14 +1,13 @@
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   View,
   Text,
   TextInput,
   Pressable,
-  Animated,
-  Vibration,
   StyleSheet,
-  Easing,
 } from "react-native";
+import Animated from "react-native-reanimated";
+import { useShakeAnimation } from "../../hooks/useShakeAnimation";
 import { showToast } from "../../Toast";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -48,35 +47,7 @@ export const UpdateMemberScreen = ({ navigation }) => {
   const dateLimit = new Date();
   dateLimit.setFullYear(dateLimit.getFullYear() - 18);
 
-  const animatedShake = useRef(new Animated.Value(0)).current;
-
-  const shakeInterpolate = animatedShake.interpolate({
-    inputRange: [0, 0.5, 1, 1.5, 2],
-    outputRange: [0, -10, 0, 10, 0],
-  });
-
-  const shake = () => {
-    Vibration.vibrate();
-    Animated.loop(
-      Animated.timing(animatedShake, {
-        toValue: 2,
-        useNativeDriver: true,
-        easing: Easing.linear,
-        duration: 120,
-      }),
-      {
-        iterations: 2,
-      }
-    ).start(animatedShake.setValue(0));
-  };
-
-  const shakeAnimatedStyle = {
-    transform: [
-      {
-        translateX: shakeInterpolate,
-      },
-    ],
-  };
+  const { shakeStyle, shake } = useShakeAnimation();
 
   const handleFirstNameChange = (value) => {
     setState({ ...state, firstname: value });
@@ -212,7 +183,7 @@ export const UpdateMemberScreen = ({ navigation }) => {
             justifyContent: "flex-end",
           }}
         >
-          <Animated.View style={[styles.safeArea, shakeAnimatedStyle]}>
+          <Animated.View style={[styles.safeArea, shakeStyle]}>
             <KeyboardAwareScrollView
               automaticallyAdjustKeyboardInsets={true}
               keyboardShouldPersistTaps="always"

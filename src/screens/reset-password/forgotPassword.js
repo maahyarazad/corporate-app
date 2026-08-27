@@ -1,13 +1,12 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import {
-  Animated,
-  Easing,
   Platform,
   StyleSheet,
   TouchableOpacity,
-  Vibration,
   View,
 } from "react-native";
+import Animated from "react-native-reanimated";
+import { useShakeAnimation } from "../../hooks/useShakeAnimation";
 import { showToast } from "../../Toast";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Button } from "react-native-paper";
@@ -33,35 +32,7 @@ export const ForgotPasswordScreen = () => {
   const [loading, setLoading] = useState(false);
   const theme = useTheme();
 
-  const animatedShake = useRef(new Animated.Value(0)).current;
-
-  const shakeInterpolate = animatedShake.interpolate({
-    inputRange: [0, 0.5, 1, 1.5, 2],
-    outputRange: [0, -10, 0, 10, 0],
-  });
-
-  const shake = () => {
-    Vibration.vibrate();
-    Animated.loop(
-      Animated.timing(animatedShake, {
-        toValue: 2,
-        useNativeDriver: true,
-        easing: Easing.linear,
-        duration: 120,
-      }),
-      {
-        iterations: 2,
-      }
-    ).start(animatedShake.setValue(0));
-  };
-
-  const shakeAnimatedStyle = {
-    transform: [
-      {
-        translateX: shakeInterpolate,
-      },
-    ],
-  };
+  const { shakeStyle, shake } = useShakeAnimation();
 
   const goback = () => {
     navigate("Login");
@@ -123,7 +94,7 @@ export const ForgotPasswordScreen = () => {
           }}
         >
           <LoadingOverlay display={loading} />
-          <Animated.View style={[styles.container, shakeAnimatedStyle]}>
+          <Animated.View style={[styles.container, shakeStyle]}>
             <View
               style={{
                 flexDirection: "row",

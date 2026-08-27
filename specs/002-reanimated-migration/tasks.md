@@ -64,11 +64,11 @@ Priorities reflect risk-ordering from `research.md` R7, not user value.
 
 **Independent test**: Submit each of the five forms with an invalid field. Each shakes left-right with identical amplitude (±10px) and duration (240ms, four half-shakes) versus the baseline recording, and still vibrates.
 
-- [ ] T010 [P] [US1] Convert `src/screens/corporate/registration.screen.js` (locators 112–132, 134) to `useShakeAnimation`: delete `animatedShake`/`shakeInterpolate`/`shake`/`shakeAnimatedStyle`, remove `Animated` and `Easing` from the multi-line `react-native` import, and switch the shaken container to `Animated.View` from `react-native-reanimated`
-- [ ] T011 [P] [US1] Convert `src/screens/corporate/registrationDetails.screen.js` (locators 126–146, 148) — same steps as T010
-- [ ] T012 [P] [US1] Convert `src/screens/reset-password/changePassword.js` (locators 29–49, 51) — same steps as T010
-- [ ] T013 [P] [US1] Convert `src/screens/reset-password/forgotPassword.js` (locators 36–56, 58) — same steps as T010
-- [ ] T014 [P] [US1] Convert `src/screens/login/updateMember.screen.js` (locators 51–71, 73) — same steps as T010
+- [X] T010 [P] [US1] Convert `src/screens/corporate/registration.screen.js` (locators 112–132, 134) to `useShakeAnimation`: delete `animatedShake`/`shakeInterpolate`/`shake`/`shakeAnimatedStyle`, remove `Animated` and `Easing` from the multi-line `react-native` import, and switch the shaken container to `Animated.View` from `react-native-reanimated`
+- [X] T011 [P] [US1] Convert `src/screens/corporate/registrationDetails.screen.js` (locators 126–146, 148) — same steps as T010
+- [X] T012 [P] [US1] Convert `src/screens/reset-password/changePassword.js` (locators 29–49, 51) — same steps as T010
+- [X] T013 [P] [US1] Convert `src/screens/reset-password/forgotPassword.js` (locators 36–56, 58) — same steps as T010
+- [X] T014 [P] [US1] Convert `src/screens/login/updateMember.screen.js` (locators 51–71, 73) — same steps as T010
 - [ ] T015 [US1] Run sweep scenario B1 from `specs/002-reanimated-migration/quickstart.md` on both platforms; confirm all five shakes match baseline, then commit
 
 **Checkpoint**: Five screens migrated, ~110 lines of duplication removed
