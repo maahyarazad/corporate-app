@@ -518,7 +518,7 @@ export default function PostsScreen() {
               data={rootPosts}
               // extraData={updateCount}
               onEndReached={loadNextPage}
-              onEndReachedThreshold={5}
+              onEndReachedThreshold={0.5}
               // onStartReachedThreshold={0.5}
               onStartReached={debounceRefreshPage}
               maintainVisibleContentPosition={{

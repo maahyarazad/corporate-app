@@ -1,9 +1,10 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { memo, useCallback, useContext, useEffect, useState } from "react";
 import {
   Dimensions,
   FlatList,
   Image,
   Platform,
+  StyleSheet,
   Text,
   TouchableHighlight,
   View,
@@ -20,6 +21,33 @@ import { CacheImage } from "../../../components/cacheImage";
 import { LinearGradient } from "expo-linear-gradient";
 
 const { width, height } = Dimensions.get("window");
+
+// Chip row for a location's offer_types. Module scope + memo so it is not
+// rebuilt per render. See contracts/list-api.md C1.
+const OfferTypeChip = memo(({ label }) => (
+  <Chip textStyle={chipStyles.text} style={chipStyles.chip}>
+    <Label size="mini">{label}</Label>
+  </Chip>
+));
+
+const chipStyles = StyleSheet.create({
+  text: {
+    marginVertical: 0,
+    marginHorizontal: 0,
+    paddingHorizontal: 0,
+    marginRight: 0,
+    marginLeft: 0,
+  },
+  chip: {
+    backgroundColor: "#FFD892",
+    padding: 0,
+    margin: 0,
+    borderRadius: 50,
+    paddingHorizontal: 8,
+    height: 25,
+    justifyContent: "center",
+  },
+});
 
 export const LocationList = ({
   navigation,
@@ -66,6 +94,18 @@ export const LocationList = ({
   const renderChip = (item) => {
     return <MaterialCommunityIcons size={55} name={offerChipIcon[item.id]} />;
   };
+
+  // offer_types exposes no confirmed id field - prefer premium_id when present,
+  // fall back to the label, never the index. See follow-ups.md F1.
+  const offerTypeKeyExtractor = useCallback(
+    (item) => String(item.premium_id ?? item.premium_en),
+    []
+  );
+
+  const renderOfferTypeChip = useCallback(
+    ({ item }) => <OfferTypeChip label={item.premium_en} />,
+    []
+  );
 
   const renderLocations = ({ item }) => {
     return (
@@ -165,33 +205,8 @@ export const LocationList = ({
                   data={item.offer_types}
                   horizontal
                   scrollEnabled={false}
-                  renderItem={({ item }) => {
-                    return (
-                      <Chip
-                        // icon={() => renderChip(item)}
-                        textStyle={{
-                          // marginLeft: 0,
-                          // backgroundColor: "red",
-                          marginVertical: 0,
-                          marginHorizontal: 0,
-                          paddingHorizontal: 0,
-                          marginRight: 0,
-                          marginLeft: 0,
-                        }}
-                        style={{
-                          backgroundColor: "#FFD892",
-                          padding: 0,
-                          margin: 0,
-                          borderRadius: 50,
-                          paddingHorizontal: 8,
-                          height: 25,
-                          justifyContent: "center",
-                        }}
-                      >
-                        <Label size="mini">{item.premium_en}</Label>
-                      </Chip>
-                    );
-                  }}
+                  keyExtractor={offerTypeKeyExtractor}
+                  renderItem={renderOfferTypeChip}
                   ItemSeparatorComponent={itemSeparatorHS}
                 />
                 <LinearGradient

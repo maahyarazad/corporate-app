@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 import { LocationCards } from "../../../components/locationcards";
 import { Skeleton } from "../../../components/skeleton";
@@ -7,6 +7,27 @@ import { Spacer } from "../../../components/spacer/spacer.component";
 const MemoizedLocationCard = React.memo(LocationCards);
 
 const TopPartners = ({ topPartnersData }) => {
+  // Was data={Object.values(topPartnersData)} with key={item.id} on the element -
+  // each `item` is an ARRAY of locations, so item.id was always undefined, and a
+  // key on the element returned from renderItem is ignored anyway. Iterating the
+  // group labels gives both a real key and a simpler render.
+  const groupLabels = useMemo(
+    () => (topPartnersData ? Object.keys(topPartnersData) : []),
+    [topPartnersData]
+  );
+
+  const keyExtractor = useCallback((label) => String(label), []);
+
+  const renderGroup = useCallback(
+    ({ item: label }) => (
+      <MemoizedLocationCard
+        locationList={topPartnersData[label]}
+        label={label}
+      />
+    ),
+    [topPartnersData]
+  );
+
   const RenderSkeleton = () => {
     return (
       <>
@@ -39,16 +60,9 @@ const TopPartners = ({ topPartnersData }) => {
         {topPartnersData ? (
           <FlatList
             scrollEnabled={false}
-            data={Object.values(topPartnersData)}
-            renderItem={({ item, index }) => (
-              <LocationCards
-                key={item.id}
-                locationList={
-                  topPartnersData[Object.keys(topPartnersData)[index]]
-                }
-                label={Object.keys(topPartnersData)[index]}
-              />
-            )}
+            data={groupLabels}
+            keyExtractor={keyExtractor}
+            renderItem={renderGroup}
           />
         ) : (
           <RenderSkeleton />

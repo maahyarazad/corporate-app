@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { View, FlatList } from "react-native";
 import { Label } from "../../../components/typography/label.component";
 import { Spacer } from "../../../components/spacer/spacer.component";
@@ -115,6 +115,13 @@ export const HomeCategory = ({ size, categoryData }) => {
   const { i18n, lang } = useContext(TranslationContext);
   const { setSectionTitle } = useContext(SectionContext);
 
+  const renderItem = useCallback(
+    ({ item }) => renderCategory({ item, navigation, setSectionTitle }),
+    [navigation, setSectionTitle]
+  );
+
+  const keyExtractor = useCallback((item) => String(item.id), []);
+
   return (
     <>
       <View>
@@ -137,14 +144,8 @@ export const HomeCategory = ({ size, categoryData }) => {
                 snapToInterval={100 + 16}
                 decelerationRate="fast"
                 overScrollMode="always"
-                renderItem={({ item }) =>
-                  renderCategory({
-                    item,
-                    navigation,
-                    setSectionTitle,
-                  })
-                }
-                keyExtractor={(item) => item.id}
+                renderItem={renderItem}
+                keyExtractor={keyExtractor}
                 keyboardDismissMode="interactive"
                 showsHorizontalScrollIndicator={false}
                 ItemSeparatorComponent={itemSeparatorHM}

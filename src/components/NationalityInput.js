@@ -1,5 +1,5 @@
 // NationalityInput.js
-import React, { useEffect, useMemo, useState, useRef } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useState, useRef } from "react";
 import {
   View,
   Text,
@@ -27,6 +27,30 @@ const SCREEN_PADDING = 8;
 const MENU_OFFSET = 4;
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const MENU_WIDTH = Math.min(420, Math.round(SCREEN_WIDTH * 0.92));
+
+// Memoized row for the ~250-country list. `selected` is passed as a primitive so
+// the memo compares cheaply; onPress takes the item (contracts/list-api.md C1).
+const CountryRow = memo(({ item, selected, onPress }) => (
+  <Pressable
+    onPress={() => onPress(item)}
+    style={({ pressed }) => [
+      styles.itemRow,
+      selected && styles.itemRowSelected,
+      pressed && { backgroundColor: "#f3f4f6" },
+    ]}
+  >
+    <Text style={styles.flag}>{toFlagEmoji(item.value)}</Text>
+    <Text
+      style={[styles.itemText, selected && styles.itemTextSelected]}
+      numberOfLines={1}
+    >
+      {item.label}
+    </Text>
+    {selected && (
+      <MaterialCommunityIcons name="check" size={16} color="#111827" />
+    )}
+  </Pressable>
+));
 
 export function NationalityInput({
   value,
@@ -185,6 +209,16 @@ export function NationalityInput({
     handleClose();
   };
 
+  const keyExtractor = useCallback((item) => String(item.value), []);
+
+  const renderCountry = useCallback(
+    ({ item }) => (
+      <CountryRow item={item} selected={item.value === value} onPress={pick} />
+    ),
+    [value, pick]
+  );
+
+
   // ── render ────────────────────────────────────────────────────────────────
 
   return (
@@ -296,33 +330,10 @@ export function NationalityInput({
             {/* Country list */}
             <FlatList
               data={filteredItems}
-              keyExtractor={(item) => item.value}
+              keyExtractor={keyExtractor}
               keyboardShouldPersistTaps="handled"  // ← lets taps reach list items while keyboard is open
               keyboardDismissMode="on-drag"          // ← dismiss keyboard when user scrolls
-              renderItem={({ item }) => {
-                const selected = item.value === value;
-                return (
-                  <Pressable
-                    onPress={() => pick(item)}
-                    style={({ pressed }) => [
-                      styles.itemRow,
-                      selected && styles.itemRowSelected,
-                      pressed && { backgroundColor: "#f3f4f6" },
-                    ]}
-                  >
-                    <Text style={styles.flag}>{toFlagEmoji(item.value)}</Text>
-                    <Text
-                      style={[styles.itemText, selected && styles.itemTextSelected]}
-                      numberOfLines={1}
-                    >
-                      {item.label}
-                    </Text>
-                    {selected && (
-                      <MaterialCommunityIcons name="check" size={16} color="#111827" />
-                    )}
-                  </Pressable>
-                );
-              }}
+              renderItem={renderCountry}
               ListEmptyComponent={
                 <View style={styles.empty}>
                   <Text style={styles.emptyText}>No countries found</Text>

@@ -1,5 +1,5 @@
 import moment from "moment";
-import React, { useContext } from "react";
+import React, { memo, useContext } from "react";
 import {
   Image,
   StyleSheet,
@@ -13,11 +13,16 @@ import { Label } from "../../../components/typography/label.component";
 import { TranslationContext } from "../../../services/translation/translation.context";
 import { offerStamps } from "../../../utils/constants";
 
-export const Offer = ({ offer, onPress, backgroundColor = "#efefef" }) => {
+// onPress receives the offer: `(offer) => void`. The parent must NOT build a
+// per-item closure, or this memo can never hit. See contracts/list-api.md C1.
+const OfferComponent = ({ offer, onPress, backgroundColor = "#efefef" }) => {
   const { i18n } = useContext(TranslationContext);
 
   return (
-    <TouchableHighlight onPress={onPress} style={{ borderRadius: 10 }}>
+    <TouchableHighlight
+      onPress={() => onPress?.(offer)}
+      style={{ borderRadius: 10 }}
+    >
       <View style={styles.container}>
         <View style={styles.ticketContainer}>
           <View
@@ -125,6 +130,8 @@ export const Offer = ({ offer, onPress, backgroundColor = "#efefef" }) => {
     </TouchableHighlight>
   );
 };
+
+export const Offer = memo(OfferComponent);
 
 const styles = StyleSheet.create({
   container: {},

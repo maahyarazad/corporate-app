@@ -1,5 +1,5 @@
 // PhoneInput.js
-import React, { useEffect, useMemo, useState, useRef } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useState, useRef } from "react";
 import {
   Platform,
   View,
@@ -48,6 +48,30 @@ function basicValid(numberDigits, min = 6, max = 15) {
 }
 
 // --- component -------------------------------------------------------------
+
+// Memoized row for the ~250-country list. `selected` is a primitive so the memo
+// compares cheaply; onPress takes the item (contracts/list-api.md C1).
+const CountryRow = memo(({ item, selected, onPress }) => (
+  <Pressable
+    onPress={() => onPress(item)}
+    style={({ pressed }) => [
+      styles.itemRow,
+      selected && styles.itemRowSelected,
+      pressed && { backgroundColor: "#f3f4f6" },
+    ]}
+  >
+    <Text style={styles.flag}>{toFlagEmoji(item.value)}</Text>
+    <Text
+      style={[styles.itemText, selected && styles.itemTextSelected]}
+      numberOfLines={1}
+    >
+      {item.label}
+    </Text>
+    {selected && (
+      <MaterialCommunityIcons name="check" size={16} color="#111827" />
+    )}
+  </Pressable>
+));
 
 export function PhoneInput({
   defaultCode = "AE",
@@ -232,6 +256,28 @@ const measureAndOpen = () => {
     if (c && onChangeCountry) onChangeCountry(c);
   };
 
+  const keyExtractor = useCallback((item) => String(item.value), []);
+
+  const handleSelectCountry = useCallback(
+    (item) => {
+      handlePickCountry(item.value, item);
+      handleClose();
+    },
+    [handlePickCountry, handleClose]
+  );
+
+  const renderCountry = useCallback(
+    ({ item }) => (
+      <CountryRow
+        item={item}
+        selected={item.value === countryCode}
+        onPress={handleSelectCountry}
+      />
+    ),
+    [countryCode, handleSelectCountry]
+  );
+
+
   const handleNumberChange = (text) => {
     const digits = normalizeDigits(text);
     if (!isControlled) setNumber(digits);
@@ -351,45 +397,10 @@ const measureAndOpen = () => {
                 {/* Country list */}
                 <FlatList
                   data={filteredItems}
-                  keyExtractor={(item) => item.value}
+                  keyExtractor={keyExtractor}
                   keyboardShouldPersistTaps="handled"
                   keyboardDismissMode="on-drag"
-                  renderItem={({ item }) => {
-                    const selected = item.value === countryCode;
-                    return (
-                      <Pressable
-                        onPress={() => {
-                          handlePickCountry(item.value, item); // ✅ FIX 3: correct args
-                          handleClose();
-                        }}
-                        style={({ pressed }) => [
-                          styles.itemRow,
-                          selected && styles.itemRowSelected,
-                          pressed && { backgroundColor: "#f3f4f6" },
-                        ]}
-                      >
-                        <Text style={styles.flag}>
-                          {toFlagEmoji(item.value)}
-                        </Text>
-                        <Text
-                          style={[
-                            styles.itemText,
-                            selected && styles.itemTextSelected,
-                          ]}
-                          numberOfLines={1}
-                        >
-                          {item.label}
-                        </Text>
-                        {selected && (
-                          <MaterialCommunityIcons
-                            name="check"
-                            size={16}
-                            color="#111827"
-                          />
-                        )}
-                      </Pressable>
-                    );
-                  }}
+                  renderItem={renderCountry}
                   ListEmptyComponent={
                     <View style={styles.empty}>
                       <Text style={styles.emptyText}>No countries found</Text>
