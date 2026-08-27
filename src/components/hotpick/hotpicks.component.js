@@ -14,10 +14,9 @@ import { MyCard } from "../myCard.component";
 import { Spacer } from "../spacer/spacer.component";
 import { Label } from "../typography/label.component";
 import Carousel from "react-native-reanimated-carousel";
-import "react-native-reanimated";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Animated, {
-  Extrapolate,
+  Extrapolation,
   interpolate,
   useAnimatedStyle,
   useSharedValue,
@@ -75,7 +74,7 @@ const Hotpicks = ({ hotpickData }) => {
               animValue?.value,
               inputRange,
               outputRange,
-              Extrapolate.CLAMP
+              Extrapolation.CLAMP
             ),
           },
         ],

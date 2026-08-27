@@ -156,8 +156,8 @@ callback's `finished` flag. Omitting `runOnJS` fails **silently in release build
 
 **Independent test**: `git grep -n Extrapolate` returns nothing; carousels and slideshows still animate correctly.
 
-- [ ] T038 [P] [US7] Rename `Extrapolate` → `Extrapolation` in `src/components/slideshowV2.component.js` (locators 14–19). `Extrapolate` is the Reanimated 3 spelling — `contracts/animation-api.md` §C5
-- [ ] T039 [P] [US7] Rename `Extrapolate` → `Extrapolation` in `src/components/hotpick/hotpicks.component.js` (locators 19–24), and remove the redundant bare `import "react-native-reanimated"` at line 17 — the named import two lines below already loads the module
+- [X] T038 [P] [US7] Rename `Extrapolate` → `Extrapolation` in `src/components/slideshowV2.component.js` (locators 14–19). `Extrapolate` is the Reanimated 3 spelling — `contracts/animation-api.md` §C5
+- [X] T039 [P] [US7] Rename `Extrapolate` → `Extrapolation` in `src/components/hotpick/hotpicks.component.js` (locators 19–24), and remove the redundant bare `import "react-native-reanimated"` at line 17 — the named import two lines below already loads the module
 - [ ] T040 [US7] Smoke-test the hotpicks carousel, the V2 slideshow, and `src/screens/posts/postDetailMarketplace.screen.js` (a `react-native-reanimated-carousel` consumer, otherwise untouched), then commit
 
 ---
