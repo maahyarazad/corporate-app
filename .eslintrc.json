@@ -1,14 +1,33 @@
 {
     "root": true,
-    "parser": "babel-eslint",
+    "parser": "@babel/eslint-parser",
     "env": {
       "es6": true,
       "node": true,
       "jest": true
     },
-    "extends": ["airbnb", "prettier", "prettier/react"],
+    "extends": ["airbnb", "prettier"],
     "plugins": ["react", "jsx-a11y", "import", "prettier"],
     "rules": {
+      "no-restricted-imports": [
+        "error",
+        {
+          "paths": [
+            {
+              "name": "react-native",
+              "importNames": ["Animated", "InteractionManager"],
+              "message": "Use react-native-reanimated instead. InteractionManager is banned. See specs/002-reanimated-migration/."
+            }
+          ]
+        }
+      ],
+      "no-restricted-globals": [
+        "error",
+        {
+          "name": "InteractionManager",
+          "message": "InteractionManager is banned in this codebase."
+        }
+      ],
       "padding-line-between-statements": [
         "error",
         { "blankLine": "always", "prev": "*", "next": "return" },

@@ -1,14 +1,19 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import moment from "moment";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   // ActivityIndicator,
-  Animated,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { ActivityIndicator } from "react-native-paper";
 import { BreakdownRow } from "../../components/breakdownRow";
 import { Spacer } from "../../components/spacer/spacer.component";
@@ -138,26 +143,35 @@ export const ProfRedeemHistory = () => {
 
   const [viewHeight, setViewHeight] = useState(0);
 
-  const animatedValue = useRef(new Animated.Value(viewHeight)).current;
+  const animatedValue = useSharedValue(viewHeight);
 
   const [displayBreakdown, setDisplayBreakdown] = useState(false);
   const { limitToTwoDecimalPlaces } = useMath();
 
+  // Defect D3, behaviour preserved deliberately: the original wrote
+  // `.start(setDisplayBreakdown(...))`, which invokes the setter immediately
+  // and passes its undefined return as the completion callback, so the state
+  // flipped at animation START rather than end. Kept as-is rather than
+  // silently changing UX inside a refactor - see T045 for the follow-up.
   const showBreakdown = () => {
-    Animated.timing(animatedValue, {
-      toValue: TOGGLE_BUTTON_BREAKDOWN_HEIGHT,
-      useNativeDriver: true,
+    setDisplayBreakdown(!displayBreakdown);
+    animatedValue.value = withTiming(TOGGLE_BUTTON_BREAKDOWN_HEIGHT, {
       duration: 400,
-    }).start(setDisplayBreakdown(!displayBreakdown));
+      easing: Easing.inOut(Easing.ease),
+    });
   };
 
   const hideBreakdown = () => {
-    Animated.timing(animatedValue, {
-      toValue: viewHeight,
-      useNativeDriver: true,
+    setDisplayBreakdown(!displayBreakdown);
+    animatedValue.value = withTiming(viewHeight, {
       duration: 400,
-    }).start(setDisplayBreakdown(!displayBreakdown));
+      easing: Easing.inOut(Easing.ease),
+    });
   };
+
+  const breakdownAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: animatedValue.value }],
+  }));
 
   const toggleBreakdown = () => {
     if (displayBreakdown) {
@@ -174,7 +188,7 @@ export const ProfRedeemHistory = () => {
         const { x, y, width, height } = event.nativeEvent.layout;
         // console.log(x, y, width, height);
         setViewHeight(height);
-        animatedValue.setValue(height);
+        animatedValue.value = height;
       }}
     >
       <>
@@ -225,17 +239,15 @@ export const ProfRedeemHistory = () => {
         </View>
 
         <Animated.View
-          style={{
-            position: "absolute",
-            bottom: TOGGLE_BUTTON_BREAKDOWN_HEIGHT,
-            width: "100%",
-            height: viewHeight,
-            transform: [
-              {
-                translateY: animatedValue,
-              },
-            ],
-          }}
+          style={[
+            {
+              position: "absolute",
+              bottom: TOGGLE_BUTTON_BREAKDOWN_HEIGHT,
+              width: "100%",
+              height: viewHeight,
+            },
+            breakdownAnimatedStyle,
+          ]}
         >
           <TouchableOpacity
             containerStyle={{}}

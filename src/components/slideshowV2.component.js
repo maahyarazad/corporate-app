@@ -12,7 +12,7 @@ import React, { useState } from "react";
 import { CacheImage } from "./cacheImage";
 import Carousel from "react-native-reanimated-carousel";
 import Animated, {
-  Extrapolate,
+  Extrapolation,
   interpolate,
   useAnimatedStyle,
   useSharedValue,
@@ -46,7 +46,7 @@ const PaginationItem = ({
             animValue?.value,
             inputRange,
             outputRange,
-            Extrapolate.CLAMP
+            Extrapolation.CLAMP
           ),
         },
       ],

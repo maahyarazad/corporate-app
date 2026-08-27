@@ -4,12 +4,11 @@ import {
   View,
   Image,
   StyleSheet,
-  Animated,
-  Easing,
-  Vibration,
   ActivityIndicator,
   BackHandler,
 } from "react-native";
+import Animated from "react-native-reanimated";
+import { useShakeAnimation } from "../../hooks/useShakeAnimation";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "styled-components/native";
 import { SafeArea } from "../../components/safearea.component";
@@ -109,35 +108,7 @@ export const RegistrationScreen = () => {
   const phoneRef = useRef(null);
   dateLimit.setFullYear(dateLimit.getFullYear() - 18);
   const [_isFutureExpiry, setIsFutureExpiry] = useState(false);
-  const animatedShake = useRef(new Animated.Value(0)).current;
-
-  const shakeInterpolate = animatedShake.interpolate({
-    inputRange: [0, 0.5, 1, 1.5, 2],
-    outputRange: [0, -10, 0, 10, 0],
-  });
-
-  const shake = () => {
-    Vibration.vibrate();
-    Animated.loop(
-      Animated.timing(animatedShake, {
-        toValue: 2,
-        useNativeDriver: true,
-        easing: Easing.linear,
-        duration: 120,
-      }),
-      {
-        iterations: 2,
-      }
-    ).start(animatedShake.setValue(0));
-  };
-
-  const shakeAnimatedStyle = {
-    transform: [
-      {
-        translateX: shakeInterpolate,
-      },
-    ],
-  };
+  const { shakeStyle, shake } = useShakeAnimation();
 
   const validateInfo = () => {
     const username = state.username.trim();
@@ -334,7 +305,7 @@ export const RegistrationScreen = () => {
         <SafeArea style={styles.safeArea}>
           <Image style={styles.companyLogo} source={companyLogo} />
 
-          <Animated.View style={[styles.safeArea, shakeAnimatedStyle]}>
+          <Animated.View style={[styles.safeArea, shakeStyle]}>
             <KeyboardAwareScrollView
               enableOnAndroid
               extraScrollHeight={20}
