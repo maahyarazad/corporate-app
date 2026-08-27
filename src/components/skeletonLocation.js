@@ -20,6 +20,7 @@ export const SkeletonLocation = ({ display, backgroundColor = "#efefef" }) => {
         }}
       >
         <Skeleton
+          animating={display}
           variant="square"
           height="100%"
           width="100%"
@@ -38,6 +39,7 @@ export const SkeletonLocation = ({ display, backgroundColor = "#efefef" }) => {
         >
           <View>
             <Skeleton
+          animating={display}
               variant="circle"
               height={100}
               width={100}
@@ -48,6 +50,7 @@ export const SkeletonLocation = ({ display, backgroundColor = "#efefef" }) => {
           </View>
           <View style={{ flex: 1, paddingLeft: 16 }}>
             <Skeleton
+          animating={display}
               variant="square"
               height="30%"
               width="100%"
@@ -57,6 +60,7 @@ export const SkeletonLocation = ({ display, backgroundColor = "#efefef" }) => {
               style={{ marginBottom: 10 }}
             />
             <Skeleton
+          animating={display}
               variant="square"
               height="30%"
               width="50%"
@@ -69,6 +73,7 @@ export const SkeletonLocation = ({ display, backgroundColor = "#efefef" }) => {
 
         <View style={{ marginVertical: 16 }}>
           <Skeleton
+          animating={display}
             variant="square"
             height={30}
             width="50%"
@@ -78,6 +83,7 @@ export const SkeletonLocation = ({ display, backgroundColor = "#efefef" }) => {
             style={{ marginBottom: 10 }}
           />
           <Skeleton
+          animating={display}
             variant="square"
             height={100}
             width="100%"
@@ -87,6 +93,7 @@ export const SkeletonLocation = ({ display, backgroundColor = "#efefef" }) => {
             style={{ marginBottom: 10 }}
           />
           <Skeleton
+          animating={display}
             variant="square"
             height={100}
             width="100%"
@@ -98,6 +105,7 @@ export const SkeletonLocation = ({ display, backgroundColor = "#efefef" }) => {
 
         <View style={{ marginVertical: 16 }}>
           <Skeleton
+          animating={display}
             variant="square"
             height={30}
             width="50%"
@@ -107,6 +115,7 @@ export const SkeletonLocation = ({ display, backgroundColor = "#efefef" }) => {
             style={{ marginBottom: 10 }}
           />
           <Skeleton
+          animating={display}
             variant="square"
             height={100}
             width="100%"

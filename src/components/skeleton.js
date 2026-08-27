@@ -19,11 +19,23 @@ export const Skeleton = ({
   color = "#333",
   opacityMin = 0.3,
   opacityMax = 1,
+  // Defaults to true so existing callers are unaffected. Pass false whenever the
+  // skeleton is on screen but not visible - a wrapper hiding itself with
+  // `display: "none"` never unmounts, so cleanup never runs and the loop would
+  // otherwise keep evaluating a worklet every frame forever.
+  animating = true,
   style,
 }) => {
   const opacity = useSharedValue(opacityMin);
 
   useEffect(() => {
+    if (!animating) {
+      cancelAnimation(opacity);
+      opacity.value = opacityMin;
+
+      return;
+    }
+
     // reverse:false - the sequence already returns to opacityMin on its own.
     opacity.value = withRepeat(
       withSequence(
@@ -43,7 +55,7 @@ export const Skeleton = ({
     return () => {
       cancelAnimation(opacity);
     };
-  }, []);
+  }, [animating, opacityMin, opacityMax]);
 
   const skeletonPulseStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
