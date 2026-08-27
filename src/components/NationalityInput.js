@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { getAllCountries } from "react-native-country-picker-modal";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { REMOVE_CLIPPED_SUBVIEWS } from "../utils/listPerf";
 // Converts a CCA2 country code to its emoji flag — no assets needed, works everywhere
 const toFlagEmoji = (cca2 = "") =>
   cca2
@@ -329,6 +330,7 @@ export function NationalityInput({
 
             {/* Country list */}
             <FlatList
+              removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
               data={filteredItems}
               keyExtractor={keyExtractor}
               keyboardShouldPersistTaps="handled"  // ← lets taps reach list items while keyboard is open

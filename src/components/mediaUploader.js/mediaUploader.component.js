@@ -24,6 +24,7 @@ import { CustomModal } from "../modal/customModal.component";
 import { Video, Image as Picture } from "react-native-compressor";
 import { ProgressBar } from "react-native-paper";
 import VideoPlayerModal from "../videoPlayerModal/videoPlayerModal.component";
+import { REMOVE_CLIPPED_SUBVIEWS } from "../../utils/listPerf";
 
 // ─────────────────────────────────────────────
 // PreviewPhoto
@@ -415,6 +416,7 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
           <View style={{ flexDirection: "row", gap: 8 }}>
             {(images?.length ?? 0) > 0 ? (
               <FlatList
+                removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
                 data={images}
                 horizontal
                 renderItem={renderPreview}

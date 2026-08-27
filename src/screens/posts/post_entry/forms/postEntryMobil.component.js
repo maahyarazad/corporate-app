@@ -28,6 +28,7 @@ import MediaUploader from "../../../../components/mediaUploader.js/mediaUploader
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { PostAgreementCheckbox } from "./postEntryStandard.component";
 import { CommonActions, useNavigation } from "@react-navigation/native";
+import { REMOVE_CLIPPED_SUBVIEWS } from "../../../../utils/listPerf";
 
 const MAX_CONTENT = 3000;
 
@@ -836,6 +837,7 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
           </View>
         </View>
         <FlatList
+          removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
           data={inclusions}
           keyExtractor={inclusionKeyExtractor}
           scrollEnabled={false}

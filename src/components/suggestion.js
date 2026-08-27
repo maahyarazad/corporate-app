@@ -4,6 +4,7 @@ import { FlatList, StyleSheet, View } from "react-native";
 import { TouchableHighlight } from "react-native-gesture-handler";
 import { keywordIcon, searchSource } from "../utils/constants";
 import { Label } from "./typography/label.component";
+import { REMOVE_CLIPPED_SUBVIEWS } from "../utils/listPerf";
 
 const itemSeparatorSuggestion = () => (
   <View style={{ borderBottomWidth: 1, borderColor: "#ddd" }}></View>
@@ -42,6 +43,7 @@ export const Suggestion = ({ suggestedList, onPress }) => {
     <View style={styles.suggestedOverlay}>
       <View style={styles.suggestListContainer}>
         <FlatList
+          removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
           data={suggestedList}
           scrollEnabled={false}
           keyExtractor={keyExtractor}

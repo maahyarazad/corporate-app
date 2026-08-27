@@ -12,6 +12,7 @@ import {
   View,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { REMOVE_CLIPPED_SUBVIEWS } from "../utils/listPerf";
 
 const SCREEN_PADDING = 8;
 const MENU_OFFSET = 4; // gap between button and menu
@@ -299,6 +300,7 @@ export function DropDown({
           )}
 
           <FlatList
+            removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
             data={filteredItems}
             keyboardShouldPersistTaps="handled"
             keyExtractor={keyExtractor ?? defaultKeyExtractor}

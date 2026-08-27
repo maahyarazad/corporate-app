@@ -3,6 +3,7 @@ import { FlatList, StyleSheet, View } from "react-native";
 import { LocationCards } from "../../../components/locationcards";
 import { Skeleton } from "../../../components/skeleton";
 import { Spacer } from "../../../components/spacer/spacer.component";
+import { REMOVE_CLIPPED_SUBVIEWS } from "../../../utils/listPerf";
 
 const MemoizedLocationCard = React.memo(LocationCards);
 
@@ -59,6 +60,7 @@ const TopPartners = ({ topPartnersData }) => {
       <View removeClippedSubviews={true}>
         {topPartnersData ? (
           <FlatList
+            removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
             scrollEnabled={false}
             data={groupLabels}
             keyExtractor={keyExtractor}

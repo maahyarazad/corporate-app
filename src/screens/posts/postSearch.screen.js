@@ -18,6 +18,7 @@ import { LoadingOverlay } from "../../components/loading/loading.component";
 import { theme } from "../../infrastructure/theme";
 import moment from "moment";
 import { Button } from "react-native-paper";
+import { REMOVE_CLIPPED_SUBVIEWS } from "../../utils/listPerf";
 
 const Searchbar = ({ onSearch, setValue }) => {
   const searchRef = useRef();
@@ -240,6 +241,7 @@ const PostSearch = () => {
             </View>
           ) : (
             <FlatList
+              removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
               data={posts}
               renderItem={renderResults}
               keyExtractor={(item) => item.id.toString()}

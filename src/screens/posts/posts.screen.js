@@ -40,6 +40,7 @@ import PostCardMagazine from "./post_card/postCardMagazine.component";
 import useRequest from "../../../hooks/useRequest";
 import { Skeleton } from "../../components/skeleton";
 import { width } from "../../components/styles";
+import { REMOVE_CLIPPED_SUBVIEWS } from "../../utils/listPerf";
 
 const MAX_MAGAZINE = 20;
 
@@ -475,6 +476,7 @@ export default function PostsScreen() {
         {rootPosts?.length > 0 ? (
           <>
             <FlatList
+              removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
               // ListHeaderComponent={() => (
               //   <View
               //     style={{

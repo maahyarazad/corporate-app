@@ -31,6 +31,7 @@ import { companyLogo } from "../../../utils/constants";
 import * as VideoThumbnails from "expo-video-thumbnails";
 import VideoPlayerModal from "../../../components/videoPlayerModal/videoPlayerModal.component";
 import { useTranslation } from "../../../../hooks/useTranslation";
+import { REMOVE_CLIPPED_SUBVIEWS } from "../../../utils/listPerf";
 
 const MemoizedGalleryView = React.memo(GalleryView);
 
@@ -532,6 +533,7 @@ const PostCard = ({
         {thumbnails.length > 0 &&
           (comment ? (
             <FlatList
+              removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
               data={thumbnails}
               scrollEnabled={false}
               renderItem={renderImageGrid}
@@ -539,6 +541,7 @@ const PostCard = ({
             />
           ) : (
             <FlatList
+              removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
               data={thumbnails}
               numColumns={2}
               scrollEnabled={false}

@@ -21,6 +21,7 @@ import { PartnerService } from "../../../services/location/location.service";
 import { AuthContext } from "../../../services/auth/auth.context";
 import { TranslationContext } from "../../../services/translation/translation.context";
 import useRequest from "../../../../hooks/useRequest";
+import { REMOVE_CLIPPED_SUBVIEWS } from "../../../utils/listPerf";
 
 const renderCategory = ({ item, navigation }) => {
   const handleOnPress = () => {
@@ -136,6 +137,7 @@ export const HomeCategory = ({ size, categoryData }) => {
           {categoryData ? (
             <>
               <FlatList
+                removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
                 horizontal
                 pagingEnabled
                 data={categoryData}

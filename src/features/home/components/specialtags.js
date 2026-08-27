@@ -19,6 +19,7 @@ import { navigate } from "../../../navigation/navigate";
 import { StackActions } from "@react-navigation/native";
 import { itemSeparatorVM } from "../../../components/styles";
 import { TranslationContext } from "../../../services/translation/translation.context";
+import { REMOVE_CLIPPED_SUBVIEWS } from "../../../utils/listPerf";
 
 const screenWidth = Dimensions.get("window").width;
 const offerItemWidth = (screenWidth - (16 * 2 + 8 * 3)) / 4;
@@ -121,6 +122,7 @@ const OfferItemImageContainer = styled(ImageBackground)`
       </OffersHeaderView>
       <OffersContentView>
         <FlatList
+          removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
           data={data}
           renderItem={renderOffers}
           keyExtractor={(item) => item.id}

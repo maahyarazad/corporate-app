@@ -33,6 +33,7 @@ import {
 } from "../../utils/marketplaceConstants";
 import { Skeleton } from "../../components/skeleton";
 import PostPromptMessage from "./post_card/postPromptMessage/postPromptMessage.component";
+import { REMOVE_CLIPPED_SUBVIEWS } from "../../utils/listPerf";
 
 const PostDetailMarketplace = ({ item }) => {
   const router = useRoute();
@@ -208,6 +209,7 @@ const PostDetailMarketplace = ({ item }) => {
                 </Label>
               </View>
               <FlatList
+                removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
                 scrollEnabled={false}
                 data={
                   state.art === "car"

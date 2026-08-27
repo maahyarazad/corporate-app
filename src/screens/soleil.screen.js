@@ -7,6 +7,7 @@ import axios from "axios";
 import { Label } from "../components/typography/label.component";
 import { Spacer } from "../components/spacer/spacer.component";
 import { config } from "../utils/constants";
+import { REMOVE_CLIPPED_SUBVIEWS } from "../utils/listPerf";
 
 export const SoleilScreen = () => {
   const url = `${config.BASE_URL}members/gec/100`;
@@ -80,6 +81,7 @@ export const SoleilScreen = () => {
         }}
       >
         <FlatList
+          removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
           style={{ width: "100%" }}
           data={memberList}
           renderItem={renderMembers}

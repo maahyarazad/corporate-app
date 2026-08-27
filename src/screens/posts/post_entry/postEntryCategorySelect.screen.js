@@ -13,6 +13,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Label } from "../../../components/typography/label.component";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import useRequest from "../../../../hooks/useRequest";
+import { REMOVE_CLIPPED_SUBVIEWS } from "../../../utils/listPerf";
 
 const PostEntryCategorySelect = () => {
   const keyExtractor = useCallback((item) => String(item.id), []);
@@ -65,6 +66,7 @@ const PostEntryCategorySelect = () => {
               </Label>
             </View>
             <FlatList
+              removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
               data={list}
               keyExtractor={keyExtractor}
               renderItem={renderCategoryItem}
@@ -98,6 +100,7 @@ const PostEntryCategorySelect = () => {
               </Label>
             </View>
             <FlatList
+              removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
               data={list}
               keyExtractor={keyExtractor}
               renderItem={renderCategoryItem}

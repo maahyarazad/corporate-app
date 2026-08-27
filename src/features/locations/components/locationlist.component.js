@@ -19,6 +19,7 @@ import { KeyboardAwareFlatList } from "react-native-keyboard-aware-scroll-view";
 import { itemSeparatorHS, itemSeparatorVS } from "../../../components/styles";
 import { CacheImage } from "../../../components/cacheImage";
 import { LinearGradient } from "expo-linear-gradient";
+import { REMOVE_CLIPPED_SUBVIEWS } from "../../../utils/listPerf";
 
 const { width, height } = Dimensions.get("window");
 
@@ -202,6 +203,7 @@ export const LocationList = ({
               </View>
               <View>
                 <FlatList
+                  removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
                   data={item.offer_types}
                   horizontal
                   scrollEnabled={false}
@@ -312,6 +314,7 @@ export const LocationList = ({
     <View style={{ flex: 1, width: width }}>
       {!isLoading ? (
         <FlatList
+          removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
           keyboardDismissMode={
             Platform.OS === "ios" ? "interactive" : "on-drag"
           }

@@ -19,6 +19,7 @@ import { CustomModal } from "./modal/customModal.component";
 import { itemSeparatorVS } from "./styles";
 import { Label } from "./typography/label.component";
 import { LinearGradient } from "expo-linear-gradient";
+import { REMOVE_CLIPPED_SUBVIEWS } from "../utils/listPerf";
 
 const OFFER_COMPONENT_HEIGHT = 120;
 
@@ -134,6 +135,7 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
       {shortOfferList != undefined && (
         <Animated.View style={containerAnimatedStyle}>
           <FlatList
+            removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
             collapsable={true}
             data={showAll ? offers : shortOfferList}
             scrollEnabled={false}

@@ -21,6 +21,7 @@ import {
 } from "react-native-country-picker-modal";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "styled-components/native";
+import { REMOVE_CLIPPED_SUBVIEWS } from "../utils/listPerf";
 
 // --- helpers ---------------------------------------------------------------
 
@@ -396,6 +397,7 @@ const measureAndOpen = () => {
 
                 {/* Country list */}
                 <FlatList
+                  removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
                   data={filteredItems}
                   keyExtractor={keyExtractor}
                   keyboardShouldPersistTaps="handled"

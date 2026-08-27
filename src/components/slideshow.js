@@ -15,6 +15,7 @@ import { LoadingOverlay } from "./loading/loading.component";
 import { Label } from "./typography/label.component";
 import GalleryView from "react-native-image-viewing";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { REMOVE_CLIPPED_SUBVIEWS } from "../utils/listPerf";
 
 const { width } = Dimensions.get("window");
 
@@ -132,6 +133,7 @@ export const Slideshow = ({ images }) => {
       <LoadingOverlay display={loading} />
       <View style={{ position: "relative", height: "100%" }}>
         <FlatList
+          removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
           contentContainerStyle={{ width: "auto", height: "100%" }}
           horizontal
           data={images}

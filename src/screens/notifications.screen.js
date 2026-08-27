@@ -23,6 +23,7 @@ import { Button } from "react-native-paper";
 import { CacheImage } from "../components/cacheImage";
 import { SafeArea } from "../components/safearea.component";
 import { isCancel } from "../utils/cancellation";
+import { REMOVE_CLIPPED_SUBVIEWS } from "../utils/listPerf";
 
 const RenderNotification = memo(({ item, index }) => {
   const [hasRead, setHasRead] = useState(item.read);
@@ -273,6 +274,7 @@ const NotificationsScreen = () => {
             />
           </View> */}
           <FlatList
+            removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
             data={notifications}
             renderItem={renderItem}
             keyExtractor={keyExtractor}

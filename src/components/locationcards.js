@@ -19,6 +19,7 @@ import { Spacer } from "./spacer/spacer.component";
 import { itemSeparatorHM } from "./styles";
 import { Label } from "./typography/label.component";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { REMOVE_CLIPPED_SUBVIEWS } from "../utils/listPerf";
 
 export const LocationCards = ({ label, locationList }) => {
   const keyExtractor = useCallback((item) => String(item.id), []);
@@ -241,6 +242,7 @@ export const LocationCards = ({ label, locationList }) => {
       >
         {locationList != undefined ? (
           <FlatList
+            removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
             style={{ flex: 1 }}
             horizontal
             data={locationList}

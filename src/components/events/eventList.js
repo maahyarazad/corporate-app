@@ -22,6 +22,7 @@ import { CustomModal } from "../modal/customModal.component";
 import { Spacer } from "../spacer/spacer.component";
 import { Label } from "../typography/label.component";
 import useRequest from "../../../hooks/useRequest";
+import { REMOVE_CLIPPED_SUBVIEWS } from "../../utils/listPerf";
 
 export const EventList = () => {
   const { eventList, getEventsList, setEventList } =
@@ -361,6 +362,7 @@ export const EventList = () => {
       <View style={styles.container} removeClippedSubviews={true}>
       {eventList && eventList.length > 0 ? (
         <FlatList
+          removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
           data={eventList}
           extraData={eventList}
           keyExtractor={keyExtractor}
