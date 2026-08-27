@@ -122,8 +122,8 @@ Priorities reflect risk-ordering from `research.md` R7, not user value.
 
 **Independent test**: Sweep scenarios C1–C3. Header slides in between scroll offsets 100 and 270, clamps at both ends, stays above the list, `RefreshControl` still fires, and tracks a hard fling with no lag.
 
-- [ ] T028 [US5] Convert the scroll wiring in `src/screens/location/location-view.screen.js` (locators 304, 306–310, 388–391): replace `Animated.event` with `useAnimatedScrollHandler(({ contentOffset }) => { scrollY.value = contentOffset.y })`, import `Animated.FlatList` from `react-native-reanimated`, and move the header style into `useAnimatedStyle` using `interpolate(scrollY.value, [100, 270], [-200, 0], Extrapolation.CLAMP)`. Keep `scrollEventThrottle={16}`
-- [ ] T029 [US5] Delete the dead effect at `src/screens/location/location-view.screen.js:320-324` (**defect D2**): it tests `if (animatedValue > 2)` where `animatedValue` is an `Animated.Value` instance that is never `> 2`, its body is entirely commented out, and its dependency is a stable ref so it never re-runs
+- [X] T028 [US5] Convert the scroll wiring in `src/screens/location/location-view.screen.js` (locators 304, 306–310, 388–391): replace `Animated.event` with `useAnimatedScrollHandler(({ contentOffset }) => { scrollY.value = contentOffset.y })`, import `Animated.FlatList` from `react-native-reanimated`, and move the header style into `useAnimatedStyle` using `interpolate(scrollY.value, [100, 270], [-200, 0], Extrapolation.CLAMP)`. Keep `scrollEventThrottle={16}`
+- [X] T029 [US5] Delete the dead effect at `src/screens/location/location-view.screen.js:320-324` (**defect D2**): it tests `if (animatedValue > 2)` where `animatedValue` is an `Animated.Value` instance that is never `> 2`, its body is entirely commented out, and its dependency is a stable ref so it never re-runs
 - [ ] T030 [US5] Verify the header still renders above the list (`position: absolute`, `zIndex: 999`) and that pull-to-refresh still works through the Reanimated `Animated.FlatList` — run sweep scenarios C1–C3 from `specs/002-reanimated-migration/quickstart.md` on both platforms, then commit
 
 ---

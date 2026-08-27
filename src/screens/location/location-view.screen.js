@@ -1,7 +1,6 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { showToast } from "../../Toast";
 import {
-  Animated,
   Dimensions,
   Linking,
   RefreshControl,
@@ -11,6 +10,13 @@ import {
   TouchableWithoutFeedback,
   View, Platform
 } from "react-native";
+import Animated, {
+  Extrapolation,
+  interpolate,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from "react-native-reanimated";
 import { SafeArea } from "../../components/safearea.component";
 import { Label } from "../../components/typography/label.component";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
@@ -301,13 +307,24 @@ const SLIDESHOW_HEIGHT = Math.floor(width * 9 / 16);
     );
   };
 
-  const animatedValue = useRef(new Animated.Value(0)).current;
+  const scrollY = useSharedValue(0);
 
-  const headerInterpolated = animatedValue.interpolate({
-    inputRange: [100, 270],
-    outputRange: [-200, 0],
-    extrapolate: "clamp",
+  const scrollHandler = useAnimatedScrollHandler(({ contentOffset }) => {
+    scrollY.value = contentOffset.y;
   });
+
+  const headerAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        translateY: interpolate(
+          scrollY.value,
+          [100, 270],
+          [-200, 0],
+          Extrapolation.CLAMP
+        ),
+      },
+    ],
+  }));
 
   const callNumber = (phoneNumber) => {
     Linking.openURL(`tel:${encodeURIComponent(phoneNumber.trim())}`).catch(
@@ -317,30 +334,22 @@ const SLIDESHOW_HEIGHT = Math.floor(width * 9 / 16);
     );
   };
 
-  useEffect(() => {
-    if (animatedValue > 2) {
-    //   console.log("yey");
-    }
-  }, [animatedValue]);
-
   return (
     <>
       <SkeletonLocation display={loading} />
       {/* <LoadingOverlay display={loading} /> */}
       <Animated.View
-        style={{
-          backgroundColor: "white",
-          alignSelf: "stretch",
-          position: "absolute",
-          top: 0,
-          width: "100%",
-          zIndex: 999,
-          transform: [
-            {
-              translateY: headerInterpolated,
-            },
-          ],
-        }}
+        style={[
+          {
+            backgroundColor: "white",
+            alignSelf: "stretch",
+            position: "absolute",
+            top: 0,
+            width: "100%",
+            zIndex: 999,
+          },
+          headerAnimatedStyle,
+        ]}
       >
         <SafeArea>
           <View
@@ -385,10 +394,7 @@ const SLIDESHOW_HEIGHT = Math.floor(width * 9 / 16);
       </Animated.View>
       <Animated.FlatList
         scrollEventThrottle={16}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { y: animatedValue } } }],
-          { useNativeDriver: true }
-        )}
+        onScroll={scrollHandler}
         // ListHeaderComponent={renderPartnerHeader}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
