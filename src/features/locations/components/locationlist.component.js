@@ -22,7 +22,7 @@ import { LinearGradient } from "expo-linear-gradient";
 
 const { width, height } = Dimensions.get("window");
 
-export // Chip row for a location's offer_types. Module scope + memo so it is not
+// Chip row for a location's offer_types. Module scope + memo so it is not
 // rebuilt per render. See contracts/list-api.md C1.
 const OfferTypeChip = memo(({ label }) => (
   <Chip textStyle={chipStyles.text} style={chipStyles.chip}>
@@ -49,7 +49,7 @@ const chipStyles = StyleSheet.create({
   },
 });
 
-const LocationList = ({
+export const LocationList = ({
   navigation,
   locations,
   isLoading,

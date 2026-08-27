@@ -99,7 +99,7 @@
       "associatedDomains": [
         "applinks:buenapublica.com"
       ],
-      "buildNumber": "73",
+      "buildNumber": "74",
       "supportsTablet": true,
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Turning on location services allows us to show you nearby shops with offers.",
@@ -116,7 +116,7 @@
       "appleTeamId": "YQFY6269ZL"
     },
     "android": {
-      "versionCode": 73,
+      "versionCode": 74,
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyBdMYAFwnxqA6KI4AE31v8BWBsr1ZDRogQ"
