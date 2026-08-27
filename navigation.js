@@ -84,132 +84,109 @@ const TimeoutStackScreen = () => {
   );
 };
 
+// Shared stack screen options.
+//
+// forHorizontalIOS is the iOS default but not Android's - Android's stack
+// reveals from the bottom - so declaring it here is what gives both platforms
+// the same horizontal slide. It cannot be dropped and inferred.
+const slideFromRight = {
+  cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+  gestureDirection: "horizontal",
+  gestureResponseDistance: 200,
+};
+
+// Screens the user must not swipe away from mid-flow.
+const noSwipeBack = { gestureEnabled: false };
+
 const AuthStackScreen = () => {
   return (
-    <AuthStack.Navigator>
+    <AuthStack.Navigator screenOptions={{ headerShown: false }}>
       <AuthStack.Screen
         name="Login"
         component={LoginScreen}
-        options={{ headerShown: false }}
       />
 
       <AuthStack.Screen
         name="Login Privacy Policy"
         component={PrivacyPolicyScreen}
-        options={{ headerShown: false }}
       />
 
       <AuthStack.Screen
         name="Unverified Email"
         component={UnverifiedEmailScreen}
-        options={{ headerShown: false, gestureEnabled: false }}
+        options={noSwipeBack}
       />
 
       <AuthStack.Screen
         name="ChangePassword"
         component={ChangePasswordScreen}
-        options={{ headerShown: false, gestureEnabled: false }}
+        options={noSwipeBack}
       />
 
       <AuthStack.Screen
         name="ForgotPassword"
         component={ForgotPasswordScreen}
-        options={{
-          headerShown: false,
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
+        options={slideFromRight}
       />
 
       <AuthStack.Screen
         name="ForgotPasswordOTP"
         component={ForgotPasswordOTPScreen}
-        options={{ headerShown: false, gestureEnabled: false }}
+        options={noSwipeBack}
       />
 
       <AuthStack.Screen
         name="UpdateMember"
         component={UpdateMemberScreen}
-        options={{
-          headerShown: false,
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
+        options={slideFromRight}
       />
 
       <AuthStack.Screen
         name="RegisterDetails"
         component={RegistrationDetailsScreen}
-        options={{
-          headerShown: false,
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
+        options={slideFromRight}
       />
 
       <AuthStack.Screen
         name="RegisterSuccess"
         component={RegistrationSuccessfulScreen}
-        options={{ headerShown: false, gestureEnabled: false }}
+        options={slideFromRight}
       />
 
       <AuthStack.Screen
         name="RegisterSuccessByServices"
         component={RegistrationSuccessByServices}
-        options={{ headerShown: false, gestureEnabled: false }}
+        options={slideFromRight}
       />
 
       <AuthStack.Screen
         name="VerifyInfo"
         component={VerifyInfo}
-        options={{
-          headerShown: false,
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
+        options={slideFromRight}
       />
 
       <AuthStack.Screen
         name="Registration"
         component={RegistrationScreen}
-        options={{ headerShown: false, gestureEnabled: false }}
+        options={slideFromRight}
       />
 
       <AuthStack.Screen
         name="VerifyOTP"
         component={OtpVerification}
-        options={{
-          headerShown: false,
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
+        options={slideFromRight}
       />
 
       <AuthStack.Screen
         name="MobileChange"
         component={ChangeMobileNumberScreen}
-        options={{
-          headerShown: false,
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
+        options={slideFromRight}
       />
 
       <AuthStack.Screen
         name="EmailChange"
         component={ChangeEmailAddressScreen}
-        options={{
-          headerShown: false,
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
+        options={slideFromRight}
       />
     </AuthStack.Navigator>
   );
@@ -573,11 +550,10 @@ export const AppNavigation = () => {
   const { phoneVerified, refreshToken, isSkip, noConnection, isAuthorized } =
     useAuth();
 
-//   const assets = null;
- 
+  //   const assets = null;
 
   const renderNavigator = () => {
-       const [assets] = useAssets([
+    const [assets] = useAssets([
       require("./assets/IFZA-Logo.png"),
       require("./assets/ifza-login-bg2.jpg"),
       require("./assets/ifza-login-bg.webp"),
@@ -661,40 +637,40 @@ export const AppNavigation = () => {
       require("./assets/specials/Trending_Offers.png"),
     ]);
 
-  useEffect(() => {
-    if (assets) {
-      SplashScreen.hideAsync();
-    }
-  }, [assets]);
-      if (!assets) {
-    return (
-      <ImageBackground
-        source={require("./assets/splash.png")}
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width,
-          height,
-        }}
-        resizeMode="cover"
-      >
-        <View
+    useEffect(() => {
+      if (assets) {
+        SplashScreen.hideAsync();
+      }
+    }, [assets]);
+    if (!assets) {
+      return (
+        <ImageBackground
+          source={require("./assets/splash.png")}
           style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width,
+            height,
           }}
+          resizeMode="cover"
         >
-          <ActivityIndicator
-            size="large"
-            color="#FFB400"
-            style={{ paddingTop: 250 }}
-          />
-        </View>
-      </ImageBackground>
-    );
-  }
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <ActivityIndicator
+              size="large"
+              color="#FFB400"
+              style={{ paddingTop: 250 }}
+            />
+          </View>
+        </ImageBackground>
+      );
+    }
 
     if (noConnection) {
       return <TimeoutStackScreen />;
@@ -714,8 +690,6 @@ export const AppNavigation = () => {
 
     return <AuthStackScreen />;
   };
-
-
 
   return (
     <NavigationContainer ref={navigationRef}>
