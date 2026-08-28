@@ -6,7 +6,6 @@ import React, {
   useState,
 } from "react";
 import { View, StyleSheet, ScrollView } from "react-native";
-import { createStackNavigator } from "@react-navigation/stack";
 import { SpecialTags } from "../features/home/components/specialtags";
 import { navigate } from "../navigation/navigate";
 import { config, typeEnum } from "../utils/constants";
@@ -16,8 +15,6 @@ import { SearchButton } from "../components/searchbutton";
 import { TranslationContext } from "../services/translation/translation.context";
 import useRequest from "../../hooks/useRequest";
 import { isCancel } from "../utils/cancellation";
-
-const OffersStack = createStackNavigator();
 
 export const SpecialsScreen = () => {
   const [specialTagList, setSpecialTagList] = useState([]);
@@ -81,9 +78,16 @@ export const SpecialsScreen = () => {
     });
   }, [i18n]);
 
-  const renderSpecials = useCallback(
-    () => (
-      <>
+  // This used to be a one-screen stack navigator whose `component` was a
+  // useCallback, so its identity turned over every time `specialTagList`
+  // arrived. React treats a new component type as a different component and
+  // unmounts the old tree - a full native teardown and rebuild inside the
+  // Entertainer tab pager, on nothing more than a finished fetch. The stack
+  // routed nowhere (nothing navigates to "Offers1") and rendered no header, so
+  // the content is rendered directly instead.
+  return (
+    <View style={styles.centeredView}>
+      <ScrollView>
         <View style={styles.searchContainer}>
           <SearchButton onPress={handleSearch} />
         </View>
@@ -92,28 +96,8 @@ export const SpecialsScreen = () => {
         ) : (
           <SkeletonTags cellSize={cellSize} />
         )}
-      </>
-    ),
-    [specialTagList, handlePress, handleSearch, cellSize]
-  );
-
-  const OffersScreen = useCallback(
-    () => (
-      <View style={styles.centeredView}>
-        <ScrollView>{renderSpecials()}</ScrollView>
-      </View>
-    ),
-    [renderSpecials]
-  );
-
-  return (
-    <OffersStack.Navigator>
-      <OffersStack.Screen
-        name="Offers1"
-        component={OffersScreen}
-        options={{ headerShown: false }}
-      />
-    </OffersStack.Navigator>
+      </ScrollView>
+    </View>
   );
 };
 

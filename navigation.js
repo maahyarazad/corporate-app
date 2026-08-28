@@ -99,6 +99,49 @@ const slideFromRight = {
 // Screens the user must not swipe away from mid-flow.
 const noSwipeBack = { gestureEnabled: false };
 
+// Android only. react-native-screens detaches an inactive card by removing its
+// fragment, so the whole native view tree under it is destroyed and rebuilt on
+// the way back. Under Entertainer that tree is a material-top-tabs pager plus
+// the navigators nested in its pages; ViewPager2 re-measures and re-settles its
+// scroll offset as it is re-attached, which is the horizontal jolt on return.
+// detachPreviousScreen keeps the card below the top one at activityState 1 -
+// alive but not interactive - so there is nothing to rebuild. iOS keeps the
+// view either way, which is why the glitch was Android-only.
+const keepPreviousScreenAttached = { detachPreviousScreen: false };
+
+// The Entertainer screen's options never change, so they are built once here.
+// Inline in the navigator they were rebuilt on every render - and the stack
+// re-renders on every navigation.setOptions() call the screen makes - which
+// handed the header a fresh headerLeft each time and threw away the logo
+// subtree with it.
+const entertainerLogo = require("./assets/GE-LOGO-GOLD.png");
+
+const entertainerHeaderLeftStyle = {
+  width: "100%",
+  height: "100%",
+  justifyContent: "center",
+};
+
+const entertainerLogoStyle = {
+  height: 40,
+  width: 80,
+  resizeMode: "contain",
+};
+
+const renderEntertainerHeaderLeft = () => (
+  <View style={entertainerHeaderLeftStyle}>
+    <Image style={entertainerLogoStyle} source={entertainerLogo} />
+  </View>
+);
+
+const entertainerScreenOptions = {
+  headerShown: true,
+  headerTitle: "",
+  headerLeftContainerStyle: { paddingLeft: 8 },
+  headerRightContainerStyle: { paddingRight: 4 },
+  headerLeft: renderEntertainerHeaderLeft,
+};
+
 const AuthStackScreen = () => {
   return (
     <AuthStack.Navigator screenOptions={{ headerShown: false }}>
@@ -194,38 +237,13 @@ const AuthStackScreen = () => {
 };
 
 const OverlappingNavigator = () => {
-  const { i18n } = useContext(TranslationContext);
-
   return (
     <BottomSheetModalProvider>
-      <OverlappingStack.Navigator>
+      <OverlappingStack.Navigator screenOptions={keepPreviousScreenAttached}>
         <OverlappingStack.Screen
           name="Entertainer"
           component={EntertainerScreen}
-          options={{
-            headerShown: true,
-            headerTitle: "",
-            headerLeftContainerStyle: { paddingLeft: 8 },
-            headerRightContainerStyle: { paddingRight: 4 },
-            headerLeft: () => (
-              <View
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  justifyContent: "center",
-                }}
-              >
-                <Image
-                  style={{
-                    height: 40,
-                    width: 80,
-                    resizeMode: "contain",
-                  }}
-                  source={require("./assets/GE-LOGO-GOLD.png")}
-                />
-              </View>
-            ),
-          }}
+          options={entertainerScreenOptions}
         />
 
         <OverlappingStack.Screen

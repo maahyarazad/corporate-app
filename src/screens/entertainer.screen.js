@@ -1,12 +1,19 @@
 import React, {
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
   useCallback,
 } from "react";
-import { Platform, StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+  Dimensions,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useTheme } from "styled-components/native";
 import { showToast } from "../Toast";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -86,6 +93,15 @@ const TAB_BAR_LABEL_STYLE = {
 const TAB_BAR_STYLE = {
   height: Platform.OS === "ios" ? "10%" : "auto",
 };
+
+// react-native-tab-view starts at { width: 0 }, renders only the focused page
+// absolutely filled, then re-renders every page at the measured width once
+// onLayout arrives. On Android those pages live inside a ViewPager2, and that
+// second pass makes it re-measure and re-settle its scroll offset - a visible
+// horizontal slide, replayed every time the native tree is rebuilt. Handing the
+// pager the width up front collapses the two passes into one. The app is locked
+// to portrait (app.json), so a module constant is the right lifetime here.
+const INITIAL_TAB_LAYOUT = { width: Dimensions.get("window").width };
 
 const styles = StyleSheet.create({
   headerRight: {
@@ -411,11 +427,29 @@ export const EntertainerScreen = () => {
     ]
   );
 
-  useEffect(() => {
+  // useLayoutEffect, not useEffect: setOptions has to land in the same commit
+  // that mounts the screen, otherwise the header paints once without the right
+  // side and then again with it.
+  useLayoutEffect(() => {
     if (!userData) return;
     // changeHeaderRight(userData?.member === 1 ? "Feed" : "Home");
     changeHeaderRight(userData?.member === 1 ? "Home" : "Home");
   }, [userData, hasNotification, changeHeaderRight]);
+
+  // The tab children below must not depend on changeHeaderRight. Its identity
+  // turns over whenever userData or hasNotification changes - a single incoming
+  // notification is enough - and a new children array makes react-navigation
+  // re-read every screen config and re-render the entire TabView underneath.
+  // The listener reaches the current version through this ref instead.
+  const changeHeaderRightRef = useRef(changeHeaderRight);
+
+  useEffect(() => {
+    changeHeaderRightRef.current = changeHeaderRight;
+  }, [changeHeaderRight]);
+
+  const handleTabPress = useCallback((route) => {
+    changeHeaderRightRef.current(route);
+  }, []);
 
   const TabItems = useMemo(
     () => [
@@ -485,7 +519,7 @@ export const EntertainerScreen = () => {
           component={tab.component}
           listeners={{
             tabPress: () => {
-              changeHeaderRight(tab.route);
+              handleTabPress(tab.route);
             },
           }}
           options={{
@@ -497,12 +531,13 @@ export const EntertainerScreen = () => {
           }}
         />
       )),
-    [visibleTabs, changeHeaderRight, renderTabIcon, theme]
+    [visibleTabs, handleTabPress, renderTabIcon, theme]
   );
 
   return (
     <Tab.Navigator
       tabBarPosition="bottom"
+      initialLayout={INITIAL_TAB_LAYOUT}
       screenOptions={TAB_NAVIGATOR_SCREEN_OPTIONS}
     >
       {tabScreens}
