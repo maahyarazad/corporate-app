@@ -63,7 +63,6 @@ import NotificationsScreen from "./src/screens/notifications.screen";
 import ChangeMobileNumberScreen from "./src/screens/profile/changeMobileNumber.screen";
 import PostDetailMagazine from "./src/screens/posts/postDetailMagazine.screen";
 import ChangeEmailAddressScreen from "./src/screens/profile/changeEmailAddress.screen ";
-import { useNavigation } from "@react-navigation/native";
 import * as SplashScreen from "expo-splash-screen";
 
 const AuthStack = createStackNavigator();
@@ -72,13 +71,15 @@ const ApprovalStack = createStackNavigator();
 const TimeoutStack = createStackNavigator();
 const OverlappingStack = createStackNavigator();
 
+const noHeader = { headerShown: false };
+
 const TimeoutStackScreen = () => {
   return (
     <TimeoutStack.Navigator>
       <TimeoutStack.Screen
         name="noconnection"
         component={NoConnectionScreen}
-        options={{ headerShown: false }}
+        options={noHeader}
       />
     </TimeoutStack.Navigator>
   );
@@ -112,8 +113,15 @@ const keepPreviousScreenAttached = { detachPreviousScreen: false };
 // The Entertainer screen's options never change, so they are built once here.
 // Inline in the navigator they were rebuilt on every render - and the stack
 // re-renders on every navigation.setOptions() call the screen makes - which
-// handed the header a fresh headerLeft each time and threw away the logo
-// subtree with it.
+// handed the header a fresh headerLeft each time, re-rendering the logo
+// subtree.
+//
+// It does NOT unmount that subtree: React reconciles by element type and
+// position, both unchanged, so the Image is not re-decoded. An earlier version
+// of this comment claimed otherwise. The visible jolt on return was almost
+// certainly fixed by keepPreviousScreenAttached above, which has a documented
+// native mechanism; this hoist is duplication and allocation hygiene. See
+// specs/005-static-screen-options/research.md R4.
 const entertainerLogo = require("./assets/GE-LOGO-GOLD.png");
 
 const entertainerHeaderLeftStyle = {
@@ -142,9 +150,123 @@ const entertainerScreenOptions = {
   headerLeft: renderEntertainerHeaderLeft,
 };
 
+// ---------------------------------------------------------------------------
+// Shared screen options.
+//
+// These are static - they read nothing from props, state or context - so they
+// are built once here rather than rebuilt on every navigator render. "Reads a
+// module import" (theme, goback, CardStyleInterpolators) is not the same test
+// as "depends on props or state"; only the second blocks hoisting.
+// ---------------------------------------------------------------------------
+
+// Same three motion fields as slideFromRight but revealing from the bottom.
+// The forVerticalIOS / gestureDirection "horizontal" mismatch is what ships
+// today on both callers and is preserved deliberately - changing the dismiss
+// direction is a product decision, not a refactor.
+const revealFromBottom = {
+  headerShown: false,
+  cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+  gestureDirection: "horizontal",
+  gestureResponseDistance: 200,
+};
+
+const modalNoHeader = { presentation: "modal", headerShown: false };
+
+// headerTintColor / headerTitleStyle / headerLeftLabelVisible are inert while
+// headerShown is false. They ship today; removing them would be a behavioural
+// bet, so they stay.
+const postEntryOptions = {
+  presentation: "modal",
+  headerShown: false,
+  headerTintColor: theme.colors.icons.active,
+  headerTitleStyle: { color: "black" },
+  headerLeftLabelVisible: false,
+};
+
+const postDetailOptions = {
+  headerTintColor: theme.colors.icons.active,
+  headerTitleStyle: { color: "black" },
+  headerLeftLabelVisible: false,
+  headerTitle: "",
+};
+
+const plainBlackHeader = {
+  headerShown: false,
+  headerBackTitleVisible: false,
+  headerTitleAlign: "left",
+  headerTintColor: "black",
+  cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+  gestureDirection: "horizontal",
+  gestureResponseDistance: 200,
+};
+
+// The stack injects onPress (its own back action) into headerLeft - see
+// @react-navigation/stack HeaderSegment.js:121 - so this needs no closure over
+// `navigation` and can live out here. onPress is undefined at the root of a
+// stack, where goBack() was a no-op too; neither caller is ever root.
+const locationListBackStyle = { paddingLeft: 15 };
+
+const renderBackArrow = ({ onPress }) => (
+  <TouchableOpacity onPress={onPress} style={locationListBackStyle}>
+    <Ionicons name="arrow-back" size={24} color="black" />
+  </TouchableOpacity>
+);
+
+const locationListOptions = {
+  headerBackTitle: "",
+  headerTitle: "",
+  headerTintColor: "black",
+  headerStyle: { shadowColor: "transparent" },
+  headerLeft: renderBackArrow,
+  cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
+  gestureDirection: "horizontal",
+  gestureResponseDistance: 200,
+};
+
+// goback is a module-level helper, so these never needed a closure either.
+const zurueckRowStyle = {
+  flexDirection: "row",
+  alignItems: "center",
+  gap: 6,
+  paddingHorizontal: 8,
+};
+
+const renderZurueckBack = () => (
+  <TouchableOpacity onPress={goback}>
+    <View style={zurueckRowStyle}>
+      <MaterialCommunityIcons name="arrow-left" size={24} color="black" />
+      <Label>Zuruck</Label>
+    </View>
+  </TouchableOpacity>
+);
+
+const zurueckHeaderOptions = {
+  headerShown: true,
+  title: "",
+  headerLeft: renderZurueckBack,
+};
+
+// Looks like zurueckHeaderOptions and is not: this View has no style, so the
+// arrow sits above the label instead of beside it. Do not merge the two.
+const renderPostSelectBack = () => (
+  <TouchableOpacity onPress={goback}>
+    <View>
+      <MaterialCommunityIcons name="arrow-left" size={24} color="black" />
+      <Label>Zuruck</Label>
+    </View>
+  </TouchableOpacity>
+);
+
+const postSelectOptions = {
+  presentation: "modal",
+  headerShown: false,
+  title: "",
+  headerLeft: renderPostSelectBack,
+};
+
 const AuthStackScreen = () => {
   return (
-    <AuthStack.Navigator screenOptions={{ headerShown: false }}>
+    <AuthStack.Navigator screenOptions={noHeader}>
       <AuthStack.Screen
         name="Login"
         component={LoginScreen}
@@ -249,154 +371,104 @@ const OverlappingNavigator = () => {
         <OverlappingStack.Screen
           name="post-tabs"
           component={PostTabsNavigationScreen}
-          options={{ headerShown: false }}
+          options={noHeader}
         />
 
         <OverlappingStack.Screen
           name="post-detail"
           component={PostDetailScreen}
-          options={{
-            headerTintColor: theme.colors.icons.active,
-            headerTitleStyle: { color: "black" },
-            headerLeftLabelVisible: false,
-            headerTitle: "",
-          }}
+          options={postDetailOptions}
         />
 
         <OverlappingStack.Screen
           name="post-entry"
           component={PostEntryScreen}
-          options={{
-            presentation: "modal",
-            headerShown: false,
-            headerTintColor: theme.colors.icons.active,
-            headerTitleStyle: { color: "black" },
-            headerLeftLabelVisible: false,
-          }}
+          options={postEntryOptions}
         />
 
         <OverlappingStack.Screen
           name="post-search"
           component={PostSearch}
-          options={{
-            headerShown: false,
-            cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-            gestureDirection: "horizontal",
-            gestureResponseDistance: 200,
-          }}
+          options={revealFromBottom}
         />
 
         <OverlappingStack.Screen
           name="notifications"
           component={NotificationsScreen}
-          options={{
-            headerShown: false,
-            cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-            gestureDirection: "horizontal",
-            gestureResponseDistance: 200,
-          }}
+          options={slideFromRight}
         />
 
         <OverlappingStack.Screen
           name="post-select-category"
           component={PostEntryCategorySelect}
-          options={{
-            presentation: "modal",
-            headerShown: false,
-          }}
+          options={modalNoHeader}
         />
 
         <OverlappingStack.Screen
           name="post-select"
           component={PostEntrySelect}
-          options={{
-            presentation: "modal",
-            headerShown: false,
-            title: "",
-            headerLeft: () => (
-              <TouchableOpacity onPress={goback}>
-                <View>
-                  <MaterialCommunityIcons
-                    name="arrow-left"
-                    size={24}
-                    color="black"
-                  />
-                  <Label>Zuruck</Label>
-                </View>
-              </TouchableOpacity>
-            ),
-          }}
+          options={postSelectOptions}
         />
 
         <OverlappingStack.Screen
           name="marketplace-details"
           component={PostDetailMarketplace}
-          options={{
-            headerShown: true,
-            title: "",
-            headerLeft: () => (
-              <TouchableOpacity onPress={goback}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: 6,
-                    paddingHorizontal: 8,
-                  }}
-                >
-                  <MaterialCommunityIcons
-                    name="arrow-left"
-                    size={24}
-                    color="black"
-                  />
-                  <Label>Zuruck</Label>
-                </View>
-              </TouchableOpacity>
-            ),
-          }}
+          options={zurueckHeaderOptions}
         />
 
         <OverlappingStack.Screen
           name="magazine-details"
           component={PostDetailMagazine}
-          options={{
-            headerShown: true,
-            title: "",
-            headerLeft: () => (
-              <TouchableOpacity onPress={goback}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: 6,
-                    paddingHorizontal: 8,
-                  }}
-                >
-                  <MaterialCommunityIcons
-                    name="arrow-left"
-                    size={24}
-                    color="black"
-                  />
-                  <Label>Zuruck</Label>
-                </View>
-              </TouchableOpacity>
-            ),
-          }}
+          options={zurueckHeaderOptions}
         />
       </OverlappingStack.Navigator>
     </BottomSheetModalProvider>
   );
 };
 
+// A real component, not a callback body.
+//
+// headerTitle is invoked as a plain function call from inside Header's render
+// (@react-navigation/elements Header.js:208 - headerTitle({...}), not
+// createElement), so a hook written inline there runs as part of Header's
+// render and belongs to Header's fiber. Header.js:170 picks its title renderer
+// with `typeof customTitle !== 'function'`, so the moment this screen is given
+// a string title - one setOptions call, as postDetail.screen.js already does -
+// the same Header instance loses a hook and React throws "Rendered fewer hooks
+// than expected". Owning the hook here makes that impossible.
+const LocationViewTitle = () => {
+  const { sectionTitle } = useContext(SectionContext);
+
+  return (
+    <Label size="title" weight="bold">
+      {sectionTitle}
+    </Label>
+  );
+};
+
+const locationViewHeaderStyle = {
+  borderColor: "black",
+  shadowColor: "transparent",
+  backgroundColor: "transparent",
+};
+
+// The spread runs once at module load, so composing costs nothing per render -
+// unlike a spread written inside JSX, which would rebuild the object every time
+// and defeat the point.
+const locationViewOptions = {
+  ...plainBlackHeader,
+  headerTitle: () => <LocationViewTitle />,
+  headerStyle: locationViewHeaderStyle,
+};
+
 const MainScreen = () => {
   const { i18n } = useContext(TranslationContext);
-  const navigation = useNavigation();
   return (
     <MainStack.Navigator>
       <MainStack.Screen
         name="Main"
         component={OverlappingNavigator}
-        options={{ headerShown: false }}
+        options={noHeader}
       />
 
       <MainStack.Screen
@@ -408,7 +480,7 @@ const MainScreen = () => {
       <MainStack.Screen
         name="Logout"
         component={LogoutScreen}
-        options={{ headerShown: false }}
+        options={noHeader}
       />
 
       <MainStack.Screen
@@ -420,40 +492,24 @@ const MainScreen = () => {
       <MainStack.Screen
         name="LocationList"
         component={LocationListScreen}
-        options={{
-          headerBackTitle: "",
-          headerTitle: "",
-          headerTintColor: "black",
-          headerStyle: { shadowColor: "transparent" },
-
-          headerLeft: () => (
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              style={{ paddingLeft: 15 }}
-            >
-              <Ionicons name="arrow-back" size={24} color="black" />
-            </TouchableOpacity>
-          ),
-          cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
+        options={locationListOptions}
       />
 
       <MainStack.Screen
         name="AvailOffer"
         component={AvailOfferScreen}
-        options={{
-          headerShown: false,
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
+        options={slideFromRight}
       />
 
       <MainStack.Screen
         name="TransactionSummary"
         component={TransactionSummaryScreen}
+        // The one options object that stays inline. title reads i18n from
+        // context, so it cannot be a module constant - that is exactly where
+        // the rule stops. useMemo would not help either: this component
+        // re-renders when TranslationContext changes, which is precisely when
+        // i18n changes, so the memo would invalidate on every render it was
+        // meant to skip.
         options={{
           headerShown: true,
           title: i18n.t("redemption-success.transaction-summary"),
@@ -465,56 +521,19 @@ const MainScreen = () => {
       <MainStack.Screen
         name="Location View"
         component={LocationViewScreen}
-        options={{
-          headerShown: false,
-          headerBackTitleVisible: false,
-          headerTitleAlign: "left",
-          headerTintColor: "black",
-          headerTitle: () => {
-            const { sectionTitle } = useContext(SectionContext);
-            return (
-              <Label size="title" weight="bold">
-                {sectionTitle}
-              </Label>
-            );
-          },
-          headerStyle: {
-            borderColor: "black",
-            shadowColor: "transparent",
-            backgroundColor: "transparent",
-          },
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
+        options={locationViewOptions}
       />
 
       <MainStack.Screen
         name="Event Detail"
         component={EventDetailScreen}
-        options={{
-          headerShown: false,
-          headerBackTitleVisible: false,
-          headerTitleAlign: "left",
-          headerTintColor: "black",
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
+        options={plainBlackHeader}
       />
 
       <MainStack.Screen
         name="Attend Guests"
         component={EventGuestsScreen}
-        options={{
-          headerShown: false,
-          headerBackTitleVisible: false,
-          headerTitleAlign: "left",
-          headerTintColor: "black",
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
+        options={plainBlackHeader}
       />
     </MainStack.Navigator>
   );
@@ -526,32 +545,22 @@ const ApprovalScreen = () => {
       <ApprovalStack.Screen
         name="RequestApproval"
         component={RequestApprovalScreen}
-        options={{ headerShown: false }}
+        options={noHeader}
       />
       <ApprovalStack.Screen
         name="AuthEditProfile"
         component={AuthEditProfileScreen}
-        options={{
-          headerShown: false,
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
+        options={slideFromRight}
       />
       <ApprovalStack.Screen
         name="Camera"
         component={CameraScreen}
-        options={{
-          headerShown: false,
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
+        options={slideFromRight}
       />
       <ApprovalStack.Screen
         name="Logout"
         component={LogoutScreen}
-        options={{ headerShown: false }}
+        options={noHeader}
       />
     </ApprovalStack.Navigator>
   );
