@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useMemo, useState } from "react";
 import { I18n } from "i18n-js";
 import * as Localization from "expo-localization";
 import { en } from "../../../translation/en.json";
@@ -49,14 +49,24 @@ export const TranslationContextProvider = ({ children }) => {
     setLanguage();
   }, [lang]);
 
-  i18n.onChange(() => {
-    console.log("I18n has changed!");
-  });
+  // Registered once. Called bare in the render body this pushed a new callback
+  // onto i18n's listener array on every render - an unbounded leak on a
+  // module-level singleton, which outlives the provider.
+  useEffect(() => {
+    i18n.onChange(() => {
+      console.log("I18n has changed!");
+    });
+  }, []);
 
   // i18n.defaultLocale = "de";
 
+  // i18n is a module-level singleton whose identity never changes - the locale
+  // is mutated on it - so `lang` is the only dependency that can move, and
+  // setLang is stable. See specs/005-static-screen-options/ contract C7.
+  const value = useMemo(() => ({ i18n, lang, setLang }), [lang]);
+
   return (
-    <TranslationContext.Provider value={{ i18n, lang, setLang }}>
+    <TranslationContext.Provider value={value}>
       {children}
     </TranslationContext.Provider>
   );

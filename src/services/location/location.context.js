@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { AuthContext } from "../auth/auth.context";
 import { EventService } from "../event/event.service";
 import { TranslationContext } from "../translation/translation.context";
@@ -49,7 +49,9 @@ export const LocationContextProvider = ({ children }) => {
     };
   }, [userData]);
 
-  const getEventsList = async (signal) => {
+  // useCallback so the context value below can actually stay stable; without it
+  // this function is rebuilt every render and the memo never hits.
+  const getEventsList = useCallback(async (signal) => {
     const data = {
       user_id: userData.user_id,
       lang,
@@ -57,23 +59,29 @@ export const LocationContextProvider = ({ children }) => {
     // console.log("CHECKING EVENTS LIST");
     const response = await EventService.getEvents(data, signal);
     setEventList(response.data);
-  };
+  }, [userData, lang]);
+
+  // getUserLocation / getLocations / getOneLocation / getCoords are module
+  // imports and setCurrentMerchant / setEventList are state setters, so all six
+  // are stable and only the three state values plus getEventsList can move.
+  const value = useMemo(
+    () => ({
+      getUserLocation,
+      getLocations,
+      getOneLocation,
+      setCurrentMerchant,
+      userLocation,
+      currentMerchant,
+      getCoords,
+      eventList,
+      getEventsList,
+      setEventList,
+    }),
+    [userLocation, currentMerchant, eventList, getEventsList]
+  );
 
   return (
-    <LocationContext.Provider
-      value={{
-        getUserLocation,
-        getLocations,
-        getOneLocation,
-        setCurrentMerchant,
-        userLocation,
-        currentMerchant,
-        getCoords,
-        eventList,
-        getEventsList,
-        setEventList,
-      }}
-    >
+    <LocationContext.Provider value={value}>
       {children}
     </LocationContext.Provider>
   );
