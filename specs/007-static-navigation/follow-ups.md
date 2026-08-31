@@ -250,3 +250,74 @@ Nothing here has run. Highest risks in order: the Entertainer return-jolt (above
 `changeHeaderRight` under a native header, the three `presentation: "modal"` screens now rendering
 as native modals, and `renderBackArrow` / `renderZurueckBack` / `renderPostSelectBack` in native
 headers.
+
+---
+
+# Correction — the static conversion crashed the app
+
+## The bug I introduced
+
+```
+Element type is invalid: expected a string ... but got: object.
+Check the render method of `AppNavigation`.
+```
+
+**`createNativeStackNavigator(config)` returns a config object, not a component.** Commits
+`e239115` and `0cefe99` rendered those objects directly (`<AuthStackScreen />`, `<MainScreen />`,
+…), which is what "got: object" means.
+
+## How I got it wrong
+
+I read `createNavigatorFactory.js` through a truncated grep, saw `return NavigatorComponent;`, and
+concluded the factory returns a component. That line is inside `getComponent()`, not the outer
+return. The actual shape is:
+
+```js
+return {
+  config,
+  with(DecoratorComponent) { ... },
+  getComponent() { return NavigatorComponent; }
+};
+```
+
+Reading the full function instead of grep output would have caught it. The docs say it plainly too:
+*"createStaticNavigation takes the navigator and returns a component to render in the app."*
+
+## The fix, and why it is not a hack
+
+`createStaticNavigation` cannot be used here: it creates its **own** `NavigationContainer` and must
+be called exactly once at the root, and this app swaps between five root navigators. Collapsing
+those is `007` US6, still contingent.
+
+`.getComponent()` is precisely what `createStaticNavigation` does internally —
+`native/lib/module/createStaticNavigation.js`:
+
+```js
+const Component = tree.getComponent();
+...
+return <NavigationContainer {...rest} ref={ref} linking={memoizedLinking}>
+         <Component />
+       </NavigationContainer>;
+```
+
+`AppNavigation` already provides the `NavigationContainer`, and this app passes no `linking` config
+(URLs are handled manually in `src/utils/urlRouter.js`). So `.getComponent()` inside the existing
+container is equivalent to what `createStaticNavigation` would produce, minus the auto-generated
+linking config the app does not use.
+
+## Where `.getComponent()` is and is not applied
+
+| Navigator | Shape | Why |
+|---|---|---|
+| `TimeoutStackScreen`, `AuthStackScreen`, `MainScreen`, `ApprovalScreen` | **component** | Rendered as JSX by `AppNavigation` |
+| `HomeNavigation` | **component** | Passed as `component:` to a `Tab.Screen` |
+| `OverlappingNavigator` | **config object** | Nested as `Main: { screen: OverlappingNavigator }`. `StaticConfigScreens` accepts `React.ComponentType` **or** `StaticNavigation`, so a nested navigator stays a config object |
+
+That distinction is the thing to remember: a static navigator is a **component** where it is
+rendered, and a **config object** where it is nested.
+
+## Still not device-verified
+
+The crash proves the app now at least gets further than it did. Everything in `007`'s open list
+stands — five root states, `navigationRef`, 53 custom headers, the Entertainer return-jolt from the
+dropped `keepPreviousScreenAttached`, and the native modal presentations.

@@ -65,11 +65,21 @@ import * as SplashScreen from "expo-splash-screen";
 
 const noHeader = { headerShown: false };
 
+// .getComponent() is required: createNativeStackNavigator(config) returns a
+// STATIC CONFIG OBJECT, not a component. createStaticNavigation() is the
+// documented way to turn one into a component, but it also creates its own
+// NavigationContainer and must be called exactly once at the root - and this
+// app swaps between five root navigators, so it cannot be used here yet.
+//
+// getComponent() is exactly what createStaticNavigation does internally
+// (native/createStaticNavigation.js: `const Component = tree.getComponent()`,
+// then wraps it in NavigationContainer). AppNavigation already provides the
+// container, and this app passes no `linking` config, so this is equivalent.
 const TimeoutStackScreen = createNativeStackNavigator({
   screens: {
     noconnection: { screen: NoConnectionScreen, options: noHeader },
   },
-});
+}).getComponent();
 
 // Shared stack screen options.
 //
@@ -343,7 +353,7 @@ const AuthStackScreen = createNativeStackNavigator({
       options: slideFromRightNative,
     },
   },
-});
+}).getComponent();
 
 // The <BottomSheetModalProvider> wrapper moves into the static config's `layout`
 // key, which exists for exactly this. screenOptions={keepPreviousScreenAttached}
@@ -453,7 +463,7 @@ const MainScreen = createNativeStackNavigator({
       options: plainBlackHeaderNative,
     },
   },
-});
+}).getComponent();
 
 const ApprovalScreen = createNativeStackNavigator({
   screens: {
@@ -465,159 +475,163 @@ const ApprovalScreen = createNativeStackNavigator({
     Camera: { screen: CameraScreen, options: slideFromRightNative },
     Logout: { screen: LogoutScreen, options: noHeader },
   },
-});
+}).getComponent();
 
 SplashScreen.preventAutoHideAsync();
 export const AppNavigation = () => {
   const { isOutdated } = useContext(AppContext);
   const { width, height } = Dimensions.get("screen");
-  const { phoneVerified, refreshToken, isSkip, noConnection, isAuthorized } =
-    useAuth();
+  const { phoneVerified, refreshToken, isSkip, noConnection, isAuthorized } = useAuth();
 
-  //   const assets = null;
+  const [assets] = useAssets([
+    require("./assets/IFZA-Logo.png"),
+    require("./assets/ifza-login-bg2.jpg"),
+    require("./assets/ifza-login-bg.webp"),
+    require("./assets/GE-LOGO-GOLD.png"),
 
-  const renderNavigator = () => {
-    const [assets] = useAssets([
-      require("./assets/IFZA-Logo.png"),
-      require("./assets/ifza-login-bg2.jpg"),
-      require("./assets/ifza-login-bg.webp"),
-      require("./assets/GE-LOGO-GOLD.png"),
+    require("./assets/Food_Drinks.png"),
+    require("./assets/Beauty_Fitness.png"),
+    require("./assets/Attraction_Leisure.png"),
+    require("./assets/Fashion_Retail.png"),
+    require("./assets/EverydayServices.png"),
+    require("./assets/Travel.png"),
+    require("./assets/Education.png"),
+    require("./assets/Healthcare.png"),
+    require("./assets/FinancialServices.png"),
+    require("./assets/RealEstate.png"),
+    require("./assets/Consulting.png"),
 
-      require("./assets/Food_Drinks.png"),
-      require("./assets/Beauty_Fitness.png"),
-      require("./assets/Attraction_Leisure.png"),
-      require("./assets/Fashion_Retail.png"),
-      require("./assets/EverydayServices.png"),
-      require("./assets/Travel.png"),
-      require("./assets/Education.png"),
-      require("./assets/Healthcare.png"),
-      require("./assets/FinancialServices.png"),
-      require("./assets/RealEstate.png"),
-      require("./assets/Consulting.png"),
+    require("./assets/stamps/GEC_1_Off_Discount.png"),
+    require("./assets/stamps/GEC_2_Off_Discount.png"),
+    require("./assets/stamps/GEC_3_Off_Discount.png"),
+    require("./assets/stamps/GEC_4_Off_Discount.png"),
+    require("./assets/stamps/GEC_5_Off_Discount.png"),
+    require("./assets/stamps/GEC_6_Off_Discount.png"),
+    require("./assets/stamps/GEC_7_Off_Discount.png"),
+    require("./assets/stamps/GEC_8_Off_Discount.png"),
+    require("./assets/stamps/GEC_9_Off_Discount.png"),
+    require("./assets/stamps/GEC_10_Off_Discount.png"),
+    require("./assets/stamps/GEC_11_Off_Discount.png"),
+    require("./assets/stamps/GEC_12_Off_Discount.png"),
+    require("./assets/stamps/GEC_13_Off_Discount.png"),
+    require("./assets/stamps/GEC_14_Off_Discount.png"),
+    require("./assets/stamps/GEC_15_Off_Discount.png"),
+    require("./assets/stamps/GEC_16_Off_Discount.png"),
+    require("./assets/stamps/GEC_17_Off_Discount.png"),
+    require("./assets/stamps/GEC_18_Off_Discount.png"),
+    require("./assets/stamps/GEC_19_Off_Discount.png"),
+    require("./assets/stamps/GEC_20_Off_Discount.png"),
+    require("./assets/stamps/GEC_25_Off_Discount.png"),
+    require("./assets/stamps/GEC_30_Off_Discount.png"),
+    require("./assets/stamps/GEC_35_Off_Discount.png"),
+    require("./assets/stamps/GEC_40_Off_Discount.png"),
+    require("./assets/stamps/GEC_45_Off_Discount.png"),
+    require("./assets/stamps/GEC_50_Off_Discount.png"),
+    require("./assets/stamps/GEC_55_Off_Discount.png"),
+    require("./assets/stamps/GEC_60_Off_Discount.png"),
+    require("./assets/stamps/GEC_65_Off_Discount.png"),
+    require("./assets/stamps/GEC_70_Off_Discount.png"),
+    require("./assets/stamps/GEC_75_Off_Discount.png"),
+    require("./assets/stamps/GEC_80_Off_Discount.png"),
+    require("./assets/stamps/GEC_85_Off_Discount.png"),
+    require("./assets/stamps/GEC_90_Off_Discount.png"),
+    require("./assets/stamps/GEC_95_Off_Discount.png"),
+    require("./assets/stamps/GEC_100_Off_Discount.png"),
+    require("./assets/stamps/GEC_2_for_1.png"),
+    require("./assets/stamps/GEC_3_for_2.png"),
+    require("./assets/stamps/GEC_4_for_3.png"),
+    require("./assets/stamps/GEC_5_for_4.png"),
+    require("./assets/stamps/GEC_6_for_5.png"),
+    require("./assets/stamps/GEC_7_for_6.png"),
+    require("./assets/stamps/GEC_Freebie.png"),
 
-      require("./assets/stamps/GEC_1_Off_Discount.png"),
-      require("./assets/stamps/GEC_2_Off_Discount.png"),
-      require("./assets/stamps/GEC_3_Off_Discount.png"),
-      require("./assets/stamps/GEC_4_Off_Discount.png"),
-      require("./assets/stamps/GEC_5_Off_Discount.png"),
-      require("./assets/stamps/GEC_6_Off_Discount.png"),
-      require("./assets/stamps/GEC_7_Off_Discount.png"),
-      require("./assets/stamps/GEC_8_Off_Discount.png"),
-      require("./assets/stamps/GEC_9_Off_Discount.png"),
-      require("./assets/stamps/GEC_10_Off_Discount.png"),
-      require("./assets/stamps/GEC_11_Off_Discount.png"),
-      require("./assets/stamps/GEC_12_Off_Discount.png"),
-      require("./assets/stamps/GEC_13_Off_Discount.png"),
-      require("./assets/stamps/GEC_14_Off_Discount.png"),
-      require("./assets/stamps/GEC_15_Off_Discount.png"),
-      require("./assets/stamps/GEC_16_Off_Discount.png"),
-      require("./assets/stamps/GEC_17_Off_Discount.png"),
-      require("./assets/stamps/GEC_18_Off_Discount.png"),
-      require("./assets/stamps/GEC_19_Off_Discount.png"),
-      require("./assets/stamps/GEC_20_Off_Discount.png"),
-      require("./assets/stamps/GEC_25_Off_Discount.png"),
-      require("./assets/stamps/GEC_30_Off_Discount.png"),
-      require("./assets/stamps/GEC_35_Off_Discount.png"),
-      require("./assets/stamps/GEC_40_Off_Discount.png"),
-      require("./assets/stamps/GEC_45_Off_Discount.png"),
-      require("./assets/stamps/GEC_50_Off_Discount.png"),
-      require("./assets/stamps/GEC_55_Off_Discount.png"),
-      require("./assets/stamps/GEC_60_Off_Discount.png"),
-      require("./assets/stamps/GEC_65_Off_Discount.png"),
-      require("./assets/stamps/GEC_70_Off_Discount.png"),
-      require("./assets/stamps/GEC_75_Off_Discount.png"),
-      require("./assets/stamps/GEC_80_Off_Discount.png"),
-      require("./assets/stamps/GEC_85_Off_Discount.png"),
-      require("./assets/stamps/GEC_90_Off_Discount.png"),
-      require("./assets/stamps/GEC_95_Off_Discount.png"),
-      require("./assets/stamps/GEC_100_Off_Discount.png"),
-      require("./assets/stamps/GEC_2_for_1.png"),
-      require("./assets/stamps/GEC_3_for_2.png"),
-      require("./assets/stamps/GEC_4_for_3.png"),
-      require("./assets/stamps/GEC_5_for_4.png"),
-      require("./assets/stamps/GEC_6_for_5.png"),
-      require("./assets/stamps/GEC_7_for_6.png"),
-      require("./assets/stamps/GEC_Freebie.png"),
+    require("./assets/specials/Workspace.png"),
+    require("./assets/specials/Adrenaline.png"),
+    require("./assets/specials/Brand_New.png"),
+    require("./assets/specials/Breakfast.png"),
+    require("./assets/specials/Brunches.png"),
+    require("./assets/specials/Buffet.png"),
+    require("./assets/specials/Cuisine.png"),
+    require("./assets/specials/Daycations.png"),
+    require("./assets/specials/Delivery.png"),
+    require("./assets/specials/Flash_Sale.png"),
+    require("./assets/specials/Gourmet.png"),
+    require("./assets/specials/Hot_Pick.png"),
+    require("./assets/specials/Kids.png"),
+    require("./assets/specials/Monthly_Offers.png"),
+    require("./assets/specials/Pet_Friendly.png"),
+    require("./assets/specials/Shisha_Offers.png"),
+    require("./assets/specials/Staycations.png"),
+    require("./assets/specials/Summer_Super_Sale.png"),
+    require("./assets/specials/Takeaway.png"),
+    require("./assets/specials/Trending_Offers.png"),
+  ]);
 
-      require("./assets/specials/Workspace.png"),
-      require("./assets/specials/Adrenaline.png"),
-      require("./assets/specials/Brand_New.png"),
-      require("./assets/specials/Breakfast.png"),
-      require("./assets/specials/Brunches.png"),
-      require("./assets/specials/Buffet.png"),
-      require("./assets/specials/Cuisine.png"),
-      require("./assets/specials/Daycations.png"),
-      require("./assets/specials/Delivery.png"),
-      require("./assets/specials/Flash_Sale.png"),
-      require("./assets/specials/Gourmet.png"),
-      require("./assets/specials/Hot_Pick.png"),
-      require("./assets/specials/Kids.png"),
-      require("./assets/specials/Monthly_Offers.png"),
-      require("./assets/specials/Pet_Friendly.png"),
-      require("./assets/specials/Shisha_Offers.png"),
-      require("./assets/specials/Staycations.png"),
-      require("./assets/specials/Summer_Super_Sale.png"),
-      require("./assets/specials/Takeaway.png"),
-      require("./assets/specials/Trending_Offers.png"),
-    ]);
+  useEffect(() => {
+    if (assets) {
+      SplashScreen.hideAsync();
+    }
+  }, [assets]);
 
-    useEffect(() => {
-      if (assets) {
-        SplashScreen.hideAsync();
-      }
-    }, [assets]);
-    if (!assets) {
-      return (
-        <ImageBackground
-          source={require("./assets/splash.png")}
+  if (!assets) {
+    return (
+      <ImageBackground
+        source={require("./assets/splash.png")}
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width,
+          height,
+        }}
+        resizeMode="cover"
+      >
+        <View
           style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width,
-            height,
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
           }}
-          resizeMode="cover"
         >
-          <View
-            style={{
-              flex: 1,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <ActivityIndicator
-              size="large"
-              color="#FFB400"
-              style={{ paddingTop: 250 }}
-            />
-          </View>
-        </ImageBackground>
+          <ActivityIndicator
+            size="large"
+            color="#FFB400"
+            style={{ paddingTop: 250 }}
+          />
+        </View>
+      </ImageBackground>
+    );
+  }
+
+  if (noConnection) {
+    return <TimeoutStackScreen />;
+  }
+
+  if (isOutdated) {
+    return <VersionMismatchScreen />;
+  }
+
+  if (phoneVerified && refreshToken) {
+    if (isAuthorized || isSkip) {
+      return (
+        <NavigationContainer ref={navigationRef}>
+          <MainScreen />
+        </NavigationContainer>
       );
     }
-
-    if (noConnection) {
-      return <TimeoutStackScreen />;
-    }
-
-    if (isOutdated) {
-      return <VersionMismatchScreen />;
-    }
-
-    if (phoneVerified && refreshToken) {
-      if (isAuthorized || isSkip) {
-        return <MainScreen />;
-      }
-
-      return <ApprovalScreen />;
-    }
-
-    return <AuthStackScreen />;
-  };
+    return (
+      <NavigationContainer ref={navigationRef}>
+        <ApprovalScreen />
+      </NavigationContainer>
+    );
+  }
 
   return (
     <NavigationContainer ref={navigationRef}>
-      {renderNavigator()}
+      <AuthStackScreen />
     </NavigationContainer>
   );
 };
+
+  
+
