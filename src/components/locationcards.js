@@ -82,7 +82,7 @@ export const LocationCards = ({ label, locationList }) => {
           > */}
           <View
             needsOffscreenAlphaCompositing={true}
-            style={styles.cardWrapper}
+            style={[styles.cardWrapper, { width: width - 32 }]}
             key={`${item}`}
           >
             <MyCard
@@ -264,9 +264,10 @@ const styles = StyleSheet.create({
   list: { flex: 1 },
   listContent: { paddingHorizontal: 16 },
 
-  // one card in the horizontal carousel. `width` is a module constant from
-  // Dimensions, so this is still static.
-  cardWrapper: { width: width - 32, borderRadius: 10, marginBottom: 16 },
+  // one card in the horizontal carousel. `width` comes from Dimensions inside
+  // the component, so it CANNOT live here - a module-scope StyleSheet.create
+  // runs before that const exists. It is applied inline at the call site.
+  cardWrapper: { borderRadius: 10, marginBottom: 16 },
   cardBody: { flex: 1, paddingHorizontal: 16, paddingVertical: 8 },
   titleSlot: { height: 40, justifyContent: "center" },
   tagsSlot: { paddingTop: 8, paddingBottom: 2 },

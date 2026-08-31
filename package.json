@@ -15,7 +15,8 @@
     "lint:fix": "eslint src --fix",
     "build:ios": " npx eas build -p ios --profile development",
     "check:animation": "./scripts/check-animation.sh",
-    "audit:lists": "node scripts/audit-lists.js"
+    "audit:lists": "node scripts/audit-lists.js",
+    "check:styles": "node scripts/check-stylesheet-scope.js"
   },
   "expo": {
     "sdkVersion": "54.0.0",
