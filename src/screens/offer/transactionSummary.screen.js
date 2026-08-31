@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import moment from "moment";
-import React, { useContext, useEffect } from "react";
+import React, { useLayoutEffect, useContext, useEffect } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import Animated, {
   Easing,
@@ -25,6 +25,14 @@ export const TransactionSummaryScreen = () => {
   const route = useRoute();
   const navigation = useNavigation();
   const { i18n } = useContext(TranslationContext);
+
+  // The header title lives here rather than in the navigator: it reads i18n
+  // from context, and a module-scope static config cannot call hooks.
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: i18n.t("redemption-success.transaction-summary"),
+    });
+  }, [navigation, i18n]);
   const { discount, merchant, paid, prodname, transactDate, refCode } =
     route.params;
 

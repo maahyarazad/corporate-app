@@ -162,3 +162,91 @@ needs a full pass across all five root states before this branch goes anywhere.
 `006`'s aim check has not been run. If the lag survives `animationEnabled: false`, the cost is the
 destination screen's mount and native-stack will not fix it — in which case this conversion is a
 maintainability change, not a performance one.
+
+---
+
+# Update — static configuration for all the stacks in `navigation.js`
+
+## Converted (6 navigators, 41 screens)
+
+| Navigator | File | Screens |
+|---|---|---|
+| `AuthStackScreen` | `navigation.js` | 15 (earlier commit `e239115`) |
+| `TimeoutStackScreen` | `navigation.js` | 1 |
+| `ApprovalScreen` | `navigation.js` | 4 |
+| `OverlappingNavigator` | `navigation.js` | 10 |
+| `MainScreen` | `navigation.js` | 10 |
+| `HomeNavigation` | `src/screens/homenavigation.js` | 1 |
+
+`createStaticNavigation` is still **not** used — the five-way root switch stays. Each static
+navigator is a renderable component, so `AppNavigation` is unchanged.
+
+## Option translation, verified against the type definitions
+
+Checked `node_modules/@react-navigation/native-stack/lib/typescript/src/types.d.ts` rather than
+guessing. **Five options have no native-stack equivalent and were dropped, not renamed:**
+
+| Dropped | Where it was | Replacement |
+|---|---|---|
+| `detachPreviousScreen` | `keepPreviousScreenAttached` on `OverlappingStack` | none — see the warning below |
+| `headerBackTitleVisible` | `plainBlackHeader`, `TransactionSummary` | `headerBackButtonDisplayMode: "minimal"` |
+| `headerLeftLabelVisible` | `postDetailOptions`, `postEntryOptions` | none (was inert where `headerShown: false`) |
+| `headerLeftContainerStyle` | `entertainerScreenOptions` | none — absorb into `renderEntertainerHeaderLeft` if the logo padding looks wrong |
+| `headerRightContainerStyle` | `entertainerScreenOptions` | none — same |
+
+Translated rather than dropped: `cardStyleInterpolator: forHorizontalIOS` → `animation:
+"slide_from_right"`; `forVerticalIOS` → `"slide_from_bottom"`; `headerStyle: { shadowColor:
+"transparent" }` → `headerShadowVisible: false`.
+
+## ⚠️ The regression to watch for
+
+`keepPreviousScreenAttached` (`detachPreviousScreen: false`) is **gone** from `OverlappingStack`.
+Commit `7a1b9f4` added it specifically to stop the Entertainer screen jolting on return. There is no
+native-stack equivalent. **If that jolt reappears, this is why** — and it needs its own fix rather
+than a shrug. This is the single most likely visible regression from the conversion.
+
+## Two decisions taken
+
+**`layout` for the provider.** The `<BottomSheetModalProvider>` wrapper moved into the static
+config's `layout` key. Verified this is legal: `layout` is a member of `DefaultNavigatorOptions`
+(`core/types.d.ts:112-122`), and `StaticConfigInternal` intersects that type while omitting only
+`screens`/`children`. It is not merely a navigator prop.
+
+**`TransactionSummary`'s title.** Its options read `i18n` from context, which a module-scope static
+config cannot do. The title moved into `src/screens/offer/transactionSummary.screen.js` as a
+`useLayoutEffect` + `navigation.setOptions`. The screen already had `navigation` and `i18n` in scope.
+That was the last thing keeping `MainScreen` a component.
+
+## Scope the task list missed
+
+`@react-navigation/stack` **cannot be removed** (T031). Two navigators outside the surveyed files
+still use it, found only when the import removal exposed them:
+
+- `src/screens/posts/postNavigation.screen.js:15` — `PostStackScreen`
+- `src/screens/profile/profile.screen.js:31` — `ProfileStack`
+
+The original survey covered `navigation.js`, `homenavigation.js` and `entertainer.screen.js` only.
+These two need converting before US5 can finish.
+
+Also unconverted by design: the `material-top-tabs` navigator in
+`src/screens/entertainer.screen.js`, whose tab list is built from `useMemo` over `i18n` — the same
+context problem as `TransactionSummary`, but for the whole config rather than one option (T027).
+
+## Verification
+
+Structural, not by eye. Every route name and component diffed mechanically against the JSX it
+replaced: **25/25 screens across the four navigators converted in this pass, zero mismatches**, with
+every option mapped to its expected native counterpart. Route names matter because they are what
+`navigate()` is called with from 75 call sites.
+
+Also confirmed: no stale references to any deleted constant, `createStackNavigator` and
+`CardStyleInterpolators` gone from `navigation.js` code, imports all resolve.
+
+Gates: `check:animation`, `audit:lists`, `npm test` 27/27.
+
+## Still not verified — no device
+
+Nothing here has run. Highest risks in order: the Entertainer return-jolt (above), the imperative
+`changeHeaderRight` under a native header, the three `presentation: "modal"` screens now rendering
+as native modals, and `renderBackArrow` / `renderZurueckBack` / `renderPostSelectBack` in native
+headers.

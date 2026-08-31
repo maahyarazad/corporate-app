@@ -1,16 +1,20 @@
 ---
-description: "Task list for the React Navigation v7 + native-stack + static API migration"
+description: "Task list: static configuration for every remaining stack"
 ---
 
-# Tasks: Static Navigation API + Native Stack
+# Tasks: Static Configuration for All Stacks
 
-**Input**: Design documents from `/specs/007-static-navigation/`
+**Input**: "add static configuration for all the stacks"
 
 **Prerequisites**: `plan.md`, `research.md`, `data-model.md`, `contracts/navigation-api.md`, `quickstart.md`
 
-**Tests**: No automated test tasks. The 27 Jest tests cover pure logic; nothing covers navigation,
-and building a navigation harness is larger than this migration. Verification is per-navigator
-device passes plus the three existing gates, which are a floor, not proof.
+**Supersedes**: the original 47-task list, kept as `tasks.v1.md`. Its T001–T005 (aim check, branch,
+baseline, dead dep, version alignment) and T006–T019 (v7 upgrade, `AuthStack` prototype) are carried
+forward as the "Already done" section below. Renumbered because the remaining work is now
+per-navigator rather than per-phase.
+
+**Tests**: No automated test tasks. Nothing in the repo covers navigation. Verification is a device
+pass per navigator plus the three existing gates, which are a floor rather than proof.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -18,224 +22,220 @@ device passes plus the three existing gates, which are a floor, not proof.
 - **[Story]**: US1–US6
 - Exact file paths in every task
 
-## Read before starting
+---
 
-The requested snippet bundles **three independent migrations**, and only one can affect the Android
-lag (`research.md` R1):
+## Already done (see `tasks.v1.md` and `follow-ups.md`)
 
-| | Fixes the lag? |
-|---|---|
-| v6 → v7 | No — prerequisite |
-| `createNativeStackNavigator` | **Yes** |
-| `createStaticNavigation` | **No — zero runtime effect** |
+- [X] Removed dead `@react-navigation/bottom-tabs` — commit `cf97c85`
+- [X] Upgraded React Navigation 6 → 7 and added `native-stack` — commit `2c2d8de`
+- [X] Converted `AuthStack` (15 screens) to static config — commit `e239115`
+- [!] **Never run**: the `006` aim check, every device verification, and the measurement that
+      decides whether native-stack is worth it at all
 
-US1/US2 are the performance work. US4/US5 (the static API) are ergonomics and are **contingent**.
+## ⚠️ Two things that are still true
 
-## Note on "user stories"
+**The aim check has not been run.** If the lag survives `animationEnabled: false`, the cost is the
+destination screen's mount and native-stack will not fix it. This work would then be a
+maintainability change, not a performance one — still worth doing, but do not expect a speedup.
 
-No `spec.md` — this is a migration. The six stories are the phases from `plan.md`, ordered so that
-the piece that can move the number ships before the piece that cannot.
+**The v7 upgrade is unverified.** It touched every navigator, not just the converted one. Nothing
+below should ship before `tasks.v1.md` T009–T011 (navigationRef, five root states, 53 custom
+headers) pass on a device.
 
 ---
 
-## Phase 1: Setup — confirm the aim, then align versions
+## Phase 1: Setup — the option translation table
 
-**Purpose**: Make sure this migration is pointed at the real cause before spending 41 screens on it
+**Purpose**: Every remaining navigator uses options native-stack does not have. Translate them once,
+in one place, before converting anything.
 
-- [!] T001 **AIM CHECK — do this first.** Run `006`'s T006: temporarily add `animationEnabled: false` to the `slideFromRight` constant in `navigation.js`, rebuild release, and repeat the slow transition. **If the lag persists with no animation at all, the cost is the destination screen's mount, not the transition — native-stack will not fix it.** Stop and work `006` US4 (the `MapView` in `src/components/map/map.component.js`) instead. Record the result in `specs/007-static-navigation/follow-ups.md`, then revert the temporary line
-- [ ] T002 Create branch `007-static-navigation` from `005-static-screen-options`. Note `app.json` currently carries an uncommitted version bump — decide whether to commit or stash it
-- [!] T003 Capture the `006` baseline numbers into `specs/007-static-navigation/follow-ups.md` — device, transition, janky-frame percentage. Without them nothing in US3 can be proven
-- [X] T004 Remove `@react-navigation/bottom-tabs` from `package.json`. It has **zero imports** anywhere in the source (`research.md` R3) — do not carry it through a major upgrade
-- [!] T005 Align the drifted v6 versions in `package.json` — `native` 6.0.10, `stack` 6.2.1, `material-top-tabs` 6.6.14, `elements` 1.3.31 are mismatched within one major. Then run `npm install`, `npm run check:animation`, `npm run audit:lists`, `npm test`, and a release build. **No behaviour should change**; if any does, stop and investigate before attempting v7
+- [X] T001 Audit the v6-only options in `navigation.js` and record the native-stack equivalent for each in `specs/007-static-navigation/follow-ups.md`. Confirmed present: `cardStyleInterpolator` (5), `detachPreviousScreen` (2), `headerLeftLabelVisible` (3), `headerBackTitleVisible` (2), plus `headerLeftContainerStyle` / `headerRightContainerStyle` in `entertainerScreenOptions` and `headerStyle: { shadowColor: "transparent" }` in `locationListOptions`
+- [X] T002 Add the native-stack option constants to `navigation.js` alongside the existing v6 ones — do **not** edit the v6 constants in place, because navigators not yet converted still use them. Follow the `slideFromRightNative` precedent from commit `e239115`:
+  - `revealFromBottomNative` — `cardStyleInterpolator: forVerticalIOS` → `animation: "slide_from_bottom"`
+  - `plainBlackHeaderNative` — `forHorizontalIOS` → `animation: "slide_from_right"`; drop `headerBackTitleVisible`
+  - `locationListOptionsNative` — `forVerticalIOS` → `animation: "slide_from_bottom"`; `headerStyle: { shadowColor: "transparent" }` → `headerShadowVisible: false`
+  - `postDetailOptionsNative` / `postEntryOptionsNative` — drop `headerLeftLabelVisible`
+- [X] T003 Record in `specs/007-static-navigation/follow-ups.md` that `keepPreviousScreenAttached` (`{ detachPreviousScreen: false }`) has **no native-stack equivalent** and must be dropped when `OverlappingStack` converts. Commit `7a1b9f4` added it to fix the Entertainer screen jolting on return — **flag that the jolt may come back**, and that this is the single most likely visible regression in the whole conversion
+- [X] T004 Confirm `headerLeftContainerStyle` and `headerRightContainerStyle` in `entertainerScreenOptions` in `navigation.js`. The native header does not expose container styles; decide whether to absorb the padding into `renderEntertainerHeaderLeft` itself and record the decision
 
-**Checkpoint**: Aim confirmed, versions aligned, baseline recorded
-
----
-
-## Phase 2: Foundational — React Navigation 6 → 7
-
-**Purpose**: Prerequisite for both native-stack (on v7) and the static API. **Blocks every story.**
-
-**⚠️ Keep the dynamic JSX config unchanged in this phase.** Every navigator keeps
-`createStackNavigator`. That isolates "the upgrade broke something" from "native-stack broke
-something" — do not combine them.
-
-- [X] T006 Upgrade `@react-navigation/native`, `@react-navigation/stack`, `@react-navigation/material-top-tabs` and `@react-navigation/elements` to 7.x in `package.json`. `react-native-screens` 4.16.0 already satisfies v7's `>= 4.0.0`, so no native module change is needed (`research.md` R3)
-- [ ] T007 Work through the v6 → v7 breaking changes against `navigation.js`, `src/screens/homenavigation.js` and `src/screens/entertainer.screen.js`, recording each one that applies in `specs/007-static-navigation/follow-ups.md` before changing code
-- [ ] T008 Verify the `CommonActions` (4 uses) and `StackActions` (1 use) call sites across `src/` still resolve under v7 — locate them with `grep -rn "CommonActions\|StackActions" --include="*.js" src` and record each in `specs/007-static-navigation/follow-ups.md`
-- [!] T009 Rebuild release and verify `navigationRef` still resolves — `contracts/navigation-api.md` C1. Tap a push notification and follow a `gecmobile://` deep link. `src/navigation/navigate.js` is consumed from **75 call sites across 45 files** and fails silently when broken
-- [!] T010 Verify all five root states still render their navigator per `specs/007-static-navigation/quickstart.md` V2: normal launch, airplane mode (`TimeoutStack`), signed out (`AuthStack`), unapproved (`ApprovalStack`), signed in (`MainScreen`)
-- [!] T011 Verify all 53 custom header options in `navigation.js` and `src/` still render — they are still JS headers at this point, so anything broken here is an upgrade problem, not a native-stack one
-- [ ] T012 Run the gates (`npm run check:animation`, `npm run audit:lists`, `npm test`) and commit
-
-**Checkpoint**: v7 running with the dynamic config, behaviour unchanged
+**Checkpoint**: Every option has a documented target or a documented removal
 
 ---
 
-## Phase 3: US1 — native-stack prototype on AuthStack (Priority: P1) 🎯 MVP
+## Phase 2: Foundational — nothing blocks per-navigator work
 
-**Goal**: Convert the simplest self-contained navigator, measure it, and decide whether the remaining five are worth doing. This is the whole bet of the feature, tested on 15 screens instead of 41.
+**Purpose**: There is no shared prerequisite beyond Phase 1. Each navigator converts independently.
 
-**Independent test**: `quickstart.md` V3 on `AuthStack` only, plus a V4 measurement against the T003 baseline.
-
-- [X] T013 [US1] Install `@react-navigation/native-stack` at 7.x and add it to `package.json`. It is not currently a dependency
-- [X] T014 [US1] Convert `AuthStack` in `navigation.js` from `createStackNavigator` to `createNativeStackNavigator`. 15 screens, mostly `headerShown: false`, no imperative headers — the lowest-risk navigator in the app
-- [X] T015 [US1] Translate the `slideFromRight` constant in `navigation.js` per `contracts/navigation-api.md` C3: `cardStyleInterpolator: forHorizontalIOS` → `animation: "slide_from_right"`; `cardStyle` → `contentStyle`; `gestureResponseDistance` stays but must be a **number**, not an object; delete `detachPreviousScreen`. Record anything deliberately dropped in `specs/007-static-navigation/follow-ups.md`
-- [!] T016 [US1] Run `quickstart.md` V3 on `AuthStack` on **both** platforms: every screen pushes and pops, the swipe-back gesture works, and the `noSwipeBack` screens still block it
-- [!] T017 [US1] **Measure.** Release build, physical Android device, 10 push/pop cycles, `adb shell dumpsys gfxinfo com.buenapublica.GECRewards framestats`, median of 3 runs, compared against T003. Record in `specs/007-static-navigation/follow-ups.md`
-- [!] T018 [US1] **DECISION GATE.** If native-stack did not beat the JS stack on this navigator, **stop the migration here** and keep v7 on the dynamic API — `contracts/navigation-api.md` C7 forbids claiming a win without a number. If it did, continue to US2
-- [!] T019 [US1] Commit the `navigation.js` `AuthStack` conversion alone, with the T017 before/after numbers from `specs/007-static-navigation/follow-ups.md` in the message
-
-**Checkpoint**: One navigator converted and measured; the bet is proven or abandoned
+- [X] T005 Verify `createNativeStackNavigator` is imported in `navigation.js` (added in commit `e239115`) and add it to `src/screens/homenavigation.js`, which has not been touched yet
 
 ---
 
-## Phase 4: US2 — native-stack on the remaining navigators (Priority: P1)
+## Phase 3: US1 — TimeoutStack and ApprovalStack (Priority: P1) 🎯 MVP
 
-**Goal**: Convert the other five stacks. **One navigator per commit** — a 41-screen commit cannot be bisected when a header regresses (`contracts/navigation-api.md` C5).
+**Goal**: The two simplest navigators, 5 screens total, no custom headers. Proves the pattern beyond `AuthStack` at almost no risk.
 
-**Independent test**: `quickstart.md` V3 per navigator, on both platforms.
+**Independent test**: Airplane mode reaches `noconnection`; an unapproved account reaches `RequestApproval` and can move through the approval screens.
 
-- [ ] T020 [US2] Convert `TimeoutStack` in `navigation.js` (1 screen). Trivial; do it second to build confidence cheaply
-- [ ] T021 [US2] Convert `HomeStack` in `src/screens/homenavigation.js` (1 screen), and delete its now-redundant `detachInactiveScreens` — `@react-navigation/stack` already defaulted it to `true` on Android and native-stack manages it itself (`006/follow-ups.md`)
-- [ ] T022 [US2] Convert `ApprovalStack` in `navigation.js` (4 screens)
-- [ ] T023 [US2] Convert `MainStack` in `navigation.js` (10 screens). Includes Profile and Map, which your recent edit moved onto `slideFromRight` — verify both transitions
-- [ ] T024 [US2] Convert `OverlappingStack` in `navigation.js` (10 screens). **Highest risk** — it hosts `Entertainer`, which owns the imperative header
-- [ ] T025 [US2] Verify `changeHeaderRight` in `src/screens/entertainer.screen.js` still works under a native header. It sets `headerRight` through `navigation.setOptions`; the greeting, search icon, map icon, notification bell and avatar must all still update on tab press (`contracts/navigation-api.md` C4)
-- [ ] T026 [US2] Verify the `002` sticky header in `src/screens/location/location-view.screen.js` still slides, clamps and pull-to-refreshes. It is driven by `useAnimatedScrollHandler` and lives inside `MainStack`
-- [ ] T027 [US2] Walk all 53 custom header options across `navigation.js` and `src/` per `contracts/navigation-api.md` C4: `headerTitle` (26) centres and truncates acceptably at its longest realistic value, `headerLeft` (18) still navigates back, `headerRight` (9) renders
-- [ ] T028 [US2] Confirm `src/screens/entertainer.screen.js`'s `material-top-tabs` navigator is **not** converted — there is no native-stack equivalent for a swipeable pager, and it is already backed by native `react-native-pager-view`
-- [ ] T029 [US2] Remove `@react-navigation/stack` from `package.json` once no navigator imports it, and confirm with `grep -rn "createStackNavigator" --include="*.js" src navigation.js`
+- [X] T006 [US1] Convert `TimeoutStack` in `navigation.js` to static config — 1 screen, `noconnection` → `NoConnectionScreen`, options `noHeader`. Delete the now-unused `const TimeoutStack = createStackNavigator()`
+- [X] T007 [US1] Convert `ApprovalStack` in `navigation.js` to static config — 4 screens: `RequestApproval` (`noHeader`), `AuthEditProfile` (`slideFromRightNative`), `Camera` (`slideFromRightNative`), `Logout` (`noHeader`). Delete the now-unused `const ApprovalStack = createStackNavigator()`
+- [X] T008 [US1] Verify the route names in `navigation.js` are byte-identical to the JSX they replace by diffing mechanically, not by eye — the technique used in commit `e239115`. `"RequestApproval"`, `"AuthEditProfile"`, `"Camera"`, `"Logout"`, `"noconnection"`
+- [!] T009 [US1] Device pass per `specs/007-static-navigation/quickstart.md` V3: both navigators push and pop, swipe-back works, and `Logout` still behaves identically in `ApprovalStack` and `MainStack` (it is registered in both)
+- [!] T010 [US1] Commit both `navigation.js` navigators together — 5 screens is small enough to bisect as one unit
 
 ---
 
-## Phase 5: US3 — Prove it (Priority: P2)
+## Phase 4: US2 — OverlappingStack (Priority: P1)
 
-**Goal**: The measurement that justifies the whole feature.
+**Goal**: 10 screens, the provider wrapper, and the imperative header. **The riskiest navigator in the app.**
 
-**Independent test**: `quickstart.md` V4 against the T003 baseline.
+**Independent test**: `quickstart.md` V3 plus the Entertainer header checks. Watch specifically for the return-jolt that `keepPreviousScreenAttached` was added to fix.
 
-- [ ] T030 [US3] Re-run the full transition matrix from `specs/006-android-navigation-lag/tasks.md` T002 on a release build: Entertainer → `post-detail`, Entertainer → Profile, Home → `LocationList`, `LocationList` → `Location View`
-- [ ] T031 [US3] Measure each with `adb shell dumpsys gfxinfo com.buenapublica.GECRewards framestats`, median of 3 runs, device cooled between runs, and record device/transition/before/after/delta in `specs/007-static-navigation/follow-ups.md`
-- [ ] T032 [US3] Verify on iOS that transitions across `navigation.js` did **not** regress, recording the result in `specs/007-static-navigation/follow-ups.md`. native-stack changes both platforms; Android is the motivation, iOS is the risk
-- [ ] T033 [US3] If the numbers did not move, say so plainly in `specs/007-static-navigation/follow-ups.md` and keep or revert the migration on its maintenance merits — but make **no** performance claim (`contracts/navigation-api.md` C7)
-
-**Checkpoint**: The feature's premise is confirmed or refuted with numbers
-
----
-
-## Phase 6: US4 — Static API prerequisite: extract the asset preload (Priority: P3) ⚠️ CONTINGENT
-
-**Goal**: `createStaticNavigation` cannot contain the asset gate that currently wraps the navigator tree. This must land before US5 is possible.
-
-**⚠️ Only start if the static API is actually wanted.** It has zero runtime effect (`research.md` R1). US1–US3 deliver the performance work without it.
-
-**Independent test**: The app still shows the splash until assets resolve, and no navigator renders early.
-
-- [ ] T034 [US4] Extract `useAssets([...])` and its `useEffect` out of the nested `renderNavigator()` function in `navigation.js`. They are hooks inside a non-component function, legal today only because it is invoked exactly once per render — fragile, and impossible inside a static tree (`research.md` R5)
-- [ ] T035 [US4] Move the preload out of `navigation.js` into a component wrapping the navigator, or into the `expo-splash-screen` phase (`expo-splash-screen` is already a dependency). ~80 `require()` calls resolving before the first screen renders is a startup cost worth moving regardless
-- [ ] T036 [US4] Verify the splash still displays until assets resolve and no navigator in `navigation.js` mounts early, then commit
+- [X] T011 [US2] Move the `<BottomSheetModalProvider>` wrapper from `OverlappingNavigator` in `navigation.js` into the static config's **`layout`** key, which exists for exactly this. Confirm the v7 `layout` signature against `node_modules/@react-navigation/core` before relying on it
+- [X] T012 [US2] Convert `OverlappingStack` in `navigation.js` to static config — 10 screens: `Entertainer` (`entertainerScreenOptions`), `post-tabs` (`noHeader`), `post-detail` (`postDetailOptionsNative`), `post-entry` (`postEntryOptionsNative`), `post-search` (`revealFromBottomNative`), `notifications` (`slideFromRightNative`), `post-select-category` (`modalNoHeader`), `post-select` (`postSelectOptions`), `marketplace-details` and `magazine-details` (both `zurueckHeaderOptions`)
+- [X] T013 [US2] Drop `screenOptions={keepPreviousScreenAttached}` from the converted `OverlappingStack` in `navigation.js` — `detachPreviousScreen` has no native-stack equivalent (T003)
+- [!] T014 [US2] **Test the return jolt specifically.** Navigate Entertainer → `post-detail` → back, repeatedly. Commit `7a1b9f4` added `keepPreviousScreenAttached` to fix a visible jolt on return; if it reappears, native-stack's own screen retention did not replace it and this needs a different fix. Record the result in `specs/007-static-navigation/follow-ups.md`
+- [!] T015 [US2] Verify `changeHeaderRight` in `src/screens/entertainer.screen.js` still works under a **native** header — it sets `headerRight` imperatively via `navigation.setOptions`. Greeting, search, map, bell and avatar must all still update on tab press (`contracts/navigation-api.md` C4)
+- [!] T016 [US2] Verify the modal presentations declared in `navigation.js` still behave: `post-entry`, `post-select-category` and `post-select` all use `presentation: "modal"`, which native-stack supports but renders as a **native** modal — the dismiss gesture and backdrop differ from the JS version
+- [!] T017 [US2] Verify `renderZurueckBack` and `renderPostSelectBack` custom back buttons in `navigation.js` still render and navigate in a native header
+- [X] T018 [US2] Delete the now-unused `const OverlappingStack = createStackNavigator()` from `navigation.js` and commit
 
 ---
 
-## Phase 7: US5 — Static API: collapse the root switch (Priority: P3) ⚠️ CONTINGENT
+## Phase 5: US3 — MainStack (Priority: P1)
 
-**Goal**: `createStaticNavigation` takes **one** tree. `navigation.js` currently swaps between **five** navigators by state. This is a design change, not a syntax conversion.
+**Goal**: 10 screens, one nested navigator, and the one options object that cannot be static.
 
-**⚠️ The highest-risk work in the feature and the least valuable.** It changes back-stack behaviour at every auth boundary for no runtime gain.
+**Independent test**: `quickstart.md` V3, plus the `002` sticky header on Location View.
 
-**Independent test**: `quickstart.md` V5 — all five root states reach the right screens, and the back stack is correct at each boundary.
-
-- [ ] T037 [US5] Map the five root states in `navigation.js` (`!assets`, `noConnection`, `isOutdated`, `authorized`, `approval`, `auth`) onto `if`-guarded groups within one `createNativeStackNavigator` config, and write the design into `specs/007-static-navigation/follow-ups.md` **before** writing code (`research.md` R4)
-- [ ] T038 [US5] Convert `navigation.js` to the static config and wrap it with `createStaticNavigation`, passing the existing ref as `<Navigation ref={navigationRef} />` so `src/navigation/navigate.js` is untouched (`contracts/navigation-api.md` C1)
-- [ ] T039 [US5] Verify every route name is byte-identical — `"Location View"`, `"Event Detail"`, `"post-detail"`, `"LocationList"`, `"Map"`, `"Profile"`, `"notifications"`, `"post-search"`. The static API infers types from config keys, which is a tempting moment to tidy names; renaming any one silently breaks a push destination (`contracts/navigation-api.md` C2)
-- [ ] T040 [US5] Test **back-stack behaviour at every boundary** of the guarded groups in `navigation.js`: signing in, signing out, losing connection, and the version-mismatch path. v7 unmounts screens whose group guard goes false, which approximates but does not equal today's navigator swap. This is the behaviour most likely to change
-- [ ] T041 [US5] Verify push notifications (`src/screens/entertainer.screen.js`) and `gecmobile://` deep links (`src/utils/urlRouter.js`) still land correctly, then commit
+- [X] T019 [US3] Convert `MainStack` in `navigation.js` to static config — 10 screens. `Main` nests `OverlappingNavigator`; in static config a nested navigator is supplied as the `screen` value, so US2 must land first
+- [X] T020 [US3] Handle `TransactionSummary` in `navigation.js`. Its options are the one inline object in the file because `title` reads `i18n` from `TranslationContext`, and static `options` cannot call hooks. Move the title into the screen with `navigation.setOptions` in a `useLayoutEffect` inside `src/screens/offer/transactionSummary.screen.js`, or leave this one screen's options as a function — record which and why in `specs/007-static-navigation/follow-ups.md`
+- [!] T021 [US3] Verify `locationViewOptions` in `navigation.js` still works — it spreads `plainBlackHeader` and sets `headerTitle: () => <LocationViewTitle />`. A component title is supported by native-stack but centres and measures differently
+- [!] T022 [US3] Verify the `002` sticky header in `src/screens/location/location-view.screen.js` still slides, clamps and pull-to-refreshes. It is driven by `useAnimatedScrollHandler` and is the most intricate screen in this navigator
+- [!] T023 [US3] Verify `renderBackArrow` in `navigation.js`'s `locationListOptions` still renders inset with no label — `005`'s own tasks flagged this as its highest-risk change, and native-stack renders it in a native header now
+- [!] T024 [US3] Verify the `Map` and `Profile` transitions declared in `navigation.js` — your earlier edit moved both onto `slideFromRight`, so both change behaviour again here
+- [X] T025 [US3] Delete the now-unused `const MainStack = createStackNavigator()` from `navigation.js` and commit
 
 ---
 
-## Phase 8: Polish & Cross-Cutting Concerns
+## Phase 6: US4 — HomeStack and the tab navigator (Priority: P2)
 
-- [ ] T042 Run all three gates: `npm run check:animation`, `npm run audit:lists`, `npm test` (27/27)
-- [ ] T043 [P] Full iOS regression across every navigator changed in `navigation.js`, `src/screens/homenavigation.js` and `src/screens/entertainer.screen.js`
-- [ ] T044 [P] Record the final before/after table in `specs/007-static-navigation/follow-ups.md`: device, transition, metric, before, after, delta
-- [ ] T045 Consider generating a `linking` config from the screen tree now that route structure is declarative, and compare it against the manual handling in `src/utils/urlRouter.js` — which still has no cold-start `getInitialURL` handling. Record as a follow-up; do not implement here
-- [ ] T046 Close out `specs/006-android-navigation-lag/follow-ups.md` with what this migration proved or refuted about F1/F2
-- [ ] T047 Update the developer note, summarising `specs/007-static-navigation/follow-ups.md`, so the next person does not re-derive the "static API is not a performance fix" finding
+**Goal**: The two navigators outside `navigation.js`.
+
+**Independent test**: Home tab renders and navigates; the three tabs still swipe.
+
+- [X] T026 [P] [US4] Convert `HomeStack` in `src/screens/homenavigation.js` to static config — 1 screen. Also delete its `detachInactiveScreens={true}`, which is redundant (`006/follow-ups.md`)
+- [!] T027 [US4] Decide whether to convert the `material-top-tabs` navigator in `src/screens/entertainer.screen.js` to static config. It supports it — `createMaterialTopTabNavigator` uses the same `createNavigatorFactory` — but the tab list is currently **built from `useMemo` over `i18n`**, so the labels are dynamic. A static config cannot read context; the tab `name` would have to move to `options` set per screen. Record the decision in `specs/007-static-navigation/follow-ups.md` before changing anything
+- [!] T028 [US4] If T027 says convert, do it in `src/screens/entertainer.screen.js` and verify all three tabs still swipe, the lazy loading still works, and `tabBarIcon` still receives `focused`. If it says leave it, close this task with the reason — a dynamic navigator inside a static tree is fine
+
+---
+
+## Phase 7: US5 — Retire the JS stack (Priority: P2)
+
+**Goal**: Once every navigator is native-stack, `@react-navigation/stack` is dead weight.
+
+**Independent test**: The app builds and runs with the dependency removed.
+
+- [X] T029 [US5] Confirm no navigator imports `createStackNavigator`: `grep -rn "createStackNavigator" --include="*.js" navigation.js src` must return nothing
+- [X] T030 [US5] Remove the now-unused `CardStyleInterpolators` import from `navigation.js`, and delete the v6 option constants left behind — `slideFromRight`, `revealFromBottom`, `plainBlackHeader`, `locationListOptions`, `postDetailOptions`, `postEntryOptions`, `keepPreviousScreenAttached` — once nothing references them
+- [!] T031 [US5] **BLOCKED — scope discovery.** `@react-navigation/stack` cannot be removed: `src/screens/posts/postNavigation.screen.js:15` and `src/screens/profile/profile.screen.js:31` still use it. Neither was in the original survey. Convert both first — see `follow-ups.md`
+- [ ] T032 [US5] Run the gates (`npm run check:animation`, `npm run audit:lists`, `npm test`) and a full device pass across all five root states, then commit
+
+---
+
+## Phase 8: US6 — `createStaticNavigation` at the root (Priority: P3) ⚠️ CONTINGENT
+
+**Goal**: The last step of the requested snippet. **Optional** — everything above works without it.
+
+**⚠️ This is the part that changes behaviour rather than syntax.** `createStaticNavigation` is
+root-only, and `navigation.js` swaps between five navigators by state. Collapsing that into guarded
+groups changes the back stack at every auth boundary (`research.md` R4).
+
+**Independent test**: `quickstart.md` V5 — all five root states reach the right screens and the back
+stack is correct at each boundary.
+
+- [ ] T033 [US6] Extract `useAssets([...~80 requires...])` and its `useEffect` out of the nested `renderNavigator()` function in `navigation.js` — hooks in a non-component function, and impossible inside a static tree (`research.md` R5). Move into a component wrapping the navigator, or into the `expo-splash-screen` phase
+- [ ] T034 [US6] Design the guarded-group structure in `specs/007-static-navigation/follow-ups.md` **before** writing code: five conditions (`noConnection`, `isOutdated`, authorized, approval, signed-out) become `groups` with `if` hooks per the static auth-flow docs. `VersionMismatchScreen` is currently returned bare, not inside a navigator, so it needs a home
+- [ ] T035 [US6] Create the context and `if` hooks the groups need in `navigation.js` — the docs pattern is a context plus `useIsSignedIn` / `useIsSignedOut`; here it is five mutually-exclusive states, so name them for what they gate
+- [ ] T036 [US6] Convert `navigation.js` to a single root config and wrap with `createStaticNavigation`, rendering `<Navigation ref={navigationRef} />` so `src/navigation/navigate.js` is untouched (`contracts/navigation-api.md` C1)
+- [ ] T037 [US6] Verify **every** route name is still byte-identical (`contracts/navigation-api.md` C2). The static API infers types from config keys, which invites tidying; renaming any one silently breaks a push destination
+- [ ] T038 [US6] Test back-stack behaviour at every boundary in `navigation.js`: signing in, signing out, losing connection, version mismatch. v7 unmounts screens whose guard goes false, which approximates but does not equal today's navigator swap
+- [ ] T039 [US6] Verify push notifications (`src/screens/entertainer.screen.js`) and `gecmobile://` deep links (`src/utils/urlRouter.js`) still land correctly, then commit
+
+---
+
+## Phase 9: Polish & Cross-Cutting Concerns
+
+- [ ] T040 Run all three gates: `npm run check:animation`, `npm run audit:lists`, `npm test` (27/27)
+- [ ] T041 [P] Full iOS regression across `navigation.js`, `src/screens/homenavigation.js` and `src/screens/entertainer.screen.js` — native-stack changes both platforms
+- [ ] T042 [P] Measure the converted app against `006`'s baseline and record device/transition/before/after/delta in `specs/007-static-navigation/follow-ups.md`. If nothing moved, say so and keep the work on its maintainability merits (`contracts/navigation-api.md` C7)
+- [ ] T043 Update `specs/006-android-navigation-lag/follow-ups.md` with what this proved or refuted about F1/F2
+- [ ] T044 Update the developer note with the outcome, summarising `specs/007-static-navigation/follow-ups.md`
 
 ---
 
 ## Dependencies
 
 ```
-T001 AIM CHECK ──► lag persists without animation? ──► STOP, work 006 US4 instead
-   │
-   │ (lag is the transition)
-   v
-Phase 1 (T002-T005) ──► Phase 2 (T006-T012) v6→v7, dynamic config unchanged
-                              │
-                              v
-                        US1 (T013-T019)  🎯 AuthStack prototype
-                              │
-                        T018 DECISION GATE ──► no improvement? ──► STOP, keep dynamic v7
-                              │
-                              v
-                        US2 (T020-T029) remaining 5 navigators
-                              │
-                              v
-                        US3 (T030-T033) prove it
-                              │
-                              v
-                     Phase 8 (T042-T047)
-                              │
-                              │ (static API actually wanted?)
-                              v
-                US4 (T034-T036) ──► US5 (T037-T041)  ⚠️ contingent
+Phase 1 (T001-T004) option translation ── blocks every conversion
+        │
+        v
+Phase 2 (T005)
+        │
+        ├──► US1 (T006-T010)  🎯 TimeoutStack + ApprovalStack
+        │
+        ├──► US2 (T011-T018)  OverlappingStack ── riskiest
+        │         │
+        │         v
+        ├──► US3 (T019-T025)  MainStack (nests Overlapping, so US2 first)
+        │
+        └──► US4 (T026-T028)  HomeStack + tabs
+                  │
+                  v
+             US5 (T029-T032)  retire @react-navigation/stack
+                  │
+                  v
+             Phase 9 (T040-T044)
+                  │ (static root actually wanted?)
+                  v
+             US6 (T033-T039) ⚠️ contingent
 ```
 
 **Hard dependencies**:
-- **T001 gates the entire feature.** If the mount is the cost, none of this helps
-- T006 (v7) blocks every story
-- **T018 is a stop gate** — do not convert five more navigators on an unmeasured prototype
-- T034 blocks T037; the asset gate must move before a static tree is possible
-- T013 blocks T014; T015 blocks T016
+- T002 blocks every conversion — nothing converts before its options have a target
+- **T012 (US2) blocks T019 (US3)** — `MainStack`'s `Main` screen nests `OverlappingNavigator`, and a
+  static nested navigator must exist before it can be referenced
+- T029 gates T031 — do not remove the dependency while anything still imports it
+- T033 blocks T036 — the asset gate must move before a static root is possible
 
-**Soft ordering**: US2's navigators are independent of each other, but each is its own commit.
-US4/US5 are contingent on wanting the static API at all — US1–US3 deliver the performance work
-without them.
+**Soft ordering**: US1 and US4 are independent of everything else and of each other.
 
-**File collisions — never parallel**: T014, T015, T020, T022, T023, T024, T029, T034, T038 all touch
-`navigation.js`. Almost nothing in this migration parallelises.
+**File collisions — never parallel**: T002, T006, T007, T011, T012, T013, T018, T019, T025, T030,
+T033, T036 all touch `navigation.js`. Only T026 (`homenavigation.js`) and T027 (`entertainer.screen.js`)
+sit outside it.
 
 ## Parallel execution examples
 
-**Phase 1**:
 ```
-T003, T004   # baseline capture and dependency removal are independent
-```
-
-**Phase 8**:
-```
-T043, T044   # iOS regression and results write-up
+T026   # src/screens/homenavigation.js
+T027   # src/screens/entertainer.screen.js
 ```
 
-That is the extent of it — `navigation.js` is a single file touched by most tasks, so this migration
-is inherently sequential. Two people cannot usefully split it.
+That is genuinely all. `navigation.js` is one file touched by twelve tasks, so this is a
+single-threaded migration — two people cannot split it without constant conflicts.
 
 ## Implementation strategy
 
-**MVP scope**: T001–T019. Aim check, version alignment, v7 upgrade, one converted navigator, one
-measurement, one decision. That is the smallest slice that answers "is native-stack the fix?" — and
-it does so on 15 screens rather than 41.
+**MVP scope**: T001–T010. The option translation table plus the two simplest navigators. Five
+screens, no custom headers, and it proves the pattern generalises beyond `AuthStack`.
 
-**Most likely outcome**: T001 confirms the transition is the cost, US1 shows a real improvement, US2
-converts the rest, and US4/US5 are never done because the static API's benefits (inferred types,
-generated linking config) do not justify collapsing a five-way root switch.
+**Then**: US2 → US3 in that order (MainStack nests OverlappingStack), US4 whenever, US5 to clean up.
 
-**The trap this ordering avoids**: the requested snippet leads with `createStaticNavigation`, which
-is the largest, riskiest and least valuable third of the work. Doing it first would spend the whole
-budget before anything measurable changed — and if the lag persisted, there would be no way to tell
-whether the renderer swap would have fixed it.
+**Highest-risk single task**: **T014**. `keepPreviousScreenAttached` was added by commit `7a1b9f4`
+specifically to stop the Entertainer screen jolting on return, and `detachPreviousScreen` has no
+native-stack equivalent. If the jolt returns, that is a real regression traceable to this migration
+and it needs its own fix, not a shrug.
 
-**Carrying forward the lesson from 003/004**: T018 and T033 both say stop or revert if the number
-does not move.
+**US6 is optional.** Everything through US5 delivers static configuration for all the stacks, which
+is what was asked. `createStaticNavigation` at the root is a further step that changes behaviour at
+every auth boundary for no runtime gain — worth doing only if the type inference and generated
+linking config are wanted for their own sake.

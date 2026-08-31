@@ -1,8 +1,4 @@
 import React, { useContext, useEffect } from "react";
-import {
-  CardStyleInterpolators,
-  createStackNavigator,
-} from "@react-navigation/stack";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { LoadingOverlay } from "./src/components/loading/loading.component";
 import { NavigationContainer } from "@react-navigation/native";
@@ -66,36 +62,20 @@ import PostDetailMagazine from "./src/screens/posts/postDetailMagazine.screen";
 import ChangeEmailAddressScreen from "./src/screens/profile/changeEmailAddress.screen ";
 import * as SplashScreen from "expo-splash-screen";
 
-const MainStack = createStackNavigator();
-const ApprovalStack = createStackNavigator();
-const TimeoutStack = createStackNavigator();
-const OverlappingStack = createStackNavigator();
 
 const noHeader = { headerShown: false };
 
-const TimeoutStackScreen = () => {
-  return (
-    <TimeoutStack.Navigator>
-      <TimeoutStack.Screen
-        name="noconnection"
-        component={NoConnectionScreen}
-        options={noHeader}
-      />
-    </TimeoutStack.Navigator>
-  );
-};
+const TimeoutStackScreen = createNativeStackNavigator({
+  screens: {
+    noconnection: { screen: NoConnectionScreen, options: noHeader },
+  },
+});
 
 // Shared stack screen options.
 //
 // forHorizontalIOS is the iOS default but not Android's - Android's stack
 // reveals from the bottom - so declaring it here is what gives both platforms
 // the same horizontal slide. It cannot be dropped and inferred.
-const slideFromRight = {
-  headerShown: false,
-  cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-  gestureDirection: "horizontal",
-  gestureResponseDistance: 200,
-};
 
 // Screens the user must not swipe away from mid-flow.
 const noSwipeBack = { gestureEnabled: false };
@@ -111,6 +91,74 @@ const slideFromRightNative = {
   gestureResponseDistance: 200,
 };
 
+// The rest of the native-stack translations. Verified against
+// node_modules/@react-navigation/native-stack/lib/typescript/src/types.d.ts:
+// these five have NO native-stack equivalent and are dropped, not renamed —
+//   headerBackTitleVisible, headerLeftLabelVisible,
+//   headerLeftContainerStyle, headerRightContainerStyle, detachPreviousScreen
+// The v6 constants above stay until the last navigator converts, because
+// unconverted stacks still use them.
+
+const revealFromBottomNative = {
+  headerShown: false,
+  animation: "slide_from_bottom",
+  gestureDirection: "horizontal",
+  gestureResponseDistance: 200,
+};
+
+const plainBlackHeaderNative = {
+  headerShown: false,
+  // headerBackTitleVisible: false -> the supported spelling in v7
+  headerBackButtonDisplayMode: "minimal",
+  headerTitleAlign: "left",
+  headerTintColor: "black",
+  animation: "slide_from_right",
+  gestureDirection: "horizontal",
+  gestureResponseDistance: 200,
+};
+
+const locationListOptionsNative = {
+  headerBackTitle: "",
+  headerTitle: "",
+  headerTintColor: "black",
+  // headerStyle: { shadowColor: "transparent" } -> dedicated prop in native-stack
+  headerShadowVisible: false,
+  headerLeft: renderBackArrow,
+  animation: "slide_from_bottom",
+  gestureDirection: "horizontal",
+  gestureResponseDistance: 200,
+};
+
+const locationViewOptionsNative = {
+  ...plainBlackHeaderNative,
+  headerTitle: () => <LocationViewTitle />,
+  headerStyle: locationViewHeaderStyle,
+};
+
+// headerLeftLabelVisible dropped - no native-stack equivalent. It was inert
+// anyway on postEntry, where headerShown is false.
+const postDetailOptionsNative = {
+  headerTintColor: theme.colors.icons.active,
+  headerTitleStyle: { color: "black" },
+  headerTitle: "",
+};
+
+const postEntryOptionsNative = {
+  presentation: "modal",
+  headerShown: false,
+  headerTintColor: theme.colors.icons.active,
+  headerTitleStyle: { color: "black" },
+};
+
+// headerLeftContainerStyle / headerRightContainerStyle dropped - the native
+// header does not expose container styles. If the logo padding looks wrong,
+// absorb it into renderEntertainerHeaderLeft itself (tasks T004).
+const entertainerScreenOptionsNative = {
+  headerShown: true,
+  headerTitle: "",
+  headerLeft: renderEntertainerHeaderLeft,
+};
+
 // Android only. react-native-screens detaches an inactive card by removing its
 // fragment, so the whole native view tree under it is destroyed and rebuilt on
 // the way back. Under Entertainer that tree is a material-top-tabs pager plus
@@ -119,7 +167,6 @@ const slideFromRightNative = {
 // detachPreviousScreen keeps the card below the top one at activityState 1 -
 // alive but not interactive - so there is nothing to rebuild. iOS keeps the
 // view either way, which is why the glitch was Android-only.
-const keepPreviousScreenAttached = { detachPreviousScreen: false };
 
 // The Entertainer screen's options never change, so they are built once here.
 // Inline in the navigator they were rebuilt on every render - and the stack
@@ -153,13 +200,6 @@ const renderEntertainerHeaderLeft = () => (
   </View>
 );
 
-const entertainerScreenOptions = {
-  headerShown: true,
-  headerTitle: "",
-  headerLeftContainerStyle: { paddingLeft: 8 },
-  headerRightContainerStyle: { paddingRight: 4 },
-  headerLeft: renderEntertainerHeaderLeft,
-};
 
 // ---------------------------------------------------------------------------
 // Shared screen options.
@@ -174,42 +214,14 @@ const entertainerScreenOptions = {
 // The forVerticalIOS / gestureDirection "horizontal" mismatch is what ships
 // today on both callers and is preserved deliberately - changing the dismiss
 // direction is a product decision, not a refactor.
-const revealFromBottom = {
-  headerShown: false,
-  cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-  gestureDirection: "horizontal",
-  gestureResponseDistance: 200,
-};
 
 const modalNoHeader = { presentation: "modal", headerShown: false };
 
 // headerTintColor / headerTitleStyle / headerLeftLabelVisible are inert while
 // headerShown is false. They ship today; removing them would be a behavioural
 // bet, so they stay.
-const postEntryOptions = {
-  presentation: "modal",
-  headerShown: false,
-  headerTintColor: theme.colors.icons.active,
-  headerTitleStyle: { color: "black" },
-  headerLeftLabelVisible: false,
-};
 
-const postDetailOptions = {
-  headerTintColor: theme.colors.icons.active,
-  headerTitleStyle: { color: "black" },
-  headerLeftLabelVisible: false,
-  headerTitle: "",
-};
 
-const plainBlackHeader = {
-  headerShown: false,
-  headerBackTitleVisible: false,
-  headerTitleAlign: "left",
-  headerTintColor: "black",
-  cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-  gestureDirection: "horizontal",
-  gestureResponseDistance: 200,
-};
 
 // The stack injects onPress (its own back action) into headerLeft - see
 // @react-navigation/stack HeaderSegment.js:121 - so this needs no closure over
@@ -223,16 +235,6 @@ const renderBackArrow = ({ onPress }) => (
   </TouchableOpacity>
 );
 
-const locationListOptions = {
-  headerBackTitle: "",
-  headerTitle: "",
-  headerTintColor: "black",
-  headerStyle: { shadowColor: "transparent" },
-  headerLeft: renderBackArrow,
-  cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-  gestureDirection: "horizontal",
-  gestureResponseDistance: 200,
-};
 
 // goback is a module-level helper, so these never needed a closure either.
 const zurueckRowStyle = {
@@ -343,73 +345,46 @@ const AuthStackScreen = createNativeStackNavigator({
   },
 });
 
-const OverlappingNavigator = () => {
-  return (
-    <BottomSheetModalProvider>
-      <OverlappingStack.Navigator screenOptions={keepPreviousScreenAttached}>
-        <OverlappingStack.Screen
-          name="Entertainer"
-          component={EntertainerScreen}
-          options={entertainerScreenOptions}
-        />
-
-        <OverlappingStack.Screen
-          name="post-tabs"
-          component={PostTabsNavigationScreen}
-          options={noHeader}
-        />
-
-        <OverlappingStack.Screen
-          name="post-detail"
-          component={PostDetailScreen}
-          options={postDetailOptions}
-        />
-
-        <OverlappingStack.Screen
-          name="post-entry"
-          component={PostEntryScreen}
-          options={postEntryOptions}
-        />
-
-        <OverlappingStack.Screen
-          name="post-search"
-          component={PostSearch}
-          options={revealFromBottom}
-        />
-
-        <OverlappingStack.Screen
-          name="notifications"
-          component={NotificationsScreen}
-          options={slideFromRight}
-        />
-
-        <OverlappingStack.Screen
-          name="post-select-category"
-          component={PostEntryCategorySelect}
-          options={modalNoHeader}
-        />
-
-        <OverlappingStack.Screen
-          name="post-select"
-          component={PostEntrySelect}
-          options={postSelectOptions}
-        />
-
-        <OverlappingStack.Screen
-          name="marketplace-details"
-          component={PostDetailMarketplace}
-          options={zurueckHeaderOptions}
-        />
-
-        <OverlappingStack.Screen
-          name="magazine-details"
-          component={PostDetailMagazine}
-          options={zurueckHeaderOptions}
-        />
-      </OverlappingStack.Navigator>
-    </BottomSheetModalProvider>
-  );
-};
+// The <BottomSheetModalProvider> wrapper moves into the static config's `layout`
+// key, which exists for exactly this. screenOptions={keepPreviousScreenAttached}
+// is GONE: detachPreviousScreen has no native-stack equivalent. It was added by
+// 7a1b9f4 to stop the Entertainer screen jolting on return - if that jolt comes
+// back, this is why (tasks T014).
+const OverlappingNavigator = createNativeStackNavigator({
+  layout: ({ children }) => (
+    <BottomSheetModalProvider>{children}</BottomSheetModalProvider>
+  ),
+  screens: {
+    Entertainer: {
+      screen: EntertainerScreen,
+      options: entertainerScreenOptionsNative,
+    },
+    "post-tabs": { screen: PostTabsNavigationScreen, options: noHeader },
+    "post-detail": {
+      screen: PostDetailScreen,
+      options: postDetailOptionsNative,
+    },
+    "post-entry": { screen: PostEntryScreen, options: postEntryOptionsNative },
+    "post-search": { screen: PostSearch, options: revealFromBottomNative },
+    notifications: {
+      screen: NotificationsScreen,
+      options: slideFromRightNative,
+    },
+    "post-select-category": {
+      screen: PostEntryCategorySelect,
+      options: modalNoHeader,
+    },
+    "post-select": { screen: PostEntrySelect, options: postSelectOptions },
+    "marketplace-details": {
+      screen: PostDetailMarketplace,
+      options: zurueckHeaderOptions,
+    },
+    "magazine-details": {
+      screen: PostDetailMagazine,
+      options: zurueckHeaderOptions,
+    },
+  },
+});
 
 // A real component, not a callback body.
 //
@@ -440,116 +415,57 @@ const locationViewHeaderStyle = {
 // The spread runs once at module load, so composing costs nothing per render -
 // unlike a spread written inside JSX, which would rebuild the object every time
 // and defeat the point.
-const locationViewOptions = {
-  ...plainBlackHeader,
-  headerTitle: () => <LocationViewTitle />,
-  headerStyle: locationViewHeaderStyle,
-};
 
-const MainScreen = () => {
-  const { i18n } = useContext(TranslationContext);
-  return (
-    <MainStack.Navigator>
-      <MainStack.Screen
-        name="Main"
-        component={OverlappingNavigator}
-        options={noHeader}
-      />
+// TransactionSummary's title moved into the screen itself
+// (src/screens/offer/transactionSummary.screen.js) via navigation.setOptions -
+// it reads i18n from context and a module-scope static config cannot call
+// hooks. That was the last thing keeping this navigator a component.
+const MainScreen = createNativeStackNavigator({
+  screens: {
+    Main: { screen: OverlappingNavigator, options: noHeader },
+    Profile: { screen: ProfileScreen, options: slideFromRightNative },
+    Logout: { screen: LogoutScreen, options: noHeader },
+    Map: { screen: MapScreen, options: slideFromRightNative },
+    LocationList: {
+      screen: LocationListScreen,
+      options: locationListOptionsNative,
+    },
+    AvailOffer: { screen: AvailOfferScreen, options: slideFromRightNative },
+    TransactionSummary: {
+      screen: TransactionSummaryScreen,
+      options: {
+        headerShown: true,
+        gestureEnabled: false,
+        // headerBackTitleVisible: false -> supported spelling in v7
+        headerBackButtonDisplayMode: "minimal",
+      },
+    },
+    "Location View": {
+      screen: LocationViewScreen,
+      options: locationViewOptionsNative,
+    },
+    "Event Detail": {
+      screen: EventDetailScreen,
+      options: plainBlackHeaderNative,
+    },
+    "Attend Guests": {
+      screen: EventGuestsScreen,
+      options: plainBlackHeaderNative,
+    },
+  },
+});
 
-      <MainStack.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={slideFromRight}
-      />
-
-      <MainStack.Screen
-        name="Logout"
-        component={LogoutScreen}
-        options={noHeader}
-      />
-
-      <MainStack.Screen
-        name="Map"
-        component={MapScreen}
-         options={slideFromRight}
-      />
-
-      <MainStack.Screen
-        name="LocationList"
-        component={LocationListScreen}
-        options={locationListOptions}
-      />
-
-      <MainStack.Screen
-        name="AvailOffer"
-        component={AvailOfferScreen}
-        options={slideFromRight}
-      />
-
-      <MainStack.Screen
-        name="TransactionSummary"
-        component={TransactionSummaryScreen}
-        // The one options object that stays inline. title reads i18n from
-        // context, so it cannot be a module constant - that is exactly where
-        // the rule stops. useMemo would not help either: this component
-        // re-renders when TranslationContext changes, which is precisely when
-        // i18n changes, so the memo would invalidate on every render it was
-        // meant to skip.
-        options={{
-          headerShown: true,
-          title: i18n.t("redemption-success.transaction-summary"),
-          gestureEnabled: false,
-          headerBackTitleVisible: false,
-        }}
-      />
-
-      <MainStack.Screen
-        name="Location View"
-        component={LocationViewScreen}
-        options={locationViewOptions}
-      />
-
-      <MainStack.Screen
-        name="Event Detail"
-        component={EventDetailScreen}
-        options={plainBlackHeader}
-      />
-
-      <MainStack.Screen
-        name="Attend Guests"
-        component={EventGuestsScreen}
-        options={plainBlackHeader}
-      />
-    </MainStack.Navigator>
-  );
-};
-
-const ApprovalScreen = () => {
-  return (
-    <ApprovalStack.Navigator>
-      <ApprovalStack.Screen
-        name="RequestApproval"
-        component={RequestApprovalScreen}
-        options={noHeader}
-      />
-      <ApprovalStack.Screen
-        name="AuthEditProfile"
-        component={AuthEditProfileScreen}
-        options={slideFromRight}
-      />
-      <ApprovalStack.Screen
-        name="Camera"
-        component={CameraScreen}
-        options={slideFromRight}
-      />
-      <ApprovalStack.Screen
-        name="Logout"
-        component={LogoutScreen}
-        options={noHeader}
-      />
-    </ApprovalStack.Navigator>
-  );
-};
+const ApprovalScreen = createNativeStackNavigator({
+  screens: {
+    RequestApproval: { screen: RequestApprovalScreen, options: noHeader },
+    AuthEditProfile: {
+      screen: AuthEditProfileScreen,
+      options: slideFromRightNative,
+    },
+    Camera: { screen: CameraScreen, options: slideFromRightNative },
+    Logout: { screen: LogoutScreen, options: noHeader },
+  },
+});
 
 SplashScreen.preventAutoHideAsync();
 export const AppNavigation = () => {
