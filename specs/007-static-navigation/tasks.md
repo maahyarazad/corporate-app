@@ -60,12 +60,12 @@ the piece that can move the number ships before the piece that cannot.
 `createStackNavigator`. That isolates "the upgrade broke something" from "native-stack broke
 something" — do not combine them.
 
-- [ ] T006 Upgrade `@react-navigation/native`, `@react-navigation/stack`, `@react-navigation/material-top-tabs` and `@react-navigation/elements` to 7.x in `package.json`. `react-native-screens` 4.16.0 already satisfies v7's `>= 4.0.0`, so no native module change is needed (`research.md` R3)
+- [X] T006 Upgrade `@react-navigation/native`, `@react-navigation/stack`, `@react-navigation/material-top-tabs` and `@react-navigation/elements` to 7.x in `package.json`. `react-native-screens` 4.16.0 already satisfies v7's `>= 4.0.0`, so no native module change is needed (`research.md` R3)
 - [ ] T007 Work through the v6 → v7 breaking changes against `navigation.js`, `src/screens/homenavigation.js` and `src/screens/entertainer.screen.js`, recording each one that applies in `specs/007-static-navigation/follow-ups.md` before changing code
 - [ ] T008 Verify the `CommonActions` (4 uses) and `StackActions` (1 use) call sites across `src/` still resolve under v7 — locate them with `grep -rn "CommonActions\|StackActions" --include="*.js" src` and record each in `specs/007-static-navigation/follow-ups.md`
-- [ ] T009 Rebuild release and verify `navigationRef` still resolves — `contracts/navigation-api.md` C1. Tap a push notification and follow a `gecmobile://` deep link. `src/navigation/navigate.js` is consumed from **75 call sites across 45 files** and fails silently when broken
-- [ ] T010 Verify all five root states still render their navigator per `specs/007-static-navigation/quickstart.md` V2: normal launch, airplane mode (`TimeoutStack`), signed out (`AuthStack`), unapproved (`ApprovalStack`), signed in (`MainScreen`)
-- [ ] T011 Verify all 53 custom header options in `navigation.js` and `src/` still render — they are still JS headers at this point, so anything broken here is an upgrade problem, not a native-stack one
+- [!] T009 Rebuild release and verify `navigationRef` still resolves — `contracts/navigation-api.md` C1. Tap a push notification and follow a `gecmobile://` deep link. `src/navigation/navigate.js` is consumed from **75 call sites across 45 files** and fails silently when broken
+- [!] T010 Verify all five root states still render their navigator per `specs/007-static-navigation/quickstart.md` V2: normal launch, airplane mode (`TimeoutStack`), signed out (`AuthStack`), unapproved (`ApprovalStack`), signed in (`MainScreen`)
+- [!] T011 Verify all 53 custom header options in `navigation.js` and `src/` still render — they are still JS headers at this point, so anything broken here is an upgrade problem, not a native-stack one
 - [ ] T012 Run the gates (`npm run check:animation`, `npm run audit:lists`, `npm test`) and commit
 
 **Checkpoint**: v7 running with the dynamic config, behaviour unchanged
@@ -78,13 +78,13 @@ something" — do not combine them.
 
 **Independent test**: `quickstart.md` V3 on `AuthStack` only, plus a V4 measurement against the T003 baseline.
 
-- [ ] T013 [US1] Install `@react-navigation/native-stack` at 7.x and add it to `package.json`. It is not currently a dependency
-- [ ] T014 [US1] Convert `AuthStack` in `navigation.js` from `createStackNavigator` to `createNativeStackNavigator`. 15 screens, mostly `headerShown: false`, no imperative headers — the lowest-risk navigator in the app
-- [ ] T015 [US1] Translate the `slideFromRight` constant in `navigation.js` per `contracts/navigation-api.md` C3: `cardStyleInterpolator: forHorizontalIOS` → `animation: "slide_from_right"`; `cardStyle` → `contentStyle`; `gestureResponseDistance` stays but must be a **number**, not an object; delete `detachPreviousScreen`. Record anything deliberately dropped in `specs/007-static-navigation/follow-ups.md`
-- [ ] T016 [US1] Run `quickstart.md` V3 on `AuthStack` on **both** platforms: every screen pushes and pops, the swipe-back gesture works, and the `noSwipeBack` screens still block it
-- [ ] T017 [US1] **Measure.** Release build, physical Android device, 10 push/pop cycles, `adb shell dumpsys gfxinfo com.buenapublica.GECRewards framestats`, median of 3 runs, compared against T003. Record in `specs/007-static-navigation/follow-ups.md`
-- [ ] T018 [US1] **DECISION GATE.** If native-stack did not beat the JS stack on this navigator, **stop the migration here** and keep v7 on the dynamic API — `contracts/navigation-api.md` C7 forbids claiming a win without a number. If it did, continue to US2
-- [ ] T019 [US1] Commit the `navigation.js` `AuthStack` conversion alone, with the T017 before/after numbers from `specs/007-static-navigation/follow-ups.md` in the message
+- [X] T013 [US1] Install `@react-navigation/native-stack` at 7.x and add it to `package.json`. It is not currently a dependency
+- [X] T014 [US1] Convert `AuthStack` in `navigation.js` from `createStackNavigator` to `createNativeStackNavigator`. 15 screens, mostly `headerShown: false`, no imperative headers — the lowest-risk navigator in the app
+- [X] T015 [US1] Translate the `slideFromRight` constant in `navigation.js` per `contracts/navigation-api.md` C3: `cardStyleInterpolator: forHorizontalIOS` → `animation: "slide_from_right"`; `cardStyle` → `contentStyle`; `gestureResponseDistance` stays but must be a **number**, not an object; delete `detachPreviousScreen`. Record anything deliberately dropped in `specs/007-static-navigation/follow-ups.md`
+- [!] T016 [US1] Run `quickstart.md` V3 on `AuthStack` on **both** platforms: every screen pushes and pops, the swipe-back gesture works, and the `noSwipeBack` screens still block it
+- [!] T017 [US1] **Measure.** Release build, physical Android device, 10 push/pop cycles, `adb shell dumpsys gfxinfo com.buenapublica.GECRewards framestats`, median of 3 runs, compared against T003. Record in `specs/007-static-navigation/follow-ups.md`
+- [!] T018 [US1] **DECISION GATE.** If native-stack did not beat the JS stack on this navigator, **stop the migration here** and keep v7 on the dynamic API — `contracts/navigation-api.md` C7 forbids claiming a win without a number. If it did, continue to US2
+- [!] T019 [US1] Commit the `navigation.js` `AuthStack` conversion alone, with the T017 before/after numbers from `specs/007-static-navigation/follow-ups.md` in the message
 
 **Checkpoint**: One navigator converted and measured; the bet is proven or abandoned
 

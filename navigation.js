@@ -3,6 +3,7 @@ import {
   CardStyleInterpolators,
   createStackNavigator,
 } from "@react-navigation/stack";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { LoadingOverlay } from "./src/components/loading/loading.component";
 import { NavigationContainer } from "@react-navigation/native";
 import { LoginScreen } from "./src/screens/login/login.screen";
@@ -65,7 +66,6 @@ import PostDetailMagazine from "./src/screens/posts/postDetailMagazine.screen";
 import ChangeEmailAddressScreen from "./src/screens/profile/changeEmailAddress.screen ";
 import * as SplashScreen from "expo-splash-screen";
 
-const AuthStack = createStackNavigator();
 const MainStack = createStackNavigator();
 const ApprovalStack = createStackNavigator();
 const TimeoutStack = createStackNavigator();
@@ -99,6 +99,17 @@ const slideFromRight = {
 
 // Screens the user must not swipe away from mid-flow.
 const noSwipeBack = { gestureEnabled: false };
+
+// native-stack equivalent of `slideFromRight`, for navigators converted to the
+// static config. native-stack has no cardStyleInterpolator - the platform owns
+// the transition - so forHorizontalIOS becomes `animation: "slide_from_right"`.
+// gestureResponseDistance is a plain number here; v6's object form is gone.
+const slideFromRightNative = {
+  headerShown: false,
+  animation: "slide_from_right",
+  gestureDirection: "horizontal",
+  gestureResponseDistance: 200,
+};
 
 // Android only. react-native-screens detaches an inactive card by removing its
 // fragment, so the whole native view tree under it is destroyed and rebuilt on
@@ -264,99 +275,73 @@ const postSelectOptions = {
   headerLeft: renderPostSelectBack,
 };
 
-const AuthStackScreen = () => {
-  return (
-    <AuthStack.Navigator screenOptions={noHeader}>
-      <AuthStack.Screen
-        name="Login"
-        component={LoginScreen}
-      />
-
-      <AuthStack.Screen
-        name="Login Privacy Policy"
-        component={PrivacyPolicyScreen}
-      />
-
-      <AuthStack.Screen
-        name="Unverified Email"
-        component={UnverifiedEmailScreen}
-        options={slideFromRight}
-      />
-
-      <AuthStack.Screen
-        name="ChangePassword"
-        component={ChangePasswordScreen}
-        options={slideFromRight}
-      />
-
-      <AuthStack.Screen
-        name="ForgotPassword"
-        component={ForgotPasswordScreen}
-        options={slideFromRight}
-      />
-
-      <AuthStack.Screen
-        name="ForgotPasswordOTP"
-        component={ForgotPasswordOTPScreen}
-        options={slideFromRight}
-      />
-
-      <AuthStack.Screen
-        name="UpdateMember"
-        component={UpdateMemberScreen}
-        options={slideFromRight}
-      />
-
-      <AuthStack.Screen
-        name="RegisterDetails"
-        component={RegistrationDetailsScreen}
-        options={slideFromRight}
-      />
-
-      <AuthStack.Screen
-        name="RegisterSuccess"
-        component={RegistrationSuccessfulScreen}
-        options={slideFromRight}
-      />
-
-      <AuthStack.Screen
-        name="RegisterSuccessByServices"
-        component={RegistrationSuccessByServices}
-        options={slideFromRight}
-      />
-
-      <AuthStack.Screen
-        name="VerifyInfo"
-        component={VerifyInfo}
-        options={slideFromRight}
-      />
-
-      <AuthStack.Screen
-        name="Registration"
-        component={RegistrationScreen}
-        options={slideFromRight}
-      />
-
-      <AuthStack.Screen
-        name="VerifyOTP"
-        component={OtpVerification}
-        options={slideFromRight}
-      />
-
-      <AuthStack.Screen
-        name="MobileChange"
-        component={ChangeMobileNumberScreen}
-        options={slideFromRight}
-      />
-
-      <AuthStack.Screen
-        name="EmailChange"
-        component={ChangeEmailAddressScreen}
-        options={slideFromRight}
-      />
-    </AuthStack.Navigator>
-  );
-};
+// Static configuration (React Navigation 7). `createNativeStackNavigator` given a
+// config object returns a renderable component, so this drops straight into the
+// existing dynamic root in AppNavigation - createStaticNavigation is only needed
+// when the static tree owns the container, which it does not here yet.
+//
+// Route names are byte-identical to the JSX version they replace. They are the
+// keys `navigate()` is called with from 75 call sites, spaces included.
+const AuthStackScreen = createNativeStackNavigator({
+  initialRouteName: "Login",
+  screenOptions: noHeader,
+  screens: {
+    Login: LoginScreen,
+    "Login Privacy Policy": PrivacyPolicyScreen,
+    "Unverified Email": {
+      screen: UnverifiedEmailScreen,
+      options: slideFromRightNative,
+    },
+    ChangePassword: {
+      screen: ChangePasswordScreen,
+      options: slideFromRightNative,
+    },
+    ForgotPassword: {
+      screen: ForgotPasswordScreen,
+      options: slideFromRightNative,
+    },
+    ForgotPasswordOTP: {
+      screen: ForgotPasswordOTPScreen,
+      options: slideFromRightNative,
+    },
+    UpdateMember: {
+      screen: UpdateMemberScreen,
+      options: slideFromRightNative,
+    },
+    RegisterDetails: {
+      screen: RegistrationDetailsScreen,
+      options: slideFromRightNative,
+    },
+    RegisterSuccess: {
+      screen: RegistrationSuccessfulScreen,
+      options: slideFromRightNative,
+    },
+    RegisterSuccessByServices: {
+      screen: RegistrationSuccessByServices,
+      options: slideFromRightNative,
+    },
+    VerifyInfo: {
+      screen: VerifyInfo,
+      options: slideFromRightNative,
+    },
+    Registration: {
+      screen: RegistrationScreen,
+      options: slideFromRightNative,
+    },
+    VerifyOTP: {
+      screen: OtpVerification,
+      options: slideFromRightNative,
+    },
+    MobileChange: {
+      screen: ChangeMobileNumberScreen,
+      options: slideFromRightNative,
+    },
+    EmailChange: {
+      screen: ChangeEmailAddressScreen,
+      options: slideFromRightNative,
+    },
+  },
+});
 
 const OverlappingNavigator = () => {
   return (

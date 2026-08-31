@@ -75,3 +75,90 @@ run. It is also the hardest part, because `navigation.js` swaps between five roo
 state and a static tree takes one (`research.md` R4).
 
 If the goal is the Android lag, the static API can be skipped entirely.
+
+---
+
+# Update — static configuration implemented on AuthStack
+
+## What shipped
+
+**T006 — React Navigation 6 → 7 + native-stack** (commit `2c2d8de`). `createStaticNavigation` does
+not exist in v6.0.10, so the upgrade was a hard prerequisite. First install failed ERESOLVE because
+npm resolved against the stale tree (`stack@6.2.1` still demanding `elements@^1.3.3`); uninstalling
+the v6 set and installing v7 clean fixed it.
+
+**T013–T015 — `AuthStack` converted to the static configuration.**
+
+```js
+const AuthStackScreen = createNativeStackNavigator({
+  initialRouteName: "Login",
+  screenOptions: noHeader,
+  screens: {
+    Login: LoginScreen,
+    "Unverified Email": { screen: UnverifiedEmailScreen, options: slideFromRightNative },
+    // …
+  },
+});
+```
+
+## The design decision that made this incremental
+
+`createStaticNavigation` is root-only, and this app's root swaps between **five** navigators by
+state — collapsing that is the hardest part of the migration (`research.md` R4).
+
+That is not required to adopt the static config. `createNavigatorFactory` in
+`node_modules/@react-navigation/core/lib/module/createNavigatorFactory.js:17-40` returns a
+**renderable component** when given a config object. So `AuthStackScreen` is still rendered as
+`<AuthStackScreen />` at `navigation.js:699`, inside the existing dynamic root, and the five-way
+switch is untouched.
+
+`createStaticNavigation` becomes necessary only when the static tree owns the container — that is
+still US5, still contingent, and still needs the root collapse and the asset-preload extraction.
+
+## Option translation (contracts C3)
+
+native-stack has no `cardStyleInterpolator` — the platform owns the transition. A separate constant
+was added rather than editing `slideFromRight`, which four other **still-dynamic** navigators use:
+
+| v6 `slideFromRight` | `slideFromRightNative` |
+|---|---|
+| `cardStyleInterpolator: forHorizontalIOS` | `animation: "slide_from_right"` |
+| `gestureDirection: "horizontal"` | unchanged |
+| `gestureResponseDistance: 200` | unchanged (number; v6's object form is gone) |
+| `headerShown: false` | unchanged |
+
+## Structural verification
+
+Route names are what `navigate()` is called with from 75 call sites, so they were diffed
+mechanically against the JSX they replaced rather than eyeballed:
+
+- **15/15 screens present**, names byte-identical including `"Login Privacy Policy"` and
+  `"Unverified Email"` with their spaces
+- Every component identical
+- Every `slideFromRight` became `slideFromRightNative`; the two bare screens still inherit
+  `screenOptions: noHeader`
+- The now-unused `const AuthStack = createStackNavigator()` removed
+
+Gates green: `check:animation`, `audit:lists`, `npm test` 27/27, parse and import checks clean.
+
+## NOT verified — this is the important part
+
+No device was available. **Nothing here has been run.** Specifically open:
+
+| Task | What it checks |
+|---|---|
+| T009 | `navigationRef` still resolves under v7 — 75 call sites, push notifications, deep links |
+| T010 | All five root states still render their navigator |
+| T011 | 53 custom header options survive the v7 upgrade |
+| T016 | Every `AuthStack` screen pushes/pops; swipe-back works |
+| T017 | **The measurement** — does native-stack actually beat the JS stack here? |
+| T018 | The decision gate that says whether to convert the other 26 screens |
+
+The v7 upgrade in particular touches every navigator in the app, not just the converted one. It
+needs a full pass across all five root states before this branch goes anywhere.
+
+## Still true, and still the first thing to do
+
+`006`'s aim check has not been run. If the lag survives `animationEnabled: false`, the cost is the
+destination screen's mount and native-stack will not fix it — in which case this conversion is a
+maintainability change, not a performance one.
