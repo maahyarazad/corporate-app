@@ -82,7 +82,7 @@ export const LocationCards = ({ label, locationList }) => {
           > */}
           <View
             needsOffscreenAlphaCompositing={true}
-            style={{ width: width - 32, borderRadius: 10, marginBottom: 16 }}
+            style={styles.cardWrapper}
             key={`${item}`}
           >
             <MyCard
@@ -139,16 +139,14 @@ export const LocationCards = ({ label, locationList }) => {
                   )}
                 </View>
 
-                <View
-                  style={{ flex: 1, paddingHorizontal: 16, paddingVertical: 8 }}
-                >
-                  <View style={{ height: 40, justifyContent: "center" }}>
+                <View style={styles.cardBody}>
+                  <View style={styles.titleSlot}>
                     <Label size="title" weight="bold">
                       {item.outlet_name}
                     </Label>
                     {item.main_name != undefined && (
                       <Label
-                        style={{ color: "#aaa" }}
+                        style={styles.subtleText}
                         size="body"
                         weight="bold"
                       >
@@ -156,12 +154,12 @@ export const LocationCards = ({ label, locationList }) => {
                       </Label>
                     )}
                   </View>
-                  <View style={{ paddingTop: 8, paddingBottom: 2 }}>
+                  <View style={styles.tagsSlot}>
                     <Label
                       numberOfLines={2}
                       size="body"
                       weight="regular"
-                      style={{ color: "#aaa" }}
+                      style={styles.subtleText}
                     >
                       {item.tags.map(
                         ({ tag }, index) =>
@@ -170,22 +168,13 @@ export const LocationCards = ({ label, locationList }) => {
                     </Label>
                   </View>
                 </View>
-                <Card.Content
-                  style={{ flexDirection: "row", padding: 0, margin: 0 }}
-                >
+                <Card.Content style={styles.chipRow}>
                   {item.offer_types.map((type, index) => {
                     return (
                       <Chip
                         // textStyle={{ marginLeft: 0 }}
                         key={`${type}${index}`}
-                        style={{
-                          backgroundColor: "#FFD892",
-                          padding: 0,
-                          height: 20,
-                          alignItems: "flex-start",
-                          justifyContent: "center",
-                          marginRight: 8,
-                        }}
+                        style={styles.chip}
                       >
                         {type.premium_en}
                       </Chip>
@@ -202,15 +191,7 @@ export const LocationCards = ({ label, locationList }) => {
 
   return (
     <View style={styles.container}>
-      <View
-        style={{
-          paddingHorizontal: 16,
-          marginBottom: 8,
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "flex-end",
-        }}
-      >
+      <View style={styles.header}>
         <Label size="heading" weight="bold">
           {label}
         </Label>
@@ -218,32 +199,24 @@ export const LocationCards = ({ label, locationList }) => {
           onPress={() => {
             handleSeeAll(locationList[0].catid);
           }}
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-          }}
+          style={styles.seeAll}
         >
           <Label
             // style={{ textDecorationLine: "underline", color: "#006EFF" }}
             size="body"
             weight="bold"
-            style={{ marginRight: 4 }}
+            style={styles.seeAllLabel}
           >
             {i18n.t("see-all")}
           </Label>
           <MaterialCommunityIcons size={25} name="arrow-right" />
         </TouchableOpacity>
       </View>
-      <View
-        style={{
-          marginBottom: 8,
-        }}
-      >
+      <View style={styles.carousel}>
         {locationList != undefined ? (
           <FlatList
             removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
-            style={{ flex: 1 }}
+            style={styles.list}
             horizontal
             data={locationList}
             showsHorizontalScrollIndicator={false}
@@ -256,19 +229,12 @@ export const LocationCards = ({ label, locationList }) => {
             overScrollMode="always"
             keyExtractor={keyExtractor}
             keyboardDismissMode="interactive"
-            contentContainerStyle={{ paddingHorizontal: 16 }}
+            contentContainerStyle={styles.listContent}
             ItemSeparatorComponent={itemSeparatorHM}
           />
         ) : (
           <>
-            <View
-              style={{
-                flex: 1,
-                flexDirection: "row",
-                paddingHorizontal: 16,
-                marginBottom: 16,
-              }}
-            >
+            <View style={styles.skeletonRow}>
               <Skeleton
                 borderRadius={10}
                 height={312}
@@ -285,5 +251,42 @@ export const LocationCards = ({ label, locationList }) => {
 };
 
 const styles = StyleSheet.create({
+  header: {
+    paddingHorizontal: 16,
+    marginBottom: 8,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-end",
+  },
+  seeAll: { display: "flex", flexDirection: "row", alignItems: "center" },
+  seeAllLabel: { marginRight: 4 },
+  carousel: { marginBottom: 8 },
+  list: { flex: 1 },
+  listContent: { paddingHorizontal: 16 },
+
+  // one card in the horizontal carousel. `width` is a module constant from
+  // Dimensions, so this is still static.
+  cardWrapper: { width: width - 32, borderRadius: 10, marginBottom: 16 },
+  cardBody: { flex: 1, paddingHorizontal: 16, paddingVertical: 8 },
+  titleSlot: { height: 40, justifyContent: "center" },
+  tagsSlot: { paddingTop: 8, paddingBottom: 2 },
+  subtleText: { color: "#aaa" },
+  chipRow: { flexDirection: "row", padding: 0, margin: 0 },
+  chip: {
+    backgroundColor: "#FFD892",
+    padding: 0,
+    height: 20,
+    alignItems: "flex-start",
+    justifyContent: "center",
+    marginRight: 8,
+  },
+
+  skeletonRow: {
+    flex: 1,
+    flexDirection: "row",
+    paddingHorizontal: 16,
+    marginBottom: 16,
+  },
+
   container: {},
 });

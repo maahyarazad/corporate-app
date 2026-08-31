@@ -166,29 +166,19 @@ export const EventList = () => {
         onPress={() => handleSelectEvent(item.id, item.registered)}
         style={styles.cardButton}
       >
-        <Card style={{ backgroundColor: "white", padding: 0 }}>
+        <Card style={styles.card}>
           <Card.Cover
             resizeMethod="resize"
             resizeMode="cover"
-            style={{
-              height: 130,
-            }}
+            style={styles.cardCover}
             source={{
               uri: `https://www.german-emirates-club.com/uploads/sys/${item.eventImage}`,
             }}
           />
           <Card.Title
-            style={{
-              marginTop: -15,
-              borderRadius: 15,
-              backgroundColor: "white",
-            }}
+            style={styles.cardTitleBar}
             titleNumberOfLines={2}
-            titleStyle={{
-              fontWeight: "bold",
-              paddingVertical: 15,
-              fontSize: 20,
-            }}
+            titleStyle={styles.cardTitle}
             title={item.eventName}
           ></Card.Title>
           <Card.Content>
@@ -201,10 +191,7 @@ export const EventList = () => {
                 name="calendar-clock-outline"
               />
               <Label
-                style={{
-                  marginLeft: 5,
-                  color: theme.colors.ui.lightGray,
-                }}
+                style={styles.metaText}
               >
                 {moment(item.eventTime).format("DD.MMMM YYYY h:mm A")}
               </Label>
@@ -217,24 +204,14 @@ export const EventList = () => {
                 name="map-marker"
               />
               <Label
-                style={{
-                  marginLeft: 5,
-                  color: theme.colors.ui.lightGray,
-                }}
+                style={styles.metaText}
               >
                 {item.eventPlace}
               </Label>
             </View>
           </Card.Content>
           {item.guests === 1 && !item.registered && (
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginTop: 8,
-                paddingHorizontal: 8,
-              }}
-            >
+            <View style={styles.guestsRow}>
               <Checkbox.Android
                 status={item.includeGuests ? "checked" : "unchecked"}
                 onPress={() => {
@@ -265,21 +242,10 @@ export const EventList = () => {
               </Label>
             </View>
           )}
-          <Card.Actions
-            style={{
-              justifyContent: "space-around",
-              paddingBottom: 15,
-              marginLeft: -8,
-            }}
-          >
+          <Card.Actions style={styles.cardActions}>
             <Button
               mode="outlined"
-              style={{
-                flex: 1,
-                borderWidth: 2,
-                borderColor: theme.colors.icons.active,
-                borderRadius: 12,
-              }}
+              style={styles.detailsButton}
               onPress={() => handleSelectEvent(item.id)}
               contentStyle={styles.cardActionButton}
               labelStyle={{
@@ -340,18 +306,7 @@ export const EventList = () => {
     <>
       <CustomModal type="fade" showModal={showModal}>
         <View style={styles.modalContainer}>
-          <View
-            style={{
-              backgroundColor: "white",
-              width: "80%",
-              height: "15%",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              padding: 25,
-              borderRadius: 15,
-            }}
-          >
+          <View style={styles.confirmCard}>
             <Label weight="bold" size="heading">
               {confirmationMSG}
             </Label>
@@ -369,7 +324,7 @@ export const EventList = () => {
           renderItem={renderCard}
           contentContainerStyle={styles.eventListContainer}
           ItemSeparatorComponent={() => {
-            return <View style={{ height: 12 }}></View>;
+            return <View style={styles.separator}></View>;
           }}
         />
       ) : (
@@ -392,6 +347,41 @@ export const EventList = () => {
 };
 
 const styles = StyleSheet.create({
+  card: { backgroundColor: "white", padding: 0 },
+  cardCover: { height: 130 },
+  cardTitleBar: { marginTop: -15, borderRadius: 15, backgroundColor: "white" },
+  cardTitle: { fontWeight: "bold", paddingVertical: 15, fontSize: 20 },
+  // date / place line under the title
+  metaText: { marginLeft: 5, color: theme.colors.ui.lightGray },
+  guestsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 8,
+    paddingHorizontal: 8,
+  },
+  cardActions: {
+    justifyContent: "space-around",
+    paddingBottom: 15,
+    marginLeft: -8,
+  },
+  detailsButton: {
+    flex: 1,
+    borderWidth: 2,
+    borderColor: theme.colors.icons.active,
+    borderRadius: 12,
+  },
+  confirmCard: {
+    backgroundColor: "white",
+    width: "80%",
+    height: "15%",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 25,
+    borderRadius: 15,
+  },
+  separator: { height: 12 },
+
   container: {
     flex: 1,
     alignSelf: "stretch",
