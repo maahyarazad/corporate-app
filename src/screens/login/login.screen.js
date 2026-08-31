@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
+import { useNavigation } from "@react-navigation/native";
 import {
   Image,
   Keyboard,
@@ -47,7 +48,11 @@ export const LoginButton = styled(TouchableOpacity)`
   align-items: center;
 `;
 
-export const LoginScreen = ({ navigation }) => {
+export const LoginScreen = () => {
+  // Static-config screens receive only `route` - the navigator renders them
+  // through a render callback, so `navigation` never arrives as a prop.
+  const navigation = useNavigation();
+
   const [checked, setChecked]           = useState(false);
   const [username, setUsername]         = useState(null);
   const [password, setPassword]         = useState(null);

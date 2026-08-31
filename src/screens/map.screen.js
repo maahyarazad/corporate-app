@@ -1,5 +1,6 @@
 // Import required libraries and components
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { Linking, Platform, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
@@ -39,7 +40,11 @@ export const MyLocationMarker = styled(View)`
 `;
 
 // Main component for the map screen
-export const MapScreen = ({ navigation }) => {
+export const MapScreen = () => {
+  // Static-config screens receive only `route` - the navigator renders them
+  // through a render callback, so `navigation` never arrives as a prop.
+  const navigation = useNavigation();
+
   // Contexts to access location and translation services
   const { getUserLocation, userLocation, getLocationPermission } =
     useContext(LocationContext);

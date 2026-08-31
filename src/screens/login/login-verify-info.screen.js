@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigation } from "@react-navigation/native";
 import {
   ImageBackground,
   KeyboardAvoidingView,
@@ -11,7 +12,11 @@ import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";
 import { LoginButton, TextInputForm } from "./login.screen";
 
-export const VerifyInfo = ({ route, navigation }) => {
+export const VerifyInfo = ({ route }) => {
+  // Static-config screens receive only `route` - the navigator renders them
+  // through a render callback, so `navigation` never arrives as a prop.
+  const navigation = useNavigation();
+
   const [lastname, setLastname] = useState(null);
   const [firstname, setFirstname] = useState(null);
   const [middlename, setMiddlename] = useState(null);

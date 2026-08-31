@@ -20,7 +20,7 @@ import { goback, navigate } from "../../navigation/navigate";
 import { useTheme } from "styled-components/native";
 import PhoneInput from "react-native-phone-number-input";
 import { useEffect } from "react";
-import { useRoute } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { UserService } from "../../services/user/user.service";
 import { isCancel } from "../../utils/cancellation";
 import country from "country-list-js";
@@ -28,7 +28,11 @@ import { AuthContext } from "../../services/auth/auth.context";
 import { UserContext } from "../../services/user/user.context";
 import useUser from "../../../hooks/useUser";
 
-export const UpdateMemberScreen = ({ navigation }) => {
+export const UpdateMemberScreen = () => {
+  // Static-config screens receive only `route` - the navigator renders them
+  // through a render callback, so `navigation` never arrives as a prop.
+  const navigation = useNavigation();
+
   const theme = useTheme();
   const { user, setUser } = useContext(AuthContext);
   const { getUserInfo } = useUser();

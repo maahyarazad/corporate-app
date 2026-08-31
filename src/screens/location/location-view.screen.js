@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
+import { useNavigation } from "@react-navigation/native";
 import { showToast } from "../../Toast";
 import {
   Dimensions,
@@ -37,7 +38,11 @@ import { isCancel } from "../../utils/cancellation";
 
 const { width, height } = Dimensions.get("window");
 
-export const LocationViewScreen = ({ route, navigation }) => {
+export const LocationViewScreen = ({ route }) => {
+  // Static-config screens receive only `route` - the navigator renders them
+  // through a render callback, so `navigation` never arrives as a prop.
+  const navigation = useNavigation();
+
   const locationId = route.params.locId;
   const { getOneLocation, userLocation } = useContext(LocationContext);
   const [location, setLocation] = useState(null);

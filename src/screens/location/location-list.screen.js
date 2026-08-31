@@ -6,6 +6,7 @@ import React, {
   useState,
 } from "react";
 import { View, Keyboard } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import styled from "styled-components/native";
 import { Searchbar } from "react-native-paper";
 import { Label } from "../../components/typography/label.component";
@@ -32,7 +33,11 @@ const SUGGESTION_DEBOUNCE_MS = 300;
 const PARTNER_ENDPOINT = "/v2/partner/";
 const PARTNER_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 
-export const LocationListScreen = ({ navigation, route, ...props }) => {
+export const LocationListScreen = ({ route, ...props }) => {
+  // Static-config screens receive only `route` - the navigator renders them
+  // through a render callback, so `navigation` never arrives as a prop.
+  const navigation = useNavigation();
+
   const { type, search, limit, source } = route.params;
   const { lang } = useContext(TranslationContext);
 

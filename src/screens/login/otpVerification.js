@@ -1,4 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import React, { useContext, useEffect, useState } from "react";
 import { TouchableOpacity, View, StyleSheet } from "react-native";
@@ -41,7 +42,11 @@ const styles = StyleSheet.create({
   },
 });
 
-export const OtpVerification = ({ route, navigation }) => {
+export const OtpVerification = ({ route }) => {
+  // Static-config screens receive only `route` - the navigator renders them
+  // through a render callback, so `navigation` never arrives as a prop.
+  const navigation = useNavigation();
+
   const MAX_CODE_LENGTH = 4;
   const OTP_COOLDOWN = 120;
   const { resendOTP } = useContext(AuthContext);
