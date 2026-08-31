@@ -39,18 +39,12 @@ export const BreakdownRow = ({ item }) => {
 
   const RowDetails = ({ label, value }) => {
     return (
-      <View
-        style={{
-          opacity: transaction ? 1 : 0,
-          flexDirection: "row",
-          paddingVertical: 2,
-        }}
-      >
-        <View style={{ flex: 1 }}>
+      <View style={[styles.detailRow, { opacity: transaction ? 1 : 0 }]}>
+        <View style={styles.detailLabel}>
           <Label size="caption">{label}</Label>
         </View>
-        <View style={{ flex: 1, alignItems: "flex-end" }}>
-          <Label style={{ textAlign: "right" }} size="caption">
+        <View style={styles.detailValue}>
+          <Label style={styles.detailValueText} size="caption">
             {value}
           </Label>
         </View>
@@ -61,47 +55,15 @@ export const BreakdownRow = ({ item }) => {
   return (
     <>
       <CustomModal showModal={showModal}>
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: "#00000088",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <View
-            style={{
-              width: "90%",
-              backgroundColor: "white",
-              borderRadius: 10,
-              overflow: "hidden",
-            }}
-          >
-            <View
-              style={{
-                backgroundColor: "#ccc",
-                padding: 16,
-              }}
-            >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalHeader}>
               <Label weight="bold">
                 {i18n.t("profile-tabs.history-breakdown.transaction-details")}
               </Label>
             </View>
-            <View
-              style={{
-                padding: 16,
-              }}
-            >
-              <View
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  justifyContent: "center",
-                }}
-              >
+            <View style={styles.modalBody}>
+              <View style={styles.loadingOverlay}>
                 <ActivityIndicator
                   color={theme.colors.icons.active}
                   size={40}
@@ -158,19 +120,12 @@ export const BreakdownRow = ({ item }) => {
                 } ${config.CURRENCY}`}
               />
             </View>
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
-                paddingVertical: 16,
-              }}
-            >
+            <View style={styles.modalFooter}>
               <Button
                 color={theme.colors.icons.active}
                 onPress={handleCloseModal}
                 mode="contained"
-                style={{ borderRadius: 10 }}
+                style={styles.closeButton}
                 buttonColor={theme.colors.icons.active}
               >
                 {i18n.t("close")}
@@ -182,19 +137,19 @@ export const BreakdownRow = ({ item }) => {
       <TouchableHighlight
         activeOpacity={0.9}
         underlayColor="#ddd"
-        style={{ flex: 1, background: "red", padding: 15 }}
+        style={styles.row}
         onPress={() => handleOnItemPress(item.transaction_id)}
       >
-        <View style={{ flex: 1, flexDirection: "row" }}>
-          <View style={{ flex: 3 }}>
+        <View style={styles.rowInner}>
+          <View style={styles.rowMerchant}>
             <Label size="caption">{item.merchant}</Label>
           </View>
-          <View style={{ flex: 3, alignItems: "flex-end" }}>
+          <View style={styles.rowDate}>
             <Label size="caption">
               {moment(item.date_transaction).format("DD.MMM YYYY")}
             </Label>
           </View>
-          <View style={{ flex: 2, alignItems: "flex-end" }}>
+          <View style={styles.rowAmount}>
             <Label size="caption">
               {parseFloat(item.discount).toFixed(2)}
             </Label>
@@ -206,5 +161,50 @@ export const BreakdownRow = ({ item }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {},
+  // transaction detail modal
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: "#00000088",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalCard: {
+    width: "90%",
+    backgroundColor: "white",
+    borderRadius: 10,
+    overflow: "hidden",
+  },
+  modalHeader: { backgroundColor: "#ccc", padding: 16 },
+  modalBody: { padding: 16 },
+  loadingOverlay: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    justifyContent: "center",
+  },
+  modalFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 16,
+  },
+  closeButton: { borderRadius: 10 },
+
+  // one label/value line inside the modal. `opacity` stays inline - it is
+  // driven by whether the transaction has loaded.
+  detailRow: { flexDirection: "row", paddingVertical: 2 },
+  detailLabel: { flex: 1 },
+  detailValue: { flex: 1, alignItems: "flex-end" },
+  detailValueText: { textAlign: "right" },
+
+  // the collapsed row in the history list
+  // NOTE: `background` is not a React Native style prop (backgroundColor is);
+  // it is inert and preserved verbatim from the inline original.
+  row: { flex: 1, background: "red", padding: 15 },
+  rowInner: { flex: 1, flexDirection: "row" },
+  rowMerchant: { flex: 3 },
+  rowDate: { flex: 3, alignItems: "flex-end" },
+  rowAmount: { flex: 2, alignItems: "flex-end" },
 });

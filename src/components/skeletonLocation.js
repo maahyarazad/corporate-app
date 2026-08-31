@@ -13,12 +13,7 @@ export const SkeletonLocation = ({ display, backgroundColor = "#efefef" }) => {
         },
       ]}
     >
-      <View
-        style={{
-          height: 260,
-          width: "100%",
-        }}
-      >
+      <View style={styles.hero}>
         <Skeleton
           animating={display}
           variant="square"
@@ -28,15 +23,8 @@ export const SkeletonLocation = ({ display, backgroundColor = "#efefef" }) => {
           opacityMin={0.1}
         />
       </View>
-      <View style={{ padding: 16 }}>
-        <View
-          style={{
-            height: 100,
-            width: "100%",
-            marginVertical: 16,
-            flexDirection: "row",
-          }}
-        >
+      <View style={styles.body}>
+        <View style={styles.infoRow}>
           <View>
             <Skeleton
           animating={display}
@@ -48,7 +36,7 @@ export const SkeletonLocation = ({ display, backgroundColor = "#efefef" }) => {
               borderRadius={10}
             />
           </View>
-          <View style={{ flex: 1, paddingLeft: 16 }}>
+          <View style={styles.infoText}>
             <Skeleton
           animating={display}
               variant="square"
@@ -57,7 +45,7 @@ export const SkeletonLocation = ({ display, backgroundColor = "#efefef" }) => {
               opacityMax={0.2}
               opacityMin={0.1}
               borderRadius={10}
-              style={{ marginBottom: 10 }}
+              style={styles.line}
             />
             <Skeleton
           animating={display}
@@ -71,7 +59,7 @@ export const SkeletonLocation = ({ display, backgroundColor = "#efefef" }) => {
           </View>
         </View>
 
-        <View style={{ marginVertical: 16 }}>
+        <View style={styles.section}>
           <Skeleton
           animating={display}
             variant="square"
@@ -80,7 +68,7 @@ export const SkeletonLocation = ({ display, backgroundColor = "#efefef" }) => {
             opacityMax={0.2}
             opacityMin={0.1}
             borderRadius={10}
-            style={{ marginBottom: 10 }}
+            style={styles.line}
           />
           <Skeleton
           animating={display}
@@ -90,7 +78,7 @@ export const SkeletonLocation = ({ display, backgroundColor = "#efefef" }) => {
             opacityMax={0.2}
             opacityMin={0.1}
             borderRadius={10}
-            style={{ marginBottom: 10 }}
+            style={styles.line}
           />
           <Skeleton
           animating={display}
@@ -103,7 +91,7 @@ export const SkeletonLocation = ({ display, backgroundColor = "#efefef" }) => {
           />
         </View>
 
-        <View style={{ marginVertical: 16 }}>
+        <View style={styles.section}>
           <Skeleton
           animating={display}
             variant="square"
@@ -112,7 +100,7 @@ export const SkeletonLocation = ({ display, backgroundColor = "#efefef" }) => {
             opacityMax={0.2}
             opacityMin={0.1}
             borderRadius={10}
-            style={{ marginBottom: 10 }}
+            style={styles.line}
           />
           <Skeleton
           animating={display}
@@ -122,7 +110,7 @@ export const SkeletonLocation = ({ display, backgroundColor = "#efefef" }) => {
             opacityMax={0.2}
             opacityMin={0.1}
             borderRadius={10}
-            style={{ marginBottom: 10 }}
+            style={styles.line}
           />
         </View>
       </View>
@@ -140,4 +128,15 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 200,
   },
+  hero: { height: 260, width: "100%" },
+  body: { padding: 16 },
+  infoRow: {
+    height: 100,
+    width: "100%",
+    marginVertical: 16,
+    flexDirection: "row",
+  },
+  infoText: { flex: 1, paddingLeft: 16 },
+  section: { marginVertical: 16 },
+  line: { marginBottom: 10 },
 });

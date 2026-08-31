@@ -21,7 +21,7 @@ const OfferComponent = ({ offer, onPress, backgroundColor = "#efefef" }) => {
   return (
     <TouchableHighlight
       onPress={() => onPress?.(offer)}
-      style={{ borderRadius: 10 }}
+      style={styles.pressable}
     >
       <View style={styles.container}>
         <View style={styles.ticketContainer}>
@@ -42,45 +42,17 @@ const OfferComponent = ({ offer, onPress, backgroundColor = "#efefef" }) => {
           />
           <View style={[styles.offerTicket, { backgroundColor: offer.color }]}>
             {offer && !!offer.isHotpick && (
-              <View style={{ position: "absolute", zIndex: 2, top: 6 }}>
+              <View style={styles.hotpickRibbon}>
                 <RibbonSVG fill="#FF9600" />
-                <View
-                  style={{
-                    position: "absolute",
-                    height: "100%",
-                    // backgroundColor: "green",
-                    width: "100%",
-                    paddingRight: 16,
-                    display: "flex",
-                    // alignItems: "flex-start",
-                    flexDirection: "row",
-                  }}
-                >
-                  <View style={{ position: "relative", height: 30, width: 20 }}>
+                <View style={styles.hotpickBanner}>
+                  <View style={styles.hotpickIconSlot}>
                     <Image
-                      style={{
-                        height: 30,
-                        width: 20,
-                        tintColor: "#FF5000",
-                        position: "absolute",
-                        top: -10,
-                      }}
+                      style={styles.hotpickIcon}
                       source={require("./../../../../assets/specials/Hot_Pick.png")}
                     />
                   </View>
-                  <View
-                    style={{
-                      flex: 1,
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Label
-                      style={{
-                        color: "white",
-                        fontSize: 13,
-                      }}
-                      weight="bold"
-                    >
+                  <View style={styles.hotpickLabelSlot}>
+                    <Label style={styles.hotpickLabel} weight="bold">
                       Hot Pick
                     </Label>
                   </View>
@@ -91,15 +63,15 @@ const OfferComponent = ({ offer, onPress, backgroundColor = "#efefef" }) => {
             <View style={styles.bottomNotch}></View>
             <View style={[styles.bottomNotch, styles.topNotch]}></View>
 
-            <View style={{ flexDirection: "row" }}>
+            <View style={styles.ticketBody}>
               <View style={styles.cutLine}>
                 <Image
-                  style={{ width: 90, height: 90 }}
+                  style={styles.stamp}
                   source={offerStamps[offer.premium_id - 1]}
                 />
               </View>
               <View style={styles.textContent}>
-                <View style={{ flex: 1 }}>
+                <View style={styles.offerHeading}>
                   <Label weight="medium" size={14}>
                     {`${offer.premium_en}${
                       offer.freebie_en ? ` ${offer.freebie_en}` : ""
@@ -134,6 +106,33 @@ const OfferComponent = ({ offer, onPress, backgroundColor = "#efefef" }) => {
 export const Offer = memo(OfferComponent);
 
 const styles = StyleSheet.create({
+  pressable: { borderRadius: 10 },
+
+  // "Hot Pick" ribbon overlay
+  hotpickRibbon: { position: "absolute", zIndex: 2, top: 6 },
+  hotpickBanner: {
+    position: "absolute",
+    height: "100%",
+    width: "100%",
+    paddingRight: 16,
+    display: "flex",
+    flexDirection: "row",
+  },
+  hotpickIconSlot: { position: "relative", height: 30, width: 20 },
+  hotpickIcon: {
+    height: 30,
+    width: 20,
+    tintColor: "#FF5000",
+    position: "absolute",
+    top: -10,
+  },
+  hotpickLabelSlot: { flex: 1, justifyContent: "center" },
+  hotpickLabel: { color: "white", fontSize: 13 },
+
+  ticketBody: { flexDirection: "row" },
+  stamp: { width: 90, height: 90 },
+  offerHeading: { flex: 1 },
+
   container: {},
   ticketContainer: {
     backgroundColor: "white",
