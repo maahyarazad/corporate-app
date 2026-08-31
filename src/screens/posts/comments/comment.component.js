@@ -27,11 +27,6 @@ import CommentSection from "./commentSection.component";
 import useTime from "../../../../hooks/useTime";
 import usePosts from "../post_card/usePosts";
 import useUser from "../../../../hooks/useUser";
-import {
-  BottomSheetBackdrop,
-  BottomSheetModal,
-  BottomSheetModalProvider,
-} from "@gorhom/bottom-sheet";
 import BottomSheetSelector from "../../../components/bottomSheetSelector.component";
 import useDialog from "../../../../hooks/useDialog";
 import { Button } from "react-native-paper";

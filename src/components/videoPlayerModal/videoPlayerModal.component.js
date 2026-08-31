@@ -1,9 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
 import React, { useState } from "react";
-import {
-  GestureHandlerRootView,
-  PanGestureHandler,
-} from "react-native-gesture-handler";
 import { StatusBar } from "expo-status-bar";
 import { CustomModal } from "../modal/customModal.component";
 import { ResizeMode, Video as VideoPlayer } from "expo-av";
@@ -19,7 +15,7 @@ const VideoPlayerModal = ({ video, onClose }) => {
           backgroundColor: "black",
         }}
       >
-        <GestureHandlerRootView
+        <View
           style={{
             justifyContent: "center",
             width: "100%",
@@ -57,7 +53,7 @@ const VideoPlayerModal = ({ video, onClose }) => {
               />
             </View>
           </PanGestureHandler>
-        </GestureHandlerRootView>
+        </View>
       </View>
     </CustomModal>
   );

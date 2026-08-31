@@ -14,7 +14,6 @@ import { MyCard } from "../myCard.component";
 import { Spacer } from "../spacer/spacer.component";
 import { Label } from "../typography/label.component";
 import Carousel from "react-native-reanimated-carousel";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Animated, {
   Extrapolation,
   interpolate,

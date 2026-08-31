@@ -2,6 +2,7 @@ import "react-native-gesture-handler";
 import { useEffect } from "react";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
 import { StyleSheet, Text, TextInput, View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ThemeProvider } from "styled-components/native";
 import { theme } from "./src/infrastructure/theme";
 import { SectionContextProvider } from "./src/services/section/section.context";
@@ -54,7 +55,7 @@ export default function App() {
   }, []);
 
   return (
-    <>
+    <GestureHandlerRootView style={styles.root}>
       <ThemeProvider theme={theme}>
         <Provider store={store}>
           <AlertContextProvider>
@@ -88,8 +89,12 @@ export default function App() {
       <ConfirmDialogHost />
 
       <ExpoStatusBar style="dark" />
-    </>
+    </GestureHandlerRootView>
   );
 }
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  // GestureHandlerRootView must fill the screen. Without flex: 1 it collapses to
+  // zero height and the app renders blank.
+  root: { flex: 1 },
+});

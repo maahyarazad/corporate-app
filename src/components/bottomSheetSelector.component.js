@@ -1,5 +1,4 @@
 import {
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -10,6 +9,7 @@ import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import BottomSheetComponent, {
   BottomSheetBackdrop,
   BottomSheetModal,
+  BottomSheetScrollView,
 } from "@gorhom/bottom-sheet";
 import { Label } from "./typography/label.component";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -22,10 +22,7 @@ const BottomSheetSelector = ({
   display = true,
 }) => {
   const bottomSheetRef = useRef(null);
-  const snapPoints = useMemo(() => [windowSize], []);
-  const handleSheetChanges = useCallback((index) => {
-    console.log("handleSheetChanges", index);
-  }, []);
+  const snapPoints = useMemo(() => [windowSize], [windowSize]);
 
   useEffect(() => {
     if (display && data) {
@@ -35,7 +32,7 @@ const BottomSheetSelector = ({
     }
 
     return () => {};
-  }, [display]);
+  }, [display, data]);
 
   const handleSelect = (onPress) => {
     onPress();
@@ -61,12 +58,15 @@ const BottomSheetSelector = ({
         ref={bottomSheetRef}
         index={0}
         snapPoints={snapPoints}
-        onChange={handleSheetChanges}
         backdropComponent={renderBackdrop}
         backgroundStyle={{}}
         onDismiss={onClose}
       >
-        <ScrollView style={{ marginHorizontal: 12 }}>
+        {/* BottomSheetScrollView, not react-native's ScrollView: it wires the
+            scroll gesture into the sheet's own handler, so dragging at
+            scroll-top moves the sheet instead of the two fighting over the
+            same pan. */}
+        <BottomSheetScrollView style={{ marginHorizontal: 12 }}>
           <View
             style={{
               borderRadius: 8,
@@ -126,7 +126,7 @@ const BottomSheetSelector = ({
                 );
               })}
           </View>
-        </ScrollView>
+        </BottomSheetScrollView>
       </BottomSheetModal>
     </>
   );
