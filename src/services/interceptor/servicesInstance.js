@@ -71,18 +71,23 @@ axiosInstance.interceptors.response.use(
         message
       );
 
-      return Promise.reject(message);
+      return Promise.reject({ status, title: "Unauthorized", message });
     }
 
     if (status === 503) {
+      // Reject with the same {status, title, message} shape as every other
+      // branch: handing back the raw axios response leaked an object into
+      // callers that pass the rejection straight to a toast.
+      const unavailableTitle = data?.title ?? "Service Unavailable";
+      const unavailableMessage = data?.message ?? "Could not reach the server";
 
-      showToast(
-        "error",
-        "Service Unavailable",
-        "Could not reach the server"
-      );
+      showToast("error", unavailableTitle, unavailableMessage);
 
-      return Promise.reject(error.response);
+      return Promise.reject({
+        status,
+        title: unavailableTitle,
+        message: unavailableMessage,
+      });
     }
 
     return Promise.reject({

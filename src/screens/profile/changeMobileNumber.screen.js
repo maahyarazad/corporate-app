@@ -64,7 +64,7 @@ const ChangeMobileNumberScreen = () => {
       }
     } catch (error) {
       console.log("Failed to change mobile number", error);
-      showToast("error", "Server Error", error);
+      showToast("error", error?.title ?? "Server Error", error?.message);
     }
   };
 

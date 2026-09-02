@@ -268,7 +268,7 @@ export const RegistrationScreen = () => {
     } catch (error) {
       console.log("Validation Error:", error);
       shake();
-      showToast("error", "Server Error", error);
+      showToast("error", error?.title ?? "Server Error", error?.message);
     } finally {
       setIsLoading(false);
     }

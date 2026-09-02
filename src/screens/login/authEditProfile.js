@@ -77,7 +77,7 @@ export const AuthEditProfileScreen = () => {
     } catch (error) {
       if (isCancel(error)) return;
       console.log(error);
-      showToast("error", "Server Error", error);
+      showToast("error", error?.title ?? "Server Error", error?.message);
     }
   }, []);
 
