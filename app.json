@@ -99,9 +99,10 @@
       "associatedDomains": [
         "applinks:buenapublica.com"
       ],
-      "buildNumber": "83",
+      "buildNumber": "85",
       "supportsTablet": true,
       "infoPlist": {
+        "UIDesignRequiresCompatibility": true,
         "NSLocationWhenInUseUsageDescription": "Turning on location services allows us to show you nearby shops with offers.",
         "NSPhotoLibraryUsageDescription": "The app needs to access the photo of your GEC Membership card.",
         "NSPhotoLibraryAddUsageDescription": "The app needs to save a photo of your GEC Membership card.",
@@ -116,7 +117,7 @@
       "appleTeamId": "YQFY6269ZL"
     },
     "android": {
-      "versionCode": 83,
+      "versionCode": 85,
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyBdMYAFwnxqA6KI4AE31v8BWBsr1ZDRogQ"

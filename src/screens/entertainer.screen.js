@@ -1,7 +1,7 @@
 import React, {
+  memo,
   useContext,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -13,18 +13,18 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
+  Image,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "styled-components/native";
 import { showToast } from "../Toast";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { useNavigation } from "@react-navigation/native";
 import * as Notifications from "expo-notifications";
 import * as SecureStore from "expo-secure-store";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
 
-import { LocationContext } from "../services/location/location.context";
 import { TranslationContext } from "../services/translation/translation.context";
 import { HomeNavigation } from "./homenavigation";
 import { SpecialsScreen } from "./specials.screen";
@@ -102,13 +102,45 @@ const TAB_BAR_STYLE = {
 // to portrait (app.json), so a module constant is the right lifetime here.
 const INITIAL_TAB_LAYOUT = { width: Dimensions.get("window").width };
 
+// Content height of the header, below the status bar. The native stack could
+// not give us this: native-stack forwards only backgroundColor from
+// headerStyle to the native UINavigationBar, so height/minHeight set there
+// are dropped before they reach it.
+const HEADER_HEIGHT = 60;
+
+const headerLogoSource = require("../../assets/GE-LOGO-GOLD.png");
+
 const styles = StyleSheet.create({
-  headerRight: {
+  screen: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  header: {
+    backgroundColor: "#fff",
+    justifyContent: "center",
+  },
+  headerContainer: {
     width: "100%",
     flexDirection: "row",
     alignContent: "center",
+    justifyContent: "space-between",
+  },
+  headerLeft: {
+    flexDirection: "row",
+    alignContent: "center",
+    justifyContent: "flex-start",
+    paddingRight: 10,
+  },
+  headerRight: {
+    flexDirection: "row",
+    alignContent: "center",
     justifyContent: "flex-end",
-    paddingRight: 4,
+    paddingRight: 10,
+  },
+  logo: {
+    height: 40,
+    width: 80,
+    resizeMode: "contain",
   },
   greeting: {
     paddingRight: 8,
@@ -151,12 +183,95 @@ const styles = StyleSheet.create({
   },
 });
 
+// Split out and memoized so header state (headerRoute, hasNotification) and
+// pager state stop re-rendering each other.
+//
+// The props are primitives, not the userData object: userData's identity turns
+// over on every write to the user context, while the two fields the header
+// actually reads change almost never. Passing the fields is what keeps the memo
+// from being defeated on arrival.
+const EntertainerHeader = memo(function EntertainerHeader({
+  containerStyle,
+  greeting,
+  memberImage,
+  isMember,
+  hasNotification,
+  showMapAction,
+  onLogoPress,
+  onSearchPress,
+  onMapPress,
+  onNotificationsPress,
+  onProfilePress,
+}) {
+  return (
+    <View style={containerStyle}>
+      <View style={styles.headerContainer}>
+        <View style={styles.headerLeft}>
+          <TouchableOpacity onPress={onLogoPress}>
+            <Image style={styles.logo} source={headerLogoSource} />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.headerRight}>
+          <Label
+            style={styles.greeting}
+            numberOfLines={1}
+            size="subtitle"
+            weight="bold"
+          >
+            {greeting}
+          </Label>
+
+          <View style={styles.actions}>
+            <TouchableOpacity onPress={onSearchPress}>
+              <View style={styles.searchIcon}>
+                <MaterialCommunityIcons name="magnify" size={30} />
+              </View>
+            </TouchableOpacity>
+
+            {showMapAction && (
+              <TouchableOpacity onPress={onMapPress}>
+                <View style={styles.actionIcon}>
+                  <MaterialCommunityIcons name="map-search" size={28} />
+                </View>
+              </TouchableOpacity>
+            )}
+
+            {isMember && (
+              <TouchableOpacity onPress={onNotificationsPress}>
+                <View style={styles.actionIcon}>
+                  <MaterialCommunityIcons name="bell-outline" size={28} />
+                </View>
+
+                {hasNotification && <View style={styles.unreadDot} />}
+              </TouchableOpacity>
+            )}
+
+            <TouchableOpacity onPress={onProfilePress}>
+              {memberImage ? (
+                <View style={styles.avatarClip}>
+                  <CacheImage style={styles.avatar} uri={memberImage} />
+                </View>
+              ) : (
+                <MaterialCommunityIcons name="account-circle" size={30} />
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+});
+
 export const EntertainerScreen = () => {
   const { i18n } = useContext(TranslationContext);
   const { userData } = useUser();
-  const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
   const theme = useTheme();
-  const { eventList } = useContext(LocationContext);
+  // Depend on the colours, not the theme object: a new theme identity with
+  // unchanged colours would otherwise rebuild every tab screen.
+  const activeIconColor = theme.colors.icons.active;
+  const inactiveIconColor = theme.colors.icons.inactive;
 
   const [hasNotification, setHasNotification] = useState(false);
 
@@ -355,100 +470,48 @@ export const EntertainerScreen = () => {
 
   const openMap = useCallback(() => navigate("Map"), []);
   const openProfile = useCallback(() => navigate("Profile"), []);
+  const navigateHome = useCallback(() => {
+    navigate("Home");
+  }, []);
 
-  const changeHeaderRight = useCallback(
-    (route) => {
-      navigation.setOptions({
-        headerRight: () => (
-          <View style={styles.headerRight}>
-            <Label
-              style={styles.greeting}
-              numberOfLines={1}
-              size="subtitle"
-              weight="bold"
-            >
-              {i18n.t("user_greeting", {
-                name: userData ? userData.first_name?.split(" ")[0] : "",
-              })}
-            </Label>
+  // The header is rendered by this screen now, not by the native stack
+  // (headerShown: false in navigation.js). Owning it in JS is what makes
+  // HEADER_HEIGHT real, and it keeps the bar out of the Liquid Glass treatment
+  // iOS 26 applies to UINavigationBar.
+  const [headerRoute, setHeaderRoute] = useState("Home");
 
-            <View style={styles.actions}>
-              <TouchableOpacity onPress={() => handleSearch(route)}>
-                <View style={styles.searchIcon}>
-                  <MaterialCommunityIcons name="magnify" size={30} />
-                </View>
-              </TouchableOpacity>
+  // setHeaderRoute comes from useState, so this callback's identity is stable
+  // for the life of the screen. That matters: the tab children below must not
+  // depend on anything whose identity turns over when userData or
+  // hasNotification changes - one incoming notification is enough - because a
+  // new children array makes react-navigation re-read every screen config and
+  // re-render the entire TabView underneath.
+  const handleTabPress = useCallback((route) => {
+    setHeaderRoute(route);
+  }, []);
 
-              {route === "Home" && (
-                <TouchableOpacity onPress={openMap}>
-                  <View style={styles.actionIcon}>
-                    <MaterialCommunityIcons name="map-search" size={28} />
-                  </View>
-                </TouchableOpacity>
-              )}
-
-              {userData?.member === 1 && (
-                <TouchableOpacity onPress={openNotifications}>
-                  <View style={styles.actionIcon}>
-                    <MaterialCommunityIcons name="bell-outline" size={28} />
-                  </View>
-
-                  {hasNotification && <View style={styles.unreadDot} />}
-                </TouchableOpacity>
-              )}
-
-              <TouchableOpacity onPress={openProfile}>
-                {userData && userData.member_image ? (
-                  <View style={styles.avatarClip}>
-                    <CacheImage
-                      style={styles.avatar}
-                      uri={userData.member_image}
-                    />
-                  </View>
-                ) : (
-                  <MaterialCommunityIcons name="account-circle" size={30} />
-                )}
-              </TouchableOpacity>
-            </View>
-          </View>
-        ),
-      });
-    },
-    [
-      navigation,
-      i18n,
-      userData,
-      hasNotification,
-      handleSearch,
-      openMap,
-      openNotifications,
-      openProfile,
-    ]
+  const headerContainerStyle = useMemo(
+    () => [
+      styles.header,
+      { paddingTop: insets.top, height: HEADER_HEIGHT + insets.top },
+    ],
+    [insets.top]
   );
 
-  // useLayoutEffect, not useEffect: setOptions has to land in the same commit
-  // that mounts the screen, otherwise the header paints once without the right
-  // side and then again with it.
-  useLayoutEffect(() => {
-    if (!userData) return;
-    // changeHeaderRight(userData?.member === 1 ? "Feed" : "Home");
-    changeHeaderRight(userData?.member === 1 ? "Home" : "Home");
-  }, [userData, hasNotification, changeHeaderRight]);
+  const greeting = useMemo(
+    () =>
+      i18n.t("user_greeting", {
+        name: userData ? userData.first_name?.split(" ")[0] : "",
+      }),
+    [i18n, userData]
+  );
 
-  // The tab children below must not depend on changeHeaderRight. Its identity
-  // turns over whenever userData or hasNotification changes - a single incoming
-  // notification is enough - and a new children array makes react-navigation
-  // re-read every screen config and re-render the entire TabView underneath.
-  // The listener reaches the current version through this ref instead.
-  const changeHeaderRightRef = useRef(changeHeaderRight);
-
-  useEffect(() => {
-    changeHeaderRightRef.current = changeHeaderRight;
-  }, [changeHeaderRight]);
-
-  const handleTabPress = useCallback((route) => {
-    changeHeaderRightRef.current(route);
-  }, []);
+  // Was an inline arrow in the header JSX, so it minted a new onPress - and a
+  // new TouchableOpacity props object - on every render of the screen.
+  const openSearch = useCallback(
+    () => handleSearch(headerRoute),
+    [handleSearch, headerRoute]
+  );
 
   const TabItems = useMemo(
     () => [
@@ -484,16 +547,15 @@ export const EntertainerScreen = () => {
     [i18n]
   );
 
-  const visibleTabs = useMemo(
-    () =>
-      TabItems.filter((tab) => {
-        return true;
-        if (tab.route === "Events" && !eventList.length) return false;
-        //   if (tab.route === "Feed" && userData && !userData.member) return false;
-        return true;
-      }),
-    [TabItems, eventList]
-  );
+  // The filter this used to run returned true unconditionally - the two rules
+  // below it were unreachable - but it still listed eventList as a dependency.
+  // Every write to the location context therefore produced a new array, which
+  // rebuilt tabScreens, which re-rendered the whole TabView. Restoring either
+  // rule means reinstating the filter and the eventList dependency with it.
+  //
+  //   if (tab.route === "Events" && !eventList.length) return false;
+  //   if (tab.route === "Feed" && userData && !userData.member) return false;
+  const visibleTabs = TabItems;
 
   const renderTabIcon = useCallback(
     (iconName) =>
@@ -501,12 +563,10 @@ export const EntertainerScreen = () => {
         <MaterialCommunityIcons
           name={iconName}
           size={30}
-          color={
-            focused ? theme.colors.icons.active : theme.colors.icons.inactive
-          }
+          color={focused ? activeIconColor : inactiveIconColor}
         />
       ),
-    [theme]
+    [activeIconColor, inactiveIconColor]
   );
 
   const tabScreens = useMemo(
@@ -526,20 +586,45 @@ export const EntertainerScreen = () => {
             tabBarLabelStyle: TAB_BAR_LABEL_STYLE,
             tabBarStyle: TAB_BAR_STYLE,
             tabBarIcon: renderTabIcon(tab.inactiveIcon),
-            tabBarActiveTintColor: theme.colors.icons.active,
+            tabBarActiveTintColor: activeIconColor,
           }}
         />
       )),
-    [visibleTabs, handleTabPress, renderTabIcon, theme]
+    [visibleTabs, handleTabPress, renderTabIcon, activeIconColor]
+  );
+
+  // The pager is the expensive subtree on this screen. Holding its element
+  // identity steady lets React skip it entirely when only header state moved.
+  const tabNavigator = useMemo(
+    () => (
+      <Tab.Navigator
+        tabBarPosition="bottom"
+        initialLayout={INITIAL_TAB_LAYOUT}
+        screenOptions={TAB_NAVIGATOR_SCREEN_OPTIONS}
+      >
+        {tabScreens}
+      </Tab.Navigator>
+    ),
+    [tabScreens]
   );
 
   return (
-    <Tab.Navigator
-      tabBarPosition="bottom"
-      initialLayout={INITIAL_TAB_LAYOUT}
-      screenOptions={TAB_NAVIGATOR_SCREEN_OPTIONS}
-    >
-      {tabScreens}
-    </Tab.Navigator>
+    <View style={styles.screen}>
+      <EntertainerHeader
+        containerStyle={headerContainerStyle}
+        greeting={greeting}
+        memberImage={userData?.member_image}
+        isMember={userData?.member === 1}
+        hasNotification={hasNotification}
+        showMapAction={headerRoute === "Home"}
+        onLogoPress={navigateHome}
+        onSearchPress={openSearch}
+        onMapPress={openMap}
+        onNotificationsPress={openNotifications}
+        onProfilePress={openProfile}
+      />
+
+      {tabNavigator}
+    </View>
   );
 };

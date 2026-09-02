@@ -1,6 +1,5 @@
 import React, { useContext, useEffect } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { LoadingOverlay } from "./src/components/loading/loading.component";
 import { NavigationContainer } from "@react-navigation/native";
 import { LoginScreen } from "./src/screens/login/login.screen";
 import { EntertainerScreen } from "./src/screens/entertainer.screen";
@@ -23,11 +22,12 @@ import { SectionContext } from "./src/services/section/section.context";
 import { AvailOfferScreen } from "./src/screens/offer/availOffer.screen";
 import { LocationViewScreen } from "./src/screens/location/location-view.screen";
 import {
-  Image,
+  
   TouchableOpacity,
   View,
   Dimensions,
   ImageBackground,
+  
 } from "react-native";
 import { TransactionSummaryScreen } from "./src/screens/offer/transactionSummary.screen";
 import { ForgotPasswordScreen } from "./src/screens/reset-password/forgotPassword";
@@ -38,7 +38,6 @@ import { UnverifiedEmailScreen } from "./src/screens/login/unverifiedEmail.scree
 import { PrivacyPolicyScreen } from "./src/screens/profile/privacyPolicy.screen";
 import { EventDetailScreen } from "./src/screens/events/eventDetail.screen";
 import { EventGuestsScreen } from "./src/screens/events/eventGuests.screen";
-import { TranslationContext } from "./src/services/translation/translation.context";
 import { UpdateMemberScreen } from "./src/screens/login/updateMember.screen";
 import { NoConnectionScreen } from "./src/screens/noConnection.screen";
 import { AppContext } from "./src/services/app/app.context";
@@ -160,55 +159,14 @@ const postEntryOptionsNative = {
   headerTitleStyle: { color: "black" },
 };
 
-// headerLeftContainerStyle / headerRightContainerStyle dropped - the native
-// header does not expose container styles. If the logo padding looks wrong,
-// absorb it into renderEntertainerHeaderLeft itself (tasks T004).
+// The Entertainer screen draws its own header (see HEADER_HEIGHT in
+// entertainer.screen.js). native-stack forwards only backgroundColor from
+// headerStyle to the native UINavigationBar, so header height was not
+// reachable from here.
 const entertainerScreenOptionsNative = {
-  headerShown: true,
-  headerTitle: "",
-  headerLeft: renderEntertainerHeaderLeft,
+  headerShown: false,
 };
 
-// Android only. react-native-screens detaches an inactive card by removing its
-// fragment, so the whole native view tree under it is destroyed and rebuilt on
-// the way back. Under Entertainer that tree is a material-top-tabs pager plus
-// the navigators nested in its pages; ViewPager2 re-measures and re-settles its
-// scroll offset as it is re-attached, which is the horizontal jolt on return.
-// detachPreviousScreen keeps the card below the top one at activityState 1 -
-// alive but not interactive - so there is nothing to rebuild. iOS keeps the
-// view either way, which is why the glitch was Android-only.
-
-// The Entertainer screen's options never change, so they are built once here.
-// Inline in the navigator they were rebuilt on every render - and the stack
-// re-renders on every navigation.setOptions() call the screen makes - which
-// handed the header a fresh headerLeft each time, re-rendering the logo
-// subtree.
-//
-// It does NOT unmount that subtree: React reconciles by element type and
-// position, both unchanged, so the Image is not re-decoded. An earlier version
-// of this comment claimed otherwise. The visible jolt on return was almost
-// certainly fixed by keepPreviousScreenAttached above, which has a documented
-// native mechanism; this hoist is duplication and allocation hygiene. See
-// specs/005-static-screen-options/research.md R4.
-const entertainerLogo = require("./assets/GE-LOGO-GOLD.png");
-
-const entertainerHeaderLeftStyle = {
-  width: "100%",
-  height: "100%",
-  justifyContent: "center",
-};
-
-const entertainerLogoStyle = {
-  height: 40,
-  width: 80,
-  resizeMode: "contain",
-};
-
-const renderEntertainerHeaderLeft = () => (
-  <View style={entertainerHeaderLeftStyle}>
-    <Image style={entertainerLogoStyle} source={entertainerLogo} />
-  </View>
-);
 
 
 // ---------------------------------------------------------------------------
