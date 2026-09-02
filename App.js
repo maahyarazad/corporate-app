@@ -1,7 +1,7 @@
 import "react-native-gesture-handler";
 import { useEffect } from "react";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { StyleSheet, Text, TextInput } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ThemeProvider } from "styled-components/native";
 import { theme } from "./src/infrastructure/theme";
@@ -10,7 +10,6 @@ import { AuthContextProvider } from "./src/services/auth/auth.context";
 import { LocationContextProvider } from "./src/services/location/location.context";
 import { AppNavigation } from "./navigation";
 import { UploadContextProvider } from "./src/services/upload/upload.context";
-import { UserContextProvider } from "./src/services/user/user.context";
 import { TranslationContextProvider } from "./src/services/translation/translation.context";
 import { AppContextProvider } from "./src/services/app/app.context";
 import AuthProvider from "./src/services/auth_v2/auth.context";
