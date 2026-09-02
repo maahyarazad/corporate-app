@@ -72,28 +72,20 @@ const ChangeMobileNumberScreen = () => {
   return (
     <Background>
       <StatusBar style="light" />
-      <SafeArea style={{ alignItems: "center" }}>
-        <View style={{ paddingHorizontal: 12, width: "100%" }}>
+      <SafeArea style={styles.safeArea}>
+        <View style={styles.box}>
           <TouchableOpacity
             onPress={goback}
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-            }}
+            style={styles.rowCenter}
             activeOpacity={0.5}
           >
             <Ionicons name="arrow-back" size={35} color="#fff" />
-            <Label
-              size="body"
-              weight="bold"
-              style={{ justifyContent: "center" }}
-              color="white"
-            >
+            <Label size="body" weight="bold" style={styles.label} color="white">
               {i18n.t("return")}
             </Label>
           </TouchableOpacity>
         </View>
-        <View style={{ flex: 1, width: "100%", padding: 12, gap: 50 }}>
+        <View style={styles.flexBox}>
           <Label size="h4" weight="bold" color="white">
             {i18n.t("update-mobile-number.header")}
           </Label>
@@ -105,34 +97,23 @@ const ChangeMobileNumberScreen = () => {
               placeholder="541234567"
               onChangeText={handleMobileChange}
               onChangeCountry={handleMobileCountryChange}
-              containerStyle={{
-                borderRadius: 5,
-                width: "100%",
-                borderWidth: 2,
-                borderColor:
-                  isSubmitted && state.mobile.trim() === ""
-                    ? "red"
-                    : "#00000099",
-                marginTop: 0,
-              }}
-              textContainerStyle={{
-                borderTopRightRadius: 5,
-                borderBottomRightRadius: 5,
-              }}
+              containerStyle={[
+                styles.phoneInputContainer,
+                {
+                  borderColor:
+                    isSubmitted && state.mobile.trim() === ""
+                      ? "red"
+                      : "#00000099",
+                },
+              ]}
+              textContainerStyle={styles.phoneInputTextContainer}
             />
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={handleUpdateNumber}
-              style={{
-                height: 55,
-                backgroundColor: theme.colors.ui.button,
-                borderRadius: 5,
-                justifyContent: "center",
-                alignItems: "center",
-                marginTop: 8
-              }}
+              style={[styles.centerBox, { backgroundColor: theme.colors.ui.button }]}
             >
-              <Label style={{ color: "white" }} size="body" weight="bold">
+              <Label style={styles.label2} size="body" weight="bold">
                 {i18n.t("update-mobile-number.confirm")}
               </Label>
             </TouchableOpacity>
@@ -145,4 +126,45 @@ const ChangeMobileNumberScreen = () => {
 
 export default ChangeMobileNumberScreen;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  safeArea: {
+    alignItems: "center",
+  },
+  box: {
+    paddingHorizontal: 12,
+    width: "100%",
+  },
+  rowCenter: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  label: {
+    justifyContent: "center",
+  },
+  flexBox: {
+    flex: 1,
+    width: "100%",
+    padding: 12,
+    gap: 50,
+  },
+  phoneInputTextContainer: {
+    borderTopRightRadius: 5,
+    borderBottomRightRadius: 5,
+  },
+  label2: {
+    color: "white",
+  },
+  phoneInputContainer: {
+    borderRadius: 5,
+    width: "100%",
+    borderWidth: 2,
+    marginTop: 0,
+  },
+  centerBox: {
+    height: 55,
+    borderRadius: 5,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 8,
+  },
+});

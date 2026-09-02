@@ -56,13 +56,8 @@ const BottomSheetSelector = ({
             scroll gesture into the sheet's own handler, so dragging at
             scroll-top moves the sheet instead of the two fighting over the
             same pan. */}
-        <BottomSheetScrollView style={{ marginHorizontal: 12 }}>
-          <View
-            style={{
-              borderRadius: 8,
-              backgroundColor: "#eee",
-            }}
-          >
+        <BottomSheetScrollView style={styles.bottomSheetScrollView}>
+          <View style={styles.tint}>
             {data &&
               data.map((option, index) => {
                 if (!option) {
@@ -76,24 +71,14 @@ const BottomSheetSelector = ({
                         handleSelect(option.onPress);
                       }}
                     >
-                      <View
-                        style={{
-                          padding: 10,
-                          flexDirection: "row",
-                          gap: 12,
-                          alignItems: "center",
-                          borderColor: "#ddd",
-                        }}
-                      >
+                      <View style={styles.rowCenter}>
                         <View
-                          style={{
-                            backgroundColor: theme.colors.ui.gray,
-                            width: 50,
-                            height: 50,
-                            borderRadius: 50,
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
+                          style={[
+                            styles.centerBox,
+                            {
+                              backgroundColor: theme.colors.ui.gray,
+                            },
+                          ]}
                         >
                           <MaterialCommunityIcons
                             name={option.logo}
@@ -108,9 +93,7 @@ const BottomSheetSelector = ({
                       </View>
                     </TouchableOpacity>
                     {index < data.length - 1 && (
-                      <View
-                        style={{ flex: 1, height: 2, backgroundColor: "#ddd" }}
-                      ></View>
+                      <View style={styles.flexBox}></View>
                     )}
                   </View>
                 );
@@ -138,5 +121,31 @@ const styles = StyleSheet.create({
     shadowRadius: 11.95,
 
     elevation: 18,
+  },
+  bottomSheetScrollView: {
+    marginHorizontal: 12,
+  },
+  tint: {
+    borderRadius: 8,
+    backgroundColor: "#eee",
+  },
+  rowCenter: {
+    padding: 10,
+    flexDirection: "row",
+    gap: 12,
+    alignItems: "center",
+    borderColor: "#ddd",
+  },
+  flexBox: {
+    flex: 1,
+    height: 2,
+    backgroundColor: "#ddd",
+  },
+  centerBox: {
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

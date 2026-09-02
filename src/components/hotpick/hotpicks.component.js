@@ -67,19 +67,18 @@ const Hotpicks = ({ hotpickData }) => {
 
     return (
       <View
-        style={{
-          backgroundColor: "white",
-          width,
-          height: width,
-          borderRadius: 50,
-          marginHorizontal: 6,
-          overflow: "hidden",
-          transform: [
-            {
-              rotateZ: isRotate ? "90deg" : "0deg",
-            },
-          ],
-        }}
+        style={[
+          styles.bordered,
+          {
+            width,
+            height: width,
+            transform: [
+              {
+                rotateZ: isRotate ? "90deg" : "0deg",
+              },
+            ],
+          },
+        ]}
       >
         <Animated.View
           style={[
@@ -126,7 +125,7 @@ const Hotpicks = ({ hotpickData }) => {
       {!!hotpickData && hotpickData.length > 0 && (
         <View style={styles.container}>
           <View style={styles.header}>
-            <Label style={{ marginTop: 16 }} size="heading" weight="bold">
+            <Label style={styles.label} size="heading" weight="bold">
               {/* {i18n.t("categories")} */}
               Hot Picks
             </Label>
@@ -134,15 +133,7 @@ const Hotpicks = ({ hotpickData }) => {
           <View style={styles.hotpickContent}>
             {hotpickData.length > 2 ? (
               <Carousel
-                style={{
-                  flex: 1,
-                  alignContent: "center",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  flexDirection: "column",
-                  margin: -10,
-                  padding: -10,
-                }}
+                style={styles.carousel}
                 windowSize={3}
                 data={hotpickData}
                 renderItem={renderItem}
@@ -180,7 +171,7 @@ const Hotpicks = ({ hotpickData }) => {
             ) : hotpickData.length === 1 ? (
               <>
                 {/* Show only 1 card */}
-                <View style={{ padding: 16 }}>
+                <View style={styles.pad}>
                   <MyCard
                     //ADD ONPRESS FUNCTION HERE
                     onPress={() => {
@@ -195,7 +186,7 @@ const Hotpicks = ({ hotpickData }) => {
                     imgUrl={`${hotpickData[0].file}`}
                     // imgUrl={`${item.file}`}
                     outlet_name={hotpickData[0].outlet_name}
-                    style={{ padding: 16, paddingTop: 26 }}
+                    style={styles.myCard}
                   />
                 </View>
               </>
@@ -203,13 +194,7 @@ const Hotpicks = ({ hotpickData }) => {
               <>
                 {/* Show only 2 cards */}
                 <Carousel
-                  style={{
-                    flex: 1,
-                    alignContent: "center",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    flexDirection: "column",
-                  }}
+                  style={styles.carousel2}
                   data={hotpickData}
                   renderItem={renderItem}
                   autoPlay={true}
@@ -279,7 +264,7 @@ const Hotpicks = ({ hotpickData }) => {
                       backgroundColor: theme.colors.icons.active,
                       borderRadius: 50,
                     }}
-                    textStyle={{ width: 105, textAlign: "center" }}
+                    textStyle={styles.chipText}
                   >
                     <Label
                       weight="bold"
@@ -332,6 +317,42 @@ const styles = StyleSheet.create({
     // width: 400,
     // width: 200,
     // backgroundColor: "red",
+  },
+  label: {
+    marginTop: 16,
+  },
+  carousel: {
+    flex: 1,
+    alignContent: "center",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "column",
+    margin: -10,
+    padding: -10,
+  },
+  pad: {
+    padding: 16,
+  },
+  myCard: {
+    padding: 16,
+    paddingTop: 26,
+  },
+  carousel2: {
+    flex: 1,
+    alignContent: "center",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "column",
+  },
+  chipText: {
+    width: 105,
+    textAlign: "center",
+  },
+  bordered: {
+    backgroundColor: "white",
+    borderRadius: 50,
+    marginHorizontal: 6,
+    overflow: "hidden",
   },
 });
 

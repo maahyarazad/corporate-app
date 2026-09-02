@@ -274,33 +274,21 @@ const PostCard = ({
       return (
         <TouchableWithoutFeedback onPress={handlePress}>
           <View
-            style={{
-              backgroundColor: "#eee",
-              aspectRatio: comment
-                ? 1
-                : index === 2 && thumbnails.length === 3
-                ? 2
-                : 1,
-              flex: 1,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
+            style={[
+              styles.centerBox,
+              {
+                aspectRatio: comment
+                  ? 1
+                  : index === 2 && thumbnails.length === 3
+                  ? 2
+                  : 1,
+              },
+            ]}
           >
-            <CacheImage
-              uri={item.uri + "_s1.jpg"}
-              style={{
-                width: "100%",
-                height: "100%",
-                resizeMode: "cover",
-              }}
-            />
+            <CacheImage uri={item.uri + "_s1.jpg"} style={styles.cacheImage} />
 
             {item.type === "video" && (
-              <View
-                style={{
-                  position: "absolute",
-                }}
-              >
+              <View style={styles.overlay}>
                 <MaterialCommunityIcons
                   name="play-circle-outline"
                   size={80}
@@ -311,18 +299,7 @@ const PostCard = ({
 
             {index === 3 && thumbnails.length > 4 && !comment && (
               <TouchableWithoutFeedback onPress={onCommentPress}>
-                <View
-                  style={{
-                    position: "absolute",
-                    backgroundColor: "#00000088",
-                    bottom: 0,
-                    top: 0,
-                    right: 0,
-                    left: 0,
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
+                <View style={styles.overlay2}>
                   <Label size="title" color="white">{`+${
                     thumbnails.length - 4
                   } mehr`}</Label>
@@ -339,7 +316,7 @@ const PostCard = ({
   const SkeletonComment = () => {
     return (
       //Skeleton for comments
-      <View style={{ paddingVertical: 4 }}>
+      <View style={styles.pad}>
         <View style={[styles.container, styles.title]}>
           <Skeleton
             variant="circle"
@@ -354,19 +331,13 @@ const PostCard = ({
               { marginLeft: 10, justifyContent: "flex-start" },
             ]}
           >
-            <View
-              style={{
-                alignSelf: "stretch",
-                justifyContent: "space-between",
-                flexDirection: "row",
-              }}
-            >
+            <View style={styles.rowBetween}>
               <View style={styles.row}>
                 <Skeleton
                   variant="square"
                   width="100%"
                   height={50}
-                  style={{ borderRadius: 10 }}
+                  style={styles.skeleton}
                   opacityMax={0.15}
                   opacityMin={0.1}
                 />
@@ -385,28 +356,13 @@ const PostCard = ({
   const ImageWithCaption = ({ image, isVisible, onPress }) => {
     console.log(isVisible);
     return (
-      <TouchableOpacity
-        activeOpacity={1}
-        onPress={onPress}
-        style={{ pointerEvents: "box-only" }}
-      >
+      <TouchableOpacity activeOpacity={1} onPress={onPress} style={styles.box}>
         <View>
-          <Image
-            source={{ uri: image.uri }}
-            style={{ width: "100%", height: 300 }}
-          />
+          <Image source={{ uri: image.uri }} style={styles.image2} />
           <Label color="white">aw</Label>
           {isVisible && (
-            <View
-              style={{
-                position: "absolute",
-                bottom: 0,
-                left: 0,
-                right: 0,
-                top: 0,
-              }}
-            >
-              <Text style={{ color: "white", textAlign: "center" }}>
+            <View style={styles.overlay3}>
+              <Text style={styles.text}>
                 bobo ka
               </Text>
             </View>
@@ -434,13 +390,7 @@ const PostCard = ({
             {/* avatar */}
             <Avatar image={data.prof_image} />
             <View style={styles.authorContainer}>
-              <View
-                style={{
-                  alignSelf: "stretch",
-                  justifyContent: "space-between",
-                  flexDirection: "row",
-                }}
-              >
+              <View style={styles.rowBetween}>
                 <View>
                   {/* name */}
                   <View style={styles.row}>
@@ -455,7 +405,7 @@ const PostCard = ({
 
                   {/* position/profession */}
                   {data && data.position && (
-                    <View style={{ flexDirection: "row" }}>
+                    <View style={styles.row}>
                       <Label size="caption" weight="regular">
                         {data.position}
                       </Label>
@@ -485,12 +435,7 @@ const PostCard = ({
                   
                   {userData.old_user_id === data.user_id && (
                     <View>
-                      <View
-                        style={{
-                          right: 0,
-                          top: -4,
-                        }}
-                      >
+                      <View style={styles.offset}>
                         <TouchableOpacity onPress={handleOptionPress}>
                           <MaterialCommunityIcons
                             name="dots-horizontal"
@@ -544,8 +489,8 @@ const PostCard = ({
               numColumns={2}
               scrollEnabled={false}
               keyExtractor={keyExtractor}
-              columnWrapperStyle={{ columnGap: 2 }}
-              style={{ rowGap: 2, maxHeight: width, overflow: "hidden" }}
+              columnWrapperStyle={styles.flatListColumnWrapper}
+              style={[styles.flatList, { maxHeight: width }]}
               renderItem={renderImageGrid}
             />
           ))}
@@ -603,10 +548,7 @@ const PostCard = ({
           <View style={[styles.comment, styles.background]}>
             {remainingComments > 0 && (
               <View style={[{ width: "auto", padding: 8 }]}>
-                <TouchableOpacity
-                  onPress={viewPreviousComments}
-                  style={{ alignSelf: "flex-start" }}
-                >
+                <TouchableOpacity onPress={viewPreviousComments} style={styles.box2}>
                   <Label weight="bold">
                     Vorherige Kommentare anzeigen...
                   </Label>
@@ -649,36 +591,22 @@ const PostCard = ({
           animationType="fade"
           swipeToCloseEnabled={true}
           HeaderComponent={() => (
-            <SafeAreaView
-              style={{
-                flex: 1,
-                width: "100%",
-                marginTop: 40,
-                justifyContent: "space-between",
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  paddingHorizontal: 10,
-                  flex: 1,
-                }}
-              >
+            <SafeAreaView style={styles.flexBox}>
+              <View style={styles.rowBetween2}>
                 <Image
                   width={100}
                   height={100}
                   source={companyLogo}
                   resizeMode="contain"
-                  style={{ width: 100, height: 100 }}
+                  style={styles.image3}
                 ></Image>
 
-                <View style={{ top: 20 }}>
+                <View style={styles.offset2}>
                   <TouchableOpacity
                     activeOpacity={0.7}
                     onPress={onGalleryClose}
                   >
-                    <View style={{ padding: 10 }}>
+                    <View style={styles.pad2}>
                       <MaterialCommunityIcons
                         name="close"
                         size={30}
@@ -782,6 +710,95 @@ const styles = StyleSheet.create({
     width: "49%",
     height: width / 2,
     backgroundColor: "red",
+  },
+  cacheImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+  },
+  overlay: {
+    position: "absolute",
+  },
+  overlay2: {
+    position: "absolute",
+    backgroundColor: "#00000088",
+    bottom: 0,
+    top: 0,
+    right: 0,
+    left: 0,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  pad: {
+    paddingVertical: 4,
+  },
+  rowBetween: {
+    alignSelf: "stretch",
+    justifyContent: "space-between",
+    flexDirection: "row",
+  },
+  skeleton: {
+    borderRadius: 10,
+  },
+  box: {
+    pointerEvents: "box-only",
+  },
+  image2: {
+    width: "100%",
+    height: 300,
+  },
+  overlay3: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    top: 0,
+  },
+  text: {
+    color: "white",
+    textAlign: "center",
+  },
+  offset: {
+    right: 0,
+    top: -4,
+  },
+  flatListColumnWrapper: {
+    columnGap: 2,
+  },
+  box2: {
+    alignSelf: "flex-start",
+  },
+  flexBox: {
+    flex: 1,
+    width: "100%",
+    marginTop: 40,
+    justifyContent: "space-between",
+  },
+  rowBetween2: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 10,
+    flex: 1,
+  },
+  image3: {
+    width: 100,
+    height: 100,
+  },
+  offset2: {
+    top: 20,
+  },
+  pad2: {
+    padding: 10,
+  },
+  centerBox: {
+    backgroundColor: "#eee",
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  flatList: {
+    rowGap: 2,
+    overflow: "hidden",
   },
 });
 

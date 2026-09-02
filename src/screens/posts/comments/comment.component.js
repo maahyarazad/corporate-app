@@ -140,25 +140,9 @@ export default function Comment({
     };
 
     return (
-      <View
-        style={{
-          flexDirection: "column",
-          alignItems: "center",
-          paddingHorizontal: 0,
-        }}
-      >
+      <View style={styles.centered}>
         <TextInput
-          style={{
-            flex: 1,
-            width: "100%",
-            backgroundColor: "#f6f6f6",
-            borderRadius: 8,
-            marginTop: 8,
-            padding: 4,
-            height: 80,
-            borderWidth: 1,
-            borderColor: "#ccc",
-          }}
+          style={styles.textInput}
           multiline={true}
           numberOfLines={4}
           placeholder="Write a comment..."
@@ -167,43 +151,35 @@ export default function Comment({
           maxLength={COMMENT_MAXLENGTH}
         />
         <View
-          style={{
-            height: 2,
-            marginTop: 4,
-            marginBottom: 8,
-            alignSelf: "flex-start",
-            width: `${(editedText.length / COMMENT_MAXLENGTH) * 100}%`,
-            backgroundColor:
-              (editedText.length / COMMENT_MAXLENGTH) * 100 > 90
-                ? "red"
-                : "#88CC00",
-            borderRadius: 50,
-          }}
+          style={[
+            styles.bordered,
+            {
+              width: `${(editedText.length / COMMENT_MAXLENGTH) * 100}%`,
+              backgroundColor:
+                (editedText.length / COMMENT_MAXLENGTH) * 100 > 90
+                  ? "red"
+                  : "#88CC00",
+            },
+          ]}
         ></View>
-        <View
-          style={{
-            alignSelf: "flex-end",
-            flexDirection: "row",
-            gap: 8,
-          }}
-        >
+        <View style={styles.row}>
           <Button
             mode="contained"
-            labelStyle={{ fontSize: 12 }}
-            contentStyle={{ backgroundColor: "#aaa", minWidth: 80 }}
-            style={{ borderRadius: 8 }}
+            labelStyle={styles.buttonLabel}
+            contentStyle={styles.buttonContent}
+            style={styles.button}
             onPress={cancelEdit}
           >
             Abbrechen
           </Button>
           <Button
             mode="contained"
-            labelStyle={{ fontSize: 12 }}
+            labelStyle={styles.buttonLabel}
             contentStyle={{
               backgroundColor: theme.colors.icons.active,
               minWidth: 80,
             }}
-            style={{ borderRadius: 8 }}
+            style={styles.button}
             onPress={onEditSave}
           >
             Speichern
@@ -234,13 +210,9 @@ export default function Comment({
           <Avatar image={data.prof_image} size={degree > 1 ? 30 : 45} />
         </View>
         {/* Details */}
-        <View style={{ flex: 1 }}>
+        <View style={styles.fill}>
           <View style={styles.replyDetails}>
-            <View
-              style={{
-                flexDirection: "row",
-              }}
-            >
+            <View style={styles.row2}>
               <Label
                 size="caption"
                 weight="bold"
@@ -257,7 +229,7 @@ export default function Comment({
 
             {/* Show only if user is the one created it */}
             {userData.old_user_id === data.user_id && (
-              <View style={{ position: "absolute", right: 0, top: -4 }}>
+              <View style={styles.overlay}>
                 <TouchableOpacity onPress={onOpenDrawer}>
                   <MaterialCommunityIcons
                     name="dots-horizontal"
@@ -310,7 +282,7 @@ export default function Comment({
                         </Label>
                       </View>
                     </TouchableWithoutFeedback>
-                    <View style={{marginRight: 8}}/>
+                    <View style={styles.spacer}/>
 
 
                     {!disableReply && (
@@ -412,5 +384,57 @@ const styles = StyleSheet.create({
   viewMore: {
     paddingLeft: 0,
     paddingTop: 12,
+  },
+  centered: {
+    flexDirection: "column",
+    alignItems: "center",
+    paddingHorizontal: 0,
+  },
+  textInput: {
+    flex: 1,
+    width: "100%",
+    backgroundColor: "#f6f6f6",
+    borderRadius: 8,
+    marginTop: 8,
+    padding: 4,
+    height: 80,
+    borderWidth: 1,
+    borderColor: "#ccc",
+  },
+  row: {
+    alignSelf: "flex-end",
+    flexDirection: "row",
+    gap: 8,
+  },
+  buttonLabel: {
+    fontSize: 12,
+  },
+  buttonContent: {
+    backgroundColor: "#aaa",
+    minWidth: 80,
+  },
+  button: {
+    borderRadius: 8,
+  },
+  fill: {
+    flex: 1,
+  },
+  row2: {
+    flexDirection: "row",
+  },
+  overlay: {
+    position: "absolute",
+    right: 0,
+    top: -4,
+  },
+  spacer: {
+    marginRight: 8,
+  },
+  bordered: {
+    height: 2,
+    marginTop: 4,
+    marginBottom: 8,
+    alignSelf: "flex-start",
+    borderRadius: 50,
   },
 });

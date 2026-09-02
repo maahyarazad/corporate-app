@@ -76,19 +76,7 @@ export const AnimatedButton = ({
               { backgroundColor: buttonColorFrom },
             ]}
           ></Animated.View>
-          <View
-            style={{
-              position: "absolute",
-              flex: 1,
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              justifyContent: "center",
-              alignItems: "center",
-              flexDirection: "row",
-            }}
-          >
+          <View style={style.rowCenter}>
             <MaterialCommunityIcons
               color={textColor}
               name={iconName}
@@ -125,5 +113,16 @@ const style = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingVertical: 32,
+  },
+  rowCenter: {
+    position: "absolute",
+    flex: 1,
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
   },
 });

@@ -48,10 +48,7 @@ const PostCardMagazine = ({ item }) => {
               ]}
             >
               <Image
-                style={{
-                  width: "100%",
-                  height: "100%",
-                }}
+                style={styles.image}
                 source={
                   item.author_image
                     ? { uri: item.author_image }
@@ -72,9 +69,9 @@ const PostCardMagazine = ({ item }) => {
       </View>
 
       {/* Content */}
-      <View style={{ flex: 1, gap: 12 }}>
+      <View style={styles.flexBox}>
         <TouchableWithoutFeedback onPress={handleReadMore}>
-          <View style={{ gap: 12 }}>
+          <View style={styles.box}>
             <Label size={20} weight="bold">
               {item.title}
             </Label>
@@ -93,7 +90,7 @@ const PostCardMagazine = ({ item }) => {
               {`${body}${item.moreBody ? "..." : ""}`}{" "}
               {item.moreBody && (
                 <TouchableWithoutFeedback onPress={handleReadMore}>
-                  <Text style={{ fontWeight: "bold" }}>
+                  <Text style={styles.text}>
                     {i18n.t("read-more")}
                   </Text>
                 </TouchableWithoutFeedback>
@@ -148,5 +145,19 @@ const styles = StyleSheet.create({
     backgroundColor: "#ddd",
     flex: 1,
     overflow: "hidden",
+  },
+  image: {
+    width: "100%",
+    height: "100%",
+  },
+  flexBox: {
+    flex: 1,
+    gap: 12,
+  },
+  box: {
+    gap: 12,
+  },
+  text: {
+    fontWeight: "bold",
   },
 });

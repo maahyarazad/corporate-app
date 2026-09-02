@@ -111,7 +111,7 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
   };
 
   return (
-    <View style={{ gap: 8 }}>
+    <View style={styles.box}>
       <CustomModal showModal={showModal}>
         <OfferModalInfo
           offerInfo={selectedOffer}
@@ -121,14 +121,7 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
         />
       </CustomModal>
       
-      <Label
-        style={{
-            
-          paddingHorizontal: 16,
-        }}
-        size="heading"
-        weight="bold"
-      >
+      <Label style={styles.label} size="heading" weight="bold">
         {i18n.t("offer-details.offers")}
       </Label>
       {/* <Offer /> */}
@@ -139,10 +132,7 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
             collapsable={true}
             data={showAll ? offers : shortOfferList}
             scrollEnabled={false}
-            style={{
-              paddingHorizontal: 16,
-              paddingTop: 0,
-            }}
+            style={styles.flatList}
             ItemSeparatorComponent={itemSeparatorVS}
             keyExtractor={keyExtractor}
             renderItem={renderOffer}
@@ -155,14 +145,7 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
           {!showAll && offers.length > 2 && (
             <LinearGradient
               colors={["#efefef00", "#efefef"]}
-              style={{
-                flex: 1,
-                position: "absolute",
-                width: "100%",
-                height: 140,
-                bottom: 0,
-                // backgroundColor: "red",
-              }}
+              style={styles.linearGradient}
               start={{ x: 0, y: 0 }}
               end={{ x: 0, y: 0.7 }}
             ></LinearGradient>
@@ -170,29 +153,12 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
         </Animated.View>
       )}
       {offers.length > 2 && (
-        <Animated.View
-          style={{
-            padding: 16,
-            paddingTop: 0,
-          }}
-        >
+        <Animated.View style={styles.pad}>
           <TouchableOpacity
             onPress={toggleShowAll}
-            style={{
-              margin: 16,
-              marginTop: 0,
-              borderRadius: 4,
-              justifyContent: "flex-start",
-              alignItems: "flex-end",
-              // shadowOpacity: 0.3,
-              shadowOffset: {
-                height: 3,
-                width: 2,
-              },
-              shadowRadius: 4,
-            }}
+            style={styles.bordered}
           >
-            <Label style={{ color: "#006EFF" }} size="subtitle" weight="bold">
+            <Label style={styles.label2} size="subtitle" weight="bold">
               {showAll ? "Show less" : "Show all"}
             </Label>
           </TouchableOpacity>
@@ -204,4 +170,40 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
 
 const styles = StyleSheet.create({
   container: {},
+  box: {
+    gap: 8,
+  },
+  label: {
+    paddingHorizontal: 16,
+  },
+  flatList: {
+    paddingHorizontal: 16,
+    paddingTop: 0,
+  },
+  linearGradient: {
+    flex: 1,
+    position: "absolute",
+    width: "100%",
+    height: 140,
+    bottom: 0,
+  },
+  pad: {
+    padding: 16,
+    paddingTop: 0,
+  },
+  bordered: {
+    margin: 16,
+    marginTop: 0,
+    borderRadius: 4,
+    justifyContent: "flex-start",
+    alignItems: "flex-end",
+    shadowOffset: {
+      height: 3,
+      width: 2,
+    },
+    shadowRadius: 4,
+  },
+  label2: {
+    color: "#006EFF",
+  },
 });

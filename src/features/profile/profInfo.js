@@ -39,11 +39,11 @@ export const ProfInfo = () => {
     return (
       <View style={styles.infoRow}>
         <View style={styles.label}>
-          <Label style={{ color: "#999" }} size="caption" weight="medium">
+          <Label style={styles.label2} size="caption" weight="medium">
             {label}
           </Label>
         </View>
-        <View style={{marginLeft: 6}} />
+        <View style={styles.spacer} />
         <View style={styles.value}>
           <Label size="body" weight="medium">
             {value}
@@ -55,23 +55,10 @@ export const ProfInfo = () => {
 
   return (
     <View style={styles.container}>
-      <ScrollView
-        style={{ alignSelf: "stretch" }}
-        contentContainerStyle={{
-          paddingVertical: 16,
-        }}
-      >
+      <ScrollView style={styles.box} contentContainerStyle={styles.contentContainerPad}>
         {!!isSkip && (
-          <View
-            style={{
-              alignItems: "center",
-              marginBottom: 16,
-              paddingHorizontal: 32,
-            }}
-          >
-            <Label
-              style={{ fontStyle: "italic", color: "red", textAlign: "center" }}
-            >
+          <View style={styles.centered}>
+            <Label style={styles.label3}>
               {`Da Sie keine gültige MemberCard hochgeladen haben, können Sie nicht auf bestimmte App-Funktionen zugreifen. Bitte besorgen Sie sich eine MemberCard. \n\nBitte kontaktieren Sie die GEC Hotline : 00971.56 20 500 66 um Ihre (gültige) MemberCard zu erhalten!`}
             </Label>
           </View>
@@ -175,5 +162,27 @@ const styles = StyleSheet.create({
     flex: 1,
     height: "100%",
     minHeight: 20,
+  },
+  label2: {
+    color: "#999",
+  },
+  spacer: {
+    marginLeft: 6,
+  },
+  box: {
+    alignSelf: "stretch",
+  },
+  contentContainerPad: {
+    paddingVertical: 16,
+  },
+  centered: {
+    alignItems: "center",
+    marginBottom: 16,
+    paddingHorizontal: 32,
+  },
+  label3: {
+    fontStyle: "italic",
+    color: "red",
+    textAlign: "center",
   },
 });

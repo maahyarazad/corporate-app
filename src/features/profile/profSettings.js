@@ -315,7 +315,7 @@ export const ProfSettings = () => {
             size={25}
           />
           <Label weight="bold">{label}</Label>
-          <View style={{ flex: 1 }}>
+          <View style={styles.fill}>
             {type === "switch" && (
               <Switch
                 value={switchValue}
@@ -324,14 +324,14 @@ export const ProfSettings = () => {
                   handleBiometric(x);
                   setSwitchValue(x);
                 }}
-                style={{ alignSelf: "flex-end" }}
+                style={styles.switch}
               />
             )}
             {detail != undefined && (
               <Label
                 size="subtitle"
                 color={theme.colors.ui.lightGray2}
-                style={{ alignSelf: "flex-end" }}
+                style={styles.switch}
               >
                 {detail}
               </Label>
@@ -370,7 +370,7 @@ export const ProfSettings = () => {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#f8f8f8" }}>
+    <View style={styles.tint}>
       {biometric.available != null && biometric.type != null && (
         <ScrollView contentContainerStyle={styles.container}>
           <Section title="General">
@@ -428,7 +428,7 @@ export const ProfSettings = () => {
               onPress={handleLogout}
             />
           </Section>
-          <Label style={{ color: "#777", alignSelf: "flex-end" }}>
+          <Label style={styles.label}>
             v{Constants.default.expoConfig.version}
           </Label>
           {/* <FlatList
@@ -503,4 +503,18 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   scrollView: {},
+  fill: {
+    flex: 1,
+  },
+  switch: {
+    alignSelf: "flex-end",
+  },
+  tint: {
+    flex: 1,
+    backgroundColor: "#f8f8f8",
+  },
+  label: {
+    color: "#777",
+    alignSelf: "flex-end",
+  },
 });

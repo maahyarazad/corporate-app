@@ -51,15 +51,11 @@ const SubmittingLabel = () => {
     return () => clearInterval(id);
   }, []);
   return (
-    <View style={{ flexDirection: "row", alignItems: "center" }}>
-      <Label style={{ color: "white", paddingHorizontal: 2 }} size="body" weight="bold">
+    <View style={styles.rowCenter}>
+      <Label style={styles.label} size="body" weight="bold">
         Creating Your Account
       </Label>
-      <Label
-        style={{ color: "white", width: 22, textAlign: "left" }}
-        size="body"
-        weight="bold"
-      >
+      <Label style={styles.label2} size="body" weight="bold">
         {dots}
       </Label>
     </View>
@@ -272,39 +268,22 @@ useEffect(() => {
               keyboardShouldPersistTaps="handled"
               keyboardDismissMode="on-drag"
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={{
-                flexGrow: 1,
-                paddingHorizontal: 16,
-                paddingBottom: 40,
-              }}
-              style={{ flex: 1 }}
+              contentContainerStyle={styles.keyboardAwareScrollViewContentContainer}
+              style={styles.safeArea}
             >
-              <View style={{ flex: 1, justifyContent: "center" }}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    marginBottom: 16,
-                  }}
-                >
+              <View style={styles.flexBox}>
+                <View style={styles.row}>
                   <TouchableOpacity
                     onPress={() => {
                       Keyboard.dismiss;
                       goback();
                     }}
                     disabled={isLoading}
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      opacity: isLoading ? 0.5 : 1,
-                    }}
+                    style={[styles.rowCenter, { opacity: isLoading ? 0.5 : 1 }]}
                     activeOpacity={0.5}
                   >
                     <Ionicons name="arrow-back" size={35} color="#eee" />
-                    <Label
-                      size="body"
-                      weight="bold"
-                      style={{ color: "#dfdfdf", justifyContent: "center" }}
-                    >
+                    <Label size="body" weight="bold" style={styles.label3}>
                       Go Back to Registration Data
                     </Label>
                   </TouchableOpacity>
@@ -324,9 +303,7 @@ useEffect(() => {
                     //   error={!state.honorifics && isSubmitted}
                   />
 
-                  <View
-                    style={{ zIndex: 2, position: "relative", width: "100%" }}
-                  ></View>
+                  <View style={styles.box}></View>
                 </View>
 
                 <View
@@ -389,7 +366,7 @@ useEffect(() => {
                     justifyContent: "space-between",
                   }}
                 >
-                  <View style={{ flex: 1, marginRight: 8 }}>
+                  <View style={styles.flexBox2}>
                     <BirthdatePicker
                       value={state.birthdate}
                       onChange={(date) =>
@@ -399,7 +376,7 @@ useEffect(() => {
                     />
                   </View>
 
-                  <View style={{ flex: 1, marginLeft: 8 }}>
+                  <View style={styles.flexBox3}>
                     <DropDown
                       items={genderItems}
                       onChange={(e) =>
@@ -417,24 +394,18 @@ useEffect(() => {
                   activeOpacity={0.8}
                   onPress={sendCaptcha}
                   disabled={isLoading || !hasRequiredFields}
-                  style={{
-                    height: 60,
-                    backgroundColor: theme.colors.ui.button,
-                    borderRadius: 5,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    marginVertical: 2,
-                    opacity: isLoading || !hasRequiredFields ? 0.5 : 1,
-                  }}
+                  style={[
+                    styles.centerBox,
+                    {
+                      backgroundColor: theme.colors.ui.button,
+                      opacity: isLoading || !hasRequiredFields ? 0.5 : 1,
+                    },
+                  ]}
                 >
                   {isLoading ? (
                     <SubmittingLabel />
                   ) : (
-                    <Label
-                      style={{ color: "white" }}
-                      size="body"
-                      weight="bold"
-                    >
+                    <Label style={styles.label4} size="body" weight="bold">
                       Next
                     </Label>
                   )}
@@ -484,5 +455,58 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     zIndex: 1000,
+  },
+  rowCenter: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  label: {
+    color: "white",
+    paddingHorizontal: 2,
+  },
+  label2: {
+    color: "white",
+    width: 22,
+    textAlign: "left",
+  },
+  keyboardAwareScrollViewContentContainer: {
+    flexGrow: 1,
+    paddingHorizontal: 16,
+    paddingBottom: 40,
+  },
+  flexBox: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  row: {
+    flexDirection: "row",
+    marginBottom: 16,
+  },
+  label3: {
+    color: "#dfdfdf",
+    justifyContent: "center",
+  },
+  box: {
+    zIndex: 2,
+    position: "relative",
+    width: "100%",
+  },
+  flexBox2: {
+    flex: 1,
+    marginRight: 8,
+  },
+  flexBox3: {
+    flex: 1,
+    marginLeft: 8,
+  },
+  label4: {
+    color: "white",
+  },
+  centerBox: {
+    height: 60,
+    borderRadius: 5,
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 2,
   },
 });

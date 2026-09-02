@@ -282,8 +282,8 @@ export const EventDetailScreen = () => {
         }
         loading={attendLoading}
         disabled={attendLoading}
-        contentStyle={{ paddingVertical: 8 }}
-        labelStyle={{ fontWeight: "bold", fontSize: 16 }}
+        contentStyle={styles.buttonContent}
+        labelStyle={styles.buttonLabel}
         onPress={
           eventDetails.registered
             ? confirmCancel
@@ -421,11 +421,7 @@ export const EventDetailScreen = () => {
               />
 
               <View style={styles.innerContainer}>
-                <Label
-                  size="heading"
-                  style={{ marginVertical: 8 }}
-                  weight="bold"
-                >
+                <Label size="heading" style={styles.label} weight="bold">
                   {eventDetails.eventName}
                 </Label>
 
@@ -441,11 +437,11 @@ export const EventDetailScreen = () => {
                     zoom={13}
                   />
 
-                  <View style={{ flexDirection: "row", flex: 1 }}>
+                  <View style={styles.row}>
                     <Button
                       mode="contained"
                       labelStyle={styles.directionLabel}
-                      contentStyle={{ height: 50 }}
+                      contentStyle={styles.buttonContent2}
                       style={styles.mapButtons}
                       onPress={getDirections}
                     >
@@ -577,5 +573,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 25,
     borderRadius: 15,
+  },
+  buttonContent: {
+    paddingVertical: 8,
+  },
+  buttonLabel: {
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  label: {
+    marginVertical: 8,
+  },
+  row: {
+    flexDirection: "row",
+    flex: 1,
+  },
+  buttonContent2: {
+    height: 50,
   },
 });

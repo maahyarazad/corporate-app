@@ -18,41 +18,13 @@ const HomeHeader = ({ notification = false }) => {
   }, []);
 
   return (
-    <View
-      style={{
-        flexDirection: "row",
-        paddingBottom: 8,
-        paddingHorizontal: 4,
-      }}
-    >
+    <View style={styles.row}>
       <Image
-        style={{
-          height: 40,
-          width: 80,
-          resizeMode: "contain",
-        }}
+        style={styles.image}
         source={require("../../../../assets/GE-LOGO-GOLD.png")}
       />
-      <View
-        style={{
-          flex: 1,
-          flexDirection: "row",
-          alignContent: "center",
-          justifyContent: "flex-end",
-          paddingRight: 4,
-          gap: 4,
-        }}
-      >
-        <Label
-          style={{
-            paddingRight: 8,
-            textAlign: "right",
-            alignSelf: "center",
-          }}
-          numberOfLines={1}
-          size="subtitle"
-          weight="bold"
-        >
+      <View style={styles.row2}>
+        <Label style={styles.label} numberOfLines={1} size="subtitle" weight="bold">
           {/* {`Hi there, ${
                         userInfo != undefined
                           ? userInfo.first_name.split(" ")[0]
@@ -64,33 +36,19 @@ const HomeHeader = ({ notification = false }) => {
           })}
         </Label>
         {notification && (
-          <View
-            style={{
-              flexDirection: "row",
-              gap: 4,
-
-              alignSelf: "center",
-            }}
-          >
+          <View style={styles.row3}>
             <TouchableOpacity
               onPress={() => {
                 navigate("post-search");
               }}
             >
               <View
-                style={{
-                  width: 30,
-                  aspectRatio: 1,
-                  // borderRadius: 35,
-                  // backgroundColor: "#eee",
-                  justifyContent: "flex-end",
-                  alignItems: "flex-end",
-                }}
+                style={styles.box}
               >
                 <MaterialCommunityIcons
                   name="magnify"
                   size={30}
-                  style={{ fontWeight: "" }}
+                  style={styles.materialCommunityIcons}
                 />
               </View>
             </TouchableOpacity>
@@ -100,32 +58,15 @@ const HomeHeader = ({ notification = false }) => {
               }}
             >
               <View
-                style={{
-                  width: 28,
-                  // borderRadius: 35,
-                  // backgroundColor: "#eee",
-                  marginRight: 5,
-                  justifyContent: "flex-end",
-                  alignItems: "flex-end",
-                }}
+                style={styles.box2}
               >
                 <MaterialCommunityIcons
                   name="bell-outline"
                   size={28}
-                  style={{ fontWeight: "" }}
+                  style={styles.materialCommunityIcons}
                 />
               </View>
-              <View
-                style={{
-                  position: "absolute",
-                  top: 2,
-                  right: 6,
-                  backgroundColor: "red",
-                  borderRadius: 25,
-                  width: 10,
-                  aspectRatio: "1",
-                }}
-              ></View>
+              <View style={styles.overlay}></View>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
@@ -133,11 +74,8 @@ const HomeHeader = ({ notification = false }) => {
               }}
             >
               {userData && userData.member_image ? (
-                <View style={{ borderRadius: 25, overflow: "hidden" }}>
-                  <CacheImage
-                    style={{ width: 30, aspectRatio: "1" }}
-                    uri={userData.member_image}
-                  />
+                <View style={styles.bordered}>
+                  <CacheImage style={styles.cacheImage} uri={userData.member_image} />
                 </View>
               ) : (
                 <MaterialCommunityIcons name="account-circle" size={30} />
@@ -152,4 +90,65 @@ const HomeHeader = ({ notification = false }) => {
 
 export default HomeHeader;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  row: {
+    flexDirection: "row",
+    paddingBottom: 8,
+    paddingHorizontal: 4,
+  },
+  image: {
+    height: 40,
+    width: 80,
+    resizeMode: "contain",
+  },
+  row2: {
+    flex: 1,
+    flexDirection: "row",
+    alignContent: "center",
+    justifyContent: "flex-end",
+    paddingRight: 4,
+    gap: 4,
+  },
+  label: {
+    paddingRight: 8,
+    textAlign: "right",
+    alignSelf: "center",
+  },
+  row3: {
+    flexDirection: "row",
+    gap: 4,
+    alignSelf: "center",
+  },
+  box: {
+    width: 30,
+    aspectRatio: 1,
+    justifyContent: "flex-end",
+    alignItems: "flex-end",
+  },
+  materialCommunityIcons: {
+    fontWeight: "",
+  },
+  box2: {
+    width: 28,
+    marginRight: 5,
+    justifyContent: "flex-end",
+    alignItems: "flex-end",
+  },
+  overlay: {
+    position: "absolute",
+    top: 2,
+    right: 6,
+    backgroundColor: "red",
+    borderRadius: 25,
+    width: 10,
+    aspectRatio: "1",
+  },
+  bordered: {
+    borderRadius: 25,
+    overflow: "hidden",
+  },
+  cacheImage: {
+    width: 30,
+    aspectRatio: "1",
+  },
+});

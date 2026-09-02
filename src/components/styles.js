@@ -8,7 +8,7 @@ import {
   TextInput,
   TouchableHighlight,
   TouchableOpacity,
-  View,
+  View, StyleSheet,
 } from "react-native";
 import styled from "styled-components/native";
 
@@ -113,9 +113,30 @@ export const CompanyLogo = styled(Image)({
 });
 
 // Spacer Helpers
-export const itemSeparatorHS = () => <View  style={{marginLeft: 6}}/>;
-export const itemSeparatorVS = () => <View style={{marginTop: 6}} />;
-export const itemSeparatorHM = () => <View  style={{marginLeft: 8}} />;
-export const itemSeparatorVM = () => <View style={{marginTop: 8}}/>;
-export const itemSeparatorHL = () => <View style={{marginLeft: 10}}/>;
-export const itemSeparatorVL = () => <View style={{marginTop: 10}} />;
+export const itemSeparatorHS = () => <View  style={styles.spacer}/>;
+export const itemSeparatorVS = () => <View style={styles.spacer2} />;
+export const itemSeparatorHM = () => <View  style={styles.spacer3} />;
+export const itemSeparatorVM = () => <View style={styles.spacer4}/>;
+export const itemSeparatorHL = () => <View style={styles.spacer5}/>;
+export const itemSeparatorVL = () => <View style={styles.spacer6} />;
+
+const styles = StyleSheet.create({
+  spacer: {
+    marginLeft: 6,
+  },
+  spacer2: {
+    marginTop: 6,
+  },
+  spacer3: {
+    marginLeft: 8,
+  },
+  spacer4: {
+    marginTop: 8,
+  },
+  spacer5: {
+    marginLeft: 10,
+  },
+  spacer6: {
+    marginTop: 10,
+  },
+});

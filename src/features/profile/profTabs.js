@@ -14,12 +14,7 @@ const ProfileTab = createMaterialTopTabNavigator();
 export const ProfTabs = () => {
   const CustomLabel = ({ label, icon }) => {
     return (
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-        }}
-      >
+      <View style={styles.rowCenter}>
         {icon}
       
         <Label size="caption" weight="bold" style={{marginLeft: 4, fontSize: fontSizes.tab_title}}>
@@ -31,11 +26,7 @@ export const ProfTabs = () => {
 
   return (
     <ProfileTab.Navigator
-      style={{
-        height: "100%",
-        marginTop: 20,
-        overflow: "visible",
-      }}
+      style={styles.profileTabNavigator}
       screenOptions={{
         tabBarPressColor: "transparent",
         lazy: true,
@@ -109,4 +100,13 @@ export const ProfTabs = () => {
 
 const styles = StyleSheet.create({
   container: {},
+  rowCenter: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  profileTabNavigator: {
+    height: "100%",
+    marginTop: 20,
+    overflow: "visible",
+  },
 });

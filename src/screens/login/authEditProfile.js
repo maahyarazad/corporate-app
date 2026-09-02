@@ -171,10 +171,7 @@ export const AuthEditProfileScreen = () => {
       {isLoading && <LoadingOverlay display={isLoading} />}
       <SafeArea>
         <View style={styles.container}>
-          <CompanyLogo
-            style={{ resizeMode: "contain", marginBottom: 15 }}
-            source={companyLogo}
-          />
+          <CompanyLogo style={styles.companyLogo} source={companyLogo} />
 
           {/* Header row */}
           <View style={styles.headerRow}>
@@ -184,21 +181,17 @@ export const AuthEditProfileScreen = () => {
               activeOpacity={0.5}
             >
               <Ionicons name="arrow-back" size={35} color="#eee" />
-              <Label
-                size="body"
-                weight="bold"
-                style={{ color: "#dfdfdf", justifyContent: "center" }}
-              >
+              <Label size="body" weight="bold" style={styles.label}>
                 {i18n.t("return")}
               </Label>
             </TouchableOpacity>
 
-            <View style={{ width: 150 }}>
+            <View style={styles.sizeBox}>
               <Button
                 mode="contained"
                 onPress={handleSubmit}
                 buttonColor={theme.colors.icons.active}
-                style={{ borderRadius: 10 }}
+                style={styles.button}
                 icon={() => (
                   <MaterialCommunityIcons
                     name="content-save-outline"
@@ -213,32 +206,32 @@ export const AuthEditProfileScreen = () => {
           </View>
 
           <KeyboardAvoidingView
-            style={{ flex: 1 }}
+            style={styles.fill}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
           >
             <ScrollView
-              contentContainerStyle={{ flexGrow: 1 }}
+              contentContainerStyle={styles.contentContainer}
               keyboardShouldPersistTaps="handled"
             >
               <CustomTextInput
                 value={state.username}
                 disable={true}
                 label={i18n.t("profile-tabs.profile.username") + "*"}
-                style={{ marginBottom: 8 }}
+                style={styles.customTextInput}
               />
 
               <CustomTextInput
                 value={state.email}
                 disable={true}
                 label={i18n.t("profile-tabs.profile.email") + "*"}
-                style={{ marginBottom: 8 }}
+                style={styles.customTextInput}
               />
 
               <CustomTextInput
                 value={state.mobile}
                 disable={true}
                 label={i18n.t("profile-tabs.profile.mobile") + "*"}
-                style={{ marginBottom: 8 }}
+                style={styles.customTextInput}
               />
 
               
@@ -247,7 +240,7 @@ export const AuthEditProfileScreen = () => {
                   value={state.honorifics}
                   onChange={(val) => setState((prev) => ({ ...prev, honorifics: val }))}
                   placeholder="Honorifics"
-                  style={{ marginBottom: 8 }}
+                  style={styles.customTextInput}
                 />
            
 
@@ -255,21 +248,21 @@ export const AuthEditProfileScreen = () => {
                 value={state.firstname}
                 onChangeText={(prev) => setState({ ...state, firstname: prev })}
                 label={i18n.t("profile-tabs.profile.firstname") + "*"}
-                style={{ marginBottom: 8 }}
+                style={styles.customTextInput}
               />
 
               <CustomTextInput
                 value={state.middlename}
                 onChangeText={(prev) => setState({ ...state, middlename: prev })}
                 label={i18n.t("profile-tabs.profile.middlename") + "*"}
-                style={{ marginBottom: 8 }}
+                style={styles.customTextInput}
               />
 
               <CustomTextInput
                 value={state.lastname}
                 onChangeText={(prev) => setState({ ...state, lastname: prev })}
                 label={i18n.t("profile-tabs.profile.lastname") + "*"}
-                style={{ marginBottom: 8 }}
+                style={styles.customTextInput}
               />
 
                 <DropDown
@@ -277,7 +270,7 @@ export const AuthEditProfileScreen = () => {
                   value={state.gender}
                   onChange={(value) => setState((prev) => ({ ...prev, gender: value }))}
                   placeholder={i18n.t("gender.title") + " *"}
-                  style={{ marginBottom: 8 }}
+                  style={styles.customTextInput}
                 />
               
 
@@ -286,7 +279,7 @@ export const AuthEditProfileScreen = () => {
                   onChange={(date) => setState((prev) => ({ ...prev, birthdate: date }))}
                 />
                 <NationalityInput
-                    containerStyle={{marginTop : 8, marginBottom: 8}}
+                    containerStyle={styles.nationalityInputContainer}
                   value={state.nationality}
                   onChange={(e) => setState({ ...state, nationality: e })}
                 />
@@ -327,5 +320,32 @@ const styles = StyleSheet.create({
   backButton: {
     flexDirection: "row",
     alignItems: "center",
+  },
+  companyLogo: {
+    resizeMode: "contain",
+    marginBottom: 15,
+  },
+  label: {
+    color: "#dfdfdf",
+    justifyContent: "center",
+  },
+  sizeBox: {
+    width: 150,
+  },
+  button: {
+    borderRadius: 10,
+  },
+  fill: {
+    flex: 1,
+  },
+  contentContainer: {
+    flexGrow: 1,
+  },
+  customTextInput: {
+    marginBottom: 8,
+  },
+  nationalityInputContainer: {
+    marginTop: 8,
+    marginBottom: 8,
   },
 });

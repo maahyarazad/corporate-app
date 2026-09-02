@@ -40,11 +40,7 @@ export const PartnerPicker = ({
         <CustomTextInput
           value={selectedPartner ? selectedPartner : selectedPartnerName}
           label="Partner *"
-          style={{
-            width: "100%",
-            maxHeight: 58,
-            position: "absolute",
-          }}
+          style={styles.customTextInput}
           error={error}
           right={
             <MaterialCommunityIcons
@@ -55,8 +51,8 @@ export const PartnerPicker = ({
           }
         ></CustomTextInput>
         <Button
-          style={{ opacity: 0 }}
-          contentStyle={{ height: "100%" }}
+          style={styles.button}
+          contentStyle={styles.buttonContent}
           onPress={handleToggle}
         ></Button>
       </View>
@@ -73,18 +69,11 @@ export const PartnerPicker = ({
           presentationStyle: "pageSheet", // or 'formSheet' on iOS
           style: { maxHeight: 400 }, // <-- limit the height here
         }}
-        style={{ borderWidth: 0, height: 56, display: "none" }}
+        style={styles.dropDownPicker}
         searchPlaceholder="Type partner name..."
-        searchContainerStyle={{ padding: 5 }}
-        searchTextInputStyle={{
-          paddingVertical: 15,
-          borderWidth: 2,
-          borderColor: "#00000044",
-        }}
-        listItemContainerStyle={{
-          borderBottomWidth: 1,
-          borderBottomColor: "#00000033",
-        }}
+        searchContainerStyle={styles.dropDownPickerSearchContainer}
+        searchTextInputStyle={styles.dropDownPickerSearchTextInput}
+        listItemContainerStyle={styles.dropDownPickerListItemContainer}
       />
       <StatusBar style={openPartner ? "dark" : "light"} />
     </>
@@ -96,5 +85,33 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 4,
     height: 56,
+  },
+  customTextInput: {
+    width: "100%",
+    maxHeight: 58,
+    position: "absolute",
+  },
+  button: {
+    opacity: 0,
+  },
+  buttonContent: {
+    height: "100%",
+  },
+  dropDownPicker: {
+    borderWidth: 0,
+    height: 56,
+    display: "none",
+  },
+  dropDownPickerSearchContainer: {
+    padding: 5,
+  },
+  dropDownPickerSearchTextInput: {
+    paddingVertical: 15,
+    borderWidth: 2,
+    borderColor: "#00000044",
+  },
+  dropDownPickerListItemContainer: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#00000033",
   },
 });

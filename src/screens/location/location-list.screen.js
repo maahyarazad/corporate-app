@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { View, Keyboard } from "react-native";
+import { View, Keyboard, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import styled from "styled-components/native";
 import { Searchbar } from "react-native-paper";
@@ -114,12 +114,7 @@ export const LocationListScreen = ({ route, ...props }) => {
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <Label
-          numberOfLines={1}
-          size="title"
-          weight="bold"
-          style={{ paddingRight: 15 }}
-        >
+        <Label numberOfLines={1} size="title" weight="bold" style={styles.label}>
           {headerTitle}
         </Label>
       ),
@@ -427,12 +422,12 @@ export const LocationListScreen = ({ route, ...props }) => {
 
   // ---- render ------------------------------------------------------------
   return (
-    <View style={{ flex: 1 }}>
-      <View style={{ backgroundColor: "white" }}>
+    <View style={styles.fill}>
+      <View style={styles.tint}>
         <Search
           ref={searchRef}
           numberOfLines={1}
-          inputStyle={{ alignSelf: "center" }}
+          inputStyle={styles.searchInput}
           onClearIconPress={handleClear}
           value={filters}
           enablesReturnKeyAutomatically
@@ -448,7 +443,7 @@ export const LocationListScreen = ({ route, ...props }) => {
           autoCorrect={false}
           placeholder="Search"
         />
-        <View style={{ paddingVertical: 10, paddingHorizontal: 12 }}>
+        <View style={styles.pad}>
           <Label weight="bold">{resultCount} Results</Label>
         </View>
       </View>
@@ -468,3 +463,22 @@ export const LocationListScreen = ({ route, ...props }) => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  label: {
+    paddingRight: 15,
+  },
+  fill: {
+    flex: 1,
+  },
+  tint: {
+    backgroundColor: "white",
+  },
+  searchInput: {
+    alignSelf: "center",
+  },
+  pad: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+  },
+});

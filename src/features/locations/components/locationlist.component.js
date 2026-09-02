@@ -45,6 +45,95 @@ const chipStyles = StyleSheet.create({
     height: 25,
     justifyContent: "center",
   },
+  centerBox: {
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 32,
+  },
+  label: {
+    color: "#aaa",
+    marginTop: 8,
+  },
+  box: {
+    elevation: 10,
+  },
+  bordered: {
+    borderRadius: 10,
+  },
+  rowCenter: {
+    flexDirection: "row",
+    height: "100%",
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 8,
+    shadowOffset: {
+      height: 3,
+      width: 3,
+    },
+    shadowColor: "black",
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 10,
+    alignItems: "center",
+    height: 120,
+    position: "relative",
+  },
+  bordered2: {
+    width: 100,
+    height: 100,
+    borderRadius: 6,
+    overflow: "hidden",
+  },
+  skeleton: {
+    position: "absolute",
+    zIndex: -1,
+  },
+  cacheImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+  },
+  box2: {
+    marginLeft: 8,
+    height: "auto",
+    justifyContent: "space-between",
+    width: "70%",
+  },
+  box3: {
+    margin: 0,
+    padding: 0,
+  },
+  label2: {
+    color: "#888",
+  },
+  spacer: {
+    marginBottom: 6,
+    marginTop: 8,
+  },
+  linearGradient: {
+    flex: 1,
+    position: "absolute",
+    width: 20,
+    height: 20,
+    right: 0,
+  },
+  pad: {
+    paddingHorizontal: 10,
+  },
+  skeleton2: {
+    marginVertical: 8,
+  },
+  skeleton3: {
+    marginBottom: 8,
+  },
+  skeleton4: {
+    marginTop: 16,
+  },
+  flatListContentContainer: {
+    paddingTop: 8,
+    paddingBottom: 16,
+    paddingHorizontal: 10,
+  },
 });
 
 export const LocationList = ({
@@ -68,20 +157,14 @@ export const LocationList = ({
   const renderEmpty = () => {
     return (
       <>
-        <View
-          style={{
-            justifyContent: "center",
-            alignItems: "center",
-            marginVertical: 32,
-          }}
-        >
+        <View style={chipStyles.centerBox}>
           <MaterialCommunityIcons
             name="emoticon-sad-outline"
             size={100}
             color="#aaa"
           />
           
-          <Label size="title" weight="medium" style={{ color: "#aaa", marginTop: 8 }}>
+          <Label size="title" weight="medium" style={chipStyles.label}>
             No results found
           </Label>
         </View>
@@ -108,83 +191,42 @@ export const LocationList = ({
   const renderLocations = ({ item }) => {
     return (
       <View
-        style={{
-          // flex: 1,
-          elevation: 10,
-        }}
+        style={chipStyles.box}
       >
         <TouchableHighlight
-          style={{ borderRadius: 10 }}
+          style={chipStyles.bordered}
           activeOpacity={0.95}
           underlayColor="black"
           onPress={() => selectHandle(item.id)}
         >
-          <View
-            style={{
-              flexDirection: "row",
-              height: "100%",
-              backgroundColor: "white",
-              borderRadius: 10,
-              padding: 8,
-              shadowOffset: { height: 3, width: 3 },
-              shadowColor: "black",
-              shadowOpacity: 0.2,
-              shadowRadius: 5,
-              elevation: 10,
-              alignItems: "center",
-              height: 120,
-              position: "relative",
-            }}
-          >
-            <View
-              style={{
-                width: 100,
-                height: 100,
-                borderRadius: 6,
-                overflow: "hidden",
-              }}
-            >
+          <View style={chipStyles.rowCenter}>
+            <View style={chipStyles.bordered2}>
               <Skeleton
                 variant="square"
                 opacityMax={0.2}
                 opacityMin={0.1}
-                style={{ position: "absolute", zIndex: -1 }}
+                style={chipStyles.skeleton}
               />
               <CacheImage
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  resizeMode: "cover",
-                }}
+                style={chipStyles.cacheImage}
                 uri={`${adminFileBaseURL}${item.file}`}
               />
             </View>
 
             
 
-            <View
-              style={{
-                marginLeft: 8,
-                height: "auto",
-                justifyContent: "space-between",
-                width: "70%",
-              }}
-            >
-              <View style={{ margin: 0, padding: 0 }}>
+            <View style={chipStyles.box2}>
+              <View style={chipStyles.box3}>
                 <Label numberOfLines={1} size="subtitle" weight="bold">
                   {item.outlet_name}
                 </Label>
                 {item.main_name != undefined && (
-                  <Label
-                    style={{ color: "#888" }}
-                    size="caption"
-                    weight="medium"
-                  >
+                  <Label style={chipStyles.label2} size="caption" weight="medium">
                     {item.main_name}
                   </Label>
                 )}
               </View>
-              <View style={{ marginBottom: 6, marginTop: 8 }}>
+              <View style={chipStyles.spacer}>
                 <Text
                   style={{
                     width: width - 100 - 50,
@@ -210,13 +252,7 @@ export const LocationList = ({
                 />
                 <LinearGradient
                   colors={["#ffffff00", "#fff"]}
-                  style={{
-                    flex: 1,
-                    position: "absolute",
-                    width: 20,
-                    height: 20,
-                    right: 0,
-                  }}
+                  style={chipStyles.linearGradient}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                 ></LinearGradient>
@@ -231,14 +267,14 @@ export const LocationList = ({
   const SkeletonLocations = () => {
     return (
       <>
-        <View style={{ paddingHorizontal: 10 }}>
+        <View style={chipStyles.pad}>
           <Skeleton
             height={120}
             width="100%"
             borderRadius={10}
             opacityMax={0.2}
             opacityMin={0.1}
-            style={{ marginVertical: 8 }}
+            style={chipStyles.skeleton2}
           />
           <Skeleton
             height={120}
@@ -246,7 +282,7 @@ export const LocationList = ({
             borderRadius={10}
             opacityMax={0.2}
             opacityMin={0.1}
-            style={{ marginBottom: 8 }}
+            style={chipStyles.skeleton3}
           />
           <Skeleton
             height={120}
@@ -254,7 +290,7 @@ export const LocationList = ({
             borderRadius={10}
             opacityMax={0.2}
             opacityMin={0.1}
-            style={{ marginBottom: 8 }}
+            style={chipStyles.skeleton3}
           />
           <Skeleton
             height={120}
@@ -262,7 +298,7 @@ export const LocationList = ({
             borderRadius={10}
             opacityMax={0.2}
             opacityMin={0.1}
-            style={{ marginBottom: 8 }}
+            style={chipStyles.skeleton3}
           />
           <Skeleton
             height={120}
@@ -270,7 +306,7 @@ export const LocationList = ({
             borderRadius={10}
             opacityMax={0.2}
             opacityMin={0.1}
-            style={{ marginBottom: 8 }}
+            style={chipStyles.skeleton3}
           />
           <Skeleton
             height={120}
@@ -278,7 +314,7 @@ export const LocationList = ({
             borderRadius={10}
             opacityMax={0.2}
             opacityMin={0.1}
-            style={{ marginBottom: 8 }}
+            style={chipStyles.skeleton3}
           />
         </View>
       </>
@@ -293,7 +329,7 @@ export const LocationList = ({
         borderRadius={10}
         opacityMax={0.2}
         opacityMin={0.1}
-        style={{ marginTop: 16 }}
+        style={chipStyles.skeleton4}
       />
     ) : null;
   };
@@ -320,11 +356,7 @@ export const LocationList = ({
           onLayout={onLayout}
           load
           onMomentumScrollEnd={onMomentumEnd}
-          contentContainerStyle={{
-            paddingTop: 8,
-            paddingBottom: 16,
-            paddingHorizontal: 10,
-          }}
+          contentContainerStyle={chipStyles.flatListContentContainer}
           ListEmptyComponent={renderEmpty}
           data={locations}
           extraData={locations}

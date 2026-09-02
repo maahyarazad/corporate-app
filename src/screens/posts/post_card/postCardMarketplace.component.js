@@ -89,36 +89,20 @@ const PostCardMarketplace = ({ item }) => {
   };
 
   return (
-    <View style={{ backgroundColor: "white" }}>
+    <View style={styles.tint}>
       <TouchableWithoutFeedback onPress={handlePress}>
         <View>
           {/* Title */}
           <PostCardHeader item={item} />
           {images && item.mode === "offer" && (
             <View style={styles.container}>
-              <View
-                style={{
-                  backgroundColor: "#ddd",
-                  width: "100%",
-                  aspectRatio: 1.77,
-                  borderRadius: 12,
-                  overflow: "hidden",
-                }}
-              >
+              <View style={styles.bordered}>
                 <CacheImage
                   uri={images[0].uri}
-                  style={{ width: "100%", aspectRatio: 1.77 }}
+                  style={styles.cacheImage}
                   resizeMode="cover"
                 />
-                <View
-                  style={{
-                    position: "absolute",
-                    bottom: 4,
-                    left: 4,
-                    flexDirection: "row",
-                    gap: 4,
-                  }}
-                >
+                <View style={styles.row2}>
                   {!!imageCount && (
                     <View style={styles.mediaCounter}>
                       <MaterialCommunityIcons
@@ -126,11 +110,7 @@ const PostCardMarketplace = ({ item }) => {
                         size={15}
                         color="#777"
                       />
-                      <Label
-                        size={12}
-                        weight="bold"
-                        style={{ color: "#777" }}
-                      >
+                      <Label size={12} weight="bold" style={styles.label}>
                         {`${imageCount}`}
                       </Label>
                     </View>
@@ -142,27 +122,14 @@ const PostCardMarketplace = ({ item }) => {
                         size={15}
                         color="#777"
                       />
-                      <Label
-                        size={12}
-                        weight="bold"
-                        style={{ color: "#777" }}
-                      >
+                      <Label size={12} weight="bold" style={styles.label}>
                         {`${videoCount}`}
                       </Label>
                     </View>
                   )}
                 </View>
                 {images[0].type === "video" && (
-                  <View
-                    style={{
-                      flex: 1,
-                      position: "absolute",
-                      width: "100%",
-                      height: "100%",
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  >
+                  <View style={styles.overlay}>
                     <MaterialCommunityIcons
                       name="play-circle-outline"
                       size={50}
@@ -178,21 +145,9 @@ const PostCardMarketplace = ({ item }) => {
             <ModeChip />
           </View>
           <View style={[styles.row, styles.container, { gap: 8 }]}>
-            <View
-              style={{
-                justifyContent: "space-between",
-                flex: 1,
-                gap: 8,
-              }}
-            >
-              <View
-                style={{
-                  gap: 6,
-                  justifyContent: "space-between",
-                  flex: 1,
-                }}
-              >
-                <View style={{ gap: 8 }}>
+            <View style={styles.flexBox}>
+              <View style={styles.flexBox2}>
+                <View style={styles.box}>
                   <Label
                     size="title"
                     weight="bold"
@@ -202,7 +157,7 @@ const PostCardMarketplace = ({ item }) => {
                   </Label>
                   <Label numberOfLines={2}>{item.content}</Label>
                 </View>
-                <Label style={{ alignContent: "flex-end" }}>
+                <Label style={styles.label2}>
                   Kategorie: <Label weight="bold">{item.category}</Label>
                 </Label>
               </View>
@@ -211,7 +166,7 @@ const PostCardMarketplace = ({ item }) => {
                   size={18}
                   weight="bold"
                   color={theme.colors.icons.active}
-                  style={{ alignSelf: "flex-start" }}
+                  style={styles.label3}
                   // style={{ color: theme.colors.icons.active }}
                 >
                   {item.mode === "offer"
@@ -273,5 +228,56 @@ const styles = StyleSheet.create({
     gap: 2,
 
     backgroundColor: "#eee",
+  },
+  tint: {
+    backgroundColor: "white",
+  },
+  bordered: {
+    backgroundColor: "#ddd",
+    width: "100%",
+    aspectRatio: 1.77,
+    borderRadius: 12,
+    overflow: "hidden",
+  },
+  cacheImage: {
+    width: "100%",
+    aspectRatio: 1.77,
+  },
+  row2: {
+    position: "absolute",
+    bottom: 4,
+    left: 4,
+    flexDirection: "row",
+    gap: 4,
+  },
+  label: {
+    color: "#777",
+  },
+  overlay: {
+    flex: 1,
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  flexBox: {
+    justifyContent: "space-between",
+    flex: 1,
+    gap: 8,
+  },
+  flexBox2: {
+    gap: 6,
+    justifyContent: "space-between",
+    flex: 1,
+  },
+  box: {
+    gap: 8,
+  },
+  label2: {
+    alignContent: "flex-end",
+  },
+  label3: {
+    alignSelf: "flex-start",
   },
 });

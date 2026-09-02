@@ -36,29 +36,21 @@ const onPressPublisher = async () => {
   return (
     <>
       <Background style={styles.container}>
-        <Image
-          style={{
-            width: 100,
-            height: 50,
-            resizeMode: "contain",
-            marginLeft: 16,
-          }}
-          source={companyLogo}
-        />
+        <Image style={styles.image} source={companyLogo} />
         <View style={styles.wrapper}>
           <View style={styles.window}>
             <Label size="title" weight="bold">
               Outdated Version
             </Label>
 
-            <View style={{ marginTop: 10 }} />
+            <View style={styles.spacer} />
 
             <Label style={styles.message} size="subtitle">
               Your app is running on an outdated version. Please update your
               app.
             </Label>
 
-            <View style={{ marginTop: 20, fontSize: 40 }} />
+            <View style={styles.box} />
             <Button 
               onPress={onPressPublisher}
               contentStyle={{
@@ -70,14 +62,8 @@ const onPressPublisher = async () => {
               {Platform.OS === "ios" ? `Go to Appstore` : `Go to Playstore`}
             </Button>
           </View>
-          <View
-            style={{
-              position: "absolute",
-              right: 24,
-              bottom: 24,
-            }}
-          >
-            <Label style={{ color: "white" }}>
+          <View style={styles.overlay}>
+            <Label style={styles.label}>
               v{Constants.default.expoConfig.version}
             </Label>
           </View>
@@ -109,5 +95,26 @@ const styles = StyleSheet.create({
   },
   message: {
     textAlign: "center",
+  },
+  image: {
+    width: 100,
+    height: 50,
+    resizeMode: "contain",
+    marginLeft: 16,
+  },
+  spacer: {
+    marginTop: 10,
+  },
+  box: {
+    marginTop: 20,
+    fontSize: 40,
+  },
+  overlay: {
+    position: "absolute",
+    right: 24,
+    bottom: 24,
+  },
+  label: {
+    color: "white",
   },
 });

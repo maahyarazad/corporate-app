@@ -142,58 +142,35 @@ export const OfferRedeemForm = ({
   return (
     <KeyboardAwareScrollView
       behavior="padding"
-      style={{
-        flex: 1,
-        backgroundColor: "#000000cc",
-      }}
-      contentContainerStyle={{
-        flexGrow: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
+      style={styles.keyboardAwareScrollView}
+      contentContainerStyle={styles.keyboardAwareScrollViewContentContainer}
     >
       <LoadingOverlay display={isLoading} />
-      <View
-        style={{
-          width: "95%",
-          height: "70%",
-          backgroundColor: "white",
-          borderRadius: 12,
-          maxHeight: 530,
-        }}
-      >
-        <View style={{ flex: 1, justifyContent: "center" }}>
+      <View style={styles.bordered}>
+        <View style={styles.flexBox}>
           <ScrollView
             centerContent={true}
             indicatorStyle="black"
             contentContainerStyle={{}}
           >
-            <View style={{ padding: 16, height: "100%" }}>
-              <View style={{ marginVertical: 8 }}>
+            <View style={styles.box}>
+              <View style={styles.spacer}>
                 <Offer offer={offerInfo} backgroundColor="white" />
               </View>
-              <View
-                style={{
-                  borderWidth: 1,
-                  marginVertical: 8,
-                  borderRadius: 8,
-                  borderColor: "#aaa",
-                  paddingHorizontal: 12,
-                }}
-              >
+              <View style={styles.bordered2}>
                 <TextInputCurrency
                   onBlur={onBlurTotalBill}
                   onFocus={onFocusTotal}
                   onChangeText={onChangeTotalBill}
                   disabled={offerInfo.with_freebie == 1}
                   value={totalAmount.toString()}
-                  style={{ marginVertical: 6 }}
+                  style={styles.textInputCurrency}
                   label={i18n.t("redeem-offer.total-bill")}
                 />
                 <TextInputCurrency
                   disabled={true}
                   value={discAmount.toString()}
-                  style={{ marginVertical: 6 }}
+                  style={styles.textInputCurrency}
                   label={i18n.t("redeem-offer.discount")}
                 />
                 <TextInputCurrency
@@ -204,10 +181,10 @@ export const OfferRedeemForm = ({
                   // disabled={offerInfo.with_freebie === 1}
                   minValue={offerInfo.min_value}
                   value={paidAmount.toString()}
-                  style={{ marginVertical: 6 }}
+                  style={styles.textInputCurrency}
                   label={i18n.t("redeem-offer.actual-paid")}
                 />
-                <View style={{ marginTop: 8 }}>
+                <View style={styles.spacer2}>
                   <Label>{i18n.t("redeem-offer.merchant-pin")}</Label>
                   <CodeInputField
                     code={merchantCode}
@@ -215,15 +192,8 @@ export const OfferRedeemForm = ({
                     setPinReady={setPinReady}
                     maxLength={6}
                     hidden={true}
-                    inputBoxStyle={{
-                      borderRadius: 20,
-                      width: 40,
-                      height: 40,
-                      borderColor: "#aaa",
-                    }}
-                    containerStyle={{
-                      marginTop: 4,
-                    }}
+                    inputBoxStyle={styles.codeInputFieldInputBox}
+                    containerStyle={styles.codeInputFieldContainer}
                   />
                 </View>
               </View>
@@ -231,16 +201,16 @@ export const OfferRedeemForm = ({
           </ScrollView>
         </View>
       </View>
-      <View style={{ flexDirection: "row", padding: 16 }}>
+      <View style={styles.row}>
         <Button
-          style={{ flex: 1, backgroundColor: "#006EFF" }}
-          contentStyle={{ padding: 8 }}
+          style={styles.button}
+          contentStyle={styles.buttonContent}
           mode="contained"
           onPress={onCloseModal}
         >
           {i18n.t("close")}
         </Button>
-        <View style={{marginLeft: 6}} />
+        <View style={styles.spacer3} />
         
         <Button
           disabled={!pinReady}
@@ -251,7 +221,7 @@ export const OfferRedeemForm = ({
           labelStyle={{
             color: pinReady ? "white" : "#ddd",
           }}
-          contentStyle={{ padding: 8 }}
+          contentStyle={styles.buttonContent}
           mode="contained"
           onPress={handleConfirm}
         >
@@ -264,4 +234,67 @@ export const OfferRedeemForm = ({
 
 const styles = StyleSheet.create({
   container: {},
+  keyboardAwareScrollView: {
+    flex: 1,
+    backgroundColor: "#000000cc",
+  },
+  keyboardAwareScrollViewContentContainer: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  bordered: {
+    width: "95%",
+    height: "70%",
+    backgroundColor: "white",
+    borderRadius: 12,
+    maxHeight: 530,
+  },
+  flexBox: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  box: {
+    padding: 16,
+    height: "100%",
+  },
+  spacer: {
+    marginVertical: 8,
+  },
+  bordered2: {
+    borderWidth: 1,
+    marginVertical: 8,
+    borderRadius: 8,
+    borderColor: "#aaa",
+    paddingHorizontal: 12,
+  },
+  textInputCurrency: {
+    marginVertical: 6,
+  },
+  spacer2: {
+    marginTop: 8,
+  },
+  codeInputFieldInputBox: {
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    borderColor: "#aaa",
+  },
+  codeInputFieldContainer: {
+    marginTop: 4,
+  },
+  row: {
+    flexDirection: "row",
+    padding: 16,
+  },
+  button: {
+    flex: 1,
+    backgroundColor: "#006EFF",
+  },
+  buttonContent: {
+    padding: 8,
+  },
+  spacer3: {
+    marginLeft: 6,
+  },
 });

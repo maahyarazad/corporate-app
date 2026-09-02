@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { ImageBackground, KeyboardAvoidingView, Platform, View } from "react-native";
+import { ImageBackground, KeyboardAvoidingView, Platform, View, StyleSheet } from "react-native";
 import { SafeArea } from "../../components/safearea.component";
 import { Label } from "../../components/typography/label.component";
 import { LoginButton, TextInputForm } from "./login.screen";
@@ -42,40 +42,19 @@ export const VerifyInfo = ({ route }) => {
 
   return (
     <ImageBackground
-      style={{
-        flex: 1,
-      }}
+      style={styles.imageBackground}
       source={require("../../../assets/ifza-login-bg.webp")}
     >
-      <SafeArea
-        style={{
-          flex: 1,
-          justifyContent: "flex-end",
-        }}
-      >
+      <SafeArea style={styles.safeArea}>
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "position" : ""}
-          style={{
-            flex: 1,
-            padding: 16,
-            justifyContent: "flex-end",
-          }}
-          contentContainerStyle={{ flex: 1, justifyContent: "flex-end" }}
+          style={styles.flexBox}
+          contentContainerStyle={styles.safeArea}
         >
-          <Label
-            shadow={true}
-            style={{ color: "white" }}
-            size="h5"
-            weight="medium"
-          >
+          <Label shadow={true} style={styles.label} size="h5" weight="medium">
             Hallo, {firstname}
           </Label>
-          <Label
-            shadow={true}
-            style={{ color: "white" }}
-            size="body"
-            weight="medium"
-          >
+          <Label shadow={true} style={styles.label} size="body" weight="medium">
             Bitte stellen Sie sicher, dass alle Informationen aktueil und
             korrekt sind.
           </Label>
@@ -100,7 +79,7 @@ export const VerifyInfo = ({ route }) => {
             activeOutlineColor="#B57000"
             label="Nachname"
           ></TextInputForm>
-          <View style={{ marginBottom: 0 }}>
+          <View style={styles.spacer}>
             <TextInputForm
               value={birthday.toLocaleDateString("de-DE", {
                 year: "numeric",
@@ -111,10 +90,7 @@ export const VerifyInfo = ({ route }) => {
               mode="outlined"
               activeOutlineColor="#B57000"
               label="Geburtsdatum"
-              style={{
-                width: "100%",
-                position: "absolute",
-              }}
+              style={styles.textInputForm}
             ></TextInputForm>
 
                <DateTimePicker onChange={setBirthday}
@@ -126,11 +102,7 @@ export const VerifyInfo = ({ route }) => {
           iosMode="date"
            locale="de"
            isNullable={false}
-           style={{
-                width: "100%",
-                height: 60,
-                marginTop: 6,
-              }}
+           style={styles.dateTimePicker}
         />
 
 
@@ -171,13 +143,13 @@ export const VerifyInfo = ({ route }) => {
             label="Mobilnummer"
           ></TextInputForm>
 
-          <View style={{marginTop: 8}} />
+          <View style={styles.spacer2} />
           <LoginButton
             onPress={handleUpdate}
             activeOpacity={0.8}
             checked={true}
           >
-            <Label style={{ color: "white" }} weight="bold">
+            <Label style={styles.label} weight="bold">
               Telefonnummer Verifizieren
             </Label>
           </LoginButton>
@@ -186,3 +158,36 @@ export const VerifyInfo = ({ route }) => {
     </ImageBackground>
   );
 };
+
+const styles = StyleSheet.create({
+  imageBackground: {
+    flex: 1,
+  },
+  safeArea: {
+    flex: 1,
+    justifyContent: "flex-end",
+  },
+  flexBox: {
+    flex: 1,
+    padding: 16,
+    justifyContent: "flex-end",
+  },
+  label: {
+    color: "white",
+  },
+  spacer: {
+    marginBottom: 0,
+  },
+  textInputForm: {
+    width: "100%",
+    position: "absolute",
+  },
+  dateTimePicker: {
+    width: "100%",
+    height: 60,
+    marginTop: 6,
+  },
+  spacer2: {
+    marginTop: 8,
+  },
+});

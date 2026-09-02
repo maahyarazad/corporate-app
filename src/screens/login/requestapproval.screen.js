@@ -263,13 +263,7 @@ export const RequestApprovalScreen = () => {
             scrollEventThrottle={16}
           >
             <View style={styles.headerView}>
-              <CompanyLogo
-                style={{
-                  resizeMode: "contain",
-                  marginBottom: 15,
-                }}
-                source={companyLogo}
-              />
+              <CompanyLogo style={styles.companyLogo} source={companyLogo} />
               <TouchableHighlight onPress={handleLogout}>
                 <MaterialCommunityIcons
                   name="logout"
@@ -282,12 +276,8 @@ export const RequestApprovalScreen = () => {
             {userData?.remarks != undefined &&
               userData?.remarks.trim() !== "" &&
               !hasSubmit && (
-                <View style={{ padding: 20 }}>
-                  <Label
-                    weight="regular"
-                    size="subtitle"
-                    style={{ color: "red" }}
-                  >
+                <View style={styles.pad}>
+                  <Label weight="regular" size="subtitle" style={styles.label}>
                     <Label size="subtitle" weight="bold">
                       {`Rejected Previous Request `}
                     </Label>
@@ -300,13 +290,7 @@ export const RequestApprovalScreen = () => {
                   </Label>
 
                   <TouchableOpacity onPress={handleEdit}>
-                    <Label
-                      style={{
-                        textDecorationLine: "underline",
-                        color: "white",
-                      }}
-                      size="title"
-                    >
+                    <Label style={styles.label2} size="title">
                       {i18n.t("card-upload.edit-profile")}
                     </Label>
                   </TouchableOpacity>
@@ -317,7 +301,7 @@ export const RequestApprovalScreen = () => {
               <PostCardUpload />
             ) : (
               <View>
-                <View style={{ paddingHorizontal: 20 }}>
+                <View style={styles.pad2}>
                   <Animated.View
                     style={[
                       styles.cardContainer,
@@ -329,12 +313,7 @@ export const RequestApprovalScreen = () => {
                     ]}
                   >
                     <TouchableHighlight
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        justifyContent: "flex-start",
-                        alignItems: "center",
-                      }}
+                      style={styles.centered}
                       onPress={handleOpenCamera}
                       underlayColor="#666"
                       disabled={isCameraOpen}
@@ -373,11 +352,7 @@ export const RequestApprovalScreen = () => {
                               name="camera"
                               size={50}
                             />
-                            <Label
-                              size="title"
-                              weight="bold"
-                              style={{ color: "#00000088" }}
-                            >
+                            <Label size="title" weight="bold" style={styles.label3}>
                               {i18n.t("card-upload.click-here").toUpperCase()}
                             </Label>
                           </>
@@ -411,30 +386,11 @@ export const RequestApprovalScreen = () => {
                                   />
                                 )
                               ) : (
-                                <View
-                                  style={{
-                                    width: "100%",
-                                    height: "100%",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                  }}
-                                >
-                                  <Label
-                                    style={{
-                                      color: "white",
-                                      textAlign: "center",
-                                    }}
-                                    size="title"
-                                  >
+                                <View style={styles.centerBox}>
+                                  <Label style={styles.label4} size="title">
                                     Needs camera permission.
                                   </Label>
-                                  <Label
-                                    style={{
-                                      color: "white",
-                                      textAlign: "center",
-                                    }}
-                                    size="title"
-                                  >
+                                  <Label style={styles.label4} size="title">
                                     Please allow in your phone settings.
                                   </Label>
                                 </View>
@@ -442,20 +398,14 @@ export const RequestApprovalScreen = () => {
                             </View>
 
                             <View
-                              style={{
-                                height: photo ? "100%" : 150,
-                                justifyContent: "center",
-                                alignItems: "center",
-                              }}
+                              style={[
+                                styles.centerBox2,
+                                {
+                                  height: photo ? "100%" : 150,
+                                },
+                              ]}
                             >
-                              <View
-                                style={{
-                                  justifyContent: "center",
-                                  alignItems: "center",
-                                  position: "absolute",
-                                  top: 0,
-                                }}
-                              >
+                              <View style={styles.overlay}>
                                 <Pressable
                                   onPress={() => {
                                     closeCamera();
@@ -490,16 +440,10 @@ export const RequestApprovalScreen = () => {
                                     </View>
                                   </TouchableHighlight>
                                 ) : (
-                                  <View
-                                    style={{
-                                      flexDirection: "row",
-                                      width: "100%",
-                                      justifyContent: "space-evenly",
-                                    }}
-                                  >
+                                  <View style={styles.row}>
                                     <TouchableHighlight onPress={handleRetake}>
                                       <View style={styles.cameraButtons}>
-                                        <Label style={{ textAlign: "center" }}>
+                                        <Label style={styles.label5}>
                                           {i18n.t("card-upload.retake")}
                                         </Label>
                                       </View>
@@ -515,12 +459,7 @@ export const RequestApprovalScreen = () => {
                                           },
                                         ]}
                                       >
-                                        <Label
-                                          style={{
-                                            textAlign: "center",
-                                            color: "white",
-                                          }}
-                                        >
+                                        <Label style={styles.label4}>
                                           {i18n.t("card-upload.use-image")}
                                         </Label>
                                       </View>
@@ -536,79 +475,33 @@ export const RequestApprovalScreen = () => {
                   </Animated.View>
                 </View>
 
-                <View
-                  style={{
-                    paddingHorizontal: 26,
-                    paddingTop: 16,
-                  }}
-                >
-                  <Label
-                    style={{
-                      color: "#fff",
-                      textAlign: "center",
-                      marginBottom: 8,
-                    }}
-                    size="heading"
-                    weight="bold"
-                  >
+                <View style={styles.pad3}>
+                  <Label style={styles.label6} size="heading" weight="bold">
                     {i18n.t("card-upload.heading")}
                   </Label>
 
-                  <View
-                    style={{
-                      flex: 1,
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Label
-                      style={{
-                        color: "#fff",
-                        textAlign: "center",
-                        lineHeight: 30,
-                      }}
-                      size="title"
-                      weight="regular"
-                    >
+                  <View style={styles.flexBox}>
+                    <Label style={styles.label7} size="title" weight="regular">
                       {i18n.t("card-upload.text")}
                     </Label>
 
                     <View>
-                      <Label
-                        style={{
-                          color: "#fff",
-                          textAlign: "left",
-                          marginBottom: 20,
-                        }}
-                        size="body"
-                        weight="regular"
-                      >
+                      <Label style={styles.label8} size="body" weight="regular">
                         {i18n.t("card-upload.notice")}
                       </Label>
                     </View>
 
-                    <View style={{marginTop: 8}} />
+                    <View style={styles.spacer} />
 
-                    <View
-                      style={{
-                        flex: 1,
-                        alignItems: "center",
-                        marginBottom: 8,
-                      }}
-                    >
+                    <View style={styles.centered2}>
                       <TouchableOpacity onPress={handleEdit}>
-                        <Label
-                          style={{
-                            textDecorationLine: "underline",
-                            color: "white",
-                          }}
-                          size="title"
-                        >
+                        <Label style={styles.label2} size="title">
                           {i18n.t("card-upload.edit-profile")}
                         </Label>
                       </TouchableOpacity>
                     </View>
 
-                    <View style={{marginTop: 8}} />
+                    <View style={styles.spacer} />
 
                     <AnimatedButton
                       onPress={handleUpload}
@@ -630,21 +523,9 @@ export const RequestApprovalScreen = () => {
                 </View>
 
                 {userData && userData.member ? (
-                  <View
-                    style={{
-                      flex: 1,
-                      alignItems: "center",
-                      marginTop: 15,
-                    }}
-                  >
+                  <View style={styles.centered3}>
                     <TouchableOpacity onPress={handleSkip}>
-                      <Label
-                        style={{
-                          textDecorationLine: "underline",
-                          color: "white",
-                        }}
-                        size="title"
-                      >
+                      <Label style={styles.label2} size="title">
                         {i18n.t("card-upload.skip")}
                       </Label>
                     </TouchableOpacity>
@@ -726,5 +607,95 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginHorizontal: 20,
+  },
+  companyLogo: {
+    resizeMode: "contain",
+    marginBottom: 15,
+  },
+  pad: {
+    padding: 20,
+  },
+  label: {
+    color: "red",
+  },
+  label2: {
+    textDecorationLine: "underline",
+    color: "white",
+  },
+  pad2: {
+    paddingHorizontal: 20,
+  },
+  centered: {
+    width: "100%",
+    height: "100%",
+    justifyContent: "flex-start",
+    alignItems: "center",
+  },
+  label3: {
+    color: "#00000088",
+  },
+  centerBox: {
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  label4: {
+    color: "white",
+    textAlign: "center",
+  },
+  overlay: {
+    justifyContent: "center",
+    alignItems: "center",
+    position: "absolute",
+    top: 0,
+  },
+  row: {
+    flexDirection: "row",
+    width: "100%",
+    justifyContent: "space-evenly",
+  },
+  label5: {
+    textAlign: "center",
+  },
+  pad3: {
+    paddingHorizontal: 26,
+    paddingTop: 16,
+  },
+  label6: {
+    color: "#fff",
+    textAlign: "center",
+    marginBottom: 8,
+  },
+  flexBox: {
+    flex: 1,
+    justifyContent: "space-between",
+  },
+  label7: {
+    color: "#fff",
+    textAlign: "center",
+    lineHeight: 30,
+  },
+  label8: {
+    color: "#fff",
+    textAlign: "left",
+    marginBottom: 20,
+  },
+  spacer: {
+    marginTop: 8,
+  },
+  centered2: {
+    flex: 1,
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  centered3: {
+    flex: 1,
+    alignItems: "center",
+    marginTop: 15,
+  },
+  centerBox2: {
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

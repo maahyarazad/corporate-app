@@ -1,5 +1,5 @@
 import React, { useCallback, useContext } from "react";
-import { View, FlatList } from "react-native";
+import { View, FlatList, StyleSheet } from "react-native";
 import { Label } from "../../../components/typography/label.component";
 import {
   CategoryContentView,
@@ -49,7 +49,7 @@ const renderCategory = ({ item, navigation }) => {
           >
             <CategoryItemImages
               resizeMode="contain"
-              style={{ tintColor: "white"}}
+              style={styles.categoryItemImages}
               source={categorylogo[item.id]}
             />
           </CategoryImageContainer>
@@ -74,7 +74,7 @@ const SkeletonCategoryHome = () => {
         opacityMin={0.1}
         opacityMax={0.2}
         borderRadius={10}
-        style={{ marginRight: 16 }}
+        style={styles.skeleton}
       />
       <Skeleton
         variant="square"
@@ -83,7 +83,7 @@ const SkeletonCategoryHome = () => {
         opacityMin={0.1}
         opacityMax={0.2}
         borderRadius={10}
-        style={{ marginRight: 16 }}
+        style={styles.skeleton}
       />
       <Skeleton
         variant="square"
@@ -92,7 +92,7 @@ const SkeletonCategoryHome = () => {
         opacityMin={0.1}
         opacityMax={0.2}
         borderRadius={10}
-        style={{ marginRight: 16 }}
+        style={styles.skeleton}
       />
       <Skeleton
         variant="square"
@@ -101,7 +101,7 @@ const SkeletonCategoryHome = () => {
         opacityMin={0.1}
         opacityMax={0.2}
         borderRadius={10}
-        style={{ marginRight: 16 }}
+        style={styles.skeleton}
       />
     </>
   );
@@ -124,7 +124,7 @@ export const HomeCategory = ({ size, categoryData }) => {
       <View>
         <CategoryHeaderView>
           
-            <Label size="heading" weight="bold" style={{marginLeft: 16}}>
+            <Label size="heading" weight="bold" style={styles.label}>
               {i18n.t("categories")}
             </Label>
           
@@ -147,23 +147,12 @@ export const HomeCategory = ({ size, categoryData }) => {
                 keyboardDismissMode="interactive"
                 showsHorizontalScrollIndicator={false}
                 ItemSeparatorComponent={itemSeparatorHM}
-                contentContainerStyle={{
-                  padding: 16,
-                  paddingTop: 10,
-                }}
+                contentContainerStyle={styles.flatListContentContainer}
               />
             </>
           ) : (
             <>
-              <View
-                style={{
-                  flex: 1,
-                  paddingLeft: 16,
-                  paddingTop: 8,
-                  marginBottom: 18,
-                  flexDirection: "row",
-                }}
-              >
+              <View style={styles.row}>
                 <SkeletonCategoryHome />
               </View>
             </>
@@ -173,3 +162,26 @@ export const HomeCategory = ({ size, categoryData }) => {
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  categoryItemImages: {
+    tintColor: "white",
+  },
+  skeleton: {
+    marginRight: 16,
+  },
+  label: {
+    marginLeft: 16,
+  },
+  flatListContentContainer: {
+    padding: 16,
+    paddingTop: 10,
+  },
+  row: {
+    flex: 1,
+    paddingLeft: 16,
+    paddingTop: 8,
+    marginBottom: 18,
+    flexDirection: "row",
+  },
+});

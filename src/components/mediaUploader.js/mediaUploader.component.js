@@ -35,12 +35,12 @@ const PreviewPhoto = React.memo(({ onPress, item, removeItem }) => {
         <View style={styles.photoContainer}>
           <CacheImage
             uri={item.uri}
-            style={{ width: 100, height: 100 }}
+            style={styles.cacheImage}
             resizeMode="cover"
             local={true}
           />
           {item.type === "video" && (
-            <View style={{ position: "absolute" }}>
+            <View style={styles.overlay}>
               <MaterialCommunityIcons
                 name="play-circle-outline"
                 size={60}
@@ -253,7 +253,7 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
     };
 
     return (
-      <View style={{ flexDirection: "row", gap: 8 }}>
+      <View style={styles.row}>
         {index === 0 && (images?.length ?? 0) < MAX_PHOTOS && (
           <View style={styles.addPhotoButton}>
             <TouchableOpacity onPress={openMediaSelector}>
@@ -271,7 +271,7 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
   };
 
   const AddPhotos = () => (
-    <View style={{ width: 100 }}>
+    <View style={styles.sizeBox}>
       <TouchableOpacity onPress={() => setOpenModal(true)}>
         <View style={styles.photoPlaceholder}>
           <MaterialCommunityIcons name="plus-circle" size={30} color="#ccc" />
@@ -289,40 +289,17 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
           {/* ── Media Picker Modal ── */}
           <CustomModal showModal={openModal} type="none">
             <TouchableWithoutFeedback onPress={() => setOpenModal(false)}>
-              <View
-                style={{
-                  backgroundColor: "#000000aa",
-                  flex: 1,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-                pointerEvents="auto"
-              >
+              <View style={styles.centerBox} pointerEvents="auto">
                 <TouchableWithoutFeedback>
                   <View>
-                    <View
-                      style={{
-                        backgroundColor: "white",
-                        width: "80%",
-                        borderRadius: 12,
-                        padding: 30,
-                        gap: 20,
-                      }}
-                    >
-                      <View
-                        style={{
-                          width: "100%",
-                          borderRadius: 12,
-                          flexDirection: "row",
-                          gap: 8,
-                        }}
-                      >
+                    <View style={styles.bordered}>
+                      <View style={styles.row2}>
                         {/* Pick Images */}
-                        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                        <View style={styles.centerBox2}>
                           <TouchableWithoutFeedback onPress={pickImage}>
                             <View style={[styles.buttonStyle, { backgroundColor: "palegreen" }]}>
                               <MaterialCommunityIcons name="image-multiple" size={50} />
-                              <Label weight="bold" style={{ textAlign: "center" }}>
+                              <Label weight="bold" style={styles.label}>
                                 Bilder auswählen
                               </Label>
                             </View>
@@ -330,11 +307,11 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
                         </View>
 
                         {/* Pick Video */}
-                        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                        <View style={styles.centerBox2}>
                           <TouchableWithoutFeedback onPress={pickVideo}>
                             <View style={[styles.buttonStyle, { backgroundColor: "lightblue" }]}>
                               <MaterialCommunityIcons name="video" size={50} />
-                              <Label weight="bold" style={{ textAlign: "center" }}>
+                              <Label weight="bold" style={styles.label}>
                                 Video auswählen
                               </Label>
                             </View>
@@ -343,17 +320,9 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
                       </View>
 
                       {/* Close button */}
-                      <View style={{ position: "absolute", right: -20, top: -20 }}>
+                      <View style={styles.overlay2}>
                         <TouchableWithoutFeedback onPress={() => setOpenModal(false)}>
-                          <View
-                            style={{
-                              padding: 6,
-                              backgroundColor: "white",
-                              borderRadius: 50,
-                              borderColor: "#ddd",
-                              borderWidth: 2,
-                            }}
-                          >
+                          <View style={styles.bordered2}>
                             <MaterialCommunityIcons name="close" size={30} color="#ddd" />
                           </View>
                         </TouchableWithoutFeedback>
@@ -361,16 +330,16 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
 
                       {/* Info + Progress */}
                       <View>
-                        <Label style={{ fontStyle: "italic" }}>
+                        <Label style={styles.label2}>
                           * Maximal 6 Bilder pro Beitrag
                         </Label>
-                        <Label style={{ fontStyle: "italic" }}>
+                        <Label style={styles.label2}>
                           * Maximal 1 Video pro Beitrag
                         </Label>
                         {compressDone != null && (
-                          <View style={{ paddingTop: 10 }}>
+                          <View style={styles.pad}>
                             <ProgressBar progress={compressProgress} />
-                            <Label style={{ textAlign: "center", paddingTop: 6 }}>
+                            <Label style={styles.label3}>
                               {compressDone === false ? "Komprimieren..." : "Fertig"}
                             </Label>
                           </View>
@@ -401,7 +370,7 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
                 <TouchableOpacity onPress={clearImages}>
                   <View style={styles.clearButton}>
                     <MaterialCommunityIcons name="close-thick" size={16} color="#b71540" />
-                    <Label size={12} weight="bold" style={{ color: "#b71540" }}>
+                    <Label size={12} weight="bold" style={styles.label4}>
                       Alles löschen
                     </Label>
                   </View>
@@ -411,7 +380,7 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
           )}
 
           {/* ── Media List ── */}
-          <View style={{ flexDirection: "row", gap: 8 }}>
+          <View style={styles.row}>
             {(images?.length ?? 0) > 0 ? (
               <FlatList
                 removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
@@ -419,8 +388,8 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
                 horizontal
                 renderItem={renderPreview}
                 keyExtractor={(item) => item.uri}
-                contentContainerStyle={{ gap: 8, paddingHorizontal: 20 }}
-                style={{ marginHorizontal: -20 }}
+                contentContainerStyle={styles.flatListContentContainer}
+                style={styles.flatList}
                 showsHorizontalScrollIndicator={false}
               />
             ) : (
@@ -436,23 +405,15 @@ const MediaUploader = ({ images, setImages, header = false, show = true }) => {
             onRequestClose={() => setGalleryOpen(false)}
             animationType="fade"
             HeaderComponent={() => (
-              <View
-                style={{
-                  width: "100%",
-                  marginTop: 40,
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  paddingHorizontal: 10,
-                }}
-              >
+              <View style={styles.rowBetween}>
                 <Image
                   source={companyLogo}
                   resizeMode="contain"
-                  style={{ width: 100, height: 100 }}
+                  style={styles.cacheImage}
                 />
-                <View style={{ top: 20 }}>
+                <View style={styles.offset}>
                   <TouchableOpacity activeOpacity={0.7} onPress={() => setGalleryOpen(false)}>
-                    <View style={{ padding: 10 }}>
+                    <View style={styles.pad2}>
                       <MaterialCommunityIcons name="close" size={30} color="#ddd" />
                     </View>
                   </TouchableOpacity>
@@ -518,5 +479,91 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     width: "100%",
+  },
+  cacheImage: {
+    width: 100,
+    height: 100,
+  },
+  overlay: {
+    position: "absolute",
+  },
+  row: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  sizeBox: {
+    width: 100,
+  },
+  centerBox: {
+    backgroundColor: "#000000aa",
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  bordered: {
+    backgroundColor: "white",
+    width: "80%",
+    borderRadius: 12,
+    padding: 30,
+    gap: 20,
+  },
+  row2: {
+    width: "100%",
+    borderRadius: 12,
+    flexDirection: "row",
+    gap: 8,
+  },
+  centerBox2: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  label: {
+    textAlign: "center",
+  },
+  overlay2: {
+    position: "absolute",
+    right: -20,
+    top: -20,
+  },
+  bordered2: {
+    padding: 6,
+    backgroundColor: "white",
+    borderRadius: 50,
+    borderColor: "#ddd",
+    borderWidth: 2,
+  },
+  label2: {
+    fontStyle: "italic",
+  },
+  pad: {
+    paddingTop: 10,
+  },
+  label3: {
+    textAlign: "center",
+    paddingTop: 6,
+  },
+  label4: {
+    color: "#b71540",
+  },
+  flatListContentContainer: {
+    gap: 8,
+    paddingHorizontal: 20,
+  },
+  flatList: {
+    marginHorizontal: -20,
+  },
+  rowBetween: {
+    width: "100%",
+    marginTop: 40,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 10,
+  },
+  offset: {
+    top: 20,
+  },
+  pad2: {
+    padding: 10,
   },
 });

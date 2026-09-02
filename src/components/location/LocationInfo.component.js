@@ -22,66 +22,40 @@ export const LocationInfo = ({
     <View style={styles.container}>
       <View style={styles.row}>
         {!!location && (
-          <View
-            style={{
-              backgroundColor: "white",
-              width: imageW,
-              height: imageH,
-              borderWidth: 1,
-              borderRadius: 4,
-              borderColor: "#ccc",
-              padding: 5,
-            }}
-          >
+          <View style={[styles.bordered, { width: imageW, height: imageH }]}>
             <Image
               source={{ uri: `${adminFileBaseURL}${location.logo}` }}
-              style={{
-                flex: 1,
-                width: imageW - 12,
-                height: imageH - 10,
-                backgroundColor: "white",
-              }}
+              style={[styles.image, { width: imageW - 12, height: imageH - 10 }]}
               resizeMode="contain"
             />
           </View>
         )}
 
         <View style={styles.infoContainer}>
-          <Text
-            numberOfLines={1}
-            style={{ color: headerColor, fontWeight: "bold", fontSize: 18 }}
-          >
+          <Text numberOfLines={1} style={[styles.text2, { color: headerColor }]}>
             {location?.name || ""}
           </Text>
 
           {location?.main !== undefined && location?.main !== null && (
-            <Text
-              numberOfLines={1}
-              style={{ color, fontWeight: "bold", fontSize: 16 }}
-            >
+            <Text numberOfLines={1} style={[styles.text3, { color }]}>
               {location.main}
             </Text>
           )}
 
           {location?.region && distance !== undefined && distance !== null && (
-            <Text style={{ color, fontWeight: "500", fontSize: 14 }}>
+            <Text style={[styles.text4, { color }]}>
               {`${location.region} • ${distance} km`}
             </Text>
           )}
 
-          <Text style={{ color, fontWeight: "bold", fontSize: 14 }}>
+          <Text style={[styles.text5, { color }]}>
             {location?.category || ""}
           </Text>
 
           {phoneList && phoneList.length > 0 && (
               <View style={{...styles.contactRow}}>
                 
-              <Ionicons
-                name="call"
-                size={17}
-                color="#888"
-                style={{ paddingRight: 4 }}
-              />
+              <Ionicons name="call" size={17} color="#888" style={styles.ionicons} />
               <View>
                 {phoneList.map((phone, index) => (
                   <Text
@@ -95,7 +69,7 @@ export const LocationInfo = ({
                         showToast("error", "Call Failed", "Unable to call this number");
                       }
                     }}
-                    style={{ color: "#006EFF", fontWeight: "bold", fontSize: 12 }}
+                    style={styles.text}
                   >
                     {phone}
                     {index < phoneList.length - 1 ? " | " : ""}
@@ -129,5 +103,40 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     flexDirection: "row",
     
+  },
+  ionicons: {
+    paddingRight: 4,
+  },
+  text: {
+    color: "#006EFF",
+    fontWeight: "bold",
+    fontSize: 12,
+  },
+  bordered: {
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderRadius: 4,
+    borderColor: "#ccc",
+    padding: 5,
+  },
+  image: {
+    flex: 1,
+    backgroundColor: "white",
+  },
+  text2: {
+    fontWeight: "bold",
+    fontSize: 18,
+  },
+  text3: {
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  text4: {
+    fontWeight: "500",
+    fontSize: 14,
+  },
+  text5: {
+    fontWeight: "bold",
+    fontSize: 14,
   },
 });

@@ -28,18 +28,9 @@ export const MyCard = ({
   return (
     <>
       {/* <TouchableHighlight> */}
-      <Card
-        style={{
-          borderRadius: 10,
-          marginTop: 10,
-          shadowOpacity: 0.4,
-          shadowRadius: 6,
-          elevation: 10,
-          backgroundColor: "white",
-        }}
-      >
+      <Card style={styles.card}>
         <TouchableOpacity
-          style={{ borderRadius: 10 }}
+          style={styles.bordered}
           activeOpacity={0.6}
           underlayColor="#00000022"
           onPress={onPress}
@@ -52,51 +43,31 @@ export const MyCard = ({
         >
           <View style={{ marginBottom: CARD_SIZE[size].type === 1 ? 16 : 0 }}>
             <View
-              style={{
-                position: "relative",
-                // backgroundColor: "#ccc",
-                overflow: "hidden",
-              }}
+              style={styles.box}
             >
               <ImageBackground
                 source={size === "partner" ? { uri: imgUrl } : {}}
-                style={{
-                  backgroundColor: "#ccc",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
+                style={styles.imageBackground}
                 blurRadius={10}
               >
                 <CacheImage
-                  style={{
-                    //   backgroundColor: "green",
-                    borderTopLeftRadius: 10,
-                    borderTopRightRadius: 10,
-                    width:
-                      imgWidth != undefined
-                        ? imgWidth
-                        : CARD_SIZE[size].image.width,
-                    height: imgHeight ?? CARD_SIZE[size].image.height,
-                    opacity: press ? 0.7 : 1,
-                    zIndex: 1,
-                  }}
+                  style={[
+                    styles.cacheImage,
+                    {
+                      width:
+                        imgWidth != undefined
+                          ? imgWidth
+                          : CARD_SIZE[size].image.width,
+                      height: imgHeight ?? CARD_SIZE[size].image.height,
+                      opacity: press ? 0.7 : 1,
+                    },
+                  ]}
                   uri={imgUrl}
                   resizeMode={size === "partner" ? "contain" : "cover"}
                 />
               </ImageBackground>
               {userLocation && !!distance && (
-                <View
-                  style={{
-                    position: "absolute",
-                    bottom: 0,
-                    right: 0,
-                    zIndex: 100,
-                    borderRadius: 20,
-                    padding: 8,
-                    backgroundColor: "#eee",
-                    margin: 8,
-                  }}
-                >
+                <View style={styles.overlay}>
                   <Label size="mini" weight="bold">
                     {distance}
                   </Label>
@@ -105,22 +76,14 @@ export const MyCard = ({
             </View>
 
             <View
-              style={{
-                flex: 0,
-                paddingHorizontal: 16,
-                paddingRight: 8,
-                paddingVertical: 8,
-                flexDirection: CARD_SIZE[size].type === 1 ? "column" : "row",
-                justifyContent: "space-between",
-              }}
+              style={[
+                styles.base,
+                {
+                  flexDirection: CARD_SIZE[size].type === 1 ? "column" : "row",
+                },
+              ]}
             >
-              <View
-                style={{
-                  flex: 1,
-                  height: 50,
-                  justifyContent: "center",
-                }}
-              >
+              <View style={styles.flexBox}>
                 {CARD_SIZE[size].type === 2 && (
                   <>
                     <Label size="title" weight="bold" numberOfLines={2}>
@@ -139,7 +102,7 @@ export const MyCard = ({
                   {outlet_name}
                 </Label>
                 {CARD_SIZE[size].type === 1 && main_name != undefined && (
-                  <Label style={{ color: "#aaa" }} size="body" weight="bold">
+                  <Label style={styles.label} size="body" weight="bold">
                     {main_name}
                   </Label>
                 )}
@@ -147,23 +110,19 @@ export const MyCard = ({
               {stamp && CARD_SIZE[size].type === 2 && (
                 <View style={{}}>
                   <Image
-                    style={{
-                      width: 55,
-                      height: 55,
-                      opacity: press ? 0.7 : 1,
-                    }}
+                    style={[styles.image, { opacity: press ? 0.7 : 1 }]}
                     source={stamp}
                   />
                 </View>
               )}
 
               {tags && (
-                <View style={{ paddingTop: 8, paddingBottom: 2 }}>
+                <View style={styles.pad}>
                   <Label
                     numberOfLines={2}
                     size="body"
                     weight="regular"
-                    style={{ color: "#aaa" }}
+                    style={styles.label}
                   >
                     {tags.map(
                       ({ tag }, index) =>
@@ -175,28 +134,14 @@ export const MyCard = ({
             </View>
             {CARD_SIZE[size].type === 1 && (
               <Card.Content>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    padding: 0,
-                    margin: 0,
-                    overflow: "hidden",
-                  }}
-                >
+                <View style={styles.row}>
                   {offer_types &&
                     offer_types.map((type, index) => {
                       return (
                         <Chip
                           // textStyle={{ marginLeft: 0 }}
                           key={`${type}${index}`}
-                          style={{
-                            backgroundColor: "#FFD892",
-                            padding: 0,
-                            alignItems: "flex-start",
-                            justifyContent: "center",
-                            marginRight: 8,
-                            borderRadius: 50,
-                          }}
+                          style={styles.chip}
                         >
                           {type.premium_en}
                         </Chip>
@@ -204,13 +149,7 @@ export const MyCard = ({
                     })}
                   <LinearGradient
                     colors={["#ffffff00", "#fff", "#fff"]}
-                    style={{
-                      flex: 1,
-                      position: "absolute",
-                      width: "20%",
-                      height: "100%",
-                      right: 0,
-                    }}
+                    style={styles.linearGradient}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
                   ></LinearGradient>
@@ -228,5 +167,84 @@ export const MyCard = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  card: {
+    borderRadius: 10,
+    marginTop: 10,
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 10,
+    backgroundColor: "white",
+  },
+  bordered: {
+    borderRadius: 10,
+  },
+  box: {
+    position: "relative",
+    overflow: "hidden",
+  },
+  imageBackground: {
+    backgroundColor: "#ccc",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  overlay: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    zIndex: 100,
+    borderRadius: 20,
+    padding: 8,
+    backgroundColor: "#eee",
+    margin: 8,
+  },
+  flexBox: {
+    flex: 1,
+    height: 50,
+    justifyContent: "center",
+  },
+  label: {
+    color: "#aaa",
+  },
+  pad: {
+    paddingTop: 8,
+    paddingBottom: 2,
+  },
+  row: {
+    flexDirection: "row",
+    padding: 0,
+    margin: 0,
+    overflow: "hidden",
+  },
+  chip: {
+    backgroundColor: "#FFD892",
+    padding: 0,
+    alignItems: "flex-start",
+    justifyContent: "center",
+    marginRight: 8,
+    borderRadius: 50,
+  },
+  linearGradient: {
+    flex: 1,
+    position: "absolute",
+    width: "20%",
+    height: "100%",
+    right: 0,
+  },
+  cacheImage: {
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    zIndex: 1,
+  },
+  base: {
+    flex: 0,
+    paddingHorizontal: 16,
+    paddingRight: 8,
+    paddingVertical: 8,
+    justifyContent: "space-between",
+  },
+  image: {
+    width: 55,
+    height: 55,
   },
 });

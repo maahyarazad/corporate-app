@@ -106,30 +106,15 @@ export const ContactUsScreen = () => {
 
   return (
     <View style={[styles.container, { marginTop: 30 }]}>
-      <TouchableOpacity
-        onPress={goback}
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-        }}
-        activeOpacity={0.5}
-      >
+      <TouchableOpacity onPress={goback} style={styles.rowCenter} activeOpacity={0.5}>
         <Ionicons name="arrow-back" size={35} color="#555" />
-        <Label
-          size="body"
-          weight="bold"
-          style={{ color: "#555", justifyContent: "center" }}
-        >
+        <Label size="body" weight="bold" style={styles.label}>
           {i18n.t("return")}
         </Label>
       </TouchableOpacity>
       <View style={styles.contactContainer}>
-        <View style={{ marginBottom: 24 }}>
-          <Label
-            size="h5"
-            weight="bold"
-            style={{ color: "#555", justifyContent: "center" , marginTop: 10}}
-          >
+        <View style={styles.spacer}>
+          <Label size="h5" weight="bold" style={styles.label2}>
             {i18n.t("profile-tabs.settings-menu.contact-us")}
           </Label>
         </View>
@@ -141,78 +126,47 @@ export const ContactUsScreen = () => {
             Platform.OS === "ios" ? "interactive" : "on-drag"
           }
           style={[styles.container, { marginHorizontal: -16 }]}
-          contentContainerStyle={{ paddingVertical: 12 }}
+          contentContainerStyle={styles.keyboardAwareScrollViewContentContainer}
         >
           <View>
             <CustomTextInput
               disable={true}
               value={state.name}
-              style={{
-                shadowOpacity: 0.3,
-                shadowRadius: 5,
-                shadowOffset: {
-                  width: 3,
-                  height: 3,
-                },
-              }}
+              style={styles.customTextInput}
               onChangeText={handleNameChange}
               label={`${i18n.t("contact-us.form-name")} *`}
             />
-            <View style={{marginTop: 8}}/>
+            <View style={styles.spacer2}/>
             <CustomTextInput
               disable={true}
               value={state.email}
-              style={{
-                shadowOpacity: 0.3,
-                shadowRadius: 5,
-                shadowOffset: {
-                  width: 3,
-                  height: 3,
-                },
-              }}
+              style={styles.customTextInput}
               onChangeText={handleEmailChange}
               label={`${i18n.t("contact-us.form-email")} *`}
             />
-            <View style={{marginTop: 8}}/>
+            <View style={styles.spacer2}/>
             <CustomTextInput
               disable={true}
               value={state.mobile}
-              style={{
-                shadowOpacity: 0.3,
-                shadowRadius: 5,
-                shadowOffset: {
-                  width: 3,
-                  height: 3,
-                },
-              }}
+              style={styles.customTextInput}
               onChangeText={handleMobileChange}
               label={`${i18n.t("contact-us.form-phone-number")} *`}
             />
-            <View style={{marginTop: 8}}/>
+            <View style={styles.spacer2}/>
             <CustomTextInput
               value={state.message}
-              style={{
-                shadowOpacity: 0.3,
-                shadowRadius: 5,
-                shadowOffset: {
-                  width: 3,
-                  height: 3,
-                },
-              }}
-              inputStyle={{
-                paddingTop: 16,
-                paddingBottom: 16,
-              }}
+              style={styles.customTextInput}
+              inputStyle={styles.customTextInput2}
               onChangeText={handleMessageChange}
               label={`${i18n.t("contact-us.form-message")} *`}
               multiline={true}
             />
-            <View style={{marginTop: 8}}/>
+            <View style={styles.spacer2}/>
             <Button
               loading={isLoading}
               disabled={disableButton || isLoading}
               onPress={handleSubmit}
-              contentStyle={{ paddingVertical: 8 }}
+              contentStyle={styles.buttonContent}
               color="orange"
               mode="contained"
             >
@@ -234,5 +188,42 @@ const styles = StyleSheet.create({
   },
   contactContainer: {
     flex: 1,
+  },
+  rowCenter: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  label: {
+    color: "#555",
+    justifyContent: "center",
+  },
+  spacer: {
+    marginBottom: 24,
+  },
+  label2: {
+    color: "#555",
+    justifyContent: "center",
+    marginTop: 10,
+  },
+  keyboardAwareScrollViewContentContainer: {
+    paddingVertical: 12,
+  },
+  customTextInput: {
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    shadowOffset: {
+      width: 3,
+      height: 3,
+    },
+  },
+  spacer2: {
+    marginTop: 8,
+  },
+  customTextInput2: {
+    paddingTop: 16,
+    paddingBottom: 16,
+  },
+  buttonContent: {
+    paddingVertical: 8,
   },
 });

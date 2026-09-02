@@ -76,28 +76,20 @@ const ChangeEmailAddressScreen = () => {
   return (
     <Background>
       <StatusBar style="light" />
-      <SafeArea style={{ alignItems: "center" }}>
-        <View style={{ paddingHorizontal: 12, width: "100%" }}>
+      <SafeArea style={styles.safeArea}>
+        <View style={styles.box}>
           <TouchableOpacity
             onPress={goback}
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-            }}
+            style={styles.rowCenter}
             activeOpacity={0.5}
           >
             <Ionicons name="arrow-back" size={35} color={"#fff"} />
-            <Label
-              size={"body"}
-              weight="bold"
-              style={{ justifyContent: "center" }}
-              color={"white"}
-            >
+            <Label size={"body"} weight="bold" style={styles.label} color={"white"}>
               {i18n.t("return")}
             </Label>
           </TouchableOpacity>
         </View>
-        <View style={{ flex: 1, width: "100%", padding: 12, gap: 50 }}>
+        <View style={styles.flexBox}>
           <Label size={"h4"} weight={"bold"} color={"white"}>
             {i18n.t("update-email.header")}
           </Label>
@@ -114,18 +106,16 @@ const ChangeEmailAddressScreen = () => {
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={handleUpdateEmail}
-              style={{
-                height: 60,
-                backgroundColor:
-                  state.email.trim() === "" ? "#ccc" : theme.colors.ui.button,
-                borderRadius: 5,
-                justifyContent: "center",
-                alignItems: "center",
-                marginVertical: 30,
-              }}
+              style={[
+                styles.centerBox,
+                {
+                  backgroundColor:
+                    state.email.trim() === "" ? "#ccc" : theme.colors.ui.button,
+                },
+              ]}
               disabled={state.email.trim() === ""}
             >
-              <Label style={{ color: "white" }} size={"body"} weight={"bold"}>
+              <Label style={styles.label2} size={"body"} weight={"bold"}>
                 {i18n.t("update-email.confirm")}
               </Label>
             </TouchableOpacity>
@@ -138,4 +128,35 @@ const ChangeEmailAddressScreen = () => {
 
 export default ChangeEmailAddressScreen;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  safeArea: {
+    alignItems: "center",
+  },
+  box: {
+    paddingHorizontal: 12,
+    width: "100%",
+  },
+  rowCenter: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  label: {
+    justifyContent: "center",
+  },
+  flexBox: {
+    flex: 1,
+    width: "100%",
+    padding: 12,
+    gap: 50,
+  },
+  label2: {
+    color: "white",
+  },
+  centerBox: {
+    height: 60,
+    borderRadius: 5,
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 30,
+  },
+});

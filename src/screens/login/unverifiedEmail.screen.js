@@ -49,16 +49,13 @@ export const UnverifiedEmailScreen = ({ route }) => {
       return (
         <TouchableWithoutFeedback onPress={onPress}>
           <View
-            style={{
-              backgroundColor: "white",
-              width: Math.min(width * 0.1),
-              aspectRatio: 0.9,
-              borderRadius: 6,
-              justifyContent: "center",
-              alignItems: "center",
-              borderColor: value ? theme.colors.icons.active : "#ccc",
-              borderWidth: 2,
-            }}
+            style={[
+              styles.centerBox,
+              {
+                width: Math.min(width * 0.1),
+                borderColor: value ? theme.colors.icons.active : "#ccc",
+              },
+            ]}
           >
             <Label weight="bold" size={20}>
               {value}
@@ -78,7 +75,7 @@ export const UnverifiedEmailScreen = ({ route }) => {
 
     return (
       <View>
-        <View style={{ flexDirection: "row", gap: 8 }}>
+        <View style={styles.row}>
           {Array(MAX_DIGIT)
             .fill(null)
             .map((_, index) => {
@@ -88,15 +85,7 @@ export const UnverifiedEmailScreen = ({ route }) => {
 
         <TextInput
           ref={inputRef}
-          style={{
-            backgroundColor: "red",
-            width: 1,
-            height: 1,
-            position: "absolute",
-            zIndex: -1,
-            left: 5,
-            top: 5,
-          }}
+          style={styles.textInput}
           onChangeText={onChangeCode}
           maxLength={MAX_DIGIT}
           keyboardType="number-pad"
@@ -112,9 +101,7 @@ export const UnverifiedEmailScreen = ({ route }) => {
           keyboardShouldPersistTaps="always"
           contentContainerStyle={styles.container}
         >
-          <View
-            style={{ padding: 24, backgroundColor: "white", borderRadius: 100 }}
-          >
+          <View style={styles.bordered}>
             <MaterialCommunityIcons
               name="email-remove"
               size={100}
@@ -125,11 +112,7 @@ export const UnverifiedEmailScreen = ({ route }) => {
           
 
           <View style={styles.viewStyle}>
-            <Label
-              style={{ color: "white", textAlign: "center" }}
-              size="title"
-              weight="medium"
-            >
+            <Label style={styles.label} size="title" weight="medium">
               {i18n.t("email-verification.text")}
             </Label>
           </View>
@@ -137,10 +120,7 @@ export const UnverifiedEmailScreen = ({ route }) => {
           
           
           <TouchableOpacity onPress={handleEmailChange} style={styles.viewStyle}>
-            <Label
-              style={{ color: "white", textDecorationLine: "underline" }}
-              size="title"
-            >
+            <Label style={styles.label2} size="title">
               {i18n.t("update-email.header")}
             </Label>
           </TouchableOpacity>
@@ -149,14 +129,14 @@ export const UnverifiedEmailScreen = ({ route }) => {
           {useVerification && (
            <View style={styles.viewStyle}>
               <InputVerificationCode />
-              <View style={{marginTop: 10}}/>
+              <View style={styles.spacer}/>
             </View>
           )}
           <Button
             onPress={goback}
             style={styles.viewStyleButton}
             buttonColor={theme.colors.icons.active}
-            contentStyle={{ paddingVertical: 8, paddingHorizontal: 16 }}
+            contentStyle={styles.buttonContent}
             mode="contained"
           >
             <Label size="body" weight="bold" color="white">
@@ -166,33 +146,21 @@ export const UnverifiedEmailScreen = ({ route }) => {
         
           {!resendStatus ? (
             <TouchableOpacity onPress={handleResend} style={styles.viewStyle}>
-              <Label
-                style={{ color: "white", textDecorationLine: "underline" }}
-                size="subtitle"
-                weight="regular"
-              >
+              <Label style={styles.label2} size="subtitle" weight="regular">
                 {i18n.t("email-verification.link")}
               </Label>
             </TouchableOpacity>
           ) : (
-            <Label
-              style={{ color: "#aaa" }}
-              size="subtitle"
-              weight="regular"
-            >
+            <Label style={styles.label3} size="subtitle" weight="regular">
               {i18n.t("email-verification.link-pressed")}
             </Label>
           )}
           {false && !useVerification && (
             <View style={styles.viewStyle}>
-              <View style={{marginTop: 8}}/>
+              <View style={styles.spacer2}/>
 
               <TouchableOpacity onPress={handleUseVerification}>
-                <Label
-                  style={{ color: "white", textDecorationLine: "underline" }}
-                  size="subtitle"
-                  weight="regular"
-                >
+                <Label style={styles.label2} size="subtitle" weight="regular">
                   Use Verification Code
                 </Label>
               </TouchableOpacity>
@@ -211,5 +179,52 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   viewStyle:{ paddingHorizontal: 32, paddingBottom: 20, paddingTop: 20},
-  viewStyleButton:{  borderRadius: 10, paddingHorizontal: 32, marginBottom: 20}
+  viewStyleButton:{  borderRadius: 10, paddingHorizontal: 32, marginBottom: 20},
+  row: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  textInput: {
+    backgroundColor: "red",
+    width: 1,
+    height: 1,
+    position: "absolute",
+    zIndex: -1,
+    left: 5,
+    top: 5,
+  },
+  bordered: {
+    padding: 24,
+    backgroundColor: "white",
+    borderRadius: 100,
+  },
+  label: {
+    color: "white",
+    textAlign: "center",
+  },
+  label2: {
+    color: "white",
+    textDecorationLine: "underline",
+  },
+  spacer: {
+    marginTop: 10,
+  },
+  buttonContent: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
+  label3: {
+    color: "#aaa",
+  },
+  spacer2: {
+    marginTop: 8,
+  },
+  centerBox: {
+    backgroundColor: "white",
+    aspectRatio: 0.9,
+    borderRadius: 6,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+  },
 });

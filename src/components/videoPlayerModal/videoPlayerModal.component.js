@@ -9,19 +9,8 @@ const VideoPlayerModal = ({ video, onClose }) => {
   return (
     <CustomModal showModal={!!video}>
       <StatusBar style="light" />
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: "black",
-        }}
-      >
-        <View
-          style={{
-            justifyContent: "center",
-            width: "100%",
-            height: "100%",
-          }}
-        >
+      <View style={styles.tint}>
+        <View style={styles.box}>
           <PanGestureHandler
             onGestureEvent={(event) => {
               if (event.nativeEvent.translationY > 100) {
@@ -29,25 +18,14 @@ const VideoPlayerModal = ({ video, onClose }) => {
               }
             }}
           >
-            <View
-              style={{
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
+            <View style={styles.centerBox}>
               <Label color="#aaa">Nach unten ziehen zum Schlie</Label>
               <VideoPlayer
                 source={{
                   uri: video,
                 }}
                 shouldPlay
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  maxHeight: "75%",
-                  marginTop: 20,
-                }}
+                style={styles.videoPlayer}
                 resizeMode={ResizeMode.CONTAIN}
                 useNativeControls
               />
@@ -61,4 +39,25 @@ const VideoPlayerModal = ({ video, onClose }) => {
 
 export default VideoPlayerModal;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  tint: {
+    flex: 1,
+    backgroundColor: "black",
+  },
+  box: {
+    justifyContent: "center",
+    width: "100%",
+    height: "100%",
+  },
+  centerBox: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  videoPlayer: {
+    width: "100%",
+    height: "100%",
+    maxHeight: "75%",
+    marginTop: 20,
+  },
+});

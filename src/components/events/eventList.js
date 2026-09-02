@@ -143,7 +143,7 @@ export const EventList = () => {
         size={20}
         name={item.includeGuests ? "account-group" : "account"}
         color="white"
-        style={{ marginRight: 5 }}
+        style={styles.materialCommunityIcons}
       />
     );
   };
@@ -259,14 +259,14 @@ export const EventList = () => {
                 }
               }}
               mode="contained"
-              style={{
-                flex: 1,
-                borderRadius: 12,
-                borderColor: item.registered
-                  ? "#842323"
-                  : theme.colors.icons.active,
-                borderWidth: 2,
-              }}
+              style={[
+                styles.button,
+                {
+                  borderColor: item.registered
+                    ? "#842323"
+                    : theme.colors.icons.active,
+                },
+              ]}
               icon={
                 item.registered
                   ? null
@@ -275,10 +275,7 @@ export const EventList = () => {
                     }
               }
               contentStyle={[styles.cardActionButton]}
-              labelStyle={{
-                fontWeight: "bold",
-                color: "white",
-              }}
+              labelStyle={styles.buttonLabel}
               buttonColor={
                 item.registered ? "#842323" : theme.colors.icons.active
               }
@@ -415,5 +412,16 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: theme.colors.ui.lightGray,
   },
-
+  materialCommunityIcons: {
+    marginRight: 5,
+  },
+  buttonLabel: {
+    fontWeight: "bold",
+    color: "white",
+  },
+  button: {
+    flex: 1,
+    borderRadius: 12,
+    borderWidth: 2,
+  },
 });

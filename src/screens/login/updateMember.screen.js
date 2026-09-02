@@ -170,28 +170,17 @@ export const UpdateMemberScreen = () => {
   }, []);
 
   return (
-    <View style={{ flex: 1, backgroundColor: "black" }}>
+    <View style={styles.tint}>
       <Background>
-        <SafeArea
-          style={{
-            height: "100%",
-            backgroundColor: "transparent",
-            justifyContent: "flex-end",
-          }}
-        >
+        <SafeArea style={styles.safeArea2}>
           <Animated.View style={[styles.safeArea, shakeStyle]}>
             <KeyboardAwareScrollView
               automaticallyAdjustKeyboardInsets={true}
               keyboardShouldPersistTaps="always"
-              style={{ height: "100%" }}
+              style={styles.keyboardAwareScrollView}
               // contentContainerStyle={{ flexGrow: 1 }}
             >
-              <View
-                style={{
-                  height: "100%",
-                  padding: 20,
-                }}
-              >
+              <View style={styles.box}>
                 <View>
                   <Label size="h4" weight="bold" style={{ color: "white" , ...styles.fixMargin}}>
                     Mitgliedsprofil aktualisieren
@@ -244,7 +233,7 @@ export const UpdateMemberScreen = () => {
                     error={isSubmitted && state.email.trim() === ""}
                   />
 
-                  <View style={{marginTop: 8}}/>
+                  <View style={styles.fixMargin}/>
 
                   {state.mobileCountry || state.mobileNumber ? (
                     <>
@@ -255,23 +244,19 @@ export const UpdateMemberScreen = () => {
                         placeholder="543248901"
                         onChangeText={handleMobileChange}
                         onChangeCountry={handleMobileCountryChange}
-                        containerStyle={{
-                          borderRadius: 5,
-                          width: "100%",
-                          borderWidth: 2,
-                          borderColor:
-                            isSubmitted && state.mobileNumber.trim() === ""
-                              ? "red"
-                              : "#fff",
-                          marginTop: 0,
-                        }}
-                        textContainerStyle={{
-                          borderTopRightRadius: 5,
-                          borderBottomRightRadius: 5,
-                        }}
+                        containerStyle={[
+                          styles.phoneInputContainer,
+                          {
+                            borderColor:
+                              isSubmitted && state.mobileNumber.trim() === ""
+                                ? "red"
+                                : "#fff",
+                          },
+                        ]}
+                        textContainerStyle={styles.phoneInputTextContainer}
                       />
 
-                      <View style={{marginTop: 8}}/>
+                      <View style={styles.fixMargin}/>
                     </>
                   ) : (
                     <></>
@@ -280,20 +265,14 @@ export const UpdateMemberScreen = () => {
                   <TouchableOpacity
                     activeOpacity={0.8}
                     onPress={submit}
-                    style={{
-                      height: 60,
-                      backgroundColor: theme.colors.ui.button,
-                      borderRadius: 5,
-                      justifyContent: "center",
-                      alignItems: "center",
-                      marginVertical: 30,
-                    }}
+                    style={[
+                      styles.centerBox,
+                      {
+                        backgroundColor: theme.colors.ui.button,
+                      },
+                    ]}
                   >
-                    <Label
-                      style={{ color: "white" }}
-                      size="body"
-                      weight="bold"
-                    >
+                    <Label style={styles.label} size="body" weight="bold">
                       aktualisieren
                     </Label>
                   </TouchableOpacity>
@@ -315,5 +294,41 @@ const styles = StyleSheet.create({
 
   fixMargin: {
     marginTop: 8
-  }
+  },
+  tint: {
+    flex: 1,
+    backgroundColor: "black",
+  },
+  safeArea2: {
+    height: "100%",
+    backgroundColor: "transparent",
+    justifyContent: "flex-end",
+  },
+  keyboardAwareScrollView: {
+    height: "100%",
+  },
+  box: {
+    height: "100%",
+    padding: 20,
+  },
+  phoneInputTextContainer: {
+    borderTopRightRadius: 5,
+    borderBottomRightRadius: 5,
+  },
+  label: {
+    color: "white",
+  },
+  phoneInputContainer: {
+    borderRadius: 5,
+    width: "100%",
+    borderWidth: 2,
+    marginTop: 0,
+  },
+  centerBox: {
+    height: 60,
+    borderRadius: 5,
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 30,
+  },
 });

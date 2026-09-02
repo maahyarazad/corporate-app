@@ -68,13 +68,7 @@ const PostCardHeader = ({ item }) => {
       {/* avatar */}
       <Avatar image={item.prof_image} />
       <View style={styles.authorContainer}>
-        <View
-          style={{
-            alignSelf: "stretch",
-            justifyContent: "space-between",
-            flexDirection: "row",
-          }}
-        >
+        <View style={styles.rowBetween}>
           <View>
             {/* name */}
             <View style={styles.row}>
@@ -93,7 +87,7 @@ const PostCardHeader = ({ item }) => {
 
             {/* position/profession */}
             {item && item.position && (
-              <View style={{ flexDirection: "row" }}>
+              <View style={styles.row}>
                 <Label size="caption" weight="regular">
                   {item.position}
                 </Label>
@@ -120,12 +114,7 @@ const PostCardHeader = ({ item }) => {
             {/* {true && ( */}
             {userData.old_user_id === item.user_id && (
               <View>
-                <View
-                  style={{
-                    right: 0,
-                    top: -4,
-                  }}
-                >
+                <View style={styles.offset}>
                   <TouchableOpacity onPress={onDrawerOpen}>
                     <MaterialCommunityIcons
                       name="dots-horizontal"
@@ -182,5 +171,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: 50,
     opacity: 0.6,
+  },
+  rowBetween: {
+    alignSelf: "stretch",
+    justifyContent: "space-between",
+    flexDirection: "row",
+  },
+  offset: {
+    right: 0,
+    top: -4,
   },
 });

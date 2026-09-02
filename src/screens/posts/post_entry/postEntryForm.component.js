@@ -29,29 +29,15 @@ const PostEntryForm = ({ setValue, value, category_id = 1 }) => {
             <TextInput
               placeholder="Title"
               placeholderTextColor="#ccc"
-              style={{
-                backgroundColor: "white",
-                fontSize: 20,
-                fontWeight: "bold",
-                padding: 8,
-                paddingHorizontal: 0,
-                //   borderBottomWidth: 1,
-              }}
+              style={styles.textInput}
               value={title}
               onChangeText={handleTitleChange}
             />
-            <View style={{marginTop: 6}}/>
+            <View style={styles.spacer}/>
             <TextInput
               placeholder="Content"
               placeholderTextColor="#ccc"
-              style={{
-                fontSize: 18,
-                fontWeight: "normal",
-                padding: 8,
-                paddingHorizontal: 0,
-                flex: 1,
-                //   borderBottomWidth: 1,
-              }}
+              style={styles.textInput2}
               //   scrollEnabled={false}
               multiline={true}
               value={content}
@@ -67,29 +53,15 @@ const PostEntryForm = ({ setValue, value, category_id = 1 }) => {
             <TextInput
               placeholder="Product Name"
               placeholderTextColor="#ccc"
-              style={{
-                backgroundColor: "white",
-                fontSize: 20,
-                fontWeight: "bold",
-                padding: 8,
-                paddingHorizontal: 0,
-                //   borderBottomWidth: 1,
-              }}
+              style={styles.textInput}
               value={title}
               onChangeText={handleTitleChange}
             />
-            <View style={{marginTop: 6}}/>
+            <View style={styles.spacer}/>
             <TextInput
               placeholder="Price"
               placeholderTextColor="#ccc"
-              style={{
-                fontSize: 18,
-                fontWeight: "normal",
-                padding: 8,
-                paddingHorizontal: 0,
-                flex: 1,
-                //   borderBottomWidth: 1,
-              }}
+              style={styles.textInput2}
               //   scrollEnabled={false}
               multiline={true}
               value={content}
@@ -104,18 +76,16 @@ const PostEntryForm = ({ setValue, value, category_id = 1 }) => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{
-        flex: 1,
-      }}
+      style={styles.container}
       keyboardVerticalOffset={130}
     >
       <ScrollView
         keyboardDismissMode="on-drag"
-        contentContainerStyle={{ flex: 1 }}
+        contentContainerStyle={styles.container}
       >
         <RenderForm />
-        <View style={{ alignSelf: "flex-end", bottom: 10 }}>
-          <Label style={{ color: "#bbb" }} weight="bold">
+        <View style={styles.box}>
+          <Label style={styles.label} weight="bold">
             {content.length}/{POST_MAXLENGTH}
           </Label>
         </View>
@@ -129,5 +99,29 @@ export default PostEntryForm;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  textInput: {
+    backgroundColor: "white",
+    fontSize: 20,
+    fontWeight: "bold",
+    padding: 8,
+    paddingHorizontal: 0,
+  },
+  spacer: {
+    marginTop: 6,
+  },
+  textInput2: {
+    fontSize: 18,
+    fontWeight: "normal",
+    padding: 8,
+    paddingHorizontal: 0,
+    flex: 1,
+  },
+  box: {
+    alignSelf: "flex-end",
+    bottom: 10,
+  },
+  label: {
+    color: "#bbb",
   },
 });

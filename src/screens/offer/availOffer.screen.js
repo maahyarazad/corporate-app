@@ -284,8 +284,8 @@ export const AvailOfferScreen = ({ route }) => {
         />
       </CustomModal>
 
-      <Background style={{ flex: 1 }}>
-        <SafeArea style={{ flex: 1, width: "100%" }}>
+      <Background style={styles.container}>
+        <SafeArea style={styles.safeArea}>
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <KeyboardAwareScrollView
               enableOnAndroid
@@ -293,38 +293,22 @@ export const AvailOfferScreen = ({ route }) => {
               extraScrollHeight={120}
               extraHeight={140}
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: 40 }}
+              contentContainerStyle={styles.keyboardAwareScrollViewContentContainer}
             >
-              <View style={{ flexDirection: "row" }}>
+              <View style={styles.row}>
                 <TouchableOpacity
                   onPress={goback}
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
+                  style={styles.rowCenter}
                   activeOpacity={0.5}
                 >
                   <Ionicons name="arrow-back" size={35} color="#eee" />
-                  <Label
-                    weight="bold"
-                    style={{
-                      fontSize: 16,
-                      color: "white",
-                      justifyContent: "center",
-                    }}
-                  >
+                  <Label weight="bold" style={styles.label}>
                     {i18n.t("return")}
                   </Label>
                 </TouchableOpacity>
               </View>
 
-              <View
-                style={{
-                  width: "100%",
-                  padding: 16,
-                  paddingVertical: 8,
-                }}
-              >
+              <View style={styles.box}>
                 <LocationInfo
                   distance={distance}
                   location={location}
@@ -339,12 +323,8 @@ export const AvailOfferScreen = ({ route }) => {
                 />
               </View>
 
-              <View style={{ alignItems: "center", paddingTop: 12 }}>
-                <Label
-                  style={{ color: "white", textAlign: "center" }}
-                  size="h5"
-                  weight="bold"
-                >
+              <View style={styles.centered}>
+                <Label style={styles.label2} size="h5" weight="bold">
                   {`${offerInfo.premium_en || ""}${
                     offerInfo.freebie_en !== undefined &&
                     offerInfo.freebie_en !== ""
@@ -354,67 +334,36 @@ export const AvailOfferScreen = ({ route }) => {
                 </Label>
               </View>
 
-              <View style={{ alignItems: "center", paddingVertical: 12 }}>
-                <Label
-                  style={{ color: "white", textAlign: "center" }}
-                  size="title"
-                  weight="medium"
-                >
+              <View style={styles.centered2}>
+                <Label style={styles.label2} size="title" weight="medium">
                   {offerInfo.prodname_en}
                 </Label>
               </View>
 
-              <View
-                style={{
-                  paddingHorizontal: 32,
-                  paddingVertical: 16,
-                  backgroundColor: "#00000088",
-                  marginBottom: 12,
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Label
-                  style={{
-                    color: "#FFDC00",
-                    fontSize: 16,
-                    textAlign: "center",
-                  }}
-                  weight="bold"
-                >
+              <View style={styles.centerBox}>
+                <Label style={styles.label3} weight="bold">
                   {i18n.t("redeem-offer.instruction", {
                     locationName: location.name,
                   })}
                 </Label>
               </View>
 
-              <View style={{ width: "100%", paddingHorizontal: 16 }}>
-                <View
-                  style={{
-                    borderWidth: 1,
-                    marginVertical: 8,
-                    borderRadius: 8,
-                    paddingBottom: 20,
-                    paddingTop: 10,
-                    borderColor: "#aaa",
-                    paddingHorizontal: 12,
-                    backgroundColor: "white",
-                  }}
-                >
+              <View style={styles.box2}>
+                <View style={styles.bordered}>
                   <TextInputCurrency
                     onBlur={onBlurTotalBill}
                     onFocus={onFocusTotal}
                     onChangeText={onChangeTotalBill}
                     disabled={withFreebie === 1}
                     value={totalAmount.toString()}
-                    style={{ marginVertical: 6 }}
+                    style={styles.textInputCurrency}
                     label={i18n.t("redeem-offer.total-bill")}
                   />
 
                   <TextInputCurrency
                     disabled={true}
                     value={discAmount.toString()}
-                    style={{ marginVertical: 6 }}
+                    style={styles.textInputCurrency}
                     label={i18n.t("redeem-offer.discount")}
                   />
 
@@ -425,11 +374,11 @@ export const AvailOfferScreen = ({ route }) => {
                     disabled={withFreebie === 2}
                     minValue={minValue}
                     value={paidAmount.toString()}
-                    style={{ marginVertical: 6 }}
+                    style={styles.textInputCurrency}
                     label={i18n.t("redeem-offer.actual-paid")}
                   />
 
-                  <View style={{ marginTop: 8 }}>
+                  <View style={styles.spacer}>
                     <Label>{i18n.t("redeem-offer.merchant-pin")}</Label>
                     <CodeInputField
                       code={merchantCode}
@@ -437,60 +386,40 @@ export const AvailOfferScreen = ({ route }) => {
                       setPinReady={setPinReady}
                       maxLength={6}
                       hidden={true}
-                      inputBoxStyle={{
-                        borderRadius: 6,
-                        width: 40,
-                        height: 40,
-                      }}
-                      containerStyle={{
-                        marginTop: 4,
-                      }}
+                      inputBoxStyle={styles.codeInputFieldInputBox}
+                      containerStyle={styles.codeInputFieldContainer}
                     />
                   </View>
                 </View>
               </View>
 
-              <View
-                style={{
-                  paddingHorizontal: 32,
-                  paddingVertical: 24,
-                  width: "100%",
-                }}
-              >
-                <View
-                  style={{
-                    flexDirection: "row",
-                    width: "100%",
-                  }}
-                >
+              <View style={styles.box3}>
+                <View style={styles.row2}>
                   <Button
                     disabled={!canRedeem}
                     onPress={handleConfirm}
-                    contentStyle={{ padding: 10 }}
+                    contentStyle={styles.buttonContent}
                     labelStyle={{ fontSize: fontSizes.subtitle }}
-                    style={{
-                      flex: 1,
-                      backgroundColor: canRedeem ? "#1282FF" : "gray",
-                      borderRadius: 12,
-                    }}
+                    style={[
+                      styles.button2,
+                      {
+                        backgroundColor: canRedeem ? "#1282FF" : "gray",
+                      },
+                    ]}
                     mode="contained"
                     loading={isLoading}
                   >
                     {i18n.t("redeem-offer.redeem")}
                   </Button>
 
-                  <View style={{ marginLeft: 6 }} />
+                  <View style={styles.spacer2} />
 
                   <Button
                     onPress={handleCallNow}
                     disabled={isLoading}
                     labelStyle={{ fontSize: fontSizes.subtitle, color: 'white' }}
-                    contentStyle={{ padding: 10 }}
-                    style={{
-                      flex: 1,
-                      backgroundColor: "#1282FF",
-                      borderRadius: 12,
-                    }}
+                    contentStyle={styles.buttonContent}
+                    style={styles.button}
                     mode="contained"
                     icon={() => (
                       <Ionicons name="call" color="white" size={20} />
@@ -513,5 +442,106 @@ export const AvailOfferScreen = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  safeArea: {
+    flex: 1,
+    width: "100%",
+  },
+  keyboardAwareScrollViewContentContainer: {
+    paddingBottom: 40,
+  },
+  row: {
+    flexDirection: "row",
+  },
+  rowCenter: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  label: {
+    fontSize: 16,
+    color: "white",
+    justifyContent: "center",
+  },
+  box: {
+    width: "100%",
+    padding: 16,
+    paddingVertical: 8,
+  },
+  centered: {
+    alignItems: "center",
+    paddingTop: 12,
+  },
+  label2: {
+    color: "white",
+    textAlign: "center",
+  },
+  centered2: {
+    alignItems: "center",
+    paddingVertical: 12,
+  },
+  centerBox: {
+    paddingHorizontal: 32,
+    paddingVertical: 16,
+    backgroundColor: "#00000088",
+    marginBottom: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  label3: {
+    color: "#FFDC00",
+    fontSize: 16,
+    textAlign: "center",
+  },
+  box2: {
+    width: "100%",
+    paddingHorizontal: 16,
+  },
+  bordered: {
+    borderWidth: 1,
+    marginVertical: 8,
+    borderRadius: 8,
+    paddingBottom: 20,
+    paddingTop: 10,
+    borderColor: "#aaa",
+    paddingHorizontal: 12,
+    backgroundColor: "white",
+  },
+  textInputCurrency: {
+    marginVertical: 6,
+  },
+  spacer: {
+    marginTop: 8,
+  },
+  codeInputFieldInputBox: {
+    borderRadius: 6,
+    width: 40,
+    height: 40,
+  },
+  codeInputFieldContainer: {
+    marginTop: 4,
+  },
+  box3: {
+    paddingHorizontal: 32,
+    paddingVertical: 24,
+    width: "100%",
+  },
+  row2: {
+    flexDirection: "row",
+    width: "100%",
+  },
+  buttonContent: {
+    padding: 10,
+  },
+  spacer2: {
+    marginLeft: 6,
+  },
+  button: {
+    flex: 1,
+    backgroundColor: "#1282FF",
+    borderRadius: 12,
+  },
+  button2: {
+    flex: 1,
+    borderRadius: 12,
   },
 });

@@ -62,25 +62,21 @@ const ProfilePrimaryScreen = () => {
   const { i18n } = useContext(TranslationContext);
 
   return (
-    <SafeArea style={{ backgroundColor: "#efefef" }}>
-      <View style={{ paddingHorizontal: 12, marginBottom: 20 }}>
+    <SafeArea style={styles.safeArea}>
+      <View style={styles.box}>
         <TouchableOpacity
           onPress={goback}
           style={styles.backButton}
           activeOpacity={0.5}
         >
           <Ionicons name="arrow-back" size={35} color="#555" />
-          <Label
-            size="body"
-            weight="bold"
-            style={{ color: "#555", justifyContent: "center" }}
-          >
+          <Label size="body" weight="bold" style={styles.label}>
             {i18n.t("return")}
           </Label>
         </TouchableOpacity>
       </View>
 
-      <View style={{ paddingHorizontal: 14, marginBottom: 20 }}>
+      <View style={styles.box2}>
         <Label weight="bold" size="h5">
           {i18n.t("profile-tabs.page-title")}
         </Label>
@@ -228,13 +224,13 @@ const ProfilePrimaryScreen = () => {
               onPress={goToVerification}
               style={{ backgroundColor: theme.colors.icons.active }}
               label="Zur Upload-Seite gehen"
-              labelStyle={{ color: "white" }}
+              labelStyle={styles.customButtonLabel}
             />
           </View>
         )}
       </View>
 
-      <View style={{ flex: 2 }}>
+      <View style={styles.flexBox}>
         <ProfTabs />
       </View>
     </SafeArea>
@@ -243,7 +239,7 @@ const ProfilePrimaryScreen = () => {
 
 export const ProfileScreen = () => {
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={styles.fill}>
       <ProfileStack.Navigator
         screenOptions={{ headerShown: false, gestureEnabled: false }}
       >
@@ -459,5 +455,29 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: fontSizes.subtitle,
     textAlign: "right",
+  },
+  safeArea: {
+    backgroundColor: "#efefef",
+  },
+  box: {
+    paddingHorizontal: 12,
+    marginBottom: 20,
+  },
+  label: {
+    color: "#555",
+    justifyContent: "center",
+  },
+  box2: {
+    paddingHorizontal: 14,
+    marginBottom: 20,
+  },
+  customButtonLabel: {
+    color: "white",
+  },
+  flexBox: {
+    flex: 2,
+  },
+  fill: {
+    flex: 1,
   },
 });

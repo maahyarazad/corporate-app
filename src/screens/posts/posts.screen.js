@@ -101,7 +101,7 @@ const RenderRowPostCard = ({ item, index, magazines }) => {
       if (index % 5 === 0 && index !== 0) {
         const magazineIndex = (Math.floor(index / 5) - 1) % magazines.length;
         return (
-          <View style={{ marginBottom: 4 }}>
+          <View style={styles.spacer}>
             <MemoizedPostCardMagazine item={magazines[magazineIndex]} />
           </View>
         );
@@ -386,15 +386,15 @@ export default function PostsScreen() {
   const LoadingScreen = () => {
     const SkeletonCard = () => {
       return (
-        <View style={{ gap: 12, paddingVertical: 8 }}>
-          <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
+        <View style={styles.box}>
+          <View style={styles.rowCenter}>
             <Skeleton
               width={50}
               height={50}
               opacityMax={0.2}
               variant="circle"
             />
-            <View style={{ flex: 1, gap: 6 }}>
+            <View style={styles.flexBox}>
               <Skeleton
                 width="50%"
                 height={20}
@@ -409,7 +409,7 @@ export default function PostsScreen() {
               />
             </View>
           </View>
-          <View style={{ gap: 6 }}>
+          <View style={styles.box2}>
             <Skeleton
               width="100%"
               height={22}
@@ -440,7 +440,7 @@ export default function PostsScreen() {
     };
 
     return (
-      <View style={{ padding: 8, gap: 16 }}>
+      <View style={styles.box3}>
         <SkeletonCard />
         <SkeletonCard />
         <SkeletonCard />
@@ -525,12 +525,7 @@ export default function PostsScreen() {
               windowSize={15}
               showsVerticalScrollIndicator={false}
               ListFooterComponent={() => (
-                <View
-                  style={{
-                    alignItems: "center",
-                    paddingVertical: 12,
-                  }}
-                ></View>
+                <View style={styles.centered}></View>
               )}
               renderItem={renderRow}
             ></FlatList>
@@ -541,19 +536,7 @@ export default function PostsScreen() {
         <View style={styles.floatButton}>
           <TouchableOpacity onPress={handleNewPost}>
             <View
-              style={{
-                justifyContent: "center",
-                alignItems: "center",
-                height: 70,
-                width: 70,
-                borderRadius: 35,
-                backgroundColor: theme.colors.icons.active,
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 5 },
-                shadowOpacity: 0.4,
-                shadowRadius: 4,
-                elevation: 12,
-              }}
+              style={[styles.centerBox, { backgroundColor: theme.colors.icons.active }]}
             >
               <MaterialCommunityIcons name="plus" color="white" size={40} />
             </View>
@@ -583,5 +566,47 @@ const styles = StyleSheet.create({
   modalInner: {
     padding: 16,
     flex: 1,
+  },
+  spacer: {
+    marginBottom: 4,
+  },
+  box: {
+    gap: 12,
+    paddingVertical: 8,
+  },
+  rowCenter: {
+    flexDirection: "row",
+    gap: 8,
+    alignItems: "center",
+  },
+  flexBox: {
+    flex: 1,
+    gap: 6,
+  },
+  box2: {
+    gap: 6,
+  },
+  box3: {
+    padding: 8,
+    gap: 16,
+  },
+  centered: {
+    alignItems: "center",
+    paddingVertical: 12,
+  },
+  centerBox: {
+    justifyContent: "center",
+    alignItems: "center",
+    height: 70,
+    width: 70,
+    borderRadius: 35,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
+    elevation: 12,
   },
 });

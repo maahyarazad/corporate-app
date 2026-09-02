@@ -52,17 +52,13 @@ export const Slideshow = ({ images }) => {
         <View>
           <ImageBackground
             // source={{ uri: adminFileBaseURL + item.image }}
-            style={{ backgroundColor: "white" }}
+            style={styles.imageBackground}
             blurRadius={10}
           >
             <CacheImage
               imgKey={index}
               onLoad={imageLoaded}
-              style={{
-                width: width,
-                aspectRatio: 1.77,
-                resizeMode: "contain",
-              }}
+              style={[styles.cacheImage, { width: width }]}
               uri={`${adminFileBaseURL}${item.image}`}
             />
           </ImageBackground>
@@ -96,29 +92,21 @@ export const Slideshow = ({ images }) => {
         visible={galleryOpen}
         onRequestClose={handleCloseGallery}
         HeaderComponent={() => (
-          <View
-            style={{
-              width: "100%",
-              marginTop: 40,
-              flexDirection: "row",
-              justifyContent: "space-between",
-              paddingHorizontal: 10,
-            }}
-          >
+          <View style={styles.rowBetween}>
             <Image
               width={100}
               height={100}
               source={companyLogo}
               resizeMode="contain"
-              style={{ width: 100, height: 100 }}
+              style={styles.image}
             ></Image>
 
-            <View style={{ top: 20 }}>
+            <View style={styles.offset}>
               <TouchableOpacity
                 activeOpacity={0.7}
                 onPress={handleCloseGallery}
               >
-                <View style={{ padding: 10 }}>
+                <View style={styles.pad}>
                   <MaterialCommunityIcons
                     name="close"
                     size={30}
@@ -131,10 +119,10 @@ export const Slideshow = ({ images }) => {
         )}
       />
       <LoadingOverlay display={loading} />
-      <View style={{ position: "relative", height: "100%" }}>
+      <View style={styles.box}>
         <FlatList
           removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
-          contentContainerStyle={{ width: "auto", height: "100%" }}
+          contentContainerStyle={styles.flatListContentContainer}
           horizontal
           data={images}
           renderItem={renderContainer}
@@ -145,33 +133,9 @@ export const Slideshow = ({ images }) => {
             viewabilityConfigCallbackPairs.current
           }
         />
-        <View
-          pointerEvents="none"
-          style={{
-            position: "absolute",
-            bottom: 0,
-            right: 0,
-            left: 0,
-            top: 0,
-            zIndex: 200,
-            justifyContent: "flex-end",
-            alignItems: "flex-end",
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: "#33333366",
-              height: 40,
-              width: 80,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Label
-              style={{ color: "white" }}
-              weight="medium"
-              size="subtitle"
-            >
+        <View pointerEvents="none" style={styles.overlay}>
+          <View style={styles.centerBox}>
+            <Label style={styles.label} weight="medium" size="subtitle">
               {`${currentImageIndex + 1} / ${images.length}`}
             </Label>
           </View>
@@ -184,5 +148,57 @@ export const Slideshow = ({ images }) => {
 const styles = StyleSheet.create({
   container: {
     height: "100%",
+  },
+  imageBackground: {
+    backgroundColor: "white",
+  },
+  rowBetween: {
+    width: "100%",
+    marginTop: 40,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 10,
+  },
+  image: {
+    width: 100,
+    height: 100,
+  },
+  offset: {
+    top: 20,
+  },
+  pad: {
+    padding: 10,
+  },
+  box: {
+    position: "relative",
+    height: "100%",
+  },
+  flatListContentContainer: {
+    width: "auto",
+    height: "100%",
+  },
+  overlay: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    left: 0,
+    top: 0,
+    zIndex: 200,
+    justifyContent: "flex-end",
+    alignItems: "flex-end",
+  },
+  centerBox: {
+    backgroundColor: "#33333366",
+    height: 40,
+    width: 80,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  label: {
+    color: "white",
+  },
+  cacheImage: {
+    aspectRatio: 1.77,
+    resizeMode: "contain",
   },
 });

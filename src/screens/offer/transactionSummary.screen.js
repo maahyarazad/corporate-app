@@ -81,14 +81,7 @@ export const TransactionSummaryScreen = () => {
 
   return (
     <View style={styles.container}>
-      <ScrollView
-        contentContainerStyle={{
-          padding: 16,
-          justifyContent: "center",
-          flexDirection: "column",
-        }}
-        centerContent={true}
-      >
+      <ScrollView contentContainerStyle={styles.contentContainer} centerContent={true}>
         <Animated.View
           style={[
             styles.rectangle,
@@ -100,14 +93,8 @@ export const TransactionSummaryScreen = () => {
             size={80}
             color={theme.colors.ui.green}
           />
-          <View
-            style={{ paddingVertical: 8, alignItems: "center", width: "100%" }}
-          >
-            <Label
-              style={{ textAlign: "center" }}
-              weight="bold"
-              size="heading"
-            >
+          <View style={styles.centered}>
+            <Label style={styles.label} weight="bold" size="heading">
               {i18n.t("redemption-success.success")}
             </Label>
             <Label
@@ -117,28 +104,17 @@ export const TransactionSummaryScreen = () => {
             >
               {moment(transactDate).format("DD.MMMM YYYY H:mm A")}
             </Label>
-            <View
-              style={{
-                borderTopWidth: 2,
-                width: "80%",
-                marginVertical: 16,
-                borderColor: theme.colors.ui.lighterGray,
-              }}
-            ></View>
+            <View style={[styles.base, { borderColor: theme.colors.ui.lighterGray }]}></View>
 
-            <Label style={{ textAlign: "center" }}>
+            <Label style={styles.label}>
               {i18n.t("redemption-success.text1")}
             </Label>
-            <View style={{ marginVertical: 12 }}>
-              <Label
-                style={{ textAlign: "center" }}
-                weight="bold"
-                size="heading"
-              >
+            <View style={styles.spacer}>
+              <Label style={styles.label} weight="bold" size="heading">
                 {`${discount} ${config.CURRENCY}`}
               </Label>
             </View>
-            <Label style={{ textAlign: "center" }}>
+            <Label style={styles.label}>
               {i18n.t("redemption-success.text2", {
                 amount: parseFloat(paid).toFixed(2),
                 currency: config.CURRENCY,
@@ -160,15 +136,11 @@ export const TransactionSummaryScreen = () => {
           >
             {prodname}
           </Label>
-          <Label
-            style={{ textAlign: "center", marginVertical: 12 }}
-            weight="bold"
-            size="h5"
-          >
+          <Label style={styles.label2} weight="bold" size="h5">
             {refCode}
           </Label>
-          <View style={{ width: "80%" }}>
-            <Label style={{ textAlign: "center" }}>
+          <View style={styles.sizeBox}>
+            <Label style={styles.label}>
               {i18n.t("redemption-success.text3", { partner: merchant })}
             </Label>
           </View>
@@ -176,7 +148,7 @@ export const TransactionSummaryScreen = () => {
         <Animated.View style={tertiaryStyle}>
           <Button
             mode="contained"
-            contentStyle={{ paddingVertical: 12 }}
+            contentStyle={styles.buttonContent}
             buttonColor={theme.colors.icons.active}
             onPress={handleDone}
           >
@@ -212,5 +184,36 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 24,
     alignItems: "center",
+  },
+  contentContainer: {
+    padding: 16,
+    justifyContent: "center",
+    flexDirection: "column",
+  },
+  centered: {
+    paddingVertical: 8,
+    alignItems: "center",
+    width: "100%",
+  },
+  label: {
+    textAlign: "center",
+  },
+  spacer: {
+    marginVertical: 12,
+  },
+  label2: {
+    textAlign: "center",
+    marginVertical: 12,
+  },
+  sizeBox: {
+    width: "80%",
+  },
+  buttonContent: {
+    paddingVertical: 12,
+  },
+  base: {
+    borderTopWidth: 2,
+    width: "80%",
+    marginVertical: 16,
   },
 });

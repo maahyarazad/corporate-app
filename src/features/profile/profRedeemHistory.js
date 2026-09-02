@@ -75,14 +75,7 @@ export const ProfRedeemHistory = () => {
 
   const renderTotal = (total) => {
     return (
-      <View
-        style={{
-          alignSelf: "flex-end",
-          justifyContent: "space-between",
-          width: "40%",
-          flexDirection: "row",
-        }}
-      >
+      <View style={styles.rowBetween}>
         <Label weight="bold">Total</Label>
         <Label>{parseFloat(total).toFixed(2)}</Label>
       </View>
@@ -92,17 +85,10 @@ export const ProfRedeemHistory = () => {
   const renderHeader = (item) => {
     return (
       <>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: 15,
-          }}
-        >
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <View style={styles.rowBetween2}>
+          <View style={styles.rowCenter}>
             <Label weight="bold">{item.title}</Label>
-            <View style={{marginLeft: 6}} />
+            <View style={styles.spacer} />
             
             <MaterialCommunityIcons
               name={
@@ -111,7 +97,7 @@ export const ProfRedeemHistory = () => {
               size={25}
             />
           </View>
-          <View style={{ alignItems: "flex-end" }}>
+          <View style={styles.box}>
             <Label size="mini" weight="regular">
               Total
             </Label>
@@ -189,19 +175,12 @@ export const ProfRedeemHistory = () => {
       }}
     >
       <>
-        <View
-          style={{
-            justifyContent: "center",
-            alignItems: "center",
-            padding: 32,
-            flex: 1,
-          }}
-        >
+        <View style={styles.centerBox}>
           <Label size="subtitle">{i18n.t("profile-tabs.savings-text")}</Label>
           <Label size="subtitle">
             ({moment(new Date()).format("DD.MMM YYYY")})
           </Label>
-          <View style={{ paddingVertical: 16 }}>
+          <View style={styles.pad}>
             {overall != undefined ? (
               <>
                 <Label
@@ -249,21 +228,9 @@ export const ProfRedeemHistory = () => {
           <TouchableOpacity
             containerStyle={{}}
             onPress={toggleBreakdown}
-            style={{
-              alignItems: "center",
-              justifyContent: "center",
-              width: "auto",
-              height: TOGGLE_BUTTON_BREAKDOWN_HEIGHT,
-              backgroundColor: "#eee",
-            }}
+            style={[styles.centerBox3, { height: TOGGLE_BUTTON_BREAKDOWN_HEIGHT }]}
           >
-            <View
-              style={{
-                justifyContent: "center",
-                alignItems: "center",
-                flexDirection: "row",
-              }}
-            >
+            <View style={styles.rowCenter2}>
               <MaterialCommunityIcons
                 name={displayBreakdown ? "chevron-down" : "chevron-up"}
                 size={25}
@@ -279,31 +246,16 @@ export const ProfRedeemHistory = () => {
           </TouchableOpacity>
           <ScrollView
             stickyHeaderIndices={headerList}
-            contentContainerStyle={{
-              flex: 1,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-            style={{
-              alignSelf: "stretch",
-              height: "100%",
-              backgroundColor: "white",
-            }}
+            contentContainerStyle={styles.contentContainerCenterBox}
+            style={styles.box2}
           >
             {data ? (
-              <ScrollView style={{ alignSelf: "stretch", height: "100%" }}>
+              <ScrollView style={styles.box3}>
                 {data.map((item, index) => {
                   return <RenderRow key={index} item={item} />;
                 })}
-                <View
-                  style={{
-                    alignSelf: "stretch",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    paddingVertical: 16,
-                  }}
-                >
-                  <Label style={{ color: "#aaa" }}>
+                <View style={styles.centerBox2}>
+                  <Label style={styles.label}>
                     -- {i18n.t("end-of-list")} --
                   </Label>
                 </View>
@@ -328,5 +280,70 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#f8f8f8",
+  },
+  rowBetween: {
+    alignSelf: "flex-end",
+    justifyContent: "space-between",
+    width: "40%",
+    flexDirection: "row",
+  },
+  rowBetween2: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 15,
+  },
+  rowCenter: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  spacer: {
+    marginLeft: 6,
+  },
+  box: {
+    alignItems: "flex-end",
+  },
+  centerBox: {
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 32,
+    flex: 1,
+  },
+  pad: {
+    paddingVertical: 16,
+  },
+  rowCenter2: {
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+  },
+  contentContainerCenterBox: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  box2: {
+    alignSelf: "stretch",
+    height: "100%",
+    backgroundColor: "white",
+  },
+  box3: {
+    alignSelf: "stretch",
+    height: "100%",
+  },
+  centerBox2: {
+    alignSelf: "stretch",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 16,
+  },
+  label: {
+    color: "#aaa",
+  },
+  centerBox3: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: "auto",
+    backgroundColor: "#eee",
   },
 });

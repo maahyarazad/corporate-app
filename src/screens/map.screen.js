@@ -2,7 +2,7 @@
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { Linking, Platform, View } from "react-native";
+import { Linking, Platform, View, StyleSheet } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { Button, TouchableRipple } from "react-native-paper";
 import styled from "styled-components/native";
@@ -205,40 +205,25 @@ export const MapScreen = () => {
   // Render loading view if user location is not yet available
   if (!userLocation) {
     return (
-      <SafeArea style={{ flex: 1, top: 0, width: "100%" }}>
+      <SafeArea style={styles.safeArea}>
         {/* Instructions to enable location permissions */}
-        <View
-          style={{
-            flexDirection: "row",
-            paddingHorizontal: 16,
-            width: "100%",
-            justifyContent: "space-between",
-          }}
-        >
+        <View style={styles.rowBetween}>
           <View>
             <TouchableRipple
               onPress={navigateBack}
-              style={{ borderRadius: 25, padding: 10, overflow: "hidden" }}
+              style={styles.touchableRipple}
               rippleColor="#444"
             >
               <Ionicons name="arrow-back" size={35} />
             </TouchableRipple>
           </View>
         </View>
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            paddingHorizontal: 32,
-            gap: 12,
-          }}
-        >
-          <Label style={{ textAlign: "center" }}>
+        <View style={styles.centerBox}>
+          <Label style={styles.label}>
             You need to enable Location in your device settings.
           </Label>
           <Button
-            style={{ borderRadius: 8 }}
+            style={styles.button}
             buttonColor={theme.colors.icons.active}
             mode="contained"
             onPress={handleChangePermission}
@@ -253,7 +238,7 @@ export const MapScreen = () => {
   // Main render method for the map and markers
   return (
     <>
-      <View style={{ flex: 1 }}>
+      <View style={styles.fill}>
         {partnerLocations && myLocation ? (
           <StyledMap
             provider="google"
@@ -311,54 +296,22 @@ export const MapScreen = () => {
           <LoadingOverlay display={true} />
         )}
         {/* Overlay for back button and partner details */}
-        <SafeArea
-          style={{
-            flex: 1,
-            position: "absolute",
-            top: 0,
-            width: "100%",
-            flexDirection: "column",
-            height: "100%",
-          }}
-          pointerEvents="box-none"
-        >
+        <SafeArea style={styles.safeArea2} pointerEvents="box-none">
           {/* Navigation and action buttons */}
-          <View
-            style={{
-              flexDirection: "row",
-              paddingHorizontal: 16,
-              width: "100%",
-              justifyContent: "space-between",
-            }}
-            pointerEvents="box-none"
-          >
+          <View style={styles.rowBetween} pointerEvents="box-none">
             <View>
               <TouchableRipple
                 onPress={navigateBack}
-                style={{ borderRadius: 25, padding: 10, overflow: "hidden" }}
+                style={styles.touchableRipple}
                 rippleColor="#444"
               >
                 <Ionicons name="arrow-back" size={35} />
               </TouchableRipple>
             </View>
-            <View style={{ alignItems: "flex-end", alignSelf: "flex-end" }}>
+            <View style={styles.box}>
               <TouchableRipple
                 onPress={handleCenter}
-                style={{
-                  width: 70,
-                  height: 70,
-                  borderRadius: 70,
-                  padding: 10,
-                  backgroundColor: "white",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginBottom: 30,
-                  elevation: 15,
-                  shadowColor: "black",
-                  shadowOpacity: 0.4,
-                  shadowRadius: 5,
-                  shadowOffset: { width: 1, height: 1 },
-                }}
+                style={styles.touchableRipple2}
                 rippleColor="#444"
               >
                 <MaterialIcons
@@ -371,42 +324,12 @@ export const MapScreen = () => {
           </View>
           {/* Partner details view */}
           {showPartnerDetails ? (
-            <View
-              style={{
-                flex: 1,
-                flexDirection: "row",
-                justifyContent: "center",
-                alignItems: "flex-end",
-              }}
-              pointerEvents="box-none"
-            >
-              <View
-                style={{
-                  backgroundColor: "white",
-                  height: "auto",
-                  width: "90%",
-                  padding: 20,
-                  marginRight: 20,
-                  marginLeft: 20,
-                  borderRadius: 10,
-                  shadowOpacity: 0.4,
-                  shadowOffset: { height: 5, width: 5 },
-                  shadowRadius: 7,
-                }}
-              >
+            <View style={styles.row} pointerEvents="box-none">
+              <View style={styles.bordered}>
                 <View>
                   {/* Image loading overlay */}
                   {showImageload ? (
-                    <View
-                      style={{
-                        width: "100%",
-                        height: 150,
-                        borderRadius: 10,
-                        overflow: "hidden",
-                        position: "absolute",
-                        zIndex: 1,
-                      }}
-                    >
+                    <View style={styles.overlay}>
                       <LoadingOverlay display={true}></LoadingOverlay>
                     </View>
                   ) : null}
@@ -416,32 +339,23 @@ export const MapScreen = () => {
                     onLoadStart={() => setShowImageload(true)}
                     onLoad={() => setShowImageload(false)}
                     uri={`${adminFileBaseURL}${locationState.locationImage}`}
-                    style={{
-                      width: "100%",
-                      height: 150,
-                      resizeMode: "cover",
-                      borderRadius: 10,
-                    }}
+                    style={styles.cacheImage}
                   />
                  
                   {/* Location name and distance */}
-                  <Label size="title" weight="bold" style={{marginTop: 10}}>
+                  <Label size="title" weight="bold" style={styles.label2}>
                     {locationState.locationName}
                   </Label>
-                  <Label
-                    size="subtitle"
-                    weight="medium"
-                    style={{ color: "#aaa" }}
-                  >
+                  <Label size="subtitle" weight="medium" style={styles.label3}>
                     {distance} KM
                   </Label>
-                  <View style={{marginTop: 10}} />
+                  <View style={styles.label2} />
 
                   {/* Action buttons */}
-                  <View style={{ flexDirection: "row" }}>
+                  <View style={styles.row2}>
                     <Button
-                      style={{ borderRadius: 10, flex: 1, height: 40 }}
-                      labelStyle={{ fontSize: 12, width: "100%" }}
+                      style={styles.button2}
+                      labelStyle={styles.buttonLabel}
                       buttonColor="#0082FF"
                       mode="contained"
                       onPress={() =>
@@ -454,10 +368,10 @@ export const MapScreen = () => {
                     >
                       {i18n.t("offer-details.get-directions").toUpperCase()}
                     </Button>
-                      <View style={{marginLeft: 6}} />
+                      <View style={styles.spacer} />
                     <Button
-                      style={{ borderRadius: 10, flex: 1, height: 40 }}
-                      labelStyle={{ fontSize: 12, width: "100%" }}
+                      style={styles.button2}
+                      labelStyle={styles.buttonLabel}
                       buttonColor="#0082FF"
                       mode="contained"
                       onPress={() => goLocation(locationState.locationId)}
@@ -474,3 +388,124 @@ export const MapScreen = () => {
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    top: 0,
+    width: "100%",
+  },
+  rowBetween: {
+    flexDirection: "row",
+    paddingHorizontal: 16,
+    width: "100%",
+    justifyContent: "space-between",
+  },
+  touchableRipple: {
+    borderRadius: 25,
+    padding: 10,
+    overflow: "hidden",
+  },
+  centerBox: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 32,
+    gap: 12,
+  },
+  label: {
+    textAlign: "center",
+  },
+  button: {
+    borderRadius: 8,
+  },
+  fill: {
+    flex: 1,
+  },
+  safeArea2: {
+    flex: 1,
+    position: "absolute",
+    top: 0,
+    width: "100%",
+    flexDirection: "column",
+    height: "100%",
+  },
+  box: {
+    alignItems: "flex-end",
+    alignSelf: "flex-end",
+  },
+  touchableRipple2: {
+    width: 70,
+    height: 70,
+    borderRadius: 70,
+    padding: 10,
+    backgroundColor: "white",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 30,
+    elevation: 15,
+    shadowColor: "black",
+    shadowOpacity: 0.4,
+    shadowRadius: 5,
+    shadowOffset: {
+      width: 1,
+      height: 1,
+    },
+  },
+  row: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "flex-end",
+  },
+  bordered: {
+    backgroundColor: "white",
+    height: "auto",
+    width: "90%",
+    padding: 20,
+    marginRight: 20,
+    marginLeft: 20,
+    borderRadius: 10,
+    shadowOpacity: 0.4,
+    shadowOffset: {
+      height: 5,
+      width: 5,
+    },
+    shadowRadius: 7,
+  },
+  overlay: {
+    width: "100%",
+    height: 150,
+    borderRadius: 10,
+    overflow: "hidden",
+    position: "absolute",
+    zIndex: 1,
+  },
+  cacheImage: {
+    width: "100%",
+    height: 150,
+    resizeMode: "cover",
+    borderRadius: 10,
+  },
+  label2: {
+    marginTop: 10,
+  },
+  label3: {
+    color: "#aaa",
+  },
+  row2: {
+    flexDirection: "row",
+  },
+  button2: {
+    borderRadius: 10,
+    flex: 1,
+    height: 40,
+  },
+  buttonLabel: {
+    fontSize: 12,
+    width: "100%",
+  },
+  spacer: {
+    marginLeft: 6,
+  },
+});

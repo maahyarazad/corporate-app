@@ -243,10 +243,10 @@ export const LoginScreen = () => {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, backgroundColor: "white", justifyContent: "center", alignItems: "center" }}>
-        <View style={{ alignItems: "center", height: 400, justifyContent: "center" }}>
-          <Image style={{ width: 170, resizeMode: "contain", top: 0 }} source={companyLogo} />
-          <View style={{ position: "absolute", alignItems: "center", bottom: 0, right: 0, left: 0 }}>
+      <View style={styles.centerBox}>
+        <View style={styles.centerBox2}>
+          <Image style={styles.image} source={companyLogo} />
+          <View style={styles.overlay}>
             <ActivityIndicator size="large" color="#FFB400" />
           </View>
         </View>
@@ -257,15 +257,15 @@ export const LoginScreen = () => {
   return (
     <>
       <StatusBar style="light" />
-      <View style={{ flex: 1, backgroundColor: "black" }}>
+      <View style={styles.tint}>
         <Background>
-          <SafeArea style={{ flex: 1 }}>
+          <SafeArea style={styles.safeArea}>
             <KeyboardAwareScrollView
               automaticallyAdjustKeyboardInsets
               keyboardShouldPersistTaps="always"
-              contentContainerStyle={{ flexGrow: 1 }}
+              contentContainerStyle={styles.keyboardAwareScrollViewContentContainer}
             >
-              <View style={{ flex: 1, justifyContent: "space-between" }}>
+              <View style={styles.flexBox}>
                 <LoginHeader companyLogo={companyLogo} />
 
                 <LoginForm
@@ -321,5 +321,42 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     textDecorationLine: "underline",
+  },
+  centerBox: {
+    flex: 1,
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  centerBox2: {
+    alignItems: "center",
+    height: 400,
+    justifyContent: "center",
+  },
+  image: {
+    width: 170,
+    resizeMode: "contain",
+    top: 0,
+  },
+  overlay: {
+    position: "absolute",
+    alignItems: "center",
+    bottom: 0,
+    right: 0,
+    left: 0,
+  },
+  tint: {
+    flex: 1,
+    backgroundColor: "black",
+  },
+  safeArea: {
+    flex: 1,
+  },
+  keyboardAwareScrollViewContentContainer: {
+    flexGrow: 1,
+  },
+  flexBox: {
+    flex: 1,
+    justifyContent: "space-between",
   },
 });

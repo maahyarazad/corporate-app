@@ -168,16 +168,7 @@ export const CustomTextInput = forwardRef(
           },
         ]}
       >
-        <View
-          style={{
-            position: "absolute",
-            width: "100%",
-            height: "100%",
-            zIndex: 2,
-            alignItems: "center",
-            flexDirection: "row",
-          }}
-        >
+        <View style={staticStyles.rowCenter}>
           <TextInput
             ref={inputRef}
             returnKeyType={returnKeyType}
@@ -231,15 +222,7 @@ export const CustomTextInput = forwardRef(
             </View>
           )}
           {right && (
-            <View
-              style={{
-                paddingHorizontal: 24,
-                zIndex: 3,
-                justifyContent: "center",
-                alignItems: "center",
-                height: "100%",
-              }}
-            >
+            <View style={staticStyles.centerBox}>
               {right}
             </View>
           )}
@@ -268,3 +251,21 @@ export const CustomTextInput = forwardRef(
     );
   }
 );
+
+const staticStyles = StyleSheet.create({
+  rowCenter: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    zIndex: 2,
+    alignItems: "center",
+    flexDirection: "row",
+  },
+  centerBox: {
+    paddingHorizontal: 24,
+    zIndex: 3,
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100%",
+  },
+});

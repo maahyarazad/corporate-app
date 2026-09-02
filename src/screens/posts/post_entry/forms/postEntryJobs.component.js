@@ -171,7 +171,7 @@ const PostEntryJobs = ({ onSubmit, mode }) => {
         value={state.experience}
         items={empTypes}
         setValue={onSelectExperience}
-        textStyle={{ fontSize: 18 }}
+        textStyle={styles.dropDownPickerText}
         style={[
           styles.formField,
           { borderColor: isSubmitted && !state.experience ? "red" : "#bbb" },
@@ -196,7 +196,7 @@ const PostEntryJobs = ({ onSubmit, mode }) => {
         onChangeText={handleTitle}
       />
 
-      <View style={{ height: 400 }}>
+      <View style={styles.sizeBox}>
         <TextInput
           style={[
             styles.formField,
@@ -212,14 +212,14 @@ const PostEntryJobs = ({ onSubmit, mode }) => {
 
         {/* Character Limit */}
         <View
-          style={{
-            marginTop: 2,
-            backgroundColor:
-              state.content.length / MAX_CONTENT > 0.8 ? "red" : "green",
-            height: 5,
-            width: `${(state.content.length / MAX_CONTENT) * 100}%`,
-            borderRadius: 20,
-          }}
+          style={[
+            styles.bordered,
+            {
+              backgroundColor:
+                state.content.length / MAX_CONTENT > 0.8 ? "red" : "green",
+              width: `${(state.content.length / MAX_CONTENT) * 100}%`,
+            },
+          ]}
         ></View>
       </View>
 
@@ -237,19 +237,9 @@ const PostEntryJobs = ({ onSubmit, mode }) => {
       {/* Submit Button */}
       <TouchableOpacity onPress={submitForm}>
         <View
-          style={{
-            backgroundColor: theme.colors.icons.active,
-            justifyContent: "center",
-            alignItems: "center",
-            paddingVertical: 16,
-            borderRadius: 6,
-          }}
+          style={[styles.centerBox, { backgroundColor: theme.colors.icons.active }]}
         >
-          <Label
-            size="subtitle"
-            weight="bold"
-            style={{ color: "white", letterSpacing: 1 }}
-          >
+          <Label size="subtitle" weight="bold" style={styles.label}>
             Absenden
           </Label>
         </View>
@@ -280,5 +270,26 @@ const styles = StyleSheet.create({
   searchTextInput: {
     borderColor: "#bbb",
     paddingVertical: 12,
+  },
+  dropDownPickerText: {
+    fontSize: 18,
+  },
+  sizeBox: {
+    height: 400,
+  },
+  label: {
+    color: "white",
+    letterSpacing: 1,
+  },
+  bordered: {
+    marginTop: 2,
+    height: 5,
+    borderRadius: 20,
+  },
+  centerBox: {
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 16,
+    borderRadius: 6,
   },
 });

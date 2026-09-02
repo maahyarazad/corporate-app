@@ -82,36 +82,14 @@ export const OfferModalInfo = ({
   };
 
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#000000aa",
-      }}
-    >
+    <View style={styles.centerBox}>
       <CustomModal showModal={showModal}>
         <OrderCardModal onClose={closeModal} />
       </CustomModal>
       <LoadingOverlay display={loading} />
-      <View
-        style={{
-          width: "95%",
-          height: "70%",
-          maxHeight: 550,
-          backgroundColor: "white",
-          justifyContent: "space-between",
-          alignItems: "center",
-          borderRadius: 12,
-          padding: 16,
-        }}
-      >
+      <View style={styles.bordered}>
         <View
-          style={{
-            // flex: 1,
-            width: "100%",
-            marginBottom: 14,
-          }}
+          style={styles.box}
         >
           <LocationInfo
             location={location}
@@ -124,17 +102,11 @@ export const OfferModalInfo = ({
             showContact={false}
           />
         </View>
-        <View style={{ width: "100%", height: 100 }}>
+        <View style={styles.sizeBox}>
           <Offer offer={offerInfo} backgroundColor="white" />
         </View>
 
-        <View
-          style={{
-            flex: 1,
-            marginVertical: 16,
-            width: "100%",
-          }}
-        >
+        <View style={styles.flexBox}>
           <WebView
             setBuiltInZoomControls={false}
             originWhitelist={["*"]}
@@ -169,29 +141,12 @@ export const OfferModalInfo = ({
           />
         </View>
       </View>
-      <View
-        style={{
-          width: "100%",
-          height: 50,
-          flexDirection: "row",
-          justifyContent: "space-around",
-          margin: 16,
-          paddingHorizontal: 16,
-          gap: 12,
-        }}
-      >
+      <View style={styles.row}>
         <Button
           onPress={onAvailOffer}
-          labelStyle={{ fontSize: 12 }}
-          contentStyle={{
-            height: "100%",
-            width: "100%",
-          }}
-          style={{
-            flex: 1,
-            backgroundColor: "#1282FF",
-            borderRadius: 10,
-          }}
+          labelStyle={styles.buttonLabel}
+          contentStyle={styles.buttonContent}
+          style={styles.button2}
           mode="contained"
         >
           <Text allowFontScaling={false} style={{fontSize: fontSizes.subtitle}}>
@@ -200,17 +155,9 @@ export const OfferModalInfo = ({
         </Button>
         <Button
           onPress={onCloseModal}
-          labelStyle={{ fontSize: 12 }}
-          contentStyle={{
-            height: "100%",
-            width: "100%",
-          }}
-          style={{
-            flex: 1,
-            backgroundColor: "#1282FF",
-            borderRadius: 10,
-            
-          }}
+          labelStyle={styles.buttonLabel}
+          contentStyle={styles.buttonContent}
+          style={styles.button2}
           mode="contained"
         >
              <Text allowFontScaling={false} style={{fontSize: fontSizes.subtitle}}>
@@ -232,6 +179,88 @@ const styles = StyleSheet.create({
     backgroundColor: "#006EFF",
     borderRadius: 6,
   },
+  centerBox: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#000000aa",
+  },
+  bordered: {
+    width: "95%",
+    height: "70%",
+    maxHeight: 550,
+    backgroundColor: "white",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderRadius: 12,
+    padding: 16,
+  },
+  box: {
+    width: "100%",
+    marginBottom: 14,
+  },
+  sizeBox: {
+    width: "100%",
+    height: 100,
+  },
+  flexBox: {
+    flex: 1,
+    marginVertical: 16,
+    width: "100%",
+  },
+  row: {
+    width: "100%",
+    height: 50,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    margin: 16,
+    paddingHorizontal: 16,
+    gap: 12,
+  },
+  buttonLabel: {
+    fontSize: 12,
+  },
+  buttonContent: {
+    height: "100%",
+    width: "100%",
+  },
+  button2: {
+    flex: 1,
+    backgroundColor: "#1282FF",
+    borderRadius: 10,
+  },
+  bordered2: {
+    width: "95%",
+    maxHeight: 550,
+    backgroundColor: "white",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    borderRadius: 12,
+    padding: 16,
+  },
+  overlay: {
+    position: "absolute",
+    right: 12,
+    top: 12,
+  },
+  materialCommunityIcons: {
+    fontSize: 25,
+  },
+  iconButton: {
+    margin: 0,
+    padding: 0,
+  },
+  spacer: {
+    marginTop: 8,
+  },
+  row2: {
+    flexDirection: "row",
+    marginTop: 20,
+    gap: 12,
+  },
+  buttonContent2: {
+    width: "100%",
+  },
 });
 
 export const OrderCardModal = ({ onClose }) => {
@@ -250,66 +279,39 @@ export const OrderCardModal = ({ onClose }) => {
   };
 
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#000000aa",
-      }}
-    >
-      <View
-        style={{
-          width: "95%",
-          maxHeight: 550,
-          backgroundColor: "white",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          borderRadius: 12,
-          padding: 16,
-        }}
-      >
-        <View style={{ position: "absolute", right: 12, top: 12 }}>
+    <View style={styles.centerBox}>
+      <View style={styles.bordered2}>
+        <View style={styles.overlay}>
           <IconButton
             icon={() => (
-              <MaterialCommunityIcons name="close" style={{ fontSize: 25 }} />
+              <MaterialCommunityIcons name="close" style={styles.materialCommunityIcons} />
             )}
             onPress={onClose}
-            style={{ margin: 0, padding: 0 }}
+            style={styles.iconButton}
             rippleColor="#ccc"
           ></IconButton>
         </View>
         <Label size="heading" weight="bold">
           {i18n.t("offer-restriction.title")}
         </Label>
-        <View style={{marginTop: 8}} />
-        <View style={{marginTop: 8}} />
+        <View style={styles.spacer} />
+        <View style={styles.spacer} />
         <Label>{i18n.t("offer-restriction.message")}</Label>
-        <View style={{ flexDirection: "row", marginTop: 20, gap: 12 }}>
+        <View style={styles.row2}>
           <Button
             onPress={handleCall}
-            labelStyle={{ fontSize: 12 }}
-            contentStyle={{
-              width: "100%",
-            }}
-            style={{
-              flex: 1,
-              backgroundColor: "#1282FF",
-              borderRadius: 10,
-            }}
+            labelStyle={styles.buttonLabel}
+            contentStyle={styles.buttonContent2}
+            style={styles.button2}
             mode="contained"
           >
             {i18n.t("offer-restriction.order-now")}
           </Button>
           <Button
             onPress={handleUpload}
-            labelStyle={{ fontSize: 12 }}
+            labelStyle={styles.buttonLabel}
             contentStyle={{}}
-            style={{
-              flex: 1,
-              backgroundColor: "#1282FF",
-              borderRadius: 10,
-            }}
+            style={styles.button2}
             mode="contained"
           >
             {i18n.t("offer-restriction.upload-card")}

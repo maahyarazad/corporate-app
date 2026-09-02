@@ -124,18 +124,7 @@ export const EventGuestsScreen = () => {
     return (
       <CustomModal type="fade" showModal={showModal}>
         <View style={styles.modalContainer}>
-          <View
-            style={{
-              backgroundColor: "white",
-              width: "80%",
-              height: "15%",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              padding: 25,
-              borderRadius: 15,
-            }}
-          >
+          <View style={styles.centerBox}>
             <Label weight="bold" size="heading">
               {message}
             </Label>
@@ -151,39 +140,24 @@ export const EventGuestsScreen = () => {
       <SafeArea>
         <StatusModal message={confirmationMSG} />
         <View style={styles.innerContainer}>
-          <View
-            style={{
-              flexDirection: "row",
-            }}
-          >
+          <View style={styles.row}>
             <TouchableOpacity
               onPress={goback}
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-              }}
+              style={styles.rowCenter}
               activeOpacity={0.5}
             >
               <Ionicons name="arrow-back" size={35} color="#111" />
               <Label
                 // size="title"
                 weight="bold"
-                style={{
-                  fontSize: 16,
-                  color: "#111",
-                  justifyContent: "center",
-                }}
+                style={styles.label}
               >
                 {origin}
               </Label>
             </TouchableOpacity>
           </View>
           <View>
-            <Label
-              style={{ marginVertical: 10 }}
-              size="heading"
-              weight="bold"
-            >
+            <Label style={styles.label2} size="heading" weight="bold">
               {i18n.t("events.guest-list.header")}
             </Label>
             <Label size="title">
@@ -195,11 +169,7 @@ export const EventGuestsScreen = () => {
             </Label>
           </View>
           <KeyboardAwareScrollView
-            style={{
-              paddingVertical: 8,
-              marginHorizontal: -15,
-              paddingHorizontal: 15,
-            }}
+            style={styles.keyboardAwareScrollView}
             keyboardShouldPersistTaps="always"
           >
             {guestList &&
@@ -207,12 +177,7 @@ export const EventGuestsScreen = () => {
               guestList.map((guest, index) => {
                 return (
                   <View key={guest + index} style={styles.guestListItem}>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                      }}
-                    >
+                    <View style={styles.rowBetween}>
                       <Label size="title" weight="bold">
                         {`${i18n.t("events.guest-list.guest")} #${index + 1}`}
                       </Label>
@@ -226,8 +191,8 @@ export const EventGuestsScreen = () => {
                         />
                       </TouchableOpacity>
                     </View>
-                    <View style={{marginTop: 8}} />
-                    <View style={{ flexDirection: "row" }}>
+                    <View style={styles.spacer} />
+                    <View style={styles.row}>
                       <View style={styles.guestLabel}>
                         <Label size="title" weight="bold">
                           {i18n.t("events.guest-list.firstname")}
@@ -245,7 +210,7 @@ export const EventGuestsScreen = () => {
                         </Label>
                       </View>
                     </View>
-                    <View style={{marginTop: 6}}/>
+                    <View style={styles.spacer2}/>
 
                     {/* <Text>{guest.first_name}</Text>
                     <Text>{guest.last_name}</Text> */}
@@ -259,26 +224,26 @@ export const EventGuestsScreen = () => {
                     guestList.length + 1 ?? 1
                   }`}
                 </Label>
-                <View style={{marginTop: 6}}/>
+                <View style={styles.spacer2}/>
                 <CustomTextInput
                   label={i18n.t("events.guest-list.firstname")}
                   value={newGuest.first_name}
                   onChangeText={handleChangeFirstName}
                   // placeholder={i18n.t("events.guest-list.firstname")}
-                  style={{ borderWidth: 1, borderColor: "#ccc" }}
+                  style={styles.customTextInput}
                 />
-                <View style={{marginTop: 6}}/>
+                <View style={styles.spacer2}/>
                 <CustomTextInput
                   label={i18n.t("events.guest-list.lastname")}
                   value={newGuest.last_name}
                   onChangeText={handleChangeLastName}
                   // placeholder={i18n.t("events.guest-list.lastname")}
-                  style={{ borderWidth: 1, borderColor: "#ccc" }}
+                  style={styles.customTextInput}
                 />
-                <View style={{marginTop: 6}}/>
+                <View style={styles.spacer2}/>
                 <Button
                   mode="contained"
-                  contentStyle={{ paddingVertical: 8 }}
+                  contentStyle={styles.buttonContent}
                   style={[{ borderRadius: 10 }, styles.buttonShadow]}
                   buttonColor={theme.colors.icons.active}
                   onPress={handleAddGuest}
@@ -286,10 +251,10 @@ export const EventGuestsScreen = () => {
                 >
                   {i18n.t("events.guest-list.confirm-guest")}
                 </Button>
-                <View style={{marginTop: 6}}/>
+                <View style={styles.spacer2}/>
                 <Button
                   mode="contained"
-                  contentStyle={{ paddingVertical: 8 }}
+                  contentStyle={styles.buttonContent}
                   style={[{ borderRadius: 10 }, styles.buttonShadow]}
                   buttonColor="#9E3333"
                   onPress={handleCancel}
@@ -309,11 +274,7 @@ export const EventGuestsScreen = () => {
                     { shadowOpacity: 1, borderRadius: 10 },
                     styles.buttonShadow,
                   ]}
-                  labelStyle={{
-                    fontWeight: "bold",
-                    fontSize: 16,
-                    paddingVertical: 8,
-                  }}
+                  labelStyle={styles.buttonLabel}
                   textColor="white"
                   contentStyle={{
                     backgroundColor: theme.colors.icons.active,
@@ -330,20 +291,20 @@ export const EventGuestsScreen = () => {
                 >
                   {i18n.t("events.guest-list.add-more")}
                 </Button>
-                <View style={{marginTop: 6}}/>
+                <View style={styles.spacer2}/>
               </>
             )}
           </KeyboardAwareScrollView>
-          <View style={{marginTop: 6}}/>
+          <View style={styles.spacer2}/>
           <Button
             mode="contained"
             style={[{ borderRadius: 10 }, styles.buttonShadow]}
-            contentStyle={{ paddingVertical: 8 }}
+            contentStyle={styles.buttonContent}
             buttonColor={theme.colors.icons.active}
             onPress={handleAttendGuests}
             disabled={guestList.length < 1}
           >
-            <Label style={{ color: "white" }} weight="bold">
+            <Label style={styles.label3} weight="bold">
               {i18n.t("events.confirm-attendance")}
             </Label>
           </Button>
@@ -390,5 +351,60 @@ const styles = StyleSheet.create({
     backgroundColor: "#00000044",
     justifyContent: "center",
     alignItems: "center",
+  },
+  centerBox: {
+    backgroundColor: "white",
+    width: "80%",
+    height: "15%",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 25,
+    borderRadius: 15,
+  },
+  row: {
+    flexDirection: "row",
+  },
+  rowCenter: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  label: {
+    fontSize: 16,
+    color: "#111",
+    justifyContent: "center",
+  },
+  label2: {
+    marginVertical: 10,
+  },
+  keyboardAwareScrollView: {
+    paddingVertical: 8,
+    marginHorizontal: -15,
+    paddingHorizontal: 15,
+  },
+  rowBetween: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  spacer: {
+    marginTop: 8,
+  },
+  spacer2: {
+    marginTop: 6,
+  },
+  customTextInput: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+  },
+  buttonContent: {
+    paddingVertical: 8,
+  },
+  buttonLabel: {
+    fontWeight: "bold",
+    fontSize: 16,
+    paddingVertical: 8,
+  },
+  label3: {
+    color: "white",
   },
 });

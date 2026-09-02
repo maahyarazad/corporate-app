@@ -61,21 +61,13 @@ export const RegistrationSuccessByServices = () => {
   return (
     <Background>
       <View style={styles.container}>
-        <View style={{ flex: 2, justifyContent: "flex-end" }}>
+        <View style={styles.flexBox}>
           <Animated.View style={bounceAnimationStyle}>
-            <Label
-              size="h4"
-              weight="bold"
-              style={{ color: "white", textAlign: "center" }}
-            >
+            <Label size="h4" weight="bold" style={styles.label}>
               BOOM!
             </Label>
 
-            <Label
-              size="h4"
-              weight="bold"
-              style={{ color: "white", textAlign: "center" }}
-            >
+            <Label size="h4" weight="bold" style={styles.label}>
               You are in
             </Label>
 
@@ -86,19 +78,9 @@ export const RegistrationSuccessByServices = () => {
             />
           </Animated.View>
         </View>
-        <View
-          style={{
-            paddingHorizontal: 32,
-            flex: 3,
-            justifyContent: "space-between",
-          }}
-        >
+        <View style={styles.flexBox2}>
           <Animated.View style={fadeInAnimationStyle}>
-            <Label
-              size="h4"
-              weight="bold"
-              style={{ color: "white", textAlign: "center" }}
-            >
+            <Label size="h4" weight="bold" style={styles.label}>
               Your account has been verified!
             </Label>
 
@@ -108,17 +90,13 @@ export const RegistrationSuccessByServices = () => {
             <Button
               mode="contained"
               buttonColor={theme.colors.icons.active}
-              labelStyle={{ paddingVertical: 14 }}
-              style={{ marginBottom: 100, borderRadius: 10 }}
+              labelStyle={styles.buttonLabel}
+              style={styles.button}
               onPress={() => {
                 navigate("Login");
               }}
             >
-              <Label
-                size="title"
-                weight="bold"
-                style={{ color: "black", textAlign: "center" }}
-              >
+              <Label size="title" weight="bold" style={styles.label2}>
                 Continue
               </Label>
             </Button>
@@ -137,5 +115,29 @@ const styles = StyleSheet.create({
   },
   marginFix: {
     marginTop: 8,
+  },
+  flexBox: {
+    flex: 2,
+    justifyContent: "flex-end",
+  },
+  label: {
+    color: "white",
+    textAlign: "center",
+  },
+  flexBox2: {
+    paddingHorizontal: 32,
+    flex: 3,
+    justifyContent: "space-between",
+  },
+  buttonLabel: {
+    paddingVertical: 14,
+  },
+  button: {
+    marginBottom: 100,
+    borderRadius: 10,
+  },
+  label2: {
+    color: "black",
+    textAlign: "center",
   },
 });

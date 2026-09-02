@@ -31,7 +31,7 @@ const TopPartners = ({ topPartnersData }) => {
   const RenderSkeleton = () => {
     return (
       <>
-        <View style={{ paddingHorizontal: 16, paddingBottom: 18 }}>
+        <View style={styles.pad}>
           <Skeleton
             variant="square"
             borderRadius={25}
@@ -40,7 +40,7 @@ const TopPartners = ({ topPartnersData }) => {
             opacityMin={0.1}
             opacityMax={0.2}
           />
-           <View style={{marginTop: 8}} />
+           <View style={styles.spacer} />
           <Skeleton
             variant="square"
             borderRadius={10}
@@ -75,6 +75,13 @@ const TopPartners = ({ topPartnersData }) => {
 
 const styles = StyleSheet.create({
   container: {},
+  pad: {
+    paddingHorizontal: 16,
+    paddingBottom: 18,
+  },
+  spacer: {
+    marginTop: 8,
+  },
 });
 
 export default React.memo(TopPartners);

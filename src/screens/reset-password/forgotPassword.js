@@ -87,23 +87,12 @@ export const ForgotPasswordScreen = () => {
           }
           keyboardShouldPersistTaps="always"
           automaticallyAdjustKeyboardInsets
-          contentContainerStyle={{
-            flexGrow: 1,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
+          contentContainerStyle={styles.keyboardAwareScrollViewContentContainer}
         >
           <LoadingOverlay display={loading} />
           <Animated.View style={[styles.container, shakeStyle]}>
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "flex-start",
-                width: "100%",
-                paddingVertical: 16,
-              }}
-            >
-              <View style={{ flex: 1 }}>
+            <View style={styles.row}>
+              <View style={styles.fill}>
                 <TouchableOpacity
                   onPress={goback}
                   style={{
@@ -113,11 +102,7 @@ export const ForgotPasswordScreen = () => {
                   activeOpacity={0.5}
                 >
                   <Ionicons name="arrow-back" size={35} color="#eee" />
-                  <Label
-                    size="title"
-                    weight="bold"
-                    style={{ color: "#dfdfdf", justifyContent: "center" }}
-                  >
+                  <Label size="title" weight="bold" style={styles.label}>
                     Login
                   </Label>
                 </TouchableOpacity>
@@ -176,16 +161,8 @@ export const ForgotPasswordScreen = () => {
                                   : "#00000099",
                               ...styles.marginFix
                             }}
-                            textContainerStyle={{
-                              borderTopRightRadius: 5,
-                              borderBottomRightRadius: 5,
-                              backgroundColor: "white",
-                              paddingVertical: 0,
-                            }}
-                            textInputStyle={{
-                              color: "black",
-                              fontSize: 16,
-                            }}
+                            textContainerStyle={styles.phoneInputTextContainer}
+                            textInputStyle={styles.phoneInputTextInput}
                             textInputProps={{
                               selectionColor: "#a6cdfb",
                             }}
@@ -219,13 +196,14 @@ export const ForgotPasswordScreen = () => {
             <Button
               mode="contained"
               onPress={handleSubmit}
-              contentStyle={{
-                width: "100%",
-                paddingVertical: 8,
-                backgroundColor: theme.colors.ui.yellowGold,
-              }}
-              style={{ width: "100%" }}
-              labelStyle={{ fontSize: 16 }}
+              contentStyle={[
+                styles.buttonContent,
+                {
+                  backgroundColor: theme.colors.ui.yellowGold,
+                },
+              ]}
+              style={styles.button}
+              labelStyle={styles.buttonLabel}
             >
               Submit
             </Button>
@@ -247,5 +225,43 @@ const styles = StyleSheet.create({
 
   marginFix:{
     marginBottom:8
-  }
+  },
+  keyboardAwareScrollViewContentContainer: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    width: "100%",
+    paddingVertical: 16,
+  },
+  fill: {
+    flex: 1,
+  },
+  label: {
+    color: "#dfdfdf",
+    justifyContent: "center",
+  },
+  phoneInputTextContainer: {
+    borderTopRightRadius: 5,
+    borderBottomRightRadius: 5,
+    backgroundColor: "white",
+    paddingVertical: 0,
+  },
+  phoneInputTextInput: {
+    color: "black",
+    fontSize: 16,
+  },
+  button: {
+    width: "100%",
+  },
+  buttonLabel: {
+    fontSize: 16,
+  },
+  buttonContent: {
+    width: "100%",
+    paddingVertical: 8,
+  },
 });

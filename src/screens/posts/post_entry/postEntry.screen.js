@@ -141,45 +141,28 @@ const PostEntryScreen = () => {
         <BackButton />
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={{
-            flex: 1,
-          }}
+          style={styles.fill}
           keyboardVerticalOffset={48}
         >
           <ScrollView
             nestedScrollEnabled={true}
             keyboardDismissMode="interactive"
-            style={{
-              marginHorizontal: -20,
-              paddingHorizontal: 20,
-              marginBottom: -20,
-            }}
-            contentContainerStyle={{ paddingBottom: 40 }}
+            style={styles.box}
+            contentContainerStyle={styles.contentContainerPad}
             fadingEdgeLength={100}
           >
             <View style={styles.body}>
               {/* Title */}
-              <View
-                style={{
-                  justifyContent: "center",
-                  alignItems: "center",
-                  gap: 10,
-                  paddingHorizontal: 20,
-                }}
-              >
+              <View style={styles.centerBox}>
                 <Label size={25} weight="bold">
                   Sie sind fast am Ziel!
                 </Label>
-                <Label
-                  size="subtitle"
-                  weight="medium"
-                  style={{ textAlign: "center" }}
-                >
+                <Label size="subtitle" weight="medium" style={styles.label}>
                   Vervollständigen Sie die Details und schon kann es losgehen!
                 </Label>
               </View>
-              <View style={{marginTop: 10}}/>
-              <View style={{ alignSelf: "stretch", gap: 10, flex: 1 }}>
+              <View style={styles.spacer}/>
+              <View style={styles.flexBox}>
                 <View>
                   <Label
                     size={16}
@@ -260,5 +243,33 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 20,
     paddingBottom: 10,
+  },
+  fill: {
+    flex: 1,
+  },
+  box: {
+    marginHorizontal: -20,
+    paddingHorizontal: 20,
+    marginBottom: -20,
+  },
+  contentContainerPad: {
+    paddingBottom: 40,
+  },
+  centerBox: {
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 10,
+    paddingHorizontal: 20,
+  },
+  label: {
+    textAlign: "center",
+  },
+  spacer: {
+    marginTop: 10,
+  },
+  flexBox: {
+    alignSelf: "stretch",
+    gap: 10,
+    flex: 1,
   },
 });

@@ -42,7 +42,7 @@ export const CameraScreen = () => {
     <View style={styles.container}>
       <Camera style={styles.camera} type={type}>
         <View style={styles.overlay}></View>
-        <SafeArea style={{ zIndex: 20 }}>
+        <SafeArea style={styles.safeArea}>
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.button} onPress={handlePress}>
               <Text style={styles.text}> Flip </Text>
@@ -79,5 +79,8 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.8)",
     height: 100,
     width: "100%",
+  },
+  safeArea: {
+    zIndex: 20,
   },
 });

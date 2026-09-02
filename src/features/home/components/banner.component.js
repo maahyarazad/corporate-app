@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Dimensions, TouchableOpacity, Platform, Linking } from "react-native";
+import { View, Dimensions, TouchableOpacity, Platform, Linking, StyleSheet } from "react-native";
 import styled from "styled-components/native";
 import { showToast } from "../../../Toast";
 import { LoadingOverlay } from "../../../components/loading/loading.component";
@@ -91,11 +91,11 @@ const FeaturedBanner = ({ bannerData }) => {
   const [loading, setLoading] = useState(true);
   const screenWidth = SCREEN_WIDTH;
 
-  if (!bannerData || bannerData.length === 0) return <View style={{ height: 16 }} />;
+  if (!bannerData || bannerData.length === 0) return <View style={styles.sizeBox} />;
 
   return (
     <>
-       <View style={{marginTop: 8}} />
+       <View style={styles.spacer} />
       <ListContainer>
         <Carousel
           width={screenWidth}
@@ -115,3 +115,12 @@ const FeaturedBanner = ({ bannerData }) => {
 };
 
 export default React.memo(FeaturedBanner);
+
+const styles = StyleSheet.create({
+  sizeBox: {
+    height: 16,
+  },
+  spacer: {
+    marginTop: 8,
+  },
+});

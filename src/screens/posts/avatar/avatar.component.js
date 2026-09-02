@@ -19,14 +19,7 @@ export default function Avatar({ onError, image, size = 50 }) {
           },
         ]}
       >
-        <CacheImage
-          style={{
-            width: "100%",
-            height: "100%",
-          }}
-          uri={image}
-          onError={onError}
-        ></CacheImage>
+        <CacheImage style={styles.cacheImage} uri={image} onError={onError}></CacheImage>
       </View>
     </View>
   );
@@ -40,5 +33,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#ddd",
     flex: 1,
     overflow: "hidden",
+  },
+  cacheImage: {
+    width: "100%",
+    height: "100%",
   },
 });

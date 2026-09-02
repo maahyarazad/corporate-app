@@ -101,20 +101,13 @@ const PostEntrySelect = () => {
         // style={{ width: "100%" }}
       >
         <View style={styles.categoryButton}>
-          <View
-            style={{
-              flexDirection: "row",
-              width: "100%",
-              gap: 12,
-              alignItems: "center",
-            }}
-          >
+          <View style={styles.rowCenter}>
             <MaterialCommunityIcons
               name={type.icon}
               size={50}
               color={theme.colors.icons.active}
             />
-            <View style={{ flex: 1 }}>
+            <View style={styles.fill}>
               <Label size={20} weight="bold">
                 {type.label}
               </Label>
@@ -146,12 +139,12 @@ const PostEntrySelect = () => {
               </View>
             </TouchableOpacity>
           </View>
-          <View style={{marginTop: 10}}/>
+          <View style={styles.spacer}/>
 
           {/* Body */}
           <View style={styles.body}>
-            <View style={{ gap: 10 }}>
-              <Label size={25} weight="bold" style={{ textAlign: "center" }}>
+            <View style={styles.box}>
+              <Label size={25} weight="bold" style={styles.label}>
                 Was möchten Sie tun?
               </Label>
             </View>
@@ -208,5 +201,23 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     gap: 50,
+  },
+  rowCenter: {
+    flexDirection: "row",
+    width: "100%",
+    gap: 12,
+    alignItems: "center",
+  },
+  fill: {
+    flex: 1,
+  },
+  spacer: {
+    marginTop: 10,
+  },
+  box: {
+    gap: 10,
+  },
+  label: {
+    textAlign: "center",
   },
 });

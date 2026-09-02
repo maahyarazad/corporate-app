@@ -44,24 +44,20 @@ const RenderTickView = ({ item, state, setValue, mode }) => {
   return (
     <TouchableWithoutFeedback onPress={toggle}>
       <View
-        style={{
-          flex: 1,
-          borderRadius: 10,
-          width: width / 2 - 24,
-          flexDirection: "row",
-          alignItems: "center",
-          backgroundColor: "#eee",
-          paddingVertical: 6,
-          borderWidth: 2,
-          borderColor: checked ? theme.colors.icons.active : "#eee",
-        }}
+        style={[
+          styles.rowCenter,
+          {
+            width: width / 2 - 24,
+            borderColor: checked ? theme.colors.icons.active : "#eee",
+          },
+        ]}
       >
          <Checkbox.Android
-          style={{ width: 100 }}
+          style={styles.checkboxAndroid}
           status={checked ? "checked" : "unchecked"}
           color={theme.colors.icons.active}
         />
-        <View style={{ flex: 1 }}>
+        <View style={styles.fill}>
           <Label numberOfLines={2} size="subtitle">
             {item.label}
           </Label>
@@ -472,7 +468,7 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
         value={state.maker}
         items={items}
         setValue={onSelectMaker}
-        textStyle={{ fontSize: 18 }}
+        textStyle={styles.dropDownPickerText}
         style={[
           styles.formField,
           { borderColor: isSubmitted && !state.maker ? "red" : "#bbb" },
@@ -480,21 +476,13 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
         listMode="SCROLLVIEW"
         placeholder="Select Maker"
         zIndex={10}
-        placeholderStyle={{ color: "#bbb", fontSize: 18 }}
-        dropDownContainerStyle={{
-          borderColor: "#bbb",
-          maxHeight: 300,
-        }}
+        placeholderStyle={styles.dropDownPickerPlaceholder}
+        dropDownContainerStyle={styles.dropDownPickerDropDownContainer}
         searchable={true}
         searchPlaceholder="Search"
         searchPlaceholderTextColor="#bbb"
-        searchContainerStyle={{
-          borderBottomWidth: 0,
-        }}
-        searchTextInputStyle={{
-          borderColor: "#bbb",
-          paddingVertical: 12,
-        }}
+        searchContainerStyle={styles.dropDownPickerSearchContainer}
+        searchTextInputStyle={styles.dropDownPickerSearchTextInput}
       />
       <TextInput
         placeholder="Modell"
@@ -509,8 +497,8 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
       />
 
       {mode === 1 ? (
-        <View style={{ flex: 1, flexDirection: "row", gap: 8, zIndex: 9 }}>
-          <View style={{ flex: 1 }}>
+        <View style={styles.row}>
+          <View style={styles.fill}>
             <DropDownPicker
               open={monthOpen}
               setOpen={() => {
@@ -520,12 +508,12 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
               value={state.month}
               items={months}
               setValue={onSelectMonth}
-              textStyle={{ fontSize: 18 }}
+              textStyle={styles.dropDownPickerText}
               style={[styles.formField]}
               placeholder="Baumonat"
               listMode="SCROLLVIEW"
-              placeholderStyle={{ color: "#bbb", fontSize: 18 }}
-              dropDownContainerStyle={{ borderColor: "#bbb" }}
+              placeholderStyle={styles.dropDownPickerPlaceholder}
+              dropDownContainerStyle={styles.dropDownPickerDropDownContainer2}
               zIndex={9}
               flatListProps={{
                 style: {
@@ -536,7 +524,7 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
               }}
             />
           </View>
-          <View style={{ flex: 1 }}>
+          <View style={styles.fill}>
             <DropDownPicker
               open={yearFromOpen}
               setOpen={() => {
@@ -546,7 +534,7 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
               value={state.year_from}
               items={years}
               setValue={onSelectYearFrom}
-              textStyle={{ fontSize: 18 }}
+              textStyle={styles.dropDownPickerText}
               style={[
                 styles.formField,
                 {
@@ -555,8 +543,8 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
               ]}
               placeholder="Baujahr"
               listMode="SCROLLVIEW"
-              placeholderStyle={{ color: "#bbb", fontSize: 18 }}
-              dropDownContainerStyle={{ borderColor: "#bbb" }}
+              placeholderStyle={styles.dropDownPickerPlaceholder}
+              dropDownContainerStyle={styles.dropDownPickerDropDownContainer2}
               zIndex={9}
               flatListProps={{
                 style: {
@@ -573,8 +561,8 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
           <Label size="subtitle" weight="bold">
             Baujahr
           </Label>
-          <View style={{ flex: 1, flexDirection: "row", gap: 8, zIndex: 9 }}>
-            <View style={{ flex: 1 }}>
+          <View style={styles.row}>
+            <View style={styles.fill}>
               <DropDownPicker
                 open={yearFromOpen}
                 setOpen={() => {
@@ -584,7 +572,7 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
                 value={state.year_from}
                 items={years}
                 setValue={onSelectYearFrom}
-                textStyle={{ fontSize: 18 }}
+                textStyle={styles.dropDownPickerText}
                 style={[
                   styles.formField,
                   {
@@ -597,8 +585,8 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
                 ]}
                 placeholder="von"
                 listMode="SCROLLVIEW"
-                placeholderStyle={{ color: "#bbb", fontSize: 18 }}
-                dropDownContainerStyle={{ borderColor: "#bbb" }}
+                placeholderStyle={styles.dropDownPickerPlaceholder}
+                dropDownContainerStyle={styles.dropDownPickerDropDownContainer2}
                 zIndex={9}
                 flatListProps={{
                   style: {
@@ -609,7 +597,7 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
                 }}
               />
             </View>
-            <View style={{ flex: 1 }}>
+            <View style={styles.fill}>
               <DropDownPicker
                 open={yearToOpen}
                 setOpen={() => {
@@ -619,7 +607,7 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
                 value={state.year_to}
                 items={years}
                 setValue={onSelectYearTo}
-                textStyle={{ fontSize: 18 }}
+                textStyle={styles.dropDownPickerText}
                 style={[
                   styles.formField,
                   {
@@ -632,8 +620,8 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
                 ]}
                 placeholder="bis"
                 listMode="SCROLLVIEW"
-                placeholderStyle={{ color: "#bbb", fontSize: 18 }}
-                dropDownContainerStyle={{ borderColor: "#bbb" }}
+                placeholderStyle={styles.dropDownPickerPlaceholder}
+                dropDownContainerStyle={styles.dropDownPickerDropDownContainer2}
                 zIndex={9}
                 flatListProps={{
                   style: {
@@ -653,7 +641,7 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
         value={state.color}
         items={colors}
         setValue={onSelectColor}
-        textStyle={{ fontSize: 18 }}
+        textStyle={styles.dropDownPickerText}
         style={[
           styles.formField,
           {
@@ -662,8 +650,8 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
         ]}
         placeholder="Farbe"
         listMode="SCROLLVIEW"
-        placeholderStyle={{ color: "#bbb", fontSize: 18 }}
-        dropDownContainerStyle={{ borderColor: "#bbb" }}
+        placeholderStyle={styles.dropDownPickerPlaceholder}
+        dropDownContainerStyle={styles.dropDownPickerDropDownContainer2}
         zIndex={8}
         flatListProps={{
           style: {
@@ -696,7 +684,7 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
           <Label size="subtitle" weight="bold">
             Kilometer
           </Label>
-          <View style={{ flexDirection: "row", gap: 8 }}>
+          <View style={styles.row2}>
             <TextInput
               placeholder="von"
               value={
@@ -766,7 +754,7 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
           <Label size="subtitle" weight="bold">
             Preis
           </Label>
-          <View style={{ flexDirection: "row", gap: 8 }}>
+          <View style={styles.row2}>
             <TextInput
               placeholder="von"
               value={
@@ -812,12 +800,12 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
         </>
       )}
 
-      <View style={{ gap: 6, marginTop: 10 }}>
-        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+      <View style={styles.box}>
+        <View style={styles.rowBetween}>
           <Label size="subtitle" weight="bold">
             Ausstattung
           </Label>
-          <View style={{ flexDirection: "row", gap: 8 }}>
+          <View style={styles.row2}>
             <ButtonText
               label="Select All"
               icon="check-bold"
@@ -841,11 +829,9 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
           horizontal={false}
           numColumns={2}
           initialNumToRender={35}
-          columnWrapperStyle={{
-            gap: 10,
-          }}
+          columnWrapperStyle={styles.flatListColumnWrapper}
           ItemSeparatorComponent={() => {
-            return <View style={{marginTop: 6}}/>;
+            return <View style={styles.spacer}/>;
           }}
         />
       </View>
@@ -861,7 +847,7 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
         onChangeText={handleTitleChange}
       />
 
-      <View style={{ height: 400 }}>
+      <View style={styles.sizeBox}>
         <TextInput
           style={[
             styles.formField,
@@ -881,14 +867,14 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
 
         {/* Character Limit */}
         <View
-          style={{
-            marginTop: 2,
-            backgroundColor:
-              state.content.length / MAX_CONTENT > 0.8 ? "red" : "green",
-            height: 5,
-            width: `${(state.content.length / MAX_CONTENT) * 100}%`,
-            borderRadius: 20,
-          }}
+          style={[
+            styles.bordered,
+            {
+              backgroundColor:
+                state.content.length / MAX_CONTENT > 0.8 ? "red" : "green",
+              width: `${(state.content.length / MAX_CONTENT) * 100}%`,
+            },
+          ]}
         ></View>
       </View>
 
@@ -906,19 +892,9 @@ const PostEntryMobil = ({ onSubmit, mode }) => {
       {/* Submit Button */}
       <TouchableOpacity onPress={submitForm}>
         <View
-          style={{
-            backgroundColor: theme.colors.icons.active,
-            justifyContent: "center",
-            alignItems: "center",
-            paddingVertical: 16,
-            borderRadius: 6,
-          }}
+          style={[styles.centerBox, { backgroundColor: theme.colors.icons.active }]}
         >
-          <Label
-            size="subtitle"
-            weight="bold"
-            style={{ color: "white", letterSpacing: 1 }}
-          >
+          <Label size="subtitle" weight="bold" style={styles.label}>
             Absenden
           </Label>
         </View>
@@ -965,5 +941,83 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     paddingHorizontal: 10,
     borderRadius: 20,
+  },
+  checkboxAndroid: {
+    width: 100,
+  },
+  fill: {
+    flex: 1,
+  },
+  dropDownPickerText: {
+    fontSize: 18,
+  },
+  dropDownPickerPlaceholder: {
+    color: "#bbb",
+    fontSize: 18,
+  },
+  dropDownPickerDropDownContainer: {
+    borderColor: "#bbb",
+    maxHeight: 300,
+  },
+  dropDownPickerSearchContainer: {
+    borderBottomWidth: 0,
+  },
+  dropDownPickerSearchTextInput: {
+    borderColor: "#bbb",
+    paddingVertical: 12,
+  },
+  row: {
+    flex: 1,
+    flexDirection: "row",
+    gap: 8,
+    zIndex: 9,
+  },
+  dropDownPickerDropDownContainer2: {
+    borderColor: "#bbb",
+  },
+  row2: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  box: {
+    gap: 6,
+    marginTop: 10,
+  },
+  rowBetween: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  flatListColumnWrapper: {
+    gap: 10,
+  },
+  spacer: {
+    marginTop: 6,
+  },
+  sizeBox: {
+    height: 400,
+  },
+  label: {
+    color: "white",
+    letterSpacing: 1,
+  },
+  rowCenter: {
+    flex: 1,
+    borderRadius: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#eee",
+    paddingVertical: 6,
+    borderWidth: 2,
+  },
+  bordered: {
+    marginTop: 2,
+    height: 5,
+    borderRadius: 20,
+  },
+  centerBox: {
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 16,
+    borderRadius: 6,
   },
 });

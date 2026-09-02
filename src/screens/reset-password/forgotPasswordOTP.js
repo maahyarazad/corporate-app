@@ -71,38 +71,27 @@ export const ForgotPasswordOTPScreen = ({ route }) => {
           }
           keyboardShouldPersistTaps="always"
           automaticallyAdjustKeyboardInsets
-          contentContainerStyle={{
-            flexGrow: 1,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
+          contentContainerStyle={styles.keyboardAwareScrollViewContentContainer}
         >
-          <BottomHalf
-            style={{
-              height: "100%",
-              justifyContent: "center",
-            }}
-          >
-            <View style={{ alignItems: "center" }}>
-              <Label
-                style={{ color: "white", marginBottom:10}}
-                size="heading"
-                weight="bold"
-              >
+          <BottomHalf style={styles.bottomHalf}>
+            <View style={styles.centered}>
+              <Label style={styles.label} size="heading" weight="bold">
                 Verification Code Sent
               </Label>
               
               <Label
-                style={{
-                  color: "white",
-                  fontSize: Math.min(width * 0.04),
-                  textAlign: "center", lineHeight: Math.min(width * 0.04) * 1.4, marginBottom: 10
-                }}
+                style={[
+                  styles.label3,
+                  {
+                    fontSize: Math.min(width * 0.04),
+                    lineHeight: Math.min(width * 0.04) * 1.4,
+                  },
+                ]}
                 weight="regular"
               >
                 {`Please enter the ${MAX_CODE_LENGTH}-digit code sent to `}
                 <Label
-                  style={{ color: "white", fontSize: Math.min(width * 0.04) ,marginBottom:8}}
+                  style={[styles.label4, { fontSize: Math.min(width * 0.04) }]}
                   weight="bold"
                 >
                   +
@@ -119,17 +108,8 @@ export const ForgotPasswordOTPScreen = ({ route }) => {
               code={code}
               pinReady={pinReady}
               maxLength={MAX_CODE_LENGTH}
-              inputBoxStyle={{
-                borderRadius: 6,
-                width: 50,
-                height: 50,
-                borderColor: "#aaa",
-              }}
-              containerStyle={{
-                marginTop: 4,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
+              inputBoxStyle={styles.codeInputFieldInputBox}
+              containerStyle={styles.codeInputFieldContainer}
             />
             {/* <TouchableOpacity activeOpacity={} */}
             <VerifyButton
@@ -157,7 +137,7 @@ export const ForgotPasswordOTPScreen = ({ route }) => {
             </VerifyButton>
             
             <TouchableOpacity onPress={handleResend}>
-              <Label style={{ color: "white" }} size="title">
+              <Label style={styles.label2} size="title">
                 Resend Code
               </Label>
             </TouchableOpacity>
@@ -170,4 +150,43 @@ export const ForgotPasswordOTPScreen = ({ route }) => {
 
 const styles = StyleSheet.create({
   container: {},
+  keyboardAwareScrollViewContentContainer: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  bottomHalf: {
+    height: "100%",
+    justifyContent: "center",
+  },
+  centered: {
+    alignItems: "center",
+  },
+  label: {
+    color: "white",
+    marginBottom: 10,
+  },
+  codeInputFieldInputBox: {
+    borderRadius: 6,
+    width: 50,
+    height: 50,
+    borderColor: "#aaa",
+  },
+  codeInputFieldContainer: {
+    marginTop: 4,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  label2: {
+    color: "white",
+  },
+  label3: {
+    color: "white",
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  label4: {
+    color: "white",
+    marginBottom: 8,
+  },
 });

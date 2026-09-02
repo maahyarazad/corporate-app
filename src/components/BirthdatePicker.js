@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Pressable, Platform, Modal, Button } from "react-native";
+import { View, Pressable, Platform, Modal, Button, StyleSheet } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import moment from "moment";
 import { CustomTextInput } from "../components/customTextInput";
@@ -54,11 +54,7 @@ export function BirthdatePicker({
             label={label}
             editable={false}
             error={error}
-            style={{
-              borderRadius: 5,
-              height: 55,
-              width: "100%",
-            }}
+            style={styles.customTextInput}
           />
         </View>
       </Pressable>
@@ -75,26 +71,9 @@ export function BirthdatePicker({
 
       {Platform.OS === "ios" && (
         <Modal visible={show} transparent animationType="slide">
-          <View
-            style={{
-              flex: 1,
-              justifyContent: "flex-end",
-              backgroundColor: "rgba(0,0,0,0.3)",
-            }}
-          >
-            <View
-              style={{
-                backgroundColor: "#fff",
-                padding: 16,
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  marginBottom: 8,
-                }}
-              >
+          <View style={styles.flexBox}>
+            <View style={styles.tint}>
+              <View style={styles.rowBetween}>
                 <Button title="Cancel" onPress={handleCancel} />
                 <Button title="Done" onPress={handleDone} />
               </View>
@@ -113,3 +92,25 @@ export function BirthdatePicker({
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  customTextInput: {
+    borderRadius: 5,
+    height: 55,
+    width: "100%",
+  },
+  flexBox: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.3)",
+  },
+  tint: {
+    backgroundColor: "#fff",
+    padding: 16,
+  },
+  rowBetween: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+});

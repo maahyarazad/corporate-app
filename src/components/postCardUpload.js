@@ -73,7 +73,7 @@ export const PostCardUpload = () => {
           </Label>
         </View>
       </Animated.View>
-      <View style={{ flex: 1, marginTop: "20%" }}>
+      <View style={styles.flexBox}>
         <TouchableOpacity onPress={handleRefresh}>
           <View
             style={{
@@ -119,5 +119,9 @@ const styles = StyleSheet.create({
   },
   wrapper:{
     marginBottom: 10
-  }
+  },
+  flexBox: {
+    flex: 1,
+    marginTop: "20%",
+  },
 });

@@ -309,39 +309,20 @@ export const RegistrationScreen = () => {
               keyboardShouldPersistTaps="handled"
               keyboardDismissMode="on-drag"
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={{
-                flexGrow: 1,
-                paddingHorizontal: 16,
-                paddingBottom: 40,
-              }}
-              style={{ flex: 1 }}
+              contentContainerStyle={styles.keyboardAwareScrollViewContentContainer}
+              style={styles.keyboardAwareScrollView}
             >
-                <View style={{flex: 1, justifyContent:'center'}}>
+                <View style={styles.flexBox}>
 
-              <View
-                style={{
-                  flexDirection: "row",
-                  
-                  marginBottom: 16,
-                  marginTop: 10,
-                }}
-              >
+              <View style={styles.row}>
                 <TouchableOpacity
                   onPress={goback}
                   disabled={isLoading}
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    opacity: isLoading ? 0.5 : 1,
-                  }}
+                  style={[styles.rowCenter, { opacity: isLoading ? 0.5 : 1 }]}
                   activeOpacity={0.5}
                 >
                   <Ionicons name="arrow-back" size={35} color="#eee" />
-                  <Label
-                    size="body"
-                    weight="bold"
-                    style={{ color: "#dfdfdf", justifyContent: "center" }}
-                  >
+                  <Label size="body" weight="bold" style={styles.label}>
                     Login
                   </Label>
                 </TouchableOpacity>
@@ -350,7 +331,7 @@ export const RegistrationScreen = () => {
               <CustomTextInput
                 ref={usernameRef}
                 value={state.username}
-                style={{ marginTop: 8 }}
+                style={styles.customTextInput}
                 onChangeText={handleUsernameChange}
                 label="Username *"
                 error={isSubmitted && state.username.trim() === ""}
@@ -361,7 +342,7 @@ export const RegistrationScreen = () => {
               <CustomTextInput
                 ref={passwordRef}
                 value={state.password}
-                style={{ marginTop: 8 }}
+                style={styles.customTextInput}
                 onChangeText={handlePasswordChange}
                 label="Password *"
                 error={
@@ -378,7 +359,7 @@ export const RegistrationScreen = () => {
               <CustomTextInput
                 ref={confirmPasswordRef}
                 value={state.cpassword}
-                style={{ marginTop: 8 }}
+                style={styles.customTextInput}
                 onChangeText={handlCPasswordChange}
                 label="Confirm Password *"
                 error={
@@ -394,7 +375,7 @@ export const RegistrationScreen = () => {
 
               <CustomTextInput
                 label="E-mail *"
-                style={{ marginTop: 8 }}
+                style={styles.customTextInput}
                 value={state.email}
                 ref={emailRef}
                 onChangeText={handleEmailChange}
@@ -415,27 +396,17 @@ export const RegistrationScreen = () => {
                     ? "Mobile is required"
                     : null
                 }
-                containerStyle={{
-                  borderRadius: 5,
-                  width: "100%",
-                  height: 60,
-                  borderWidth: 2,
-                  borderColor:
-                    isSubmitted && state.mobile.trim() === ""
-                      ? "red"
-                      : "#00000099",
-                  marginTop: 8,
-                }}
-                textContainerStyle={{
-                  borderTopRightRadius: 5,
-                  borderBottomRightRadius: 5,
-                  backgroundColor: "white",
-                  paddingVertical: 0,
-                }}
-                textInputStyle={{
-                  color: "black",
-                  fontSize: 16,
-                }}
+                containerStyle={[
+                  styles.phoneInputContainer,
+                  {
+                    borderColor:
+                      isSubmitted && state.mobile.trim() === ""
+                        ? "red"
+                        : "#00000099",
+                  },
+                ]}
+                textContainerStyle={styles.phoneInputTextContainer}
+                textInputStyle={styles.phoneInputTextInput}
                 textInputProps={{
                   selectionColor: "#a6cdfb",
                 }}
@@ -445,20 +416,18 @@ export const RegistrationScreen = () => {
                 activeOpacity={0.8}
                 onPress={nextPage}
                 disabled={isLoading}
-                style={{
-                  height: 55,
-                  backgroundColor: theme.colors.ui.button,
-                  borderRadius: 5,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  marginVertical: 8,
-                  opacity: isLoading ? 0.7 : 1,
-                }}
+                style={[
+                  styles.centerBox,
+                  {
+                    backgroundColor: theme.colors.ui.button,
+                    opacity: isLoading ? 0.7 : 1,
+                  },
+                ]}
               >
                 {isLoading ? (
                   <ActivityIndicator color="white" />
                 ) : (
-                  <Label style={{ color: "white" }} size="body" weight="bold">
+                  <Label style={styles.label2} size="body" weight="bold">
                     Next
                   </Label>
                 )}
@@ -484,5 +453,60 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     justifyContent: "flex-start",
+  },
+  keyboardAwareScrollViewContentContainer: {
+    flexGrow: 1,
+    paddingHorizontal: 16,
+    paddingBottom: 40,
+  },
+  keyboardAwareScrollView: {
+    flex: 1,
+  },
+  flexBox: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  row: {
+    flexDirection: "row",
+    marginBottom: 16,
+    marginTop: 10,
+  },
+  label: {
+    color: "#dfdfdf",
+    justifyContent: "center",
+  },
+  customTextInput: {
+    marginTop: 8,
+  },
+  phoneInputTextContainer: {
+    borderTopRightRadius: 5,
+    borderBottomRightRadius: 5,
+    backgroundColor: "white",
+    paddingVertical: 0,
+  },
+  phoneInputTextInput: {
+    color: "black",
+    fontSize: 16,
+  },
+  label2: {
+    color: "white",
+  },
+  rowCenter: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  phoneInputContainer: {
+    borderRadius: 5,
+    width: "100%",
+    height: 60,
+    borderWidth: 2,
+    marginTop: 8,
+  },
+  centerBox: {
+    height: 55,
+    borderRadius: 5,
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 8,
   },
 });

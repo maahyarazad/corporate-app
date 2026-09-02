@@ -37,7 +37,7 @@ const PostEntryCategorySelect = () => {
 
     return (
       <TouchableOpacity onPress={handleOnPress}>
-        <View style={{ paddingVertical: 20, paddingHorizontal: 20 }}>
+        <View style={styles.pad}>
           <Label>{category.category}</Label>
         </View>
       </TouchableOpacity>
@@ -62,7 +62,7 @@ const PostEntryCategorySelect = () => {
               data={list}
               keyExtractor={keyExtractor}
               renderItem={renderCategoryItem}
-              style={{ flex: 1, marginHorizontal: -20 }}
+              style={styles.flatList}
               overScrollMode="always"
               fadingEdgeLength={100}
               pagingEnabled
@@ -70,9 +70,7 @@ const PostEntryCategorySelect = () => {
               snapToInterval={70}
               initialNumToRender={20}
               ItemSeparatorComponent={
-                <View
-                  style={{ backgroundColor: "#ddd", height: 1, width: "100%" }}
-                ></View>
+                <View style={styles.box}></View>
               }
             />
           </View>
@@ -96,7 +94,7 @@ const PostEntryCategorySelect = () => {
               data={list}
               keyExtractor={keyExtractor}
               renderItem={renderCategoryItem}
-              style={{ flex: 1, marginHorizontal: -20 }}
+              style={styles.flatList}
               overScrollMode="always"
               fadingEdgeLength={100}
               pagingEnabled
@@ -104,9 +102,7 @@ const PostEntryCategorySelect = () => {
               snapToInterval={70}
               initialNumToRender={20}
               ItemSeparatorComponent={
-                <View
-                  style={{ backgroundColor: "#ddd", height: 1, width: "100%" }}
-                ></View>
+                <View style={styles.box}></View>
               }
             />
           </View>
@@ -158,5 +154,18 @@ const styles = StyleSheet.create({
     gap: 10,
     alignItems: "center",
     justifyContent: "center",
+  },
+  pad: {
+    paddingVertical: 20,
+    paddingHorizontal: 20,
+  },
+  flatList: {
+    flex: 1,
+    marginHorizontal: -20,
+  },
+  box: {
+    backgroundColor: "#ddd",
+    height: 1,
+    width: "100%",
   },
 });

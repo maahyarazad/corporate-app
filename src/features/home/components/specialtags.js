@@ -7,7 +7,7 @@ import {
   Platform,
   Text,
   TouchableOpacity,
-  View,
+  View, StyleSheet,
 } from "react-native";
 import styled from "styled-components/native";
 import { Label } from "../../../components/typography/label.component";
@@ -67,35 +67,27 @@ const OfferItemImageContainer = styled(ImageBackground)`
       <TouchableOpacity onPress={() => handlePress(item)}>
         <OfferItemContainer>
           <View
-            style={{
-              elevation: 6,
-              backgroundColor: "black",
-              shadowColor: "black",
-              shadowOpacity: Platform.OS === "ios" ? 0.3 : 1,
-              shadowOffset: { width: 3, height: 4 },
-              borderRadius: 4,
-            }}
+            style={[
+              styles.bordered,
+              {
+                shadowOpacity: Platform.OS === "ios" ? 0.3 : 1,
+              },
+            ]}
           >
             <OfferItemImageContainer
               resizeMode="stretch"
               source={require("../../../../assets/ifza-login-bg.webp")}
             >
               <Image
-                style={{
-                  width: 80,
-                  height: 80,
-                  tintColor: "white",
-                }}
+                style={styles.image}
                 resizeMode="cover"
                 source={specialsLogo[item.id]}
               />
             </OfferItemImageContainer>
           </View>
-           <View style={{marginTop: 6}} />
+           <View style={styles.spacer} />
             <OffersItemLabelContainer>
-              <Label
-                style={{ textAlign: "center", textAlignVertical: "center" }}
-              >
+              <Label style={styles.label}>
                 {item.specialtags_en}
               </Label>
               <Text></Text>
@@ -110,7 +102,7 @@ const OfferItemImageContainer = styled(ImageBackground)`
     <View>
       <OffersHeaderView>
          
-          <Label size="heading" weight="bold" style={{marginLeft: 16}}>
+          <Label size="heading" weight="bold" style={styles.label2}>
             {i18n.t("offer-details.offers")}
           </Label>
         
@@ -124,15 +116,47 @@ const OfferItemImageContainer = styled(ImageBackground)`
           scrollEnabled={false}
           nestedScrollEnabled={true}
           numColumns={numcol}
-          style={{ paddingVertical: 16 }}
+          style={styles.flatList}
           contentContainerStyle={{}}
-          columnWrapperStyle={{
-            justifyContent: "flex-start",
-            paddingHorizontal: 16,
-          }}
+          columnWrapperStyle={styles.flatListColumnWrapper}
           ItemSeparatorComponent={itemSeparatorVM}
         ></FlatList>
       </OffersContentView>
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  image: {
+    width: 80,
+    height: 80,
+    tintColor: "white",
+  },
+  spacer: {
+    marginTop: 6,
+  },
+  label: {
+    textAlign: "center",
+    textAlignVertical: "center",
+  },
+  label2: {
+    marginLeft: 16,
+  },
+  flatList: {
+    paddingVertical: 16,
+  },
+  flatListColumnWrapper: {
+    justifyContent: "flex-start",
+    paddingHorizontal: 16,
+  },
+  bordered: {
+    elevation: 6,
+    backgroundColor: "black",
+    shadowColor: "black",
+    shadowOffset: {
+      width: 3,
+      height: 4,
+    },
+    borderRadius: 4,
+  },
+});

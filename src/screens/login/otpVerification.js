@@ -30,6 +30,38 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginBottom: 20,
   },
+  safeArea2: {
+    alignItems: "center",
+  },
+  keyboardAwareScrollView: {
+    flexGrow: 1,
+    overflow: "hidden",
+  },
+  keyboardAwareScrollViewContentContainer: {
+    paddingBottom: 32,
+  },
+  centered: {
+    height: "100%",
+    alignItems: "center",
+  },
+  tint: {
+    backgroundColor: "rgba(0,0,0,0)",
+    marginBottom: 20,
+  },
+  codeInputFieldCodeInputBox: {
+    width: 60,
+    height: 60,
+  },
+  codeInputFieldCodeInputText: {
+    fontSize: 30,
+  },
+  codeInputFieldInputBox: {
+    borderWidth: 4,
+    borderRadius: 50,
+  },
+  label: {
+    color: "white",
+  },
 });
 
 export const OtpVerification = ({ route }) => {
@@ -151,20 +183,13 @@ export const OtpVerification = ({ route }) => {
 
   return (
     <Background>
-      <SafeArea style={{ alignItems: "center" }}>
+      <SafeArea style={styles.safeArea2}>
         <KeyboardAwareScrollView
           behavior="position"
-          style={{ flexGrow: 1, overflow: "hidden" }}
-          contentContainerStyle={{
-            paddingBottom: 32,
-          }}
+          style={styles.keyboardAwareScrollView}
+          contentContainerStyle={styles.keyboardAwareScrollViewContentContainer}
         >
-          <View
-            style={{
-              height: "100%",
-              alignItems: "center",
-            }}
-          >
+          <View style={styles.centered}>
             <IconBg>
               <StatusBar style="light" />
               <MaterialCommunityIcons
@@ -174,7 +199,7 @@ export const OtpVerification = ({ route }) => {
               />
             </IconBg>
             <BottomHalf>
-              <View style={{ alignItems: "center" }}>
+              <View style={styles.safeArea2}>
                 <Label
                   style={{
                     color: "white",
@@ -221,12 +246,10 @@ export const OtpVerification = ({ route }) => {
                 </Label>
               </TouchableOpacity>
 
-              <View
-                style={{ backgroundColor: "rgba(0,0,0,0)", marginBottom: 20 }}
-              >
+              <View style={styles.tint}>
                 <CodeInputField
-                  codeInputBoxStyle={{ width: 60, height: 60 }}
-                  codeInputTextStyle={{ fontSize: 30 }}
+                  codeInputBoxStyle={styles.codeInputFieldCodeInputBox}
+                  codeInputTextStyle={styles.codeInputFieldCodeInputText}
                   setPinReady={setPinReady}
                   setCode={handleCodeChange}
                   code={code}
@@ -235,7 +258,7 @@ export const OtpVerification = ({ route }) => {
                   containerStyle={{
                     width: Math.min(width - 64, INPUT_MAX_WIDTH),
                   }}
-                  inputBoxStyle={{ borderWidth: 4, borderRadius: 50 }}
+                  inputBoxStyle={styles.codeInputFieldInputBox}
                   onFulfill={(value) => {
                     handleVerify(value);
                   }}
@@ -275,7 +298,7 @@ export const OtpVerification = ({ route }) => {
                 </Label>
               ) : (
                 <TouchableOpacity onPress={handleResend}>
-                  <Label style={{ color: "white" }} size="title">
+                  <Label style={styles.label} size="title">
                     {i18n.t("auth.resend-code")}
                   </Label>
                 </TouchableOpacity>

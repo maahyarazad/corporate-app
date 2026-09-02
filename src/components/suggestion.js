@@ -7,7 +7,7 @@ import { Label } from "./typography/label.component";
 import { REMOVE_CLIPPED_SUBVIEWS } from "../utils/listPerf";
 
 const itemSeparatorSuggestion = () => (
-  <View style={{ borderBottomWidth: 1, borderColor: "#ddd" }}></View>
+  <View style={styles.box}></View>
 );
 
 // onPress receives the item: `(item) => void`. Keeps the row memo-comparable.
@@ -80,5 +80,9 @@ const styles = StyleSheet.create({
   suggestListContainer: {
     flex: 1,
     backgroundColor: "white",
+  },
+  box: {
+    borderBottomWidth: 1,
+    borderColor: "#ddd",
   },
 });

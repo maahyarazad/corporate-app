@@ -1,17 +1,17 @@
 import React from "react";
-import { View } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 
 export const GenderPicker = ({ state, setState, error, style }) => {
   return (
     <View style={{ ...style, marginVertical: 5 }}>
       
-      <View style={{ borderWidth: 1, borderColor: "#ccc", borderRadius: 5, marginTop: 35 }}>
+      <View style={styles.bordered}>
         <Picker
          label="Gender *"
           selectedValue={state.gender}
           onValueChange={(itemValue) => setState({ ...state, gender: itemValue })}
-          style={{ height: 50, width: "100%" }}
+          style={styles.picker}
         >
           <Picker.Item label="Select Gender" value="" />
           <Picker.Item label="Male" value="Male" />
@@ -22,3 +22,16 @@ export const GenderPicker = ({ state, setState, error, style }) => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  bordered: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    marginTop: 35,
+  },
+  picker: {
+    height: 50,
+    width: "100%",
+  },
+});

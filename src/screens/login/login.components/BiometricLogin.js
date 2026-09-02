@@ -1,5 +1,5 @@
 import React from "react";
-import { View, TouchableWithoutFeedback } from "react-native";
+import { View, TouchableWithoutFeedback, StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Label } from "../../../components/typography/label.component";
 
@@ -8,14 +8,7 @@ const BiometricLogin = ({ biometric, handleBiometricLogin, i18n }) => {
 
   return (
     <TouchableWithoutFeedback onPress={handleBiometricLogin}>
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: 10,
-        }}
-      >
+      <View style={styles.rowCenter}>
         <MaterialCommunityIcons
           color="white"
           name={
@@ -26,7 +19,7 @@ const BiometricLogin = ({ biometric, handleBiometricLogin, i18n }) => {
           size={30}
         />
 
-        <Label color="white" style={{ textDecorationLine: "underline" }}>
+        <Label color="white" style={styles.label}>
           {i18n.t(`profile-tabs.settings-menu.login-${biometric.type}`)}
         </Label>
       </View>
@@ -35,3 +28,15 @@ const BiometricLogin = ({ biometric, handleBiometricLogin, i18n }) => {
 };
 
 export default BiometricLogin;
+
+const styles = StyleSheet.create({
+  rowCenter: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 10,
+  },
+  label: {
+    textDecorationLine: "underline",
+  },
+});
