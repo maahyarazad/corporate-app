@@ -1,14 +1,7 @@
 import moment from "moment";
 import React, { memo, useContext } from "react";
-import {
-  Image,
-  StyleSheet,
-  Text,
-  TouchableHighlight,
-  View,
-} from "react-native";
+import { Image, StyleSheet, TouchableHighlight, View } from "react-native";
 import RibbonSVG from "../../../components/ribbon.component";
-import { width } from "../../../components/styles";
 import { Label } from "../../../components/typography/label.component";
 import { TranslationContext } from "../../../services/translation/translation.context";
 import { offerStamps } from "../../../utils/constants";

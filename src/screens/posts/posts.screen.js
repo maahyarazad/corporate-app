@@ -1,45 +1,31 @@
 import {
-  Image,
-  Modal,
   SafeAreaView,
   FlatList,
-  ScrollView,
   Share,
   StyleSheet,
-  Text,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { showToast } from "../../Toast";
 import usePosts from "./post_card/usePosts";
 import PostCard from "./post_card/postCard.component";
-import { KeyboardAwareFlatList } from "react-native-keyboard-aware-scroll-view";
 import { useNavigation } from "@react-navigation/native";
 import { theme } from "../../infrastructure/theme";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import PostEntryForm from "./post_entry/postEntryForm.component";
-import { Label } from "../../components/typography/label.component";
 import useUser from "../../../hooks/useUser";
 import { Post } from "./postDetail.screen";
-import { Button, Searchbar } from "react-native-paper";
 import { debounce } from "lodash";
 // import { FlatList } from "react-native-bidirectional-infinite-scroll";
 import { navigate } from "../../navigation/navigate";
 import * as SecureStore from "expo-secure-store";
-import { Spacer } from "../../components/spacer/spacer.component";
 import PostCardMarketplace from "./post_card/postCardMarketplace.component";
 import useAuth from "../../../hooks/useAuth";
-import { SearchButton } from "../../components/searchbutton";
 import moment from "moment";
 import { useTranslation } from "../../../hooks/useTranslation";
-import { CacheImage } from "../../components/cacheImage";
-import HomeHeader from "../../features/home/components/header.component";
 import PostCardMagazine from "./post_card/postCardMagazine.component";
 import useRequest from "../../../hooks/useRequest";
 import { Skeleton } from "../../components/skeleton";
-import { width } from "../../components/styles";
 import { REMOVE_CLIPPED_SUBVIEWS } from "../../utils/listPerf";
 
 const MAX_MAGAZINE = 20;
@@ -534,7 +520,6 @@ export default function PostsScreen() {
               }}
               initialNumToRender={10}
               maxToRenderPerBatch={15}
-              removeClippedSubviews={true}
               updateCellsBatchingPeriod={200}
               scrollEventThrottle={1000}
               windowSize={15}

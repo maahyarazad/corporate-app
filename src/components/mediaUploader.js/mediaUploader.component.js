@@ -2,7 +2,6 @@ import {
   FlatList,
   Image,
   StyleSheet,
-  Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
@@ -16,7 +15,6 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { theme } from "../../infrastructure/theme";
 import GalleryView from "react-native-image-viewing";
 import * as ImagePicker from "expo-image-picker";
-import * as ImageManipulator from "expo-image-manipulator";
 import * as VideoThumbnails from "expo-video-thumbnails";
 import * as FileSystem from "expo-file-system"; // FIX: replaced fragile _bodyBlob hack
 import { companyLogo } from "../../utils/constants";

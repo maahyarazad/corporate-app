@@ -1,15 +1,12 @@
 import {
-  Image,
   Keyboard,
   KeyboardAvoidingView,
-  RefreshControl,
   SafeAreaView,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import usePosts from "./post_card/usePosts";
 import PostCard from "./post_card/postCard.component";
@@ -17,7 +14,6 @@ import { Label } from "../../components/typography/label.component";
 import { CustomTextInput } from "../../components/customTextInput";
 import { theme } from "../../infrastructure/theme";
 import { Button } from "react-native-paper";
-import { Spacer } from "../../components/spacer/spacer.component";
 import useUser from "../../../hooks/useUser";
 import PostPromptMessage from "./post_card/postPromptMessage/postPromptMessage.component";
 import { MaterialCommunityIcons } from "@expo/vector-icons";

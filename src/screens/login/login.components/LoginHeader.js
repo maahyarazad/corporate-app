@@ -1,7 +1,5 @@
 import React from "react";
 import { View, Image } from "react-native";
-import { Label } from "../../../components/typography/label.component";
-import { Spacer } from "../../../components/spacer/spacer.component";
 
 const LoginHeader = ({ companyLogo }) => {
 

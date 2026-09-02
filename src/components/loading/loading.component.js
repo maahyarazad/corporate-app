@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { View } from "react-native";
 import { ActivityIndicator, Button } from "react-native-paper";
-import { itemSeparatorVL } from "../styles";
 
 export const LoadingOverlay = ({
   display,

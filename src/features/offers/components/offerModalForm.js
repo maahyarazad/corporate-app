@@ -1,23 +1,15 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useContext, useState } from "react";
-import {
-  Linking,
-  StyleSheet,
-  Text,
-  TouchableHighlight,
-  View,
-} from "react-native";
+import { Linking, StyleSheet, Text, View } from "react-native";
 import { showToast } from "../../../Toast";
 import { Button, IconButton } from "react-native-paper";
 import WebView from "react-native-webview";
 import { LoadingOverlay } from "../../../components/loading/loading.component";
 import { LocationInfo } from "../../../components/location/LocationInfo.component";
 import { CustomModal } from "../../../components/modal/customModal.component";
-import { Spacer } from "../../../components/spacer/spacer.component";
 import { Label } from "../../../components/typography/label.component";
 import { navigate } from "../../../navigation/navigate";
 import { AuthContext } from "../../../services/auth/auth.context";
-import { OfferService } from "../../../services/offer/offer.service";
 import { TranslationContext } from "../../../services/translation/translation.context";
 import { Offer } from "./offer.component";
 import useRequest from "../../../../hooks/useRequest";

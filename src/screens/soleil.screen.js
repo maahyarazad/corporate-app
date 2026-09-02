@@ -5,7 +5,6 @@ import { SafeArea } from "../components/safearea.component";
 //API client
 import axios from "axios";
 import { Label } from "../components/typography/label.component";
-import { Spacer } from "../components/spacer/spacer.component";
 import { config } from "../utils/constants";
 import { REMOVE_CLIPPED_SUBVIEWS } from "../utils/listPerf";
 

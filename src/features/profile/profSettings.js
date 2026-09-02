@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
-  FlatList,
   Linking,
   ScrollView,
   StyleSheet,
@@ -12,17 +11,14 @@ import { showToast } from "../../Toast";
 import { showConfirm } from "../../components/confirmDialog.component";
 import { Label } from "../../components/typography/label.component";
 import { theme } from "../../infrastructure/theme";
-import { UserService } from "../../services/user/user.service";
 import { EULAPrivacyLink } from "../../utils/constants";
 import { DELETE_ACCOUNT } from "../../utils/constants";
 import * as WebBrowser from "expo-web-browser";
 import * as Constants from "expo-constants";
-import { AuthContext } from "../../services/auth/auth.context";
 import { TranslationContext } from "../../services/translation/translation.context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import useAuth from "../../../hooks/useAuth";
 import { Switch } from "react-native-paper";
-import * as SecureStore from "expo-secure-store";
 import useBiometrics from "../../../hooks/useBiometrics";
 import useUser from "../../../hooks/useUser";
 import { clearAllCaches, getCacheSize } from "../../../utils/cacheDb";

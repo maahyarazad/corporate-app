@@ -1,5 +1,4 @@
-import { View, Text } from "react-native";
-import React, { Children, createContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import { showToast } from "../../Toast";
 import useRequest from "../../../hooks/useRequest";
 import * as SecureStorage from "expo-secure-store";

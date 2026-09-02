@@ -1,8 +1,7 @@
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import Comment from "./comment.component";
 import usePosts from "../post_card/usePosts";
-import { Label } from "../../../components/typography/label.component";
 
 export default function CommentSection({
   id,

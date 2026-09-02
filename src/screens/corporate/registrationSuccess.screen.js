@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useEffect } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import Animated, {
   Easing,
   interpolate,
@@ -12,7 +12,6 @@ import Animated, {
 } from "react-native-reanimated";
 import { Button } from "react-native-paper";
 import Background from "../../components/background/background.component";
-import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";
 import { theme } from "../../infrastructure/theme";
 import { navigate } from "../../navigation/navigate";

@@ -1,7 +1,6 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import { StyleSheet, View } from "react-native";
 import { EventList } from "../../components/events/eventList";
-import { SafeArea } from "../../components/safearea.component";
 import { Label } from "../../components/typography/label.component";
 import { TranslationContext } from "../../services/translation/translation.context";
 

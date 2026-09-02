@@ -1,13 +1,5 @@
-import {
-  FlatList,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableHighlight,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import React, { useCallback, useEffect, useState } from "react";
+import { FlatList, SafeAreaView, StyleSheet, TouchableOpacity, View } from "react-native";
+import React, { useCallback, useEffect } from "react";
 import { goback, navigate } from "../../../navigation/navigate";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Label } from "../../../components/typography/label.component";

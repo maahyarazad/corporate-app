@@ -1,7 +1,6 @@
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext } from "react";
 import { View, FlatList } from "react-native";
 import { Label } from "../../../components/typography/label.component";
-import { Spacer } from "../../../components/spacer/spacer.component";
 import {
   CategoryContentView,
   CategoryHeaderView,
@@ -14,13 +13,10 @@ import {
 } from "./category.styles";
 import { NavigationContext } from "@react-navigation/native";
 import { SectionContext } from "../../../services/section/section.context";
-import { categorylogo, config, typeEnum } from "../../../utils/constants";
+import { categorylogo, typeEnum } from "../../../utils/constants";
 import { Skeleton } from "../../../components/skeleton";
 import { itemSeparatorHM } from "../../../components/styles";
-import { PartnerService } from "../../../services/location/location.service";
-import { AuthContext } from "../../../services/auth/auth.context";
 import { TranslationContext } from "../../../services/translation/translation.context";
-import useRequest from "../../../../hooks/useRequest";
 import { REMOVE_CLIPPED_SUBVIEWS } from "../../../utils/listPerf";
 
 const renderCategory = ({ item, navigation }) => {

@@ -1,10 +1,4 @@
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
-} from "react-native";
+import { StyleSheet, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import { showToast } from "../../../Toast";
 import { showConfirm } from "../../../components/confirmDialog.component";
@@ -12,9 +6,7 @@ import Avatar from "../avatar/avatar.component";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Label } from "../../../components/typography/label.component";
 import useTime from "../../../../hooks/useTime";
-import { Spacer } from "../../../components/spacer/spacer.component";
 import BottomSheetSelector from "../../../components/bottomSheetSelector.component";
-import { goback, navigate } from "../../../navigation/navigate";
 import usePosts from "./usePosts";
 import useUser from "../../../../hooks/useUser";
 

@@ -6,10 +6,9 @@ import {
   Linking,
   RefreshControl,
   StyleSheet,
-  Text,
   TouchableOpacity,
-  TouchableWithoutFeedback,
-  View, Platform
+  View,
+  Platform
 } from "react-native";
 import Animated, {
   Extrapolation,

@@ -1,8 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
-import React, { createContext, useEffect, useRef, useState } from "react";
-import useLog from "../../../hooks/useLog";
+import React, { createContext, useState } from "react";
 import useRequest from "../../../hooks/useRequest";
-import useAuth from "../../../hooks/useAuth";
 import { debounce } from "lodash";
 import moment from "moment";
 import { isCancel } from "../../utils/cancellation";

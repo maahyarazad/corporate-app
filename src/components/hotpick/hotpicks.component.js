@@ -1,17 +1,9 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 // import Carousel from "react-native-snap-carousel";
-import {
-  Dimensions,
-  StyleSheet,
-  Text,
-  TouchableHighlight,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { Card, Chip, TouchableRipple } from "react-native-paper";
+import { Dimensions, StyleSheet, View } from "react-native";
+import { Chip } from "react-native-paper";
 import { TranslationContext } from "../../services/translation/translation.context";
 import { MyCard } from "../myCard.component";
-import { Spacer } from "../spacer/spacer.component";
 import { Label } from "../typography/label.component";
 import Carousel from "react-native-reanimated-carousel";
 import Animated, {
@@ -20,15 +12,8 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
-import { OfferService } from "../../services/offer/offer.service";
-import {
-  adminFileBaseURL,
-  config,
-  mycard_size,
-  offerStamps,
-} from "../../utils/constants";
+import { offerStamps } from "../../utils/constants";
 import { navigate } from "../../navigation/navigate";
-import { width } from "../styles";
 import useRequest from "../../../hooks/useRequest";
 import { theme } from "../../infrastructure/theme";
 

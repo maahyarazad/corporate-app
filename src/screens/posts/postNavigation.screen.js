@@ -1,15 +1,8 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React, { useEffect } from "react";
+import { StyleSheet } from "react-native";
+import React from "react";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import PostsScreen from "./posts.screen";
 import { createStackNavigator } from "@react-navigation/stack";
-import PostDetailScreen from "./postDetail.screen";
-import { theme } from "../../infrastructure/theme";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import PostEntryScreen from "./post_entry/postEntry.screen";
-import PostEntrySelect from "./post_entry/postEntrySelect.screen";
-import { useNavigation } from "@react-navigation/native";
-import PostDetailMagazine from "./postDetailMagazine.screen";
 
 const PostTabsScreen = createMaterialTopTabNavigator();
 const PostStackScreen = createStackNavigator();

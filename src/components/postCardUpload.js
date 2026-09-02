@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import Animated, {
   cancelAnimation,
@@ -8,9 +8,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { Button } from "react-native-paper";
 import { TranslationContext } from "../services/translation/translation.context";
-import { Spacer } from "./spacer/spacer.component";
 import { Label } from "./typography/label.component";
 import useUser from "../../hooks/useUser";
 import { theme } from "../infrastructure/theme";

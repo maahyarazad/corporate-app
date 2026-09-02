@@ -1,12 +1,10 @@
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
-import React, { useContext } from "react";
+import React from "react";
 import { StyleSheet, View } from "react-native";
 import { Button } from "react-native-paper";
 import { SafeArea } from "../components/safearea.component";
-import { Spacer } from "../components/spacer/spacer.component";
 import { Label } from "../components/typography/label.component";
-import { AuthContext } from "../services/auth/auth.context";
 import useAuth from "../../hooks/useAuth";
 
 export const NoConnectionScreen = () => {

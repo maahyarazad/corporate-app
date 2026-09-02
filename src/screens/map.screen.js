@@ -9,7 +9,6 @@ import styled from "styled-components/native";
 import { CacheImage } from "../components/cacheImage";
 import { LoadingOverlay } from "../components/loading/loading.component";
 import { SafeArea } from "../components/safearea.component";
-import { Spacer } from "../components/spacer/spacer.component";
 import { Label } from "../components/typography/label.component";
 import { LocationContext } from "../services/location/location.context";
 import { TranslationContext } from "../services/translation/translation.context";

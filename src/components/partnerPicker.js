@@ -1,13 +1,10 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
-import React, { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import React, { useState } from "react";
+import { StyleSheet, View } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
-import { Dropdown } from "react-native-element-dropdown";
 import { Button } from "react-native-paper";
-import { PartnerService } from "../services/location/location.service";
 import { CustomTextInput } from "./customTextInput";
-import { Label } from "./typography/label.component";
 
 export const PartnerPicker = ({
   data,

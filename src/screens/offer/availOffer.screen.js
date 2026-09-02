@@ -3,7 +3,6 @@ import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
   Keyboard,
   Linking,
-  Platform,
   StyleSheet,
   TouchableOpacity,
   TouchableWithoutFeedback,

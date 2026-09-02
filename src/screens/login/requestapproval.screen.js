@@ -20,7 +20,6 @@ import Animated, {
 } from "react-native-reanimated";
 import { showConfirm } from "../../components/confirmDialog.component";
 import { SafeArea } from "../../components/safearea.component";
-import { Spacer } from "../../components/spacer/spacer.component";
 import { CompanyLogo, width } from "../../components/styles";
 import { Label } from "../../components/typography/label.component";
 import { companyLogo } from "../../utils/constants";

@@ -2,8 +2,6 @@ import {
   Dimensions,
   Image,
   StyleSheet,
-  Text,
-  Touchable,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
@@ -18,12 +16,10 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 import GalleryView from "react-native-image-viewing";
-import { theme } from "../infrastructure/theme";
 import { companyLogo } from "../utils/constants";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Label } from "./typography/label.component";
 import VideoPlayerModal from "./videoPlayerModal/videoPlayerModal.component";
-import { height } from "./styles";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 

@@ -1,18 +1,8 @@
-import {
-  Dimensions,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  Touchable,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Dimensions, SafeAreaView, StyleSheet, TouchableOpacity, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Label } from "../../../components/typography/label.component";
 import { goback, navigate } from "../../../navigation/navigate";
-import { SafeArea } from "../../../components/safearea.component";
-import { Spacer } from "../../../components/spacer/spacer.component";
 import { theme } from "../../../infrastructure/theme";
 import useRequest from "../../../../hooks/useRequest";
 import { LoadingOverlay } from "../../../components/loading/loading.component";

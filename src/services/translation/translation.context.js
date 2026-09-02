@@ -1,6 +1,5 @@
 import { createContext, useEffect, useMemo, useState } from "react";
 import { I18n } from "i18n-js";
-import * as Localization from "expo-localization";
 import { en } from "../../../translation/en.json";
 import { de } from "../../../translation/de.json";
 import * as SecureStorage from "expo-secure-store";

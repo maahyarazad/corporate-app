@@ -1,8 +1,7 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 import { LocationCards } from "../../../components/locationcards";
 import { Skeleton } from "../../../components/skeleton";
-import { Spacer } from "../../../components/spacer/spacer.component";
 import { REMOVE_CLIPPED_SUBVIEWS } from "../../../utils/listPerf";
 
 const MemoizedLocationCard = React.memo(LocationCards);

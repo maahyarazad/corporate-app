@@ -1,5 +1,4 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { AuthContext } from "../auth/auth.context";
 import { EventService } from "../event/event.service";
 import { TranslationContext } from "../translation/translation.context";
 import {

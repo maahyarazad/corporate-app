@@ -1,17 +1,9 @@
-import {
-  Image,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import { showToast } from "../../../../Toast";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { theme } from "../../../../infrastructure/theme";
 import { Label } from "../../../../components/typography/label.component";
 import MediaUploader from "../../../../components/mediaUploader.js/mediaUploader.component";
-import { Checkbox } from "react-native-paper";
 import useUser from "../../../../../hooks/useUser";
 
 const PostEntryStandard = ({ onSubmit, mode }) => {

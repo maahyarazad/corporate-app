@@ -1,12 +1,7 @@
 import React, { useContext,useEffect, useCallback, useState } from "react";
 import { Dimensions, ScrollView, StyleSheet, View } from "react-native";
-import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";
-import { UserContext } from "../../services/user/user.context";
 import moment from "moment";
-import { genderEnum } from "../../utils/constants";
-import { Button } from "react-native-paper";
-import { AuthContext } from "../../services/auth/auth.context";
 import { TranslationContext } from "../../services/translation/translation.context";
 import useUser from "../../../hooks/useUser";
 import useAuth from "../../../hooks/useAuth";

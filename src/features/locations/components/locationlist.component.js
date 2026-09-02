@@ -1,8 +1,7 @@
-import React, { memo, useCallback, useContext, useEffect, useState } from "react";
+import React, { memo, useCallback, useState } from "react";
 import {
   Dimensions,
   FlatList,
-  Image,
   Platform,
   StyleSheet,
   Text,
@@ -11,11 +10,9 @@ import {
 } from "react-native";
 import { Chip } from "react-native-paper";
 import { Label } from "../../../components/typography/label.component";
-import { Spacer } from "../../../components/spacer/spacer.component";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { adminFileBaseURL, offerChipIcon } from "../../../utils/constants";
 import { Skeleton } from "../../../components/skeleton";
-import { KeyboardAwareFlatList } from "react-native-keyboard-aware-scroll-view";
 import { itemSeparatorHS, itemSeparatorVS } from "../../../components/styles";
 import { CacheImage } from "../../../components/cacheImage";
 import { LinearGradient } from "expo-linear-gradient";

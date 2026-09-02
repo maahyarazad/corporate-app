@@ -1,23 +1,11 @@
-import {
-  Image,
-  Linking,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Image, ScrollView, StyleSheet, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Label } from "../../components/typography/label.component";
 import useRequest from "../../../hooks/useRequest";
 import Markdown from "react-native-markdown-display";
 import { CacheImage } from "../../components/cacheImage";
 import { useRoute } from "@react-navigation/native";
-import * as WebBrowser from "expo-web-browser";
 import moment from "moment";
-import { Spacer } from "../../components/spacer/spacer.component";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import Avatar from "./avatar/avatar.component";
 import { Skeleton } from "../../components/skeleton";
 
 export const MagazineImage = ({ uri }) => {

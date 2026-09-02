@@ -2,7 +2,6 @@ import {
   FlatList,
   SafeAreaView,
   StyleSheet,
-  Text,
   TextInput,
   TouchableOpacity,
   View,
@@ -17,7 +16,6 @@ import PostCardMarketplace from "./post_card/postCardMarketplace.component";
 import { LoadingOverlay } from "../../components/loading/loading.component";
 import { theme } from "../../infrastructure/theme";
 import moment from "moment";
-import { Button } from "react-native-paper";
 import { REMOVE_CLIPPED_SUBVIEWS } from "../../utils/listPerf";
 
 const Searchbar = ({ onSearch, setValue }) => {

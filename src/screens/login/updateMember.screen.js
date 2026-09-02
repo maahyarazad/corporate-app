@@ -1,11 +1,5 @@
 import React, { useContext, useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  StyleSheet,
-} from "react-native";
+import { View, StyleSheet } from "react-native";
 import Animated from "react-native-reanimated";
 import { useShakeAnimation } from "../../hooks/useShakeAnimation";
 import { showToast } from "../../Toast";
@@ -14,9 +8,8 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import Background from "../../components/background/background.component";
 import { CustomTextInput } from "../../components/customTextInput";
 import { SafeArea } from "../../components/safearea.component";
-import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";
-import { goback, navigate } from "../../navigation/navigate";
+import { navigate } from "../../navigation/navigate";
 import { useTheme } from "styled-components/native";
 import PhoneInput from "react-native-phone-number-input";
 import { useEffect } from "react";
@@ -25,7 +18,6 @@ import { UserService } from "../../services/user/user.service";
 import { isCancel } from "../../utils/cancellation";
 import country from "country-list-js";
 import { AuthContext } from "../../services/auth/auth.context";
-import { UserContext } from "../../services/user/user.context";
 import useUser from "../../../hooks/useUser";
 
 export const UpdateMemberScreen = () => {

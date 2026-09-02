@@ -9,7 +9,6 @@ import { AppContext } from "../services/app/app.context";
 import * as Constants from "expo-constants";
 import { companyLogo } from "../utils/constants";
 import {colors} from '../infrastructure/theme/colors'
-import { fontSizes } from "../infrastructure/theme/fonts";
 
 export const VersionMismatchScreen = () => {
   const { appState } = useContext(AppContext);

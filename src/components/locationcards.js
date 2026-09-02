@@ -7,15 +7,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Card, Chip } from "react-native-paper";
 import { navigate } from "../navigation/navigate";
 import { LocationContext } from "../services/location/location.context";
 import { TranslationContext } from "../services/translation/translation.context";
 import { adminFileBaseURL, typeEnum } from "../utils/constants";
-import { CacheImage } from "./cacheImage";
 import { MyCard } from "./myCard.component";
 import { Skeleton } from "./skeleton";
-import { Spacer } from "./spacer/spacer.component";
 import { itemSeparatorHM } from "./styles";
 import { Label } from "./typography/label.component";
 import { MaterialCommunityIcons } from "@expo/vector-icons";

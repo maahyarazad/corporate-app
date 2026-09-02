@@ -6,17 +6,12 @@ import {
   ImageBackground,
   Platform,
   Text,
-  TouchableHighlight,
   TouchableOpacity,
   View,
 } from "react-native";
-import { Spacer } from "../../../components/spacer/spacer.component";
 import styled from "styled-components/native";
 import { Label } from "../../../components/typography/label.component";
-import { offersData } from "./testdata";
-import { specialsLogo, typeEnum } from "../../../utils/constants";
-import { navigate } from "../../../navigation/navigate";
-import { StackActions } from "@react-navigation/native";
+import { specialsLogo } from "../../../utils/constants";
 import { itemSeparatorVM } from "../../../components/styles";
 import { TranslationContext } from "../../../services/translation/translation.context";
 import { REMOVE_CLIPPED_SUBVIEWS } from "../../../utils/listPerf";

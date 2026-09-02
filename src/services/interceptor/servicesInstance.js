@@ -1,6 +1,5 @@
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
-import { Alert } from "react-native";
 import { config } from "../../utils/constants";
 import { showToast } from "../../Toast"; 
 

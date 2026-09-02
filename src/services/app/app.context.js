@@ -1,5 +1,4 @@
 import { createContext, useEffect, useMemo, useState } from "react";
-import * as Constants from "expo-constants";
 import { AppServices } from "./app.services";
 import { config } from "../../utils/constants";
 import { Platform } from "react-native";

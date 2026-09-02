@@ -1,7 +1,6 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
-import { LoadingOverlay } from "../loading/loading.component";
 
 export const Map = ({ lat, lng, zoom = 14 }) => {
   return (

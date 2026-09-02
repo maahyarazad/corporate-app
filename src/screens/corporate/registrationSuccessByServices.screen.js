@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useEffect } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import Animated, {
   Easing,
   interpolate,
@@ -17,7 +17,6 @@ import { Label } from "../../components/typography/label.component";
 import { theme } from "../../infrastructure/theme";
 import { navigate } from "../../navigation/navigate";
 
-import { retrieveToken } from "../../services/auth/auth.service";
 
 export const RegistrationSuccessByServices = () => {
   const bounceValue = useSharedValue(0);

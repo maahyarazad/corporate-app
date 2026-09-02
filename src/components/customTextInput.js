@@ -14,7 +14,6 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { Label } from "./typography/label.component";
 import usePosts from "../screens/posts/post_card/usePosts";
 
 export const CustomTextInput = forwardRef(

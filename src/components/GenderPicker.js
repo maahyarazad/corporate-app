@@ -1,7 +1,6 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { View } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { CustomTextInput } from "./customTextInput";
 
 export const GenderPicker = ({ state, setState, error, style }) => {
   return (

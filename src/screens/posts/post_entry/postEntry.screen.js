@@ -3,27 +3,16 @@ import {
   SafeAreaView,
   ScrollView,
   StyleSheet,
-  Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { showToast } from "../../../Toast";
-import {
-  CommonActions,
-  useNavigation,
-  useRoute,
-} from "@react-navigation/native";
-import PostEntryForm from "./postEntryForm.component";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { Label } from "../../../components/typography/label.component";
-import { theme } from "../../../infrastructure/theme";
 import usePosts from "../post_card/usePosts";
-import { Post } from "../postDetail.screen";
-import { goback, navigate } from "../../../navigation/navigate";
+import { goback } from "../../../navigation/navigate";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Spacer } from "../../../components/spacer/spacer.component";
-import { Button } from "react-native-paper";
 import PostEntryStandard from "./forms/postEntryStandard.component";
 import PostEntryMobil from "./forms/postEntryMobil.component";
 import PostEntryRealEstate from "./forms/postEntryRealEstate.component";

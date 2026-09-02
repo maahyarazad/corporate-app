@@ -1,9 +1,5 @@
-import React, { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
-import { Alert } from "react-native";
-import { AuthContext } from "../auth/auth.context";
+import React, { createContext, useCallback, useMemo, useRef, useState } from "react";
 import * as SecureStore from "expo-secure-store";
-import { axiosInstance } from "../interceptor/axiosInstance";
-import { UserContext } from "../user/user.context";
 import useRequest from "../../../hooks/useRequest";
 import useAuth from "../../../hooks/useAuth";
 

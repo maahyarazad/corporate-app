@@ -1,9 +1,7 @@
 import {
   FlatList,
   Image,
-  SafeAreaView,
   StyleSheet,
-  Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
@@ -15,11 +13,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "../../hooks/useTranslation";
 import useRequest from "../../hooks/useRequest";
 import { theme } from "../infrastructure/theme";
-import { ResizeMode, Video } from "expo-av";
 import moment from "moment";
-import { companyLogo, config } from "../utils/constants";
-import { StatusBar } from "expo-status-bar";
-import { Button } from "react-native-paper";
+import { companyLogo } from "../utils/constants";
 import { CacheImage } from "../components/cacheImage";
 import { SafeArea } from "../components/safearea.component";
 import { isCancel } from "../utils/cancellation";

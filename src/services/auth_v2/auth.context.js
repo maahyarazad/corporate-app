@@ -1,7 +1,5 @@
 import React, { createContext, useEffect, useState } from "react";
 import * as SecureStorage from "expo-secure-store";
-import useUser from "../../../hooks/useUser";
-import useRequest from "../../../hooks/useRequest";
 import axios from "axios";
 import { config } from "../../utils/constants";
 

@@ -1,17 +1,8 @@
 import React, { useState } from "react";
-import {
-  FlatList,
-  Image,
-  View,
-  Dimensions,
-  TouchableOpacity,
-  Platform,
-  Linking,
-} from "react-native";
+import { View, Dimensions, TouchableOpacity, Platform, Linking } from "react-native";
 import styled from "styled-components/native";
 import { showToast } from "../../../Toast";
 import { LoadingOverlay } from "../../../components/loading/loading.component";
-import { Spacer } from "../../../components/spacer/spacer.component";
 import * as WebBrowser from "expo-web-browser";
 import { config } from "../../../utils/constants";
 import { isValidURL } from "../../../utils/isValidURL";

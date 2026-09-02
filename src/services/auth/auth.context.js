@@ -8,7 +8,6 @@ import React, {
   useState,
 } from "react";
 import { navigate } from "../../navigation/navigate";
-import { adminFileBaseURL } from "../../utils/constants";
 import * as SecureStore from "expo-secure-store";
 import { axiosInstance } from "../interceptor/axiosInstance";
 import { TranslationContext } from "../translation/translation.context";

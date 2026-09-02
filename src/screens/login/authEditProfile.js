@@ -8,7 +8,7 @@ import { BirthdatePicker } from "../../components/BirthdatePicker";
 import Background from "../../components/background/background.component";
 import { CustomTextInput } from "../../components/customTextInput";
 import { SafeArea } from "../../components/safearea.component";
-import { CompanyLogo, height } from "../../components/styles";
+import { CompanyLogo } from "../../components/styles";
 import { Label } from "../../components/typography/label.component";
 import { goback } from "../../navigation/navigate";
 import { companyLogo, honorificList } from "../../utils/constants";  // DropDownPicker removed

@@ -1,7 +1,6 @@
 import React, {useRef} from "react";
 import { View, TouchableOpacity, Keyboard } from "react-native";
 import { Checkbox, ActivityIndicator } from "react-native-paper";
-import { Spacer } from "../../../components/spacer/spacer.component";
 import { Label } from "../../../components/typography/label.component";
 import { CustomTextInput } from "../../../components/customTextInput";
 import styled from "styled-components/native";

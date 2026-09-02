@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   TouchableOpacity,
   View,
@@ -12,7 +12,6 @@ import { useShakeAnimation } from "../../hooks/useShakeAnimation";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "styled-components/native";
 import { SafeArea } from "../../components/safearea.component";
-import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";
 import Background from "../../components/background/background.component";
 import { goback, navigate } from "../../navigation/navigate";
@@ -26,10 +25,7 @@ import {
   isFutureExpiry,
 } from "../../utils/validateCardExpiryDate";
 import { isValidEmail } from "../../utils/isEmailValid";
-import { PartnerPicker } from "../../components/partnerPicker";
-import { PartnerService } from "../../services/location/location.service";
 import { companyLogo, config } from "../../utils/constants";
-import { DropDown } from "../../components/DropDown";
 import { PhoneInput } from "../../components/PhoneInput";
 import { showToast } from "../../Toast";
 

@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
-import React, { useState } from "react";
+import { StyleSheet, View } from "react-native";
+import React from "react";
 import { StatusBar } from "expo-status-bar";
 import { CustomModal } from "../modal/customModal.component";
 import { ResizeMode, Video as VideoPlayer } from "expo-av";

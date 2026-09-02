@@ -10,7 +10,6 @@ import {
 import { Button } from "react-native-paper";
 import Background from "../../components/background/background.component";
 import { SafeArea } from "../../components/safearea.component";
-import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";
 import { theme } from "../../infrastructure/theme";
 import { goback, navigate } from "../../navigation/navigate";

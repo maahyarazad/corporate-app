@@ -1,10 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
-import {
-  Alert,
-  StyleSheet,
-  Platform,
-} from "react-native";
+import { StyleSheet, Platform } from "react-native";
 import Animated from "react-native-reanimated";
 import { useShakeAnimation } from "../../hooks/useShakeAnimation";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";

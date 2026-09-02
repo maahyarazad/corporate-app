@@ -13,7 +13,6 @@ import {
 import styled from "styled-components/native";
 
 import { theme } from "../infrastructure/theme";
-import { Spacer } from "./spacer/spacer.component";
 
 const { colors } = theme;
 export const { width, height } = Dimensions.get("window");

@@ -1,26 +1,15 @@
 import {
-  FlatList,
-  ScrollView,
   StyleSheet,
-  Text,
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { showConfirm } from "../../../components/confirmDialog.component";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useState } from "react";
 import Avatar from "../avatar/avatar.component";
 import { Label } from "../../../components/typography/label.component";
-import moment from "moment";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Spacer } from "../../../components/spacer/spacer.component";
 import { theme } from "../../../infrastructure/theme";
 import useLog from "../../../../hooks/useLog";
 import CommentSection from "./commentSection.component";

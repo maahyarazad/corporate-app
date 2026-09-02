@@ -1,25 +1,16 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
 import moment from "moment";
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import {
-  FlatList,
-  Pressable,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
 import { showToast } from "../../Toast";
 import { showConfirm } from "../confirmDialog.component";
-import { Button, Card, Checkbox, Modal } from "react-native-paper";
+import { Button, Card, Checkbox } from "react-native-paper";
 import { theme } from "../../infrastructure/theme";
 import { navigate } from "../../navigation/navigate";
 import { AuthContext } from "../../services/auth/auth.context";
-import { EventService } from "../../services/event/event.service";
 import { LocationContext } from "../../services/location/location.context";
 import { TranslationContext } from "../../services/translation/translation.context";
 import { CustomModal } from "../modal/customModal.component";
-import { Spacer } from "../spacer/spacer.component";
 import { Label } from "../typography/label.component";
 import useRequest from "../../../hooks/useRequest";
 import { REMOVE_CLIPPED_SUBVIEWS } from "../../utils/listPerf";

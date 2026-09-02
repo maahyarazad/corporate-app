@@ -1,11 +1,10 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { showToast } from "../../Toast";
 import React, { useContext, useState } from "react";
 import Background from "../../components/background/background.component";
 import { SafeArea } from "../../components/safearea.component";
 import { StatusBar } from "expo-status-bar";
 import { Label } from "../../components/typography/label.component";
-import PhoneInput from "react-native-phone-number-input";
 import { theme } from "../../infrastructure/theme";
 import { goback } from "../../navigation/navigate";
 import { Ionicons } from "@expo/vector-icons";

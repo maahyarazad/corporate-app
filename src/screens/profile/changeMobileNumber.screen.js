@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import React, { useContext, useState } from "react";
 import Background from "../../components/background/background.component";
 import { SafeArea } from "../../components/safearea.component";

@@ -16,7 +16,6 @@ import Animated, {
 } from "react-native-reanimated";
 import { ActivityIndicator } from "react-native-paper";
 import { BreakdownRow } from "../../components/breakdownRow";
-import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";
 import { theme } from "../../infrastructure/theme";
 import { AuthContext } from "../../services/auth/auth.context";
@@ -24,11 +23,9 @@ import {
   i18n,
   TranslationContext,
 } from "../../services/translation/translation.context";
-import { UserService } from "../../services/user/user.service";
 import { config } from "../../utils/constants";
 import useRequest from "../../../hooks/useRequest";
 import useUser from "../../../hooks/useUser";
-import { useTranslation } from "../../../hooks/useTranslation";
 import useMath from "../../../hooks/useMath";
 import { isCancel } from "../../utils/cancellation";
 

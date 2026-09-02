@@ -1,28 +1,21 @@
 import {
-  Dimensions,
   FlatList,
   Linking,
   Platform,
   SafeAreaView,
   ScrollView,
   StyleSheet,
-  Text,
-  TouchableOpacity,
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { goback } from "../../navigation/navigate";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Label } from "../../components/typography/label.component";
-import { Slideshow } from "../../components/slideshow";
-import Carousel from "react-native-reanimated-carousel";
-import { CacheImage } from "../../components/cacheImage";
 import SlideshowV2 from "../../components/slideshowV2.component";
 import { useRoute } from "@react-navigation/native";
 import { theme } from "../../infrastructure/theme";
 import { Button } from "react-native-paper";
 import moment from "moment";
-import PostCardHeader from "./post_card/postCardHeader.component";
 import Avatar from "./avatar/avatar.component";
 import CustomButton from "../../components/customButton.component";
 import useRequest from "../../../hooks/useRequest";

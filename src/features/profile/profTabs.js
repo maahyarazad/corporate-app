@@ -6,7 +6,6 @@ import { ProfInfo } from "./profInfo";
 import { ProfSettings as ProfSettings } from "./profSettings";
 import { ProfRedeemHistory } from "./profRedeemHistory";
 import { Fontisto, MaterialCommunityIcons } from "@expo/vector-icons";
-import { Spacer } from "../../components/spacer/spacer.component";
 import { i18n } from "../../services/translation/translation.context";
 import { fontSizes } from "../../infrastructure/theme/fonts";
 

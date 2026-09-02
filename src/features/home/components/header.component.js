@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
 import React, { useEffect } from "react";
 import { Label } from "../../../components/typography/label.component";
 import { useTranslation } from "../../../../hooks/useTranslation";

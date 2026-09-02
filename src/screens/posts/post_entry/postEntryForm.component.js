@@ -1,19 +1,6 @@
-import {
-  KeyboardAvoidingView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { KeyboardAvoidingView, ScrollView, StyleSheet, TextInput, View } from "react-native";
 import React, { useEffect, useState } from "react";
-import { CustomTextInput } from "../../../components/customTextInput";
 import { Label } from "../../../components/typography/label.component";
-import { Spacer } from "../../../components/spacer/spacer.component";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import ReactNativeModal from "react-native-modal";
-import useUser from "../../../../hooks/useUser";
-import usePosts from "../post_card/usePosts";
 
 const POST_MAXLENGTH = 100;
 

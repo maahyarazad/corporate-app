@@ -29,7 +29,6 @@ import { TranslationContext } from "../services/translation/translation.context"
 import { HomeNavigation } from "./homenavigation";
 import { SpecialsScreen } from "./specials.screen";
 import { EventsScreen } from "./events/events.screen";
-import { PostTabsNavigationScreen } from "./posts/postNavigation.screen";
 import useUser from "../../hooks/useUser";
 import { Label } from "../components/typography/label.component";
 import { navigate } from "../navigation/navigate";

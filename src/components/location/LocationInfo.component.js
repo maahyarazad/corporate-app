@@ -3,7 +3,6 @@ import React from "react";
 import { Image, Linking, StyleSheet, Text, View } from "react-native";
 import { showToast } from "../../Toast";
 import { adminFileBaseURL } from "../../utils/constants";
-import { Label } from "../typography/label.component";
 
 export const LocationInfo = ({
   location,

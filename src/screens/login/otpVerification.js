@@ -9,15 +9,7 @@ import { useTheme } from "styled-components/native";
 import Background from "../../components/background/background.component";
 import { CodeInputField } from "../../components/codeInputField";
 import { SafeArea } from "../../components/safearea.component";
-import { Spacer } from "../../components/spacer/spacer.component";
-import {
-  BottomHalf,
-  height,
-  IconBg,
-  TopHalf,
-  VerifyButton,
-  width,
-} from "../../components/styles";
+import { BottomHalf, IconBg, width } from "../../components/styles";
 import { Label } from "../../components/typography/label.component";
 import { AuthContext } from "../../services/auth/auth.context";
 import { TranslationContext } from "../../services/translation/translation.context";
@@ -27,8 +19,6 @@ import useAuth from "../../../hooks/useAuth";
 import useUser from "../../../hooks/useUser";
 import { useOtpAutoRead } from "../../../hooks/useOtpAutoRead";
 import { navigate } from "../../navigation/navigate";
-import { showToast } from "../../Toast";
-import { fontSizes } from "../../infrastructure/theme/fonts";
 
 const styles = StyleSheet.create({
   safeArea: {

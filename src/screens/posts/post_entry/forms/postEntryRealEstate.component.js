@@ -1,13 +1,6 @@
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import React, { memo, useState } from "react";
+import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
+import React, { useState } from "react";
 import { showToast } from "../../../../Toast";
-import { Button, SegmentedButtons } from "react-native-paper";
 import { Label } from "../../../../components/typography/label.component";
 import DropDownPicker from "react-native-dropdown-picker";
 import {

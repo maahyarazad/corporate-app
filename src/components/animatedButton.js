@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
-import { Pressable, Touchable, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { StyleSheet } from "react-native";
 import Animated, {
   interpolate,

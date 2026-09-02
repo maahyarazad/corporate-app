@@ -1,21 +1,7 @@
-import {
-  Image,
-  StyleSheet,
-  Text,
-  TouchableHighlight,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
-} from "react-native";
+import { Image, StyleSheet, Text, TouchableWithoutFeedback, View } from "react-native";
 import React, { useEffect } from "react";
-import PostCardHeader from "./postCardHeader.component";
-import Avatar from "../avatar/avatar.component";
-import { companyLogo } from "../../../utils/constants";
 import { Label } from "../../../components/typography/label.component";
-import { CacheImage } from "../../../components/cacheImage";
 import { MagazineImage } from "../postDetailMagazine.screen";
-import { Button } from "react-native-paper";
-import { theme } from "../../../infrastructure/theme";
 import { navigate } from "../../../navigation/navigate";
 import { useTranslation } from "../../../../hooks/useTranslation";
 

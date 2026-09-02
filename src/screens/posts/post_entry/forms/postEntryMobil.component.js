@@ -1,15 +1,12 @@
 import {
   FlatList,
   StyleSheet,
-  Switch,
-  Text,
   TextInput,
-  Touchable,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { showToast } from "../../../../Toast";
 import DropDownPicker from "react-native-dropdown-picker";
 import {
@@ -21,13 +18,12 @@ import {
 } from "../../../../utils/marketplaceConstants";
 import { Label } from "../../../../components/typography/label.component";
 import { width } from "../../../../components/styles";
-import { Button, Checkbox, SegmentedButtons } from "react-native-paper";
+import { Checkbox, SegmentedButtons } from "react-native-paper";
 import { theme } from "../../../../infrastructure/theme";
-import { Spacer } from "../../../../components/spacer/spacer.component";
 import MediaUploader from "../../../../components/mediaUploader.js/mediaUploader.component";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { PostAgreementCheckbox } from "./postEntryStandard.component";
-import { CommonActions, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import { REMOVE_CLIPPED_SUBVIEWS } from "../../../../utils/listPerf";
 
 const MAX_CONTENT = 3000;

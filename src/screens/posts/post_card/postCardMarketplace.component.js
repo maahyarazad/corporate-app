@@ -1,24 +1,12 @@
-import {
-  Image,
-  Linking,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
-} from "react-native";
+import { StyleSheet, TouchableWithoutFeedback, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Label } from "../../../components/typography/label.component";
-import Avatar from "../avatar/avatar.component";
 import useTime from "../../../../hooks/useTime";
-import { Spacer } from "../../../components/spacer/spacer.component";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Button, Chip } from "react-native-paper";
 import { theme } from "../../../infrastructure/theme";
 import { navigate } from "../../../navigation/navigate";
 import { CacheImage } from "../../../components/cacheImage";
 import PostCardHeader from "./postCardHeader.component";
-import * as VideoThumbnail from "expo-video-thumbnails";
 
 const PostCardMarketplace = ({ item }) => {
   const { timeDiffString } = useTime();

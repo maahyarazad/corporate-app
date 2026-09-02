@@ -1,21 +1,14 @@
-import { CommonActions, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import React, { useContext, useEffect, useState } from "react";
-import {
-  KeyboardAvoidingView,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { showToast } from "../../../Toast";
 import { showConfirm } from "../../../components/confirmDialog.component";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Button } from "react-native-paper";
 import { CodeInputField } from "../../../components/codeInputField";
 import { LoadingOverlay } from "../../../components/loading/loading.component";
-import { Spacer } from "../../../components/spacer/spacer.component";
 import { TextInputCurrency } from "../../../components/textInputCurrency/textInputCurrency.component";
 import { Label } from "../../../components/typography/label.component";
-import { navigate } from "../../../navigation/navigate";
 import { TranslationContext } from "../../../services/translation/translation.context";
 import { Offer } from "./offer.component";
 

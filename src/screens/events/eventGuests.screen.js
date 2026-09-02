@@ -1,23 +1,15 @@
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import React, { useContext, useEffect, useState } from "react";
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import React, { useContext, useState } from "react";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { showToast } from "../../Toast";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Button } from "react-native-paper";
 import { CustomTextInput } from "../../components/customTextInput";
 import { SafeArea } from "../../components/safearea.component";
-import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";
 import { theme } from "../../infrastructure/theme";
-import { goback, navigate } from "../../navigation/navigate";
-import { EventService } from "../../services/event/event.service";
+import { goback } from "../../navigation/navigate";
 import { LocationContext } from "../../services/location/location.context";
 import { TranslationContext } from "../../services/translation/translation.context";
 import useRequest from "../../../hooks/useRequest";

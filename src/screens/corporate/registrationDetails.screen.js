@@ -5,8 +5,6 @@ import {
   Image,
   StyleSheet,
   Keyboard,
-  Pressable,
-  TouchableWithoutFeedback,
   Platform,
   ActivityIndicator,
   BackHandler,
@@ -17,9 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 import { BlurView } from "expo-blur";
 import { companyLogo, honorificList } from "../../utils/constants";
 import { useTheme } from "styled-components/native";
-import { Button, TextInput } from "react-native-paper";
 import { SafeArea } from "../../components/safearea.component";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { Label } from "../../components/typography/label.component";
 import { showToast } from "../../Toast";
 
@@ -29,8 +25,6 @@ import { UserService } from "../../services/user/user.service";
 import { Ionicons } from "@expo/vector-icons";
 import { CustomTextInput } from "../../components/customTextInput";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import moment from "moment";
-import { CustomModal } from "../../components/modal/customModal.component";
 import { getRecaptchaToken } from "../../services/recaptcha/recaptcha.service";
 import { resetRegistrationState } from "./registration.screen";
 

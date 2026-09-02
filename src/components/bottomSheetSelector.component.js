@@ -1,16 +1,6 @@
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
-} from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
-import BottomSheetComponent, {
-  BottomSheetBackdrop,
-  BottomSheetModal,
-  BottomSheetScrollView,
-} from "@gorhom/bottom-sheet";
+import { BottomSheetBackdrop, BottomSheetModal, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { Label } from "./typography/label.component";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { theme } from "../infrastructure/theme";

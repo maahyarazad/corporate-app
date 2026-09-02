@@ -1,21 +1,9 @@
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useContext, useEffect, useState } from "react";
-import {
-  Image,
-  ImageBackground,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableHighlight,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import React, { useState } from "react";
+import { Image, ImageBackground, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Card, Chip } from "react-native-paper";
 import { CARD_SIZE } from "../infrastructure/theme/sizes";
-import { LocationContext } from "../services/location/location.context";
-import { offerStamps } from "../utils/constants";
 import { CacheImage } from "./cacheImage";
-import { width } from "./styles";
 import { Label } from "./typography/label.component";
 
 export const MyCard = ({

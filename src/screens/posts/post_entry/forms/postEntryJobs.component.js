@@ -1,15 +1,8 @@
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
 import React, { useState } from "react";
 import { showToast } from "../../../../Toast";
 import { SegmentedButtons } from "react-native-paper";
 import { theme } from "../../../../infrastructure/theme";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Label } from "../../../../components/typography/label.component";
 import DropDownPicker from "react-native-dropdown-picker";
 import { employmentTypes } from "../../../../utils/marketplaceConstants";
