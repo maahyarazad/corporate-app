@@ -1,6 +1,5 @@
 import {
   FlatList,
-  SafeAreaView,
   StyleSheet,
   TextInput,
   TouchableOpacity,
@@ -8,6 +7,7 @@ import {
 } from "react-native";
 import React, { memo, useEffect, useRef, useState } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { SafeArea } from "../../components/safearea.component";
 import { goback, navigate } from "../../navigation/navigate";
 import useRequest from "../../../hooks/useRequest";
 import { Label } from "../../components/typography/label.component";
@@ -207,7 +207,7 @@ const PostSearch = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeArea style={styles.container}>
       <View style={styles.textInput}>
         <Searchbar setValue={setKeyword} onSearch={handleOnSearch} />
 
@@ -233,7 +233,7 @@ const PostSearch = () => {
           <LoadingOverlay display={isLoading} />
         </View>
       </View>
-    </SafeAreaView>
+    </SafeArea>
   );
 };
 

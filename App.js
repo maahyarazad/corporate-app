@@ -3,6 +3,10 @@ import { useEffect } from "react";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
 import { StyleSheet, Text, TextInput } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import {
+  initialWindowMetrics,
+  SafeAreaProvider
+} from "react-native-safe-area-context";
 import { ThemeProvider } from "styled-components/native";
 import { theme } from "./src/infrastructure/theme";
 import { SectionContextProvider } from "./src/services/section/section.context";
@@ -55,39 +59,45 @@ export default function App() {
 
   return (
     <GestureHandlerRootView style={styles.root}>
-      <ThemeProvider theme={theme}>
-        <Provider store={store}>
-          <AlertContextProvider>
-            <TranslationContextProvider>
-              <AppContextProvider>
-                <AuthContextProvider>
-                  {/* ^ to be removed*/}
-                  <AuthProvider>
-                    <UserProvider>
-                      <PostProvider>
-                        {/* <UserContextProvider> */}
-                        {/* ^ to be removed*/}
-                        <UploadContextProvider>
-                          <LocationContextProvider>
-                            <SectionContextProvider>
-                              <AppNavigation />
-                            </SectionContextProvider>
-                          </LocationContextProvider>
-                        </UploadContextProvider>
-                        {/* </UserContextProvider> */}
-                      </PostProvider>
-                    </UserProvider>
-                  </AuthProvider>
-                </AuthContextProvider>
-              </AppContextProvider>
-            </TranslationContextProvider>
-          </AlertContextProvider>
-        </Provider>
-      </ThemeProvider>
-      <Toast config={toastConfig} />
-      <ConfirmDialogHost />
+      {/* 009: the app's single SafeAreaProvider. Inside GestureHandlerRootView,
+          which 008 requires stay outermost; above ThemeProvider so the Toast and
+          ConfirmDialogHost siblings below can read insets too. initialWindowMetrics
+          seeds frame 1 so it is not rendered with zero insets. */}
+      <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+        <ThemeProvider theme={theme}>
+          <Provider store={store}>
+            <AlertContextProvider>
+              <TranslationContextProvider>
+                <AppContextProvider>
+                  <AuthContextProvider>
+                    {/* ^ to be removed*/}
+                    <AuthProvider>
+                      <UserProvider>
+                        <PostProvider>
+                          {/* <UserContextProvider> */}
+                          {/* ^ to be removed*/}
+                          <UploadContextProvider>
+                            <LocationContextProvider>
+                              <SectionContextProvider>
+                                <AppNavigation />
+                              </SectionContextProvider>
+                            </LocationContextProvider>
+                          </UploadContextProvider>
+                          {/* </UserContextProvider> */}
+                        </PostProvider>
+                      </UserProvider>
+                    </AuthProvider>
+                  </AuthContextProvider>
+                </AppContextProvider>
+              </TranslationContextProvider>
+            </AlertContextProvider>
+          </Provider>
+        </ThemeProvider>
+        <Toast config={toastConfig} />
+        <ConfirmDialogHost />
 
-      <ExpoStatusBar style="dark" />
+        <ExpoStatusBar style="dark" />
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }

@@ -1,5 +1,4 @@
 import {
-  SafeAreaView,
   FlatList,
   Share,
   StyleSheet,
@@ -7,6 +6,7 @@ import {
   View,
 } from "react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import { SafeArea } from "../../components/safearea.component";
 import { showToast } from "../../Toast";
 import usePosts from "./post_card/usePosts";
 import PostCard from "./post_card/postCard.component";
@@ -455,7 +455,7 @@ export default function PostsScreen() {
 
   return (
     <>
-      <SafeAreaView
+      <SafeArea
         style={[styles.container, { gap: 0, backgroundColor: "white" }]}
       >
         {/* Header */}
@@ -542,7 +542,7 @@ export default function PostsScreen() {
             </View>
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </SafeArea>
     </>
   );
 }

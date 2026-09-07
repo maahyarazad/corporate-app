@@ -2,12 +2,12 @@ import {
   FlatList,
   Linking,
   Platform,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
+import { SafeArea } from "../../components/safearea.component";
 import { goback } from "../../navigation/navigate";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Label } from "../../components/typography/label.component";
@@ -383,7 +383,7 @@ const PostDetailMarketplace = ({ item }) => {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: "white" }]}>
+    <SafeArea style={styles.container}>
       {!loading ? (
         <>
           {!state ? (
@@ -555,7 +555,7 @@ const PostDetailMarketplace = ({ item }) => {
           <PostSkeleton />
         </View>
       )}
-    </SafeAreaView>
+    </SafeArea>
   );
 };
 

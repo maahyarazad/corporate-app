@@ -8,7 +8,6 @@ import React, {
 } from "react";
 import {
   RefreshControl,
-  SafeAreaView,
   ScrollView,
   TouchableHighlight,
   TouchableOpacity,
@@ -21,6 +20,7 @@ import { StatusBar } from "expo-status-bar";
 import moment from "moment";
 import * as SecureStore from "expo-secure-store";
 
+import { SafeArea } from "../components/safearea.component";
 import FeaturedBanner from "../features/home/components/banner.component";
 import { HomeCategory } from "../features/home/components/category.component";
 import TopPartners from "../features/home/components/toppartners.component";
@@ -447,12 +447,12 @@ export const HomeScreen = (props) => {
   ]);
 
   return (
-    <SafeAreaView style={safeAreaStyle}>
+    <SafeArea style={safeAreaStyle}>
       {warningContent}
       <CustomModal showModal={showModal}>
         <OrderCardModal onClose={closeModal} />
       </CustomModal>
       <MemoizedHome />
-    </SafeAreaView>
+    </SafeArea>
   );
 };

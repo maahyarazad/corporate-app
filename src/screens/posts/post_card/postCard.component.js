@@ -1,7 +1,6 @@
 import {
   FlatList,
   Image,
-  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -9,6 +8,7 @@ import {
   View,
 } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
+import { SafeArea } from "../../../components/safearea.component";
 import { showToast } from "../../../Toast";
 import { showConfirm } from "../../../components/confirmDialog.component";
 import { Button } from "react-native-paper";
@@ -591,7 +591,7 @@ const PostCard = ({
           animationType="fade"
           swipeToCloseEnabled={true}
           HeaderComponent={() => (
-            <SafeAreaView style={styles.flexBox}>
+            <SafeArea style={styles.flexBox}>
               <View style={styles.rowBetween2}>
                 <Image
                   width={100}
@@ -616,7 +616,7 @@ const PostCard = ({
                   </TouchableOpacity>
                 </View>
               </View>
-            </SafeAreaView>
+            </SafeArea>
           )}
         />
       )}

@@ -1,13 +1,13 @@
 import {
   Keyboard,
   KeyboardAvoidingView,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   View,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import { SafeArea } from "../../components/safearea.component";
 import usePosts from "./post_card/usePosts";
 import PostCard from "./post_card/postCard.component";
 import { Label } from "../../components/typography/label.component";
@@ -283,7 +283,7 @@ export default function PostDetailScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container]}>
+    <SafeArea style={[styles.container]}>
       {post && (
         <KeyboardAvoidingView
           style={styles.fill}
@@ -426,7 +426,7 @@ export default function PostDetailScreen() {
           )}
         </KeyboardAvoidingView>
       )}
-    </SafeAreaView>
+    </SafeArea>
   );
 }
 
