@@ -1,6 +1,7 @@
-import { Dimensions, SafeAreaView, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Dimensions, StyleSheet, TouchableOpacity, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { SafeArea } from "../../../components/safearea.component";
 import { Label } from "../../../components/typography/label.component";
 import { goback, navigate } from "../../../navigation/navigate";
 import { theme } from "../../../infrastructure/theme";
@@ -124,7 +125,7 @@ const PostEntrySelect = () => {
   return (
     <>
       {loading && selectedType !== null && <LoadingOverlay display={true} />}
-      <SafeAreaView style={styles.container}>
+      <SafeArea style={styles.container}>
         <View style={styles.container}>
           {/* Header */}
           <View>
@@ -155,7 +156,7 @@ const PostEntrySelect = () => {
             </View>
           </View>
         </View>
-      </SafeAreaView>
+      </SafeArea>
     </>
   );
 };

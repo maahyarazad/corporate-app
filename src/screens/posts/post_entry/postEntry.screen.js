@@ -1,12 +1,12 @@
 import {
   KeyboardAvoidingView,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
 import React, { useState } from "react";
+import { SafeArea } from "../../../components/safearea.component";
 import { showToast } from "../../../Toast";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Label } from "../../../components/typography/label.component";
@@ -135,7 +135,7 @@ const PostEntryScreen = () => {
   };
 
   return (
-    <SafeAreaView style={[styles.container]}>
+    <SafeArea style={[styles.container]}>
       <StatusBar barStyle="light-content " />
       <View style={[styles.container, { marginBottom: -35 }]}>
         <BackButton />
@@ -185,7 +185,7 @@ const PostEntryScreen = () => {
           </ScrollView>
         </KeyboardAvoidingView>
       </View>
-    </SafeAreaView>
+    </SafeArea>
   );
 };
 export default PostEntryScreen;

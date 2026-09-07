@@ -69,3 +69,6 @@ coverage/
 
 # logs
 *.log
+
+# local scratch eslint config (react-hooks one-off runs)
+.hooks-only.json

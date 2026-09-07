@@ -1,5 +1,6 @@
-import { FlatList, SafeAreaView, StyleSheet, TouchableOpacity, View } from "react-native";
+import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
 import React, { useCallback, useEffect } from "react";
+import { SafeArea } from "../../../components/safearea.component";
 import { goback, navigate } from "../../../navigation/navigate";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Label } from "../../../components/typography/label.component";
@@ -111,7 +112,7 @@ const PostEntryCategorySelect = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeArea style={styles.container}>
       <View style={styles.container}>
         <View>
           <TouchableOpacity onPress={onReturn}>
@@ -127,7 +128,7 @@ const PostEntryCategorySelect = () => {
         </View>
         <RenderBody />
       </View>
-    </SafeAreaView>
+    </SafeArea>
   );
 };
 

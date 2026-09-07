@@ -36,6 +36,7 @@ import { isCancel } from "../utils/cancellation";
 
 // Earth's radius in meters, used by the haversine distance in handlePartnerCentre.
 const EARTH_RADIUS_M = 6378137;
+const ICON_SIZE = 30;
 
 // FIX 1 - was `useMemo((degrees) => ..., [degrees])` inside the component.
 // Three separate problems lived in that one line:
@@ -160,6 +161,7 @@ export const MapScreen = () => {
       }
     };
 
+    
     getCoordinates(100);
 
     // Fetch the user's current location
@@ -399,7 +401,7 @@ export const MapScreen = () => {
               style={styles.touchableRipple}
               rippleColor="#444"
             >
-              <Ionicons name="arrow-back" size={35} />
+              <Ionicons name="arrow-back" size={ICON_SIZE} />
             </TouchableRipple>
           </View>
         </View>
@@ -462,7 +464,7 @@ export const MapScreen = () => {
               style={styles.touchableRipple}
               rippleColor="#444"
             >
-              <Ionicons name="arrow-back" size={35} />
+              <Ionicons name="arrow-back" size={ICON_SIZE} />
             </TouchableRipple>
           </View>
           <View style={styles.box}>
@@ -471,7 +473,7 @@ export const MapScreen = () => {
               style={styles.touchableRipple2}
               rippleColor="#444"
             >
-              <MaterialIcons name="my-location" size={35} color="#0e89ff" />
+              <MaterialIcons name="my-location" size={ICON_SIZE} color="#0e89ff" />
             </TouchableRipple>
           </View>
         </View>
@@ -608,9 +610,9 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
   },
   touchableRipple2: {
-    width: 70,
-    height: 70,
-    borderRadius: 70,
+    width: 50,
+    height: 50,
+    borderRadius: 50,
     padding: 10,
     backgroundColor: "white",
     alignItems: "center",

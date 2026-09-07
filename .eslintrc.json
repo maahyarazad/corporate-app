@@ -15,8 +15,8 @@
           "paths": [
             {
               "name": "react-native",
-              "importNames": ["Animated", "InteractionManager"],
-              "message": "Use react-native-reanimated instead. InteractionManager is banned. See specs/002-reanimated-migration/."
+              "importNames": ["Animated", "InteractionManager", "SafeAreaView"],
+              "message": "Animated/InteractionManager: use react-native-reanimated; InteractionManager is banned (see specs/002-reanimated-migration/). SafeAreaView: use the SafeArea component in src/components/safearea.component.js - RN's is deprecated upstream and is a plain View on Android (see specs/009-safe-area-context/)."
             }
           ]
         }

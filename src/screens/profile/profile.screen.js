@@ -3,7 +3,6 @@ import React, { useContext, useEffect, useCallback, useState } from "react";
 import moment from "moment";
 import {
   Image,
-  SafeAreaView,
   TouchableOpacity,
   View,
   StyleSheet,
@@ -239,7 +238,7 @@ const ProfilePrimaryScreen = () => {
 
 export const ProfileScreen = () => {
   return (
-    <SafeAreaView style={styles.fill}>
+    <SafeArea style={styles.fill}>
       <ProfileStack.Navigator
         screenOptions={{ headerShown: false, gestureEnabled: false }}
       >
@@ -253,7 +252,7 @@ export const ProfileScreen = () => {
           component={PrivacyPolicyScreen}
         />
       </ProfileStack.Navigator>
-    </SafeAreaView>
+    </SafeArea>
   );
 };
 
