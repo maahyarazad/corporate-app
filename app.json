@@ -58,7 +58,7 @@
       "./plugins/withCoreLibraryDesugaring",
       "./plugins/withRecaptchaModularHeaders",
       [
-          "expo-sqlite",
+        "expo-sqlite",
         {
           "enableFTS": true,
           "useSQLCipher": true,
@@ -67,7 +67,10 @@
             "useSQLCipher": false
           },
           "ios": {
-            "customBuildFlags": ["-DSQLITE_ENABLE_DBSTAT_VTAB=1", "-DSQLITE_ENABLE_SNAPSHOT=1"]
+            "customBuildFlags": [
+              "-DSQLITE_ENABLE_DBSTAT_VTAB=1",
+              "-DSQLITE_ENABLE_SNAPSHOT=1"
+            ]
           }
         }
       ],
@@ -78,9 +81,13 @@
             "enableMinifyInReleaseBuilds": true,
             "enableShrinkResourcesInReleaseBuilds": true,
             "extraProguardRules": "-repackageclasses ''"
+          },
+          "ios": {
+            "deploymentTarget": "17.0"
           }
         }
-      ]
+      ],
+      "expo-maps"
     ],
     "updates": {
       "fallbackToCacheTimeout": 0,
@@ -111,9 +118,6 @@
         "ITSAppUsesNonExemptEncryption": false
       },
       "bundleIdentifier": "com.buenapublica.GECRewards",
-      "config": {
-        "googleMapsApiKey": "AIzaSyARBZ-ZBNWxmlP8sTXqeqFJuBkkQm6zuKE"
-      },
       "appleTeamId": "YQFY6269ZL"
     },
     "android": {

@@ -1,42 +1,43 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
-import MapView, { Marker } from "react-native-maps";
+import { PlatformMap } from "./platformMap.component";
 
+/**
+ * Static location preview. Consumed by eventDetail.screen.js and
+ * location-view.screen.js; the `{ lat, lng, zoom }` prop shape is deliberately
+ * unchanged by the expo-maps migration so neither consumer had to move.
+ */
 export const Map = ({ lat, lng, zoom = 14 }) => {
+  const markers = useMemo(
+    () => [
+      {
+        id: "location",
+        coordinates: { latitude: lat, longitude: lng },
+      },
+    ],
+    [lat, lng]
+  );
+
+  const initialCamera = useMemo(
+    () => ({ coordinates: { latitude: lat, longitude: lng }, zoom }),
+    [lat, lng, zoom]
+  );
+
   return (
-    <>
-      <View style={styles.container}>
-        <View style={styles.map}>
-          <MapView
-            pointerEvents="none"
-            showsUserLocation
-            provider="google"
-            style={styles.map}
-            camera={{
-              center: {
-                latitude: lat,
-                longitude: lng,
-              },
-              pitch: 1,
-              heading: 1,
-              altitude: 2000,
-              zoom: zoom,
-            }}
-            // loadingEnabled={true}
-            scrollEnabled={false}
-            loadingBackgroundColor="#00000088"
-            loadingIndicatorColor="palegreen"
-          >
-            <Marker
-              coordinate={{
-                longitude: lng,
-                latitude: lat,
-              }}
-            ></Marker>
-          </MapView>
-        </View>
-      </View>
-    </>
+    <View style={styles.container}>
+      {/* interactive={false} is what keeps a drag that starts on this preview
+          scrolling the parent screen instead of being swallowed by the map.
+          The wrapper implements it with pointerEvents, because AppleMaps
+          exposes no way to disable gestures declaratively. */}
+      <PlatformMap
+        style={styles.map}
+        markers={markers}
+        initialCamera={initialCamera}
+        interactive={false}
+        showsUserLocation
+        showsMyLocationButton={false}
+      />
+    </View>
   );
 };
 

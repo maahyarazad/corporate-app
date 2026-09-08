@@ -9,18 +9,13 @@ import React, {
   useRef,
   useState
 } from "react";
-import {
-  Linking,
-  Platform,
-  View,
-  StyleSheet,
-  useWindowDimensions
-} from "react-native";
-import MapView, { Marker } from "react-native-maps";
+import { Linking, Platform, View, StyleSheet } from "react-native";
+import { PlatformMap } from "../components/map/platformMap.component";
 import { Button, TouchableRipple } from "react-native-paper";
 import { CacheImage } from "../components/cacheImage";
 import { LoadingOverlay } from "../components/loading/loading.component";
 import { SafeArea } from "../components/safearea.component";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Label } from "../components/typography/label.component";
 import { LocationContext } from "../services/location/location.context";
 import { TranslationContext } from "../services/translation/translation.context";
@@ -28,24 +23,34 @@ import { adminFileBaseURL } from "../utils/constants";
 import useRequest from "../../hooks/useRequest";
 import { theme } from "../infrastructure/theme";
 import { isCancel } from "../utils/cancellation";
+import { makeCacheKey, readCache, writeCache } from "../../utils/apiCache";
 
 
 const EARTH_RADIUS_M = 6378137;
 const ICON_SIZE = 30;
+// Smaller than the screen-level back button: this one sits inside the partner
+// card, over the photo.
+const CLOSE_ICON_SIZE = 22;
+
+// Shared by the opening frame and both recentre handlers so they cannot drift.
+const MAP_ZOOM = 15;
+
+// The count is part of the path, so it is part of the cache key for free: ask
+// for a different number of partners and you get a different row rather than a
+// stale one of the wrong size.
+const PARTNER_COORDINATES_COUNT = 100;
+const PARTNER_COORDINATES_ENDPOINT = `/v2/partner/coordinates/${PARTNER_COORDINATES_COUNT}`;
+// Same hour used by the partner list in location-list.screen.js. Shop
+// coordinates barely move; the point of the cache is that reopening the map
+// draws instantly instead of waiting on the network.
+const PARTNER_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+// Breathing room between the native map controls and the screen edge, on top
+// of the safe-area inset.
+const CONTROL_GUTTER = 8;
 
 
 const degToRad = (degrees) => degrees * (Math.PI / 180);
-
-
-const PartnerMarker = React.memo(({ location, onSelect }) => (
-  <Marker
-    tracksViewChanges={false}
-    coordinate={{ longitude: location.lng, latitude: location.lat }}
-    onPress={() => onSelect(location)}
-  />
-));
-
-PartnerMarker.displayName = "PartnerMarker";
 
 
 // Main component for the map screen
@@ -53,24 +58,7 @@ export const MapScreen = () => {
   // Static-config screens receive only `route` - the navigator renders them
   // through a render callback, so `navigation` never arrives as a prop.
   const navigation = useNavigation();
-  // `Dimensions.get("window")` read during render is a snapshot, not a
-  // subscription: it returns whatever the last measurement was and never
-  // re-renders on its own, so the value only refreshed when something else
-  // happened to re-render this screen. On rotation, a foldable unfolding or
-  // split-screen resize, the map kept its old padding until an unrelated state
-  // change knocked it loose. useWindowDimensions subscribes to the same change
-  // events and re-renders when they fire.
-  const { height: screenHeight } = useWindowDimensions();
-
-  // The object is memoized, not the arithmetic. `screenHeight - 80` is one
-  // subtraction and memoizing it would cost more than it saves; the object
-  // literal is the part that mattered - a fresh identity every render, handed
-  // to a native-backed component, so the prop was re-sent across on every
-  // single render. Keyed on screenHeight so a resize still rebuilds it.
-  const mapPadding = useMemo(
-    () => ({ top: screenHeight - 80, right: 0, bottom: 0, left: 0 }),
-    [screenHeight]
-  );
+  const insets = useSafeAreaInsets();
 
   // Contexts to access location and translation services
   const { getUserLocation, userLocation } = useContext(LocationContext);
@@ -90,7 +78,8 @@ export const MapScreen = () => {
   });
   const [showPartnerDetails, setShowPartnerDetails] = useState(false);
 
-  // Reference to the map component for programmatic control
+  // Drives the camera imperatively. The map itself is uncontrolled after
+  // mount - see `initialCamera` below.
   const mapRef = useRef();
   // Custom hook for API requests
   const request = useRequest();
@@ -103,16 +92,42 @@ export const MapScreen = () => {
     let cancelled = false;
 
 
-    const getCoordinates = async (count) => {
+    const getCoordinates = async () => {
+      // GET with no body, so the endpoint alone is the request identity.
+      const cacheKey = makeCacheKey(PARTNER_COORDINATES_ENDPOINT, undefined);
+
       try {
+        // 1) Cache first. A hit under the TTL is applied straight to state and
+        //    the server is never contacted.
+        const cached = await readCache(cacheKey, PARTNER_CACHE_TTL_MS);
+
+        // The SQLite read is async and is not abortable, so the screen may
+        // already have unmounted while it was in flight. Re-check before
+        // touching state.
+        if (controller.signal.aborted) return;
+
+        if (cached) {
+          setPartnerLocations(cached);
+          return;
+        }
+
+        // 2) Miss -> the server, then cache the result for the next visit.
         const response = await request(
-          `/v2/partner/coordinates/${count}`,
+          PARTNER_COORDINATES_ENDPOINT,
           "get",
           undefined,
           undefined,
           controller.signal
         );
+
         if (response) {
+          // Only cache a non-empty result, so a transient empty response
+          // cannot pin "no partners" on the map for an hour. The write is
+          // fire-and-forget and never throws - the map should not wait on
+          // bookkeeping to draw.
+          if (Array.isArray(response) && response.length > 0) {
+            writeCache(cacheKey, response);
+          }
           setPartnerLocations(response);
         }
       } catch (error) {
@@ -121,8 +136,7 @@ export const MapScreen = () => {
       }
     };
 
-    
-    getCoordinates(100);
+    getCoordinates();
 
     // Fetch the user's current location
     getUserLocation()
@@ -140,29 +154,8 @@ export const MapScreen = () => {
 
   }, []);
 
-  // Function to center the map on the user's location
-  //
 
-  const handleCenter = useCallback(() => {
-    if (mapRef.current && myLocation) {
-      mapRef.current.animateCamera(
-        {
-          center: {
-            latitude: myLocation.latitude,
-            longitude: myLocation.longitude,
-          },
-          altitude: 10000,
-          zoom: 15,
-          pitch: 1,
-          heading: 1,
-        },
-        { duration: 500 }
-      );
-    }
-  }, [myLocation]);
 
-  // Function to center the map on a partner's location and calculate the distance
-  //
 
   const handlePartnerCentre = useCallback(
     (lat, lng) => {
@@ -183,18 +176,13 @@ export const MapScreen = () => {
 
       // Center the map on the partner's location
       if (mapRef.current) {
-        mapRef.current.animateCamera(
+        mapRef.current.setCamera(
           {
-            center: {
-              latitude: lat - 0.005, // Offset for better visibility
-              longitude: lng,
-            },
-            altitude: 10000,
-            zoom: 15,
-            pitch: 1,
-            heading: 1,
+            // Offset south so the detail card does not cover the pin.
+            coordinates: { latitude: lat - 0.005, longitude: lng },
+            zoom: MAP_ZOOM,
           },
-          { duration: 200 }
+          200
         );
       }
     },
@@ -202,8 +190,18 @@ export const MapScreen = () => {
   );
 
   
+  // The wrapper forwards the tapped marker's id, not an index or a native
+  // record. Resolving it back to the partner is this screen's job; a miss is a
+  // no-op rather than a crash, because the marker array and partnerLocations
+  // can in principle disagree.
   const handleSelectPartner = useCallback(
-    (location) => {
+    (markerId) => {
+      const location = partnerLocations?.find(
+        (partner) => String(partner.id) === markerId
+      );
+
+      if (!location) return;
+
       setLocationState((prev) => ({
         ...prev,
         locationName: location.title,
@@ -216,7 +214,7 @@ export const MapScreen = () => {
       handlePartnerCentre(location.lat, location.lng);
       setShowPartnerDetails(true);
     },
-    [handlePartnerCentre]
+    [partnerLocations, handlePartnerCentre]
   );
 
   // Function to navigate to the location view
@@ -244,21 +242,48 @@ export const MapScreen = () => {
   }, [locationState.lat, locationState.lng, locationState.locationName]);
 
   
-  const camera = useMemo(
+  // One serialised array instead of 100 native marker views. Memoized on the
+  // fetched list alone: this crosses to native, and a fresh identity each
+  // render would re-send every record.
+  const markers = useMemo(
+    () =>
+      (partnerLocations ?? []).map((location) => ({
+        id: String(location.id),
+        coordinates: { latitude: location.lat, longitude: location.lng },
+        title: location.title,
+      })),
+    [partnerLocations]
+  );
+
+  // Android draws its my-location button at the top-right of the map view,
+  // which runs full-bleed under the status bar - so without this the control
+  // sits behind the notch. contentPadding is Android-only and is what moves
+  // the native controls; iOS ignores it and keeps its own placement.
+  // Tune these two numbers to taste; they are the whole knob.
+  const contentPadding = useMemo(
+    () => ({ top: insets.top + CONTROL_GUTTER, end: CONTROL_GUTTER }),
+    [insets.top]
+  );
+
+  // Seeds the opening frame only. Deliberately not kept in sync with
+  // myLocation afterwards - the camera belongs to the user and to setCamera
+  // once the map is up.
+  const initialCamera = useMemo(
     () => ({
-      center: {
+      coordinates: {
         latitude: myLocation?.latitude,
         longitude: myLocation?.longitude,
       },
-      altitude: 10000,
-      zoom: 15,
-      pitch: 1,
-      heading: 1,
+      zoom: MAP_ZOOM,
     }),
     [myLocation]
   );
 
-  
+  const handleClosePartnerDetails = useCallback(
+    () => setShowPartnerDetails(false),
+    []
+  );
+
   const handleImageLoadStart = useCallback(() => setShowImageload(true), []);
   const handleImageLoaded = useCallback(() => setShowImageload(false), []);
 
@@ -316,25 +341,16 @@ export const MapScreen = () => {
   return (
     <View style={styles.fill}>
       {partnerLocations && myLocation ? (
-        <MapView
+        <PlatformMap
           style={styles.map}
-          provider="google"
           ref={mapRef}
-          camera={camera}
-                  showsUserLocation={true}    
-        followsUserLocation={true}  
-        showsMyLocationButton={true} 
-          mapPadding={mapPadding}
-        >
-          
-          {partnerLocations.map((location) => (
-            <PartnerMarker
-              key={location.id}
-              location={location}
-              onSelect={handleSelectPartner}
-            />
-          ))}
-        </MapView>
+          markers={markers}
+          initialCamera={initialCamera}
+          onMarkerPress={handleSelectPartner}
+          contentPadding={contentPadding}
+          showsUserLocation
+          showsMyLocationButton
+        />
       ) : (
         <LoadingOverlay display={true} />
       )}
@@ -403,6 +419,17 @@ export const MapScreen = () => {
                   </Button>
                 </View>
               </View>
+
+              <TouchableRipple
+                onPress={handleClosePartnerDetails}
+                style={styles.closeButton}
+                rippleColor="#444"
+                borderless
+                accessibilityRole="button"
+                accessibilityLabel={i18n.t("close")}
+              >
+                <Ionicons name="close" size={CLOSE_ICON_SIZE} color="#fff" />
+              </TouchableRipple>
             </View>
           </View>
         ) : null}
@@ -417,7 +444,6 @@ const styles = StyleSheet.create({
   // runtime on every render.
   map: {
     flex: 1,
-    height: '90%'
   },
   myLocationRange: {
     width: 150,
@@ -517,6 +543,21 @@ const styles = StyleSheet.create({
       width: 5,
     },
     shadowRadius: 7,
+  },
+  // Sits over the top-right of the card photo. zIndex 2 clears the image
+  // loading overlay below, which claims zIndex 1. The scrim keeps a white
+  // glyph legible whatever the photo happens to be behind it.
+  closeButton: {
+    position: "absolute",
+    top: 28,
+    right: 28,
+    zIndex: 2,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.45)",
   },
   overlay: {
     width: "100%",
