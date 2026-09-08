@@ -149,7 +149,7 @@ const PostEntryScreen = () => {
             keyboardDismissMode="interactive"
             style={styles.box}
             contentContainerStyle={styles.contentContainerPad}
-            fadingEdgeLength={100}
+            fadingEdgeLength={0}
           >
             <View style={styles.body}>
               {/* Title */}

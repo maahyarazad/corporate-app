@@ -219,7 +219,7 @@ export const LocationCards = ({ label, locationList }) => {
             showsHorizontalScrollIndicator={false}
             renderItem={renderLocation}
             pagingEnabled={true}
-            fadingEdgeLength={100}
+            fadingEdgeLength={0}
             snapToAlignment="start"
             snapToInterval={width - 16}
             decelerationRate="fast"

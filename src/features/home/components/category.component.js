@@ -137,7 +137,7 @@ export const HomeCategory = ({ size, categoryData }) => {
                 horizontal
                 pagingEnabled
                 data={categoryData}
-                fadingEdgeLength={100}
+                fadingEdgeLength={0}
                 snapToAlignment="start"
                 snapToInterval={100 + 16}
                 decelerationRate="fast"

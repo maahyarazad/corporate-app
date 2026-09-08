@@ -1,10 +1,17 @@
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Image, ImageBackground, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Card, Chip } from "react-native-paper";
 import { CARD_SIZE } from "../infrastructure/theme/sizes";
 import { CacheImage } from "./cacheImage";
 import { Label } from "./typography/label.component";
+
+// Static object/array literals hoisted out of the render. Each of these was
+// being reallocated on every render and handed to a native-backed component.
+const EMPTY_IMAGE_SOURCE = {};
+const GRADIENT_COLORS = ["#ffffff00", "#fff", "#fff"];
+const GRADIENT_START = { x: 0, y: 0 };
+const GRADIENT_END = { x: 1, y: 0 };
 
 export const MyCard = ({
   imgUrl,
@@ -25,8 +32,27 @@ export const MyCard = ({
 }) => {
   const [press, setPress] = useState(false);
 
+  // Read once instead of six times through the JSX below.
+  const isStacked = CARD_SIZE[size].type === 1;
+
+  // The only genuinely dynamic style left: width and height come from props
+  // that vary per call site. Memoized because CacheImage is React.memo'd
+  // (cacheImage.js), so a fresh style object every render would defeat it.
+  const imageSize = useMemo(
+    () => ({
+      width: imgWidth ?? CARD_SIZE[size].image.width,
+      height: imgHeight ?? CARD_SIZE[size].image.height,
+    }),
+    [imgWidth, imgHeight, size]
+  );
+
+  const imageSource = useMemo(
+    () => (size === "partner" ? { uri: imgUrl } : EMPTY_IMAGE_SOURCE),
+    [size, imgUrl]
+  );
+
   return (
-    <>
+    <View>
       {/* <TouchableHighlight> */}
       <Card style={styles.card}>
         <TouchableOpacity
@@ -41,27 +67,15 @@ export const MyCard = ({
             setPress(true);
           }}
         >
-          <View style={{ marginBottom: CARD_SIZE[size].type === 1 ? 16 : 0 }}>
-            <View
-              style={styles.box}
-            >
+          <View style={isStacked ? styles.contentSpaced : null}>
+            <View style={styles.box}>
               <ImageBackground
-                source={size === "partner" ? { uri: imgUrl } : {}}
+                source={imageSource}
                 style={styles.imageBackground}
                 blurRadius={10}
               >
                 <CacheImage
-                  style={[
-                    styles.cacheImage,
-                    {
-                      width:
-                        imgWidth != undefined
-                          ? imgWidth
-                          : CARD_SIZE[size].image.width,
-                      height: imgHeight ?? CARD_SIZE[size].image.height,
-                      opacity: press ? 0.7 : 1,
-                    },
-                  ]}
+                  style={[styles.cacheImage, imageSize, press && styles.pressed]}
                   uri={imgUrl}
                   resizeMode={size === "partner" ? "contain" : "cover"}
                 />
@@ -76,15 +90,10 @@ export const MyCard = ({
             </View>
 
             <View
-              style={[
-                styles.base,
-                {
-                  flexDirection: CARD_SIZE[size].type === 1 ? "column" : "row",
-                },
-              ]}
+              style={[styles.base, isStacked ? styles.column : styles.rowFlow]}
             >
               <View style={styles.flexBox}>
-                {CARD_SIZE[size].type === 2 && (
+                {!isStacked && (
                   <>
                     <Label size="title" weight="bold" numberOfLines={2}>
                       {offer_name}
@@ -92,28 +101,24 @@ export const MyCard = ({
                   </>
                 )}
                 <Label
-                  size={CARD_SIZE[size].type === 2 ? "body" : "title"}
+                  size={isStacked ? "title" : "body"}
                   numberOfLines={1}
                   weight="bold"
-                  style={{
-                    color: CARD_SIZE[size].type === 1 ? "#000" : "#aaa",
-                  }}
+                  style={isStacked ? styles.labelDark : styles.label}
                 >
                   {outlet_name}
                 </Label>
-                {CARD_SIZE[size].type === 1 && main_name != undefined && (
+                {isStacked && main_name != undefined && (
                   <Label style={styles.label} size="body" weight="bold">
                     {main_name}
                   </Label>
                 )}
               </View>
-              {stamp && CARD_SIZE[size].type === 2 && (
-                <View style={{}}>
-                  <Image
-                    style={[styles.image, { opacity: press ? 0.7 : 1 }]}
-                    source={stamp}
-                  />
-                </View>
+              {stamp && !isStacked && (
+                <Image
+                  style={[styles.image, press && styles.pressed]}
+                  source={stamp}
+                />
               )}
 
               {tags && (
@@ -132,7 +137,7 @@ export const MyCard = ({
                 </View>
               )}
             </View>
-            {CARD_SIZE[size].type === 1 && (
+            {isStacked && (
               <Card.Content>
                 <View style={styles.row}>
                   {offer_types &&
@@ -148,11 +153,11 @@ export const MyCard = ({
                       );
                     })}
                   <LinearGradient
-                    colors={["#ffffff00", "#fff", "#fff"]}
+                    colors={GRADIENT_COLORS}
                     style={styles.linearGradient}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                  ></LinearGradient>
+                    start={GRADIENT_START}
+                    end={GRADIENT_END}
+                  />
                 </View>
               </Card.Content>
             )}
@@ -160,7 +165,7 @@ export const MyCard = ({
         </TouchableOpacity>
       </Card>
       {/* </TouchableHighlight> */}
-    </>
+    </View>
   );
 };
 
@@ -168,6 +173,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  // Paper's Card renders a Surface, and a Surface draws its shadow outside its
+  // own bounds. `overflow: "hidden"` here clipped that shadow away and is what
+  // Paper warns about; the clip lives on `bordered` below instead, which wraps
+  // all of the content and carries the same radius.
   card: {
     borderRadius: 10,
     marginTop: 10,
@@ -178,6 +187,7 @@ const styles = StyleSheet.create({
   },
   bordered: {
     borderRadius: 10,
+    overflow: "hidden",
   },
   box: {
     position: "relative",
@@ -235,6 +245,25 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
     zIndex: 1,
+  },
+  // marginBottom 16 vs 0: the 0 case is the default, so it needs no entry.
+  contentSpaced: {
+    marginBottom: 16,
+  },
+  // Was an inline `{ flexDirection }` ternary; both branches are static.
+  column: {
+    flexDirection: "column",
+  },
+  rowFlow: {
+    flexDirection: "row",
+  },
+  labelDark: {
+    color: "#000",
+  },
+  // Press feedback. `press && styles.pressed` leaves the default opacity of 1
+  // in place when false - RN ignores `false` in a style array.
+  pressed: {
+    opacity: 0.7,
   },
   base: {
     flex: 0,

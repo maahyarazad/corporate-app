@@ -65,7 +65,7 @@ const PostEntryCategorySelect = () => {
               renderItem={renderCategoryItem}
               style={styles.flatList}
               overScrollMode="always"
-              fadingEdgeLength={100}
+              fadingEdgeLength={0}
               pagingEnabled
               snapToAlignment="start"
               snapToInterval={70}
@@ -97,7 +97,7 @@ const PostEntryCategorySelect = () => {
               renderItem={renderCategoryItem}
               style={styles.flatList}
               overScrollMode="always"
-              fadingEdgeLength={100}
+              fadingEdgeLength={0}
               pagingEnabled
               snapToAlignment="start"
               snapToInterval={70}
