@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
   cardContainer: {
     width: "90%",
     aspectRatio: 1.45,
-
+    marginBottom: 10,
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 10,
@@ -460,23 +460,24 @@ const styles = StyleSheet.create({
   },
   box: {
     paddingHorizontal: 12,
-    marginBottom: 20,
   },
   label: {
     color: "#555",
     justifyContent: "center",
   },
   box2: {
-    paddingHorizontal: 14,
-    marginBottom: 20,
+    paddingHorizontal: 22,
+    marginBottom: 30,
   },
   customButtonLabel: {
     color: "white",
   },
   flexBox: {
     flex: 2,
+
   },
   fill: {
     flex: 1,
+    
   },
 });
