@@ -112,6 +112,7 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
 
   return (
     <View style={styles.box}>
+        
       <CustomModal showModal={showModal}>
         <OfferModalInfo
           offerInfo={selectedOffer}
@@ -122,7 +123,7 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
       </CustomModal>
       
       <Label style={styles.label} size="heading" weight="bold">
-        {i18n.t("offer-details.offers")}
+         {i18n.t("offer-details.offers")}
       </Label>
       {/* <Offer /> */}
       {shortOfferList != undefined && (
