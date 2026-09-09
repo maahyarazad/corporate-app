@@ -1,5 +1,11 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   Keyboard,
   Linking,
@@ -27,6 +33,31 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import useRequest from "../../../hooks/useRequest";
 import { fontSizes } from "../../infrastructure/theme/fonts";
 
+const normalizeNumberInput = (value) => {
+  if (value === null || value === undefined) return "";
+  return value.toString().replace(/,|٫/gm, ".").trim();
+};
+
+const parseAmount = (value, fallback = 0) => {
+  const normalized = normalizeNumberInput(value);
+  if (!normalized) return fallback;
+
+  const parsed = parseFloat(normalized);
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
+const formatAmount = (value) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed.toFixed(2) : "0.00";
+};
+
+const toNumber = (value) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const renderCallIcon = () => <Ionicons name="call" color="white" size={20} />;
+
 export const AvailOfferScreen = ({ route }) => {
   const { location, offerInfo, distance, offerCode } = route.params.state;
 
@@ -39,25 +70,16 @@ export const AvailOfferScreen = ({ route }) => {
   const { i18n } = useContext(TranslationContext);
   const request = useRequest();
 
-  const minValue = useMemo(() => {
-    const value = Number(offerInfo?.min_value);
-    return Number.isFinite(value) ? value : 0;
-  }, [offerInfo?.min_value]);
+  // useRequest returns a fresh httpRequest on every render, so listing it as a
+  // dependency would make every callback below unstable. Same ref pattern
+  // home.screen.js uses for fetchData.
+  const requestRef = useRef(request);
+  requestRef.current = request;
 
-  const freebieValue = useMemo(() => {
-    const value = Number(offerInfo?.freebie_value);
-    return Number.isFinite(value) ? value : 0;
-  }, [offerInfo?.freebie_value]);
-
-  const percentageValue = useMemo(() => {
-    const value = Number(offerInfo?.percentage);
-    return Number.isFinite(value) ? value : 0;
-  }, [offerInfo?.percentage]);
-
-  const withFreebie = useMemo(() => {
-    const value = Number(offerInfo?.with_freebie);
-    return Number.isFinite(value) ? value : 0;
-  }, [offerInfo?.with_freebie]);
+  const minValue = toNumber(offerInfo?.min_value);
+  const freebieValue = toNumber(offerInfo?.freebie_value);
+  const percentageValue = toNumber(offerInfo?.percentage);
+  const withFreebie = toNumber(offerInfo?.with_freebie);
 
   const [paidAmount, setPaidAmount] = useState(minValue.toFixed(2));
   const [discAmount, setDiscAmount] = useState(freebieValue.toFixed(2));
@@ -65,47 +87,32 @@ export const AvailOfferScreen = ({ route }) => {
     (freebieValue + minValue).toFixed(2)
   );
 
-  const normalizeNumberInput = (value) => {
-    if (value === null || value === undefined) return "";
-    return value.toString().replace(/,|٫/gm, ".").trim();
-  };
+  const calculate = useCallback(
+    (actualAmount) => {
+      const paid = parseAmount(actualAmount, minValue);
 
-  const parseAmount = (value, fallback = 0) => {
-    const normalized = normalizeNumberInput(value);
-    if (!normalized) return fallback;
+      let total = 0;
+      let disc = 0;
 
-    const parsed = parseFloat(normalized);
-    return Number.isFinite(parsed) ? parsed : fallback;
-  };
+      if (freebieValue > 0) {
+        total = paid + freebieValue;
+        disc = freebieValue;
+      } else if (percentageValue > 0) {
+        total = paid * percentageValue;
+        disc = total - paid;
+      } else {
+        total = paid;
+        disc = 0;
+      }
 
-  const formatAmount = (value) => {
-    const parsed = Number(value);
-    return Number.isFinite(parsed) ? parsed.toFixed(2) : "0.00";
-  };
+      setPaidAmount(formatAmount(paid));
+      setDiscAmount(formatAmount(disc));
+      setTotalAmount(formatAmount(total));
+    },
+    [minValue, freebieValue, percentageValue]
+  );
 
-  const calculate = (actualAmount = paidAmount) => {
-    const paid = parseAmount(actualAmount, minValue);
-
-    let total = 0;
-    let disc = 0;
-
-    if (freebieValue > 0) {
-      total = paid + freebieValue;
-      disc = freebieValue;
-    } else if (percentageValue > 0) {
-      total = paid * percentageValue;
-      disc = total - paid;
-    } else {
-      total = paid;
-      disc = 0;
-    }
-
-    setPaidAmount(formatAmount(paid));
-    setDiscAmount(formatAmount(disc));
-    setTotalAmount(formatAmount(total));
-  };
-
-  const calculateReverse = () => {
+  const calculateReverse = useCallback(() => {
     const total = parseAmount(totalAmount, 0);
 
     if (freebieValue > 0) {
@@ -134,18 +141,15 @@ export const AvailOfferScreen = ({ route }) => {
     setPaidAmount(formatAmount(safePaid));
     setDiscAmount(formatAmount(disc));
     setTotalAmount(formatAmount(recalculatedTotal));
-  };
+  }, [totalAmount, minValue, freebieValue, percentageValue]);
 
   useEffect(() => {
     calculate(minValue);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [minValue, freebieValue, percentageValue]);
+  }, [calculate, minValue]);
 
-  const onCloseModal = () => {
-    setShowModal(false);
-  };
+  const onCloseModal = () => {setShowModal(false)};
 
-  const onConsume = async (discount, total, paid) => {
+  const onConsume = useCallback(async (discount, total, paid) => {
     try {
       const safeOfferCode = typeof offerCode === "string" ? offerCode : "";
 
@@ -157,7 +161,7 @@ export const AvailOfferScreen = ({ route }) => {
         paid,
       };
 
-      const result = await request(`/v2/offer/consume`, "post", data);
+      const result = await requestRef.current(`/v2/offer/consume`, "post", data);
  
      
       if (result.success) {
@@ -166,7 +170,6 @@ export const AvailOfferScreen = ({ route }) => {
         });
       }
    
-      
     } catch (e) {
        
         console.log(e?.data?.error?.sqlMessage);
@@ -179,39 +182,38 @@ export const AvailOfferScreen = ({ route }) => {
     } finally {
         setIsLoading(false);
     }
-  };
+  }, [offerCode, navigation]);
 
-  const onChangePaidAmount = (amount) => {
+  const onChangePaidAmount = useCallback((amount) => {
     setPaidAmount(amount);
-  };
+  },[]);
 
-  const onChangeTotalBill = (amount) => {
+  const onChangeTotalBill = useCallback((amount) => {
     setTotalAmount(amount);
-  };
+  },[]);
 
-  const onFocusPaid = () => {
+  const onFocusPaid = useCallback(() => {
     setPaidAmount("");
-  };
+  },[]);
 
-  const onFocusTotal = () => {
+  const onFocusTotal = useCallback(() => {
     setTotalAmount("");
-  };
+  },[]);
 
-  const onBlurPaidAmount = () => {
+  const onBlurPaidAmount = useCallback(() => {
     const parsedPaid = parseAmount(paidAmount, minValue);
     const safePaid = parsedPaid < minValue ? minValue : parsedPaid;
     calculate(safePaid);
-  };
+  }, [paidAmount, minValue, calculate]);
 
-  const onBlurTotalBill = () => {
+  const onBlurTotalBill = useCallback(() => {
     const parsedTotal = parseAmount(totalAmount, 0);
     setTotalAmount(formatAmount(parsedTotal));
     calculateReverse();
-  };
+  }, [totalAmount, calculateReverse]);
 
-  const handleRedeem = async () => {
+  const handleRedeem = useCallback(async () => {
     
-
       const merchantPin = (location?.merchant_pin ?? "").toString().trim();
 
       const enteredPin = (merchantCode ?? "").toString().trim();
@@ -232,9 +234,17 @@ export const AvailOfferScreen = ({ route }) => {
       setIsLoading(true);
 
       await onConsume(discAmount, totalAmount, paidAmount);
-  };
+  }, [
+    location?.merchant_pin,
+    merchantCode,
+    i18n,
+    discAmount,
+    totalAmount,
+    paidAmount,
+    onConsume,
+  ]);
 
-  const handleConfirm = () => {
+  const handleConfirm = useCallback(() => {
     showConfirm({
       title: i18n.t("redemption.confirm"),
       message: i18n.t("redemption.message"),
@@ -242,14 +252,14 @@ export const AvailOfferScreen = ({ route }) => {
       cancelText: i18n.t("cancel"),
       onConfirm: handleRedeem,
     });
-  };
+  }, [i18n, handleRedeem]);
 
   // The redeem button is actionable only when the PIN is complete and no
   // request is in flight. Single source of truth for both the disabled state
   // and the styling so they can't drift apart.
   const canRedeem = pinReady && !isLoading;
 
-  const handleCallNow = async () => {
+  const handleCallNow = useCallback(async () => {
     try {
       const phone = location?.phone?.split("|")?.[0]?.trim();
 
@@ -270,7 +280,7 @@ export const AvailOfferScreen = ({ route }) => {
     } catch (error) {
       showToast("error", "Unavailable", "Unable to open the dialer.");
     }
-  };
+  }, [location?.phone]);
 
   return (
     <View style={styles.container}>
@@ -399,13 +409,8 @@ export const AvailOfferScreen = ({ route }) => {
                     disabled={!canRedeem}
                     onPress={handleConfirm}
                     contentStyle={styles.buttonContent}
-                    labelStyle={{ fontSize: fontSizes.subtitle }}
-                    style={[
-                      styles.button2,
-                      {
-                        backgroundColor: canRedeem ? "#1282FF" : "gray",
-                      },
-                    ]}
+                    labelStyle={styles.buttonLabel}
+                    style={canRedeem ? styles.buttonEnabled : styles.buttonDisabled}
                     mode="contained"
                     loading={isLoading}
                   >
@@ -417,13 +422,11 @@ export const AvailOfferScreen = ({ route }) => {
                   <Button
                     onPress={handleCallNow}
                     disabled={isLoading}
-                    labelStyle={{ fontSize: fontSizes.subtitle, color: 'white' }}
+                    labelStyle={styles.buttonLabelWhite}
                     contentStyle={styles.buttonContent}
                     style={styles.button}
                     mode="contained"
-                    icon={() => (
-                      <Ionicons name="call" color="white" size={20} />
-                    )}
+                    icon={renderCallIcon}
                   >
                     {i18n.t("redeem-offer.call-now")}
                   </Button>
@@ -439,9 +442,17 @@ export const AvailOfferScreen = ({ route }) => {
   );
 };
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  buttonLabel: {
+    fontSize: fontSizes.subtitle,
+  },
+  buttonLabelWhite: {
+    fontSize: fontSizes.subtitle,
+    color: "white",
   },
   safeArea: {
     flex: 1,
@@ -543,5 +554,15 @@ const styles = StyleSheet.create({
   button2: {
     flex: 1,
     borderRadius: 12,
+  },
+  buttonEnabled: {
+    flex: 1,
+    borderRadius: 12,
+    backgroundColor: "#1282FF",
+  },
+  buttonDisabled: {
+    flex: 1,
+    borderRadius: 12,
+    backgroundColor: "gray",
   },
 });

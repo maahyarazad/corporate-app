@@ -1,9 +1,9 @@
-import React from "react";
+import React, { memo } from "react";
 import { StyleSheet, View } from "react-native";
 import { TextInput } from "react-native-paper";
 import { Label } from "../typography/label.component";
 
-export const TextInputCurrency = ({
+const TextInputCurrencyComponent = ({
   onBlur,
   onChangeText,
   label = "Label",
@@ -56,6 +56,10 @@ export const TextInputCurrency = ({
     </View>
   );
 };
+
+TextInputCurrencyComponent.displayName = "TextInputCurrency";
+
+export const TextInputCurrency = memo(TextInputCurrencyComponent);
 
 const styles = StyleSheet.create({
   container: {},

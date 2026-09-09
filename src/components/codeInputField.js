@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import {
   Keyboard,
   Pressable,
@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { theme } from "../infrastructure/theme";
 
-export const CodeInputField = ({
+const CodeInputFieldComponent = ({
   maxLength = 6,
   code = "",
   setCode,
@@ -142,6 +142,10 @@ export const CodeInputField = ({
     </View>
   );
 };
+
+CodeInputFieldComponent.displayName = "CodeInputField";
+
+export const CodeInputField = memo(CodeInputFieldComponent);
 
 const styles = StyleSheet.create({
   container: {
