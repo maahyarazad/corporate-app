@@ -1,64 +1,133 @@
 {
-    "root": true,
-    "parser": "@babel/eslint-parser",
-    "env": {
-      "es6": true,
-      "node": true,
-      "jest": true
-    },
-    "extends": ["airbnb", "prettier"],
-    "plugins": ["react", "jsx-a11y", "import", "prettier"],
-    "rules": {
-      "no-restricted-imports": [
-        "error",
-        {
-          "paths": [
-            {
-              "name": "react-native",
-              "importNames": ["Animated", "InteractionManager", "SafeAreaView"],
-              "message": "Animated/InteractionManager: use react-native-reanimated; InteractionManager is banned (see specs/002-reanimated-migration/). SafeAreaView: use the SafeArea component in src/components/safearea.component.js - RN's is deprecated upstream and is a plain View on Android (see specs/009-safe-area-context/)."
-            }
+  "root": true,
+  "parser": "@babel/eslint-parser",
+  "env": {
+    "es6": true,
+    "node": true,
+    "jest": true
+  },
+  "extends": [
+    "airbnb",
+    "prettier"
+  ],
+  "plugins": [
+    "react",
+    "jsx-a11y",
+    "import",
+    "prettier",
+    "react-hooks"
+  ],
+  "rules": {
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "name": "react-native",
+            "importNames": [
+              "Animated",
+              "InteractionManager",
+              "SafeAreaView"
+            ],
+            "message": "Animated/InteractionManager: use react-native-reanimated; InteractionManager is banned (see specs/002-reanimated-migration/). SafeAreaView: use the SafeArea component in src/components/safearea.component.js - RN's is deprecated upstream and is a plain View on Android (see specs/009-safe-area-context/)."
+          }
+        ]
+      }
+    ],
+    "no-restricted-globals": [
+      "error",
+      {
+        "name": "InteractionManager",
+        "message": "InteractionManager is banned in this codebase."
+      }
+    ],
+    "padding-line-between-statements": [
+      "error",
+      {
+        "blankLine": "always",
+        "prev": "*",
+        "next": "return"
+      },
+      {
+        "blankLine": "always",
+        "prev": "*",
+        "next": "export"
+      },
+      {
+        "blankLine": "any",
+        "prev": "export",
+        "next": "export"
+      },
+      {
+        "blankLine": "always",
+        "prev": [
+          "const",
+          "let",
+          "var"
+        ],
+        "next": "*"
+      },
+      {
+        "blankLine": "any",
+        "prev": [
+          "const",
+          "let",
+          "var"
+        ],
+        "next": [
+          "const",
+          "let",
+          "var"
+        ]
+      }
+    ],
+    "object-curly-spacing": [
+      "error",
+      "always"
+    ],
+    "max-len": [
+      "error",
+      100,
+      2
+    ],
+    "comma-dangle": [
+      "error",
+      {
+        "arrays": "always-multiline",
+        "objects": "always-multiline"
+      }
+    ],
+    "react/jsx-filename-extension": [
+      1,
+      {
+        "extensions": [
+          ".js",
+          ".jsx"
+        ]
+      }
+    ],
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn"
+  },
+  "settings": {
+    "import/resolver": {
+      "alias": {
+        "map": [
+          [
+            "app",
+            "./app"
+          ],
+          [
+            "myProject",
+            "./"
           ]
-        }
-      ],
-      "no-restricted-globals": [
-        "error",
-        {
-          "name": "InteractionManager",
-          "message": "InteractionManager is banned in this codebase."
-        }
-      ],
-      "padding-line-between-statements": [
-        "error",
-        { "blankLine": "always", "prev": "*", "next": "return" },
-        { "blankLine": "always", "prev": "*", "next": "export" },
-        { "blankLine": "any", "prev": "export", "next": "export" },
-        { "blankLine": "always", "prev": ["const", "let", "var"], "next": "*" },
-        { "blankLine": "any", "prev": ["const", "let", "var"], "next": ["const", "let", "var"] }
-      ],
-      "object-curly-spacing": ["error", "always"],
-      "max-len": ["error", 100, 2],
-      "comma-dangle": [
-        "error",
-        {
-          "arrays": "always-multiline",
-          "objects": "always-multiline"
-        }
-      ],
-      "react/jsx-filename-extension": [
-        1,
-        {
-          "extensions": [".js", ".jsx"]
-        }
-      ]
-    },
-    "settings": {
-      "import/resolver": {
-        "alias": {
-          "map": [["app", "./app"], ["myProject", "./"]],
-          "extensions": [".js", ".json", ".jsx"]
-        }
+        ],
+        "extensions": [
+          ".js",
+          ".json",
+          ".jsx"
+        ]
       }
     }
   }
-  
+}
