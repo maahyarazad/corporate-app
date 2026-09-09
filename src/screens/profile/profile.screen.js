@@ -18,7 +18,7 @@ import useAuth from "../../../hooks/useAuth";
 import { Label } from "../../components/typography/label.component";
 import CustomButton from "../../components/customButton.component";
 import { theme } from "../../infrastructure/theme";
-import { goback } from "../../navigation/navigate";
+import { navigate } from "../../navigation/navigate";
 import { LinearGradient } from "expo-linear-gradient";
 import { TranslationContext } from "../../services/translation/translation.context";
 import { CacheImage } from "../../components/cacheImage";
@@ -32,6 +32,15 @@ const ProfileStack = createStackNavigator();
 const CARD_BOX_SIZE = 55;
 const CARD_ICON_SIZE = 45;
 const CARD_ICON_COLOR = "#fba918";
+
+// The Home tab is not a sibling of this screen: it is a Tab.Screen inside
+// EntertainerScreen, which is the `Entertainer` route of the `Main` navigator.
+// A bare navigate("Home") searches this navigator and then its parents, never
+// sideways into an unfocused branch, so it resolves to nothing and React
+// Navigation logs "not handled by any navigator". The nested form addresses
+// each level explicitly.
+const goHome = () =>
+  navigate("Main", { screen: "Entertainer", params: { screen: "Home" } });
 
 const ProfilePrimaryScreen = () => {
   const request = useRequest();
@@ -60,10 +69,10 @@ const ProfilePrimaryScreen = () => {
   const { i18n } = useContext(TranslationContext);
 
   return (
-    <SafeArea style={styles.safeArea}>
+    <View style={styles.safeArea}>
       <View style={styles.box}>
         <TouchableOpacity
-          onPress={goback}
+          onPress={goHome}
           style={styles.backButton}
           activeOpacity={0.5}
         >
@@ -83,7 +92,7 @@ const ProfilePrimaryScreen = () => {
         {!isSkip ? (
           <View style={styles.cardContainer}>
             {userData?.card_image && userData.card_image.startsWith("GEC-") ? (
-              <View style={styles.card_style_blue}>
+              <View style={styles.card_style}>
                 <Image
                   key={userData.card_image}
                   source={require("../../../assets/GE-LOGO-GOLD.png")}
@@ -230,13 +239,24 @@ const ProfilePrimaryScreen = () => {
       <View style={styles.flexBox}>
         <ProfTabs />
       </View>
-    </SafeArea>
+    </View>
   );
 };
 
+// The bottom edge is deliberately absent: nothing sits below this screen -
+// Profile is a stack route, not a tab, and ProfTabs puts its bar at the top -
+// so a bottom inset here is dead space. The scrollable tab content gets that
+// inset back as padding inside ProfTabs, where it is what content actually
+// needs.
+//
+// This is also the app's only safe-area boundary for this screen. Nesting a
+// second SafeAreaView inside would apply every inset twice; the library does
+// not subtract what an ancestor already consumed.
+const PROFILE_SAFE_AREA_EDGES = ["top", "left", "right"];
+
 export const ProfileScreen = () => {
   return (
-    <SafeArea style={styles.fill}>
+    <SafeArea style={styles.fill} edges={PROFILE_SAFE_AREA_EDGES}>
       <ProfileStack.Navigator
         screenOptions={{ headerShown: false, gestureEnabled: false }}
       >
@@ -298,7 +318,7 @@ const styles = StyleSheet.create({
   },
 
 
-  card_style_blue: {
+  card_style: {
     width: "100%",
     height: "100%",
     borderRadius: 10,
@@ -447,7 +467,11 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.subtitle,
     textAlign: "right",
   },
+  fill: {
+    flex: 1,
+  },
   safeArea: {
+    flex: 1,
     backgroundColor: "#efefef",
   },
   box: {
@@ -468,7 +492,5 @@ const styles = StyleSheet.create({
   flexBox: {
     flex: 2,
   },
-  fill: {
-    flex: 1,
-  },
+  
 });
