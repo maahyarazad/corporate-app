@@ -7,6 +7,13 @@ import { navigate } from "../src/navigation/navigate";
 import useUser from "./useUser";
 import useAlert from "./useAlert";
 import { isCancel } from "../src/utils/cancellation";
+import {
+  clearCacheByPolicy,
+  makeCacheKey,
+  readCache,
+  writeCache,
+} from "../utils/apiCache";
+import { invalidationsFor, policyFor } from "../utils/cachePolicy";
 
 const MAX_RETRY = 3;
 
@@ -91,10 +98,78 @@ export default function useRequest() {
 
     //   if (url) console.log("REQ RESPONSE", options);
 
+      // ---- cache read -----------------------------------------------------
+      //
+      // Deliberately placed *after* the expiry check above rather than at the
+      // very top of the function. The check is a cheap boolean in the normal
+      // case, and returning a cached payload ahead of it would let a user with
+      // an expired card go a full TTL without being sent to re-verification.
+      //
+      // `retry === 0` is the load-bearing condition. httpRequest calls itself
+      // with ++retry for timeouts, connection failures and post-refresh 401s; a
+      // retry exists precisely because the caller needs the network, so serving
+      // one from cache would make it a silent no-op.
+      const candidatePolicy = retry === 0 ? policyFor(url, method) : null;
+
+      // A user-scoped policy is only safe once the key carries an account id.
+      // If there is no id yet - still signing in, or the profile has not
+      // loaded - the request is not cached at all. A miss is always safe; a row
+      // written under a placeholder scope is the cross-account bug this feature
+      // exists to prevent.
+      const scopeId =
+        candidatePolicy?.scope === "user"
+          ? user?.userData?.user_id ?? null
+          : undefined;
+
+      const cachePolicy =
+        candidatePolicy?.scope === "user" && !scopeId ? null : candidatePolicy;
+
+      const cacheKey = cachePolicy
+        ? makeCacheKey(url, body, cachePolicy.id, scopeId)
+        : null;
+
+      if (cachePolicy) {
+        const cached = await readCache(cacheKey, cachePolicy.ttlMs);
+
+        // A cache fault resolves to null, so this is a miss and falls through.
+        if (cached !== null && cached !== undefined) {
+          return cached;
+        }
+      }
+
       const response = await axios.request({
         timeoutErrorMessage: "Request Timeout",
         ...options,
       });
+
+      // ---- cache write ----------------------------------------------------
+      //
+      // Success path only. Every error path below returns or throws without
+      // reaching here, which is what keeps `error.response.data` from the
+      // `default:` branch, aborts and timeouts out of the cache - caching one of
+      // those would pin a failure for the whole TTL.
+      //
+      // Not awaited: writeCache never throws, and a request must not wait on
+      // bookkeeping.
+      if (cachePolicy && response?.data) {
+        writeCache(cacheKey, response.data);
+      }
+
+      // ---- cache invalidation ---------------------------------------------
+      //
+      // A mutation the server accepted may have made cached reads wrong, so
+      // every entry belonging to the policies it dirties is evicted. Addressed
+      // by policy id rather than by key: one policy covers many keys (every
+      // partner id, every language), and the keys themselves are opaque hashes.
+      //
+      // Only on success. Evicting after a failed mutation would turn a server
+      // error into a cache-thrash loop, refetching everything the user could
+      // not actually change.
+      if (!cachePolicy) {
+        for (const dirtied of invalidationsFor(url, method)) {
+          clearCacheByPolicy(dirtied.id);
+        }
+      }
 
       return Promise.resolve(response.data);
       

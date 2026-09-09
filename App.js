@@ -26,6 +26,8 @@ import { toastConfig } from "./src/Toast";
 import Toast from "react-native-toast-message";
 import { ConfirmDialogHost } from "./src/components/confirmDialog.component";
 import { initRecaptcha } from "./src/services/recaptcha/recaptcha.service";
+import { sweepApiCache } from "./utils/cacheDb";
+import { LONGEST_TTL_MS } from "./utils/cachePolicy";
 
 // Restrict console output to development only. In production builds __DEV__ is
 // false, so every console method becomes a no-op — debugging statements never
@@ -41,6 +43,12 @@ if (!__DEV__) {
   console.error = noop;
   console.trace = noop;
 }
+
+// Bound the response cache once per launch. `readCache` only drops a stale row
+// when something asks for it, so an entry written once and never read again
+// would otherwise live forever. Fire-and-forget: `sweepApiCache` never throws
+// and nothing on the render path waits for it.
+sweepApiCache(LONGEST_TTL_MS);
 
 const store = configureStore();
 

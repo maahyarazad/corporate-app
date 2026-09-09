@@ -17,7 +17,8 @@
     "check:animation": "./scripts/check-animation.sh",
     "audit:lists": "node scripts/audit-lists.js",
     "check:styles": "node scripts/check-stylesheet-scope.js",
-    "check:screen-props": "node scripts/check-screen-props.js"
+    "check:screen-props": "node scripts/check-screen-props.js",
+    "check:cache-coverage": "node scripts/check-cache-coverage.js"
   },
   "expo": {
     "sdkVersion": "54.0.0",
