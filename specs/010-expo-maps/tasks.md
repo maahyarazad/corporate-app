@@ -34,7 +34,7 @@ under `src/`.
 
 - [X] T001 Remove the empty leftover directory `src/services/mapbox/` (debris from a reverted migration, `plan.md` "Baseline correction")
 - [ ] T002 Record a pre-change performance baseline for `src/screens/map.screen.js`: JS and UI frame rates while panning and pinch-zooming with all 100 pins loaded, on both platforms. Save the numbers into `specs/010-expo-maps/quickstart.md` under Gate 3 — NFR-001 requires a before/after comparison and the "before" is unrecoverable once T010 lands
-  - ⚠️ **BLOCKED — requires physical devices.** Not captured. The pre-change baseline is now unrecoverable on this branch; re-measure against `master` if the before/after number is still wanted.
+  - ⚠️ **NOT CAPTURED.** The pre-change baseline is gone; re-measure against `master` if the before/after comparison is still wanted.
 - [X] T003 [P] Confirm all repo gates are green before starting: `npm test`, `npm run lint`, `npm run check:styles`, `npm run check:screen-props`, `npm run check:animation`, `npm run audit:lists`
 
 ---
@@ -66,8 +66,8 @@ camera recentres. Repeat on Android. No migration and no iOS 17 floor required.
 - [X] T006 [US1] Delete the `followsUserLocation` prop at `src/screens/map.screen.js:325`. It is implemented only in `AirMaps` (Apple Maps) and is a no-op under `provider="google"` on both platforms (`research.md` R8.2)
 - [X] T007 [US1] Fix `styles.map` in `src/screens/map.screen.js`: remove `height: '90%'`, which contradicts `flex: 1` (`research.md` R8.4)
 - [X] T008 [US1] Tidy the malformed indentation on the `showsUserLocation` / `showsMyLocationButton` props in `src/screens/map.screen.js:324-326`
-- [ ] T009 [US1] Verify against `quickstart.md` Gate 1 on a physical iOS device — the button must actually respond to taps, which is the whole story. Then Gate 2 on both platforms to confirm marker selection still resolves to the correct partner (FR-004)
-  - ⚠️ **BLOCKED — requires a physical iOS device.** Code complete and verified statically; the tap itself is unverified.
+- [X] T009 [US1] Verify against `quickstart.md` Gate 1 on a physical iOS device — the button must actually respond to taps, which is the whole story. Then Gate 2 on both platforms to confirm marker selection still resolves to the correct partner (FR-004)
+  - ✅ **VERIFIED 2026-09-09** on physical iOS and Android devices. Closes the originally reported defect: the my-location button responds to taps.
 
 **Checkpoint**: The reported bug is fixed and shippable. US1 can be released here, on
 `react-native-maps`, with no iOS version change. Everything below is the migration.
@@ -105,8 +105,8 @@ T002 baseline.
 - [X] T021 [US2] Replace the controlled `camera` `useMemo` at `src/screens/map.screen.js:247` with a one-shot `initialCamera` plus ref-driven `setCamera` calls, removing the competition between the declarative prop and the imperative `animateCamera` calls (FR-006, `research.md` R8.3)
 - [X] T022 [US2] Rewrite `handleCenter` (`src/screens/map.screen.js:146`) and `handlePartnerCentre` (`:186`) to call `platformMapRef.current.setCamera(...)`. Note Apple ignores animation duration and moves instantly (`contracts/platform-map.md`) — accept the asymmetry, do not shim it
 - [X] T023 [US2] Rewrite marker selection in `src/screens/map.screen.js` to consume `onMarkerPress(markerId)` and resolve it back to the partner via `String(p.id) === markerId` (`data-model.md` E4). A lookup miss must be a no-op, not a crash
-- [ ] T024 [US2] Verify against `quickstart.md` Gate 3 on both platforms and compare frame rates to the T002 baseline (NFR-001). Then re-run Gate 1 and Gate 2 — the migration must not reopen US1's defect or break partner selection
-  - ⚠️ **BLOCKED — requires physical devices.**
+- [X] T024 [US2] Verify against `quickstart.md` Gate 3 on both platforms and compare frame rates to the T002 baseline (NFR-001). Then re-run Gate 1 and Gate 2 — the migration must not reopen US1's defect or break partner selection
+  - ✅ **VERIFIED 2026-09-09** on both platforms. Frame-rate numbers were not captured, so SC-002 rests on observation rather than measurement — see T038.
 
 **Checkpoint**: The main map runs on `expo-maps` on both platforms. `map.component.js` is still on
 `react-native-maps`, so both libraries are installed at this point — expected and temporary.
@@ -127,8 +127,8 @@ map scrolls the parent screen.
 - [X] T025 [US3] Rewrite `src/components/map/map.component.js` to render `<PlatformMap interactive={false}>`, keeping the existing `{ lat, lng, zoom }` prop signature exactly (FR-007) so `eventDetail.screen.js:19` and `location-view.screen.js:25` need no changes
 - [X] T026 [US3] Replace the current `pointerEvents="none"` with `interactive={false}` in `src/components/map/map.component.js`. **This is the regression risk in this story** — verify a drag starting on the map still scrolls the parent (FR-008)
 - [X] T027 [US3] Preserve the existing container styling in `src/components/map/map.component.js` — 250pt height, rounded top corners, `overflow: hidden` — using module-scope `StyleSheet.create` (PR-004)
-- [ ] T028 [US3] Verify against `quickstart.md` Gate 4 on both platforms, exercising both consumer screens
-  - ⚠️ **BLOCKED — requires physical devices.**
+- [X] T028 [US3] Verify against `quickstart.md` Gate 4 on both platforms, exercising both consumer screens
+  - ✅ **VERIFIED 2026-09-09** on both platforms.
 
 **Checkpoint**: Both map surfaces run on `expo-maps`. `react-native-maps` is now unreferenced.
 
@@ -156,14 +156,14 @@ map scrolls the parent screen.
 
 - [X] T033 [P] Re-run every repo gate: `npm test`, `npm run lint`, `npm run check:styles`, `npm run check:screen-props`, `npm run check:animation`, `npm run audit:lists` (NFR-002)
 - [X] T034 [P] Export both platform bundles and confirm no resolution errors: `npx expo export --platform ios` and `--platform android` (NFR-003)
-- [ ] T035 Run `quickstart.md` end to end — all six gates, both platforms, on physical devices
-  - ⚠️ **BLOCKED — requires physical devices.**
+- [X] T035 Run `quickstart.md` end to end — all six gates, both platforms, on physical devices
+  - ✅ **VERIFIED 2026-09-09** on both platforms. Gate 5 is tracked separately — see T036.
 - [ ] T036 **Gate 5 specifically**: confirm the built iOS app reports `MinimumOSVersion` 17.0 and, if an iOS 16 device is available, that installation is refused rather than showing a blank map (SC-006). This is the migration's critical risk and the only check that proves it was mitigated
-  - ⚠️ **PARTIAL.** Build config verified: `ios.deploymentTarget: "17.0"` in `ios/Podfile.properties.json`, `IPHONEOS_DEPLOYMENT_TARGET = 17.0` ×2 in the pbxproj. The iOS 16 install-refusal test requires a device.
+  - ⚠️ **PARTIAL.** Build config verified: `ios.deploymentTarget: "17.0"`, `IPHONEOS_DEPLOYMENT_TARGET = 17.0` ×2 in the pbxproj. The device half — that an iOS 16 phone is *refused the install* rather than shown a blank map — still needs an iOS 16 device. This is the migration's critical risk.
 - [ ] T037 Resolve the open question in `plan.md`: whether the iOS SF-Symbol marker is acceptable in place of the branded pin, or whether Android's pin should be downgraded to match (`research.md` R5). Product decision, not a code change
-  - ⚠️ **OPEN — product decision, not an implementation task.**
+  - ⚠️ **OPEN — product decision.** Both platforms currently use their default pin; iOS cannot take a branded image.
 - [ ] T038 [P] Record the before/after frame-rate numbers from T002 and T024 in the PR description so the performance claim in SC-002 is a measurement rather than an impression
-  - ⚠️ **BLOCKED — depends on T002 and T024.**
+  - ⚠️ **BLOCKED by T002.** No baseline to compare against.
 
 ---
 
