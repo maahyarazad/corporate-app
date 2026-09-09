@@ -1,124 +1,118 @@
-import React, { useContext, useState } from "react";
-// import Carousel from "react-native-snap-carousel";
-import { Dimensions, StyleSheet, View } from "react-native";
+import React, { memo, useCallback, useState } from "react";
+import { StyleSheet, useWindowDimensions, View } from "react-native";
 import { Chip } from "react-native-paper";
-import { TranslationContext } from "../../services/translation/translation.context";
+import Carousel from "react-native-reanimated-carousel";
+import { useSharedValue } from "react-native-reanimated";
 import { MyCard } from "../myCard.component";
 import { Label } from "../typography/label.component";
-import Carousel from "react-native-reanimated-carousel";
-import Animated, {
-  Extrapolation,
-  interpolate,
-  useAnimatedStyle,
-  useSharedValue,
-} from "react-native-reanimated";
 import { offerStamps } from "../../utils/constants";
 import { navigate } from "../../navigation/navigate";
-import useRequest from "../../../hooks/useRequest";
 import { theme } from "../../infrastructure/theme";
 
-const test_data = [
-  { outlet_name: "Merchant A" },
-  { outlet_name: "Merchant B" },
-  { outlet_name: "Merchant C" },
-];
+// Reads nothing from props or state - only its own argument and the imported
+// `navigate` - so module scope is the right home. It was briefly a useCallback,
+// which crashed twice over: `useCallback` was never imported, and the dependency
+// array `[id]` referenced the callback's own parameter, which does not exist in
+// the component body. That is the same mistake map.screen.js records as FIX 1.
+const handlePress = (id) => {
+  navigate("Location View", { locId: id });
+};
+
+// One slide, memoized on `item` alone.
+//
+// This is what makes MyCard's own memo pay. The onPress arrow below is
+// unavoidable - it has to close over this item - but because the slide is
+// memoized and `item` is stable between fetches, the slide does not re-render,
+// so the arrow is never rebuilt and MyCard sees identical props. Wrapping the
+// arrow in useCallback instead would not have worked: it would still be a new
+// function for every item on every render of the list.
+//
+// Same shape as PartnerMarker in map.screen.js, and it must live at module
+// scope for the same reason - a component declared during render is a new type
+// each time, so React remounts the subtree and memo can never hit.
+const HotpickSlide = memo(({ item }) => (
+  <View style={styles.slideContainer}>
+    <MyCard
+      onPress={() => handlePress(item.partner_id)}
+      size="hotpick"
+      stamp={offerStamps[item.premium_id - 1]}
+      offer_name={item.offer_name}
+      outlet_name={item.outlet_name}
+      imgUrl={`${item.file}`}
+    />
+  </View>
+));
+
+HotpickSlide.displayName = "HotpickSlide";
+
+const renderItem = ({ item }) => <HotpickSlide item={item} />;
+
+// Static configuration for the carousels. These were inline literals, so a new
+// object crossed to the native animated component on every single render.
+const CAROUSEL_ANIMATION = { type: "timing", config: { duration: 500 } };
+const PAN_GESTURE_PROPS = { activeOffsetX: [-10, 10] };
+const PARALLAX_MANY = {
+  parallaxScrollingScale: 0.8,
+  parallaxScrollingOffset: 205,
+};
+const PARALLAX_PAIR = {
+  parallaxScrollingScale: 0.9,
+  parallaxScrollingOffset: 150,
+};
 
 const Hotpicks = ({ hotpickData }) => {
-  const { i18n } = useContext(TranslationContext);
   const progressValue = useSharedValue(0);
-  const [isVertical, setIsVertical] = useState(false);
-  const { lang } = useContext(TranslationContext);
   const [reverse, setReverse] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const request = useRequest();
 
+  // `Dimensions.get("screen")` read during render is a snapshot, not a
+  // subscription: it never re-renders on its own, so the carousel kept its
+  // original size through a rotation. Same fix as commit 31f4bff on the map
+  // screen.
+  const { width } = useWindowDimensions();
 
-  const PaginationItem = ({
-    animValue,
-    index,
-    length,
-    backgroundColor,
-    isRotate,
-  }) => {
-    const width = 10;
+  // These three are where useCallback actually earns its place in this file:
+  // each closes over component state or props, each is handed to a
+  // Reanimated-backed component, and each was previously rebuilt on every
+  // render. The item handlers are not here on purpose - see HotpickSlide.
 
-    const animStyle = useAnimatedStyle(() => {
-      let inputRange = [index - 1, index, index + 1];
-      let outputRange = [-width, 0, width];
+  // Shared by both carousels. `progressValue` is a shared value and the setters
+  // are stable, so this never needs rebuilding.
+  const handleProgress = useCallback(
+    (_, absoluteProgress) => {
+      progressValue.value = absoluteProgress;
 
-      if (index === 0 && animValue?.value > length - 1) {
-        inputRange = [length - 1, length, length + 1];
-        outputRange = [-width, 0, width];
+      // True only when absoluteProgress + 1 lands on an exact integer, i.e. at
+      // a snap point rather than every animation frame.
+      if (Math.floor(absoluteProgress + 1) / (absoluteProgress + 1) === 1) {
+        setCurrentIndex(absoluteProgress + 1);
+      }
+    },
+    [progressValue]
+  );
+
+  // The two-card carousel bounces instead of looping, so it also flips
+  // direction at the ends.
+  const handleProgressBouncing = useCallback(
+    (_, absoluteProgress) => {
+      if (absoluteProgress === 0) {
+        setReverse(false);
+      } else if (absoluteProgress === 1) {
+        setReverse(true);
       }
 
-      return {
-        transform: [
-          {
-            translateX: interpolate(
-              animValue?.value,
-              inputRange,
-              outputRange,
-              Extrapolation.CLAMP
-            ),
-          },
-        ],
-      };
-    }, [animValue, index, length]);
+      handleProgress(_, absoluteProgress);
+    },
+    [handleProgress]
+  );
 
-    return (
-      <View
-        style={[
-          styles.bordered,
-          {
-            width,
-            height: width,
-            transform: [
-              {
-                rotateZ: isRotate ? "90deg" : "0deg",
-              },
-            ],
-          },
-        ]}
-      >
-        <Animated.View
-          style={[
-            {
-              borderRadius: 50,
-              backgroundColor,
-              flex: 1,
-            },
-            animStyle,
-          ]}
-        />
-      </View>
-    );
-  };
-
-  const handlePress = (id) => {
-    navigate("Location View", {
-      locId: id,
-    });
-  };
-
-  const renderItem = ({ item }) => {
-    return (
-      <View key={item.outlet_name} style={styles.slideContainer}>
-        {/* <TouchableHighlight onPress={() => {}}> */}
-        <MyCard
-          //ADD ONPRESS FUNCTION HERE
-          onPress={() => {
-            handlePress(item.partner_id);
-          }}
-          size="hotpick"
-          stamp={offerStamps[item.premium_id - 1]}
-          offer_name={item.offer_name}
-          // offer_name={item.offer_name}
-          outlet_name={item.outlet_name}
-          imgUrl={`${item.file}`}
-        />
-      </View>
-    );
-  };
+  // The single-card branch renders MyCard directly rather than through
+  // HotpickSlide, so its onPress needs stabilising here for MyCard's memo to
+  // hold.
+  const handleSinglePress = useCallback(
+    () => handlePress(hotpickData?.[0]?.partner_id),
+    [hotpickData]
+  );
 
   return (
     <>
@@ -126,7 +120,6 @@ const Hotpicks = ({ hotpickData }) => {
         <View style={styles.container}>
           <View style={styles.header}>
             <Label style={styles.label} size="heading" weight="bold">
-              {/* {i18n.t("categories")} */}
               Hot Picks
             </Label>
           </View>
@@ -140,51 +133,28 @@ const Hotpicks = ({ hotpickData }) => {
                 autoPlay={true}
                 snapEnabled={true}
                 autoPlayInterval={3000}
-                width={Math.min(Dimensions.get("screen").width)}
-                height={Math.min(Dimensions.get("screen").width * 0.6)}
+                width={width}
+                height={width * 0.6}
                 mode="parallax"
                 pagingEnabled={true}
-                onProgressChange={(_, absoluteProgress) => {
-                  progressValue.value = absoluteProgress;
-                  if (
-                    Math.floor(absoluteProgress + 1) /
-                      (absoluteProgress + 1) ===
-                    1
-                  ) {
-                    setCurrentIndex(absoluteProgress + 1);
-                  }
-                }}
-                panGestureHandlerProps={{
-                  activeOffsetX: [-10, 10],
-                }}
-                withAnimation={{
-                  type: "timing",
-                  config: {
-                    duration: 500,
-                  },
-                }}
-                modeConfig={{
-                  parallaxScrollingScale: 0.8,
-                  parallaxScrollingOffset: 205,
-                }}
+                onProgressChange={handleProgress}
+                panGestureHandlerProps={PAN_GESTURE_PROPS}
+                withAnimation={CAROUSEL_ANIMATION}
+                modeConfig={PARALLAX_MANY}
               />
             ) : hotpickData.length === 1 ? (
               <>
                 {/* Show only 1 card */}
                 <View style={styles.pad}>
                   <MyCard
-                    //ADD ONPRESS FUNCTION HERE
-                    onPress={() => {
-                      handlePress(hotpickData[0].partner_id);
-                    }}
+                    onPress={handleSinglePress}
                     size="hotpick"
                     width="100%"
                     imgWidth="100%"
-                    imgHeight={Math.min(Dimensions.get("screen").width * 0.5)}
+                    imgHeight={width * 0.5}
                     stamp={offerStamps[hotpickData[0].premium_id - 1]}
                     offer_name={hotpickData[0].offer_name}
                     imgUrl={`${hotpickData[0].file}`}
-                    // imgUrl={`${item.file}`}
                     outlet_name={hotpickData[0].outlet_name}
                     style={styles.myCard}
                   />
@@ -202,90 +172,25 @@ const Hotpicks = ({ hotpickData }) => {
                   loop={false}
                   snapEnabled={true}
                   autoPlayInterval={3000}
-                  width={Math.min(Dimensions.get("screen").width)}
-                  height={Math.min(Dimensions.get("screen").width * 0.64)}
+                  width={width}
+                  height={width * 0.64}
                   mode="parallax"
                   pagingEnabled={true}
-                  onProgressChange={(_, absoluteProgress) => {
-                    progressValue.value = absoluteProgress;
-                    if (absoluteProgress === 0) {
-                      setReverse(false);
-                    } else if (absoluteProgress === 1) {
-                      setReverse(true);
-                    }
-                    if (
-                      Math.floor(absoluteProgress + 1) /
-                        (absoluteProgress + 1) ===
-                      1
-                    ) {
-                      setCurrentIndex(absoluteProgress + 1);
-                    }
-                  }}
-                  withAnimation={{
-                    type: "timing",
-                    config: {
-                      duration: 500,
-                    },
-                  }}
-                  modeConfig={{
-                    parallaxScrollingScale: 0.9,
-                    parallaxScrollingOffset: 150,
-                  }}
+                  onProgressChange={handleProgressBouncing}
+                  withAnimation={CAROUSEL_ANIMATION}
+                  modeConfig={PARALLAX_PAIR}
                 />
               </>
             )}
 
-            {hotpickData && hotpickData.length > 1 && !!progressValue && (
-              <View
-                style={[
-                  { marginBottom: 2 },
-                  isVertical
-                    ? {
-                        flexDirection: "column",
-                        justifyContent: "space-between",
-                        width: 10,
-                        alignSelf: "center",
-                        position: "absolute",
-                        right: 5,
-                        top: 40,
-                      }
-                    : {
-                        flexDirection: "row",
-                        justifyContent: "center",
-                        width: 100,
-                        alignSelf: "center",
-                      },
-                ]}
-              >
-                {hotpickData && (
-                  <Chip
-                    style={{
-                      // width: 130,
-                      backgroundColor: theme.colors.icons.active,
-                      borderRadius: 50,
-                    }}
-                    textStyle={styles.chipText}
-                  >
-                    <Label
-                      weight="bold"
-                      color="white"
-                    >{`${currentIndex} out of ${hotpickData.length}`}</Label>
-                  </Chip>
-                )}
-
-                {/* {hotpickData &&
-                  hotpickData.map((_, index) => {
-                    return (
-                      <PaginationItem
-                        backgroundColor="#ccc"
-                        animValue={progressValue}
-                        index={index}
-                        key={index}
-                        isRotate={isVertical}
-                        length={hotpickData.length}
-                      />
-                    );
-                  })} */}
+            {hotpickData.length > 1 && (
+              <View style={styles.pagination}>
+                <Chip style={styles.indexChip} textStyle={styles.chipText}>
+                  <Label
+                    weight="bold"
+                    color="white"
+                  >{`${currentIndex} out of ${hotpickData.length}`}</Label>
+                </Chip>
               </View>
             )}
           </View>
@@ -305,18 +210,12 @@ const styles = StyleSheet.create({
     marginTop: 0,
     marginBottom: -16,
   },
-  hotpickContent: {
-    // backgroundColor: "green",
-    // backgroundColor: "red",
-  },
+  hotpickContent: {},
   slideContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     height: 500,
-    // width: 400,
-    // width: 200,
-    // backgroundColor: "red",
   },
   label: {
     marginTop: 16,
@@ -326,9 +225,7 @@ const styles = StyleSheet.create({
     alignContent: "center",
     justifyContent: "center",
     alignItems: "center",
-    flexDirection: "column",
-    margin: -10,
-    padding: -10,
+    flexDirection: "column"
   },
   pad: {
     padding: 16,
@@ -344,15 +241,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "column",
   },
+  // The container previously branched on an `isVertical` state that nothing
+  // ever set, so only this branch was ever reachable.
+  pagination: {
+    marginBottom: 2,
+    flexDirection: "row",
+    justifyContent: "center",
+    width: 100,
+    alignSelf: "center",
+  },
+  indexChip: {
+    backgroundColor: theme.colors.icons.active,
+    borderRadius: 50,
+  },
   chipText: {
     width: 105,
     textAlign: "center",
-  },
-  bordered: {
-    backgroundColor: "white",
-    borderRadius: 50,
-    marginHorizontal: 6,
-    overflow: "hidden",
   },
 });
 

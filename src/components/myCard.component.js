@@ -1,5 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useMemo, useState } from "react";
+import React, { memo, useMemo, useState } from "react";
 import { Image, ImageBackground, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Card, Chip } from "react-native-paper";
 import { CARD_SIZE } from "../infrastructure/theme/sizes";
@@ -13,7 +13,7 @@ const GRADIENT_COLORS = ["#ffffff00", "#fff", "#fff"];
 const GRADIENT_START = { x: 0, y: 0 };
 const GRADIENT_END = { x: 1, y: 0 };
 
-export const MyCard = ({
+const MyCardComponent = ({
   imgUrl,
   distance,
   outlet_name,
@@ -168,6 +168,18 @@ export const MyCard = ({
     </View>
   );
 };
+
+MyCardComponent.displayName = "MyCard";
+
+// Memoized so a parent that keeps its props stable can skip this subtree
+// entirely. Worth it here because the card is rendered inside carousels and
+// lists, and its props after the inline-style pass are primitives plus
+// module-stable references (`stamp` is a require(), `style` a StyleSheet entry).
+//
+// It only pays where the caller holds `onPress` stable - see hotpicks'
+// HotpickSlide. locationcards.js still builds a fresh arrow per row, so the
+// memo does not hit there yet; harmless, just not yet earning its keep.
+export const MyCard = memo(MyCardComponent);
 
 const styles = StyleSheet.create({
   container: {
