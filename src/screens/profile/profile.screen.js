@@ -37,7 +37,6 @@ const ProfilePrimaryScreen = () => {
   const request = useRequest();
   const { userData } = useUser();
   const [partnerTitle, setPartnerTitle] = useState("");
-  
 
   const getPartnerTitle = useCallback(async () => {
     try {
@@ -73,12 +72,11 @@ const ProfilePrimaryScreen = () => {
             {i18n.t("return")}
           </Label>
         </TouchableOpacity>
-      </View>
-
-      <View style={styles.box2}>
-        <Label weight="bold" size="h5">
-          {i18n.t("profile-tabs.page-title")}
-        </Label>
+        <View>
+          <Label weight="bold" size="h5">
+            {i18n.t("profile-tabs.page-title")}
+          </Label>
+        </View>
       </View>
 
       <View style={styles.cardWrapper}>
@@ -172,7 +170,7 @@ const ProfilePrimaryScreen = () => {
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
-                     {`${userData?.honorifics || ""} ${userData?.first_name || ""} ${
+                    {`${userData?.honorifics || ""} ${userData?.first_name || ""} ${
                       userData?.last_name || ""
                     }`.trim()}
                   </Label>
@@ -202,7 +200,7 @@ const ProfilePrimaryScreen = () => {
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
-                     {userData?.expiry
+                    {userData?.expiry
                       ? moment(userData.expiry).format("MM/YY")
                       : "--/--"}
                   </Label>
@@ -299,12 +297,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
 
-  card_style: {
-    width: "100%",
-    height: "100%",
-    borderRadius: 10,
-    backgroundColor: "#ccc",
-  },
 
   card_style_blue: {
     width: "100%",
@@ -459,25 +451,24 @@ const styles = StyleSheet.create({
     backgroundColor: "#efefef",
   },
   box: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 25,
+    paddingBottom: 25,
+    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   label: {
     color: "#555",
     justifyContent: "center",
   },
-  box2: {
-    paddingHorizontal: 22,
-    marginBottom: 30,
-  },
+  
   customButtonLabel: {
     color: "white",
   },
   flexBox: {
     flex: 2,
-
   },
   fill: {
     flex: 1,
-    
   },
 });
