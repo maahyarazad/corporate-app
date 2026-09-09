@@ -34,6 +34,16 @@ const formatBytes = (bytes) => {
   return `${i === 0 ? value : value.toFixed(1)} ${units[i]}`;
 };
 
+// useBiometrics reports "face-id" on iOS, "face-recognition" on Android and
+// "fingerprint" for either. Those are hook values, not glyph names -
+// MaterialCommunityIcons has no "face-id" - so the two are mapped explicitly
+// rather than passed straight through.
+const BIOMETRIC_ICONS = {
+  "face-id": "face-recognition",
+  "face-recognition": "face-recognition",
+  fingerprint: "fingerprint",
+};
+
 export const ProfSettings = () => {
   const { signout } = useAuth();
   const { i18n } = useContext(TranslationContext);
@@ -371,22 +381,22 @@ export const ProfSettings = () => {
 
   return (
     <View style={styles.tint}>
-      {biometric.available != null && biometric.type != null && (
-        <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView contentContainerStyle={styles.container}>
           <Section title="General">
             <Settings
               icon="cog-outline"
               label={i18n.t("profile-tabs.settings-menu.settings-permission")}
               onPress={handleSettings}
             />
-            <Settings
-              icon={biometric.type}
-              label={`Login using ${
-                biometric.type === "fingerprint" ? "Fingerprint" : "Face ID"
-              }`}
-              onPress={handleSettings}
-              type="switch"
-            />
+            {biometric.type && (
+              <Settings
+                icon={BIOMETRIC_ICONS[biometric.type]}
+                label={i18n.t(
+                  `profile-tabs.settings-menu.login-${biometric.type}`
+                )}
+                type="switch"
+              />
+            )}
           </Section>
           <Section title="Legal">
             <Settings
@@ -453,8 +463,7 @@ export const ProfSettings = () => {
           );
         }}
       /> */}
-        </ScrollView>
-      )}
+      </ScrollView>
     </View>
   );
 };
