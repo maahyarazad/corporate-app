@@ -4,7 +4,7 @@
     "scheme": "gecmobile",
     "name": "GEC Mobile",
     "slug": "GEC-Rewards",
-    "version": "3.4.3",
+    "version": "3.4.5",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -106,7 +106,7 @@
       "associatedDomains": [
         "applinks:buenapublica.com"
       ],
-      "buildNumber": "89",
+      "buildNumber": "91",
       "supportsTablet": true,
       "infoPlist": {
         "UIDesignRequiresCompatibility": true,
@@ -121,7 +121,7 @@
       "appleTeamId": "YQFY6269ZL"
     },
     "android": {
-      "versionCode": 89,
+      "versionCode": 91,
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyBdMYAFwnxqA6KI4AE31v8BWBsr1ZDRogQ"
