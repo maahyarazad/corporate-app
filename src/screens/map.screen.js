@@ -1,6 +1,6 @@
 // Import required libraries and components
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import React, {
   useCallback,
   useContext,
@@ -58,6 +58,11 @@ export const MapScreen = () => {
   // Static-config screens receive only `route` - the navigator renders them
   // through a render callback, so `navigation` never arrives as a prop.
   const navigation = useNavigation();
+  // Drives the release of the native map view while this screen is covered -
+  // see the gate on <PlatformMap> below. Called here with the other hooks and
+  // unconditionally: it must run on every render, including the
+  // `!userLocation` branch that returns early further down.
+  const isFocused = useIsFocused();
   const insets = useSafeAreaInsets();
 
   // Contexts to access location and translation services
@@ -153,6 +158,14 @@ export const MapScreen = () => {
     };
 
   }, []);
+
+  // The partner card is drawn in the overlay, which is NOT behind the focus
+  // gate - only the map itself is. So without this, covering the screen would
+  // leave the card floating over a torn-down map, and returning would show a
+  // card pinned to a marker the freshly seeded camera is no longer looking at.
+  useEffect(() => {
+    if (!isFocused) setShowPartnerDetails(false);
+  }, [isFocused]);
 
 
 
@@ -340,7 +353,25 @@ export const MapScreen = () => {
   // around nothing. Removed; the View is the root now.
   return (
     <View style={styles.fill}>
-      {partnerLocations && myLocation ? (
+      {/* `isFocused &&` is what releases the native map while this screen is
+          merely covered rather than popped. Without it, tapping a pin and
+          opening the partner leaves TWO live map surfaces stacked: this one,
+          carrying up to PARTNER_COORDINATES_COUNT markers, plus the static
+          preview that location-view.screen.js mounts on top (see
+          src/components/map/map.component.js).
+
+          Remounting is safe here, which is not true of every screen:
+            - the camera is uncontrolled after mount, so a fresh mount reseeds
+              `initialCamera` instead of fighting a controlled value;
+            - the coordinates come back from SQLite under PARTNER_CACHE_TTL_MS,
+              so returning costs no network request.
+          The user's pan, zoom and selected partner are lost. That is the
+          accepted trade, not an oversight - specs/012-dispose-profile-and.
+
+          The gate wraps this ELEMENT, never the component's return value: an
+          early `if (!isFocused) return null` would change hook order, which is
+          the exact crash FIX 10 at the bottom of this file documents. */}
+      {isFocused && partnerLocations && myLocation ? (
         <PlatformMap
           style={styles.map}
           ref={mapRef}
