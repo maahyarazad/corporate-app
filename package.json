@@ -18,7 +18,8 @@
     "audit:lists": "node scripts/audit-lists.js",
     "check:styles": "node scripts/check-stylesheet-scope.js",
     "check:screen-props": "node scripts/check-screen-props.js",
-    "check:cache-coverage": "node scripts/check-cache-coverage.js"
+    "check:cache-coverage": "node scripts/check-cache-coverage.js",
+    "check:main-return": "node scripts/check-main-stack-return.js"
   },
   "expo": {
     "sdkVersion": "54.0.0",
