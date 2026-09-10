@@ -1,5 +1,5 @@
 import { createStackNavigator } from "@react-navigation/stack";
-import React, { useContext, useEffect, useCallback, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import moment from "moment";
 import {
   Image,
@@ -18,12 +18,13 @@ import useAuth from "../../../hooks/useAuth";
 import { Label } from "../../components/typography/label.component";
 import CustomButton from "../../components/customButton.component";
 import { theme } from "../../infrastructure/theme";
-import { navigate } from "../../navigation/navigate";
+import { returnToMain } from "../../navigation/navigate";
 import { LinearGradient } from "expo-linear-gradient";
 import { TranslationContext } from "../../services/translation/translation.context";
 import { CacheImage } from "../../components/cacheImage";
 import { fontSizes } from "../../infrastructure/theme/fonts";
 import useRequest from "../../../hooks/useRequest";
+import { isCancel } from "../../utils/cancellation";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
@@ -33,37 +34,62 @@ const CARD_BOX_SIZE = 55;
 const CARD_ICON_SIZE = 45;
 const CARD_ICON_COLOR = "#fba918";
 
-// The Home tab is not a sibling of this screen: it is a Tab.Screen inside
-// EntertainerScreen, which is the `Entertainer` route of the `Main` navigator.
-// A bare navigate("Home") searches this navigator and then its parents, never
-// sideways into an unfocused branch, so it resolves to nothing and React
-// Navigation logs "not handled by any navigator". The nested form addresses
-// each level explicitly.
-const goHome = () =>
-  navigate("Main", { screen: "Entertainer", params: { screen: "Home" } });
+// Wrapped rather than passed straight to onPress: TouchableOpacity hands its
+// callback a GestureResponderEvent, and returnToMain's first parameter is the
+// tab name. `onPress={returnToMain}` would therefore try to select a tab named
+// after a synthetic event object.
+//
+// returnToMain, not navigate("Main", ...): it drops every screen above Main
+// whatever the stack is. See the comment on the helper itself.
+const goHome = () => returnToMain();
 
 const ProfilePrimaryScreen = () => {
   const request = useRequest();
   const { userData } = useUser();
   const [partnerTitle, setPartnerTitle] = useState("");
 
-  const getPartnerTitle = useCallback(async () => {
-    try {
-      const response = await request(
-        `/partners/partner-title/${userData.partner_id}`,
-        "get"
-      );
-      if (response && response.success) {
-        setPartnerTitle(response.data.title);
-      }
-    } catch (error) {
-      console.log("Failed to get partner title", error);
-    }
-  }, []);
-
+  // Declared inside the effect rather than as a useCallback above it, which is
+  // the same shape map.screen.js uses. useRequest returns a NEW function on
+  // every render (hooks/useRequest.js builds `httpRequest` as a plain const,
+  // not a useCallback), so a useCallback wrapper could never list `request` as
+  // a dependency without re-running forever - and omitting it captured a stale
+  // `request`, and with it a stale access token.
+  //
+  // Depends on partner_id alone, not the whole userData object: it is the only
+  // field read here, so an unrelated profile edit no longer refetches.
   useEffect(() => {
+    const controller = new AbortController();
+
+    const getPartnerTitle = async () => {
+      // Previously the URL was built from `userData.partner_id` unguarded. The
+      // TypeError on a null userData was swallowed by the catch below, so it
+      // read as "the title just did not load".
+      if (!userData?.partner_id) return;
+
+      try {
+        const response = await request(
+          `/partners/partner-title/${userData.partner_id}`,
+          "get",
+          undefined,
+          undefined,
+          controller.signal
+        );
+        if (response && response.success) {
+          setPartnerTitle(response.data.title);
+        }
+      } catch (error) {
+        // An abort is this screen being disposed, which is routine here - see
+        // specs/012-dispose-profile-and. Only real failures are worth logging.
+        if (isCancel(error)) return;
+        console.log("Failed to get partner title", error);
+      }
+    };
+
     getPartnerTitle();
-  }, [userData]);
+
+    return () => controller.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userData?.partner_id]);
 
   const { isSkip, goToVerification } = useAuth();
   const { i18n } = useContext(TranslationContext);
