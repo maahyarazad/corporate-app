@@ -28,6 +28,7 @@ import { ConfirmDialogHost } from "./src/components/confirmDialog.component";
 import { initRecaptcha } from "./src/services/recaptcha/recaptcha.service";
 import { sweepApiCache } from "./utils/cacheDb";
 import { LONGEST_TTL_MS } from "./utils/cachePolicy";
+import { enableFreeze } from "react-native-screens";
 
 // Restrict console output to development only. In production builds __DEV__ is
 // false, so every console method becomes a no-op — debugging statements never
@@ -49,6 +50,24 @@ if (!__DEV__) {
 // would otherwise live forever. Fire-and-forget: `sweepApiCache` never throws
 // and nothing on the render path waits for it.
 sweepApiCache(LONGEST_TTL_MS);
+
+// Stop blurred screens re-rendering. A screen covered by another one stays
+// mounted, so today every context write above it - LocationContext alone writes
+// on userLocation, currentMerchant, eventList and getEventsList - re-renders
+// screens nobody is looking at.
+//
+// This is global because there is no narrower form of it. react-native-screens
+// reads the flag once, in Screen.js (`freezeOnBlur = freezeEnabled()`), and
+// @react-navigation/native-stack at this version forwards no per-screen
+// `freezeOnBlur` option at all.
+//
+// It suspends RENDERING only: the subtree stays mounted, effects are not
+// cleaned up and native views stay alive. So it does not replace the focus gate
+// in map.screen.js, which is what actually releases the native map surface.
+//
+// Deleting this line reverts the behaviour completely - see
+// specs/012-dispose-profile-and NFR-002.
+enableFreeze();
 
 const store = configureStore();
 
