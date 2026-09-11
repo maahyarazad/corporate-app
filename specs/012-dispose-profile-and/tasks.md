@@ -379,8 +379,8 @@ navigation state still has exactly one route named `Main` — US1 must not regre
 - [X] T052 [US6] Run `npm run lint`, `npm run check:screen-props` and `npm run check:main-return` against both modified files
 - [ ] T053 [D] [US6] Device-verify on both platforms: Home → Profile → back issues no request and does not remount; Home → Map → partner → offer → return still yields exactly one route named `Main`, and Android hardware back does not reveal the offer
   - ⚠️ **BLOCKED — requires a dev build on physical devices.** The action shape is unit-asserted; that the screen genuinely does not remount is not.
-- [ ] T054 [US6] Commit T047–T051 separately from the other stories, per NFR-002
-  - ⚠️ Pending — not committed yet.
+- [X] T054 [US6] Commit T047–T051 separately from the other stories, per NFR-002
+  - ✅ Committed as `55eb00b`, US6 only. `app.json`'s version bump was left out of it.
 
 **Checkpoint**: returning home is free, and US1's guarantee is unchanged.
 
