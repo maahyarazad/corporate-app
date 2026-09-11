@@ -43,21 +43,53 @@ export const goback = () => {
 // The two resets named above omit it, which is correct by accident today and
 // wrong the moment anyone adds a second route.
 //
-// The params are nested twice because the tab is two navigators down: `Home`
-// is a Tab.Screen inside `Entertainer`, which is a route of `Main`. A flat
-// { screen: "Home" } searches the current navigator and its parents, never
-// sideways into an unfocused branch, and resolves to nothing.
+// Preserving the mounted `Main` is what separates US1 from US6. A reset whose
+// route object carries no `key` is a *new* route as far as React Navigation is
+// concerned, so it tears the old one down - and `Main` owns Entertainer, which
+// owns Home. That unmount is what made returning from Profile refetch the home
+// screen, because RenderHome's load guard is per-instance.
+//
+// Reusing the existing route's key gives the same single-route stack US1 asks
+// for while leaving the screen mounted.
 export const returnToMain = (tab = "Home") => {
-  if (navigationRef.isReady()) {
+  if (!navigationRef.isReady()) return;
+
+  // Read the tree up front rather than through the function form of `dispatch`.
+  // That form hands the reducer a callback, so anything it assigns is only
+  // observable once the reducer has run - which makes a flag set inside it a
+  // race, not a value. getRootState is synchronous and says the same thing.
+  const mounted = navigationRef
+    .getRootState()
+    ?.routes?.find((route) => route.name === "Main");
+
+  // No mounted Main is a real case, not a defensive branch: a cold start, or a
+  // return from the auth / no-connection roots, which reset the whole tree.
+  // There the route has to be built, and params are the only way to address the
+  // nested tab.
+  const route = mounted
+    ? { ...mounted }
+    : {
+        name: "Main",
+        // The params are nested twice because the tab is two navigators down:
+        // `Home` is a Tab.Screen inside `Entertainer`, which is a route of
+        // `Main`. A flat { screen: "Home" } searches the current navigator and
+        // its parents, never sideways into an unfocused branch, and resolves to
+        // nothing.
+        params: { screen: "Entertainer", params: { screen: tab } },
+      };
+
+  navigationRef.dispatch(CommonActions.reset({ index: 0, routes: [route] }));
+
+  // The tab needs a second dispatch, and only when a mounted Main was reused.
+  // Keeping that route's key also keeps its nested navigator state, and
+  // existing state beats `params` - so the tab the caller asked for would be
+  // ignored if this were folded into the reset above. In the freshly-built case
+  // the params already carry it.
+  if (mounted) {
     navigationRef.dispatch(
-      CommonActions.reset({
-        index: 0,
-        routes: [
-          {
-            name: "Main",
-            params: { screen: "Entertainer", params: { screen: tab } },
-          },
-        ],
+      CommonActions.navigate({
+        name: "Main",
+        params: { screen: "Entertainer", params: { screen: tab } },
       })
     );
   }

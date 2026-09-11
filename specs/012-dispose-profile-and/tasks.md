@@ -317,16 +317,79 @@ US1 alone is a real improvement: it makes the return total rather than path-depe
 ### Incremental Delivery
 
 1. Setup → US1 → ship (MVP)
-2. + US2 → device-verify → ship (**the largest win — the doubled map surface**)
-3. + US4 → ship (locks in US1)
-4. + US3 → device-verify → ship **or revert**
-5. + US5 → optional
+2. **+ US6 → ship** — added 2026-09-11; US1 as shipped reloads the home screen, so these travel
+   together from here on. Do not ship US1 to users without US6
+3. + US2 → device-verify → ship (**the largest win — the doubled map surface**)
+4. + US4 → ship (locks in US1 and US6)
+5. + US3 → device-verify → ship **or revert**
+6. + US5 → optional
 
 ### If the schedule tightens
 
 Ship **US2 alone**. It is independent of everything except T004's before-shot, it is one file, and it
 removes a live native map surface that today survives behind two pushed screens. `research.md` R3a
 is the argument; the feature request did not know about it.
+
+---
+
+## Phase 9: User Story 6 — Returning home does not reload the home screen (Priority: P1)
+
+**Added 2026-09-11**, from a regression report against this feature's own US1.
+
+**Goal**: Returning to Main from the Profile stack leaves the already-loaded Home screen alone.
+Today it remounts and refetches.
+
+**The cause.** `returnToMain` (`src/navigation/navigate.js:50`) dispatches `CommonActions.reset`
+with a **freshly constructed** `Main` route. React Navigation has no way to know it is the same Main
+that was already mounted, so it unmounts the old one and mounts a new one — taking
+`Entertainer` → `HomeNavigation` → `RenderHome` with it.
+
+`RenderHome` guards against refetching with `lastLoadedKey`, a `useRef`
+(`src/screens/home.screen.js:128`, read at `:252`). A ref lives on the component instance, so it is
+correct against re-renders and **structurally cannot survive a remount** — the new instance starts
+at `""`, the key never matches, and all four requests fire again.
+
+So US1 and US6 are in tension, not conflict: US1 wants exactly one route standing, which is right.
+It just does not need a *new* Main to achieve it.
+
+**Scope note — the blast radius is smaller than it looks.** Feature 011 now serves three of Home's
+four calls from SQLite: `offer-hotpicks` (15m), `partner-categories` (24h), `partner-top` (1h). The
+only one still reaching the network is `POST /v2/app/get-banners`, which is not a GET and so is
+outside the cache. What remains on every return is one network round trip plus a full remount of the
+home subtree and four state writes. Worth fixing; not the stall it would have been before 011.
+
+**Independent Test**: instrument the four `setState` calls in `RenderHome`'s `fetchData`, or watch
+the network panel. Navigate Home → Profile → back via the header button. Expect **zero** new
+requests and no remount. Then navigate Home → Map → a partner → an offer → return, and assert the
+navigation state still has exactly one route named `Main` — US1 must not regress.
+
+### Implementation for User Story 6
+
+- [X] T047 [US6] In `src/navigation/navigate.js`, change `returnToMain` to preserve the mounted `Main` route instead of building a new one. Read the current state via the function form of `dispatch` — `navigationRef.dispatch((state) => ...)` — find the existing route named `Main`, and reset to `[thatRoute]` so its `key` carries over. React Navigation reuses a screen whose route key is unchanged, which is the whole fix: one route standing (US1, FR-001) with no remount (US6)
+  - ✅ Implemented, but **not via the function form of `dispatch`** as this task specified. That form hands the reducer a callback, so a flag assigned inside it is only observable after the reducer runs — reading it immediately afterwards is a race, and under test it never ran at all. `navigationRef.getRootState()` is synchronous and says the same thing.
+- [X] T048 [US6] Handle the tab argument in `src/navigation/navigate.js`. Preserving `Main`'s route key also preserves its nested navigator state, so the `params: { screen: tab }` that worked on a fresh route will **not** switch tabs on a reused one. Dispatch the tab selection separately after the reset, and keep the `tab = "Home"` default behaving as it does today
+- [X] T049 [US6] Keep the no-`Main`-in-state fallback in `src/navigation/navigate.js`: if no mounted `Main` exists — cold start, or a reset from the auth or no-connection roots — build the route as the current code does. Losing that path would break returning home from those roots
+  - ✅ Fallback retained; covered by two tests.
+- [X] T050 [P] [US6] Extend `src/navigation/__tests__/navigate.test.js`: assert that when state already contains a `Main` route, the dispatched action carries **that route's `key`**; assert the single-route `[Main]` guarantee still holds from a five-deep stack (US1 must not regress); assert the fallback path still produces a `Main` route when none exists
+  - ✅ 8 assertions across three describes. Existing US1 tests were restaged rather than replaced — the single-route guarantee is now asserted from a five-deep stack *while* reusing the mounted route, so US1 and US6 are proven together.
+- [ ] T051 [P] [US6] Move `RenderHome`'s load guard in `src/screens/home.screen.js` off the per-instance `useRef` at `:128`. A ref cannot outlive the component, so the guard is only as good as the mount — any future reset, deep link or root swap reintroduces this bug. Lift it to module scope keyed on `${user_id}-${lang}`, or hold the fetched data above the screen. T047 stops the remount; this makes the refetch wrong to begin with
+  - ❌ **NOT DONE — the task as written is a bug, and should be struck rather than implemented.**
+    A module-scope guard with the data still in `useState` means that after any remount `bannerData` et al. are back to `[]` while the guard reports "already loaded" — the effect returns early, nothing fetches, and the home screen stays **permanently blank**. Strictly worse than the refetch it set out to remove.
+    The guard and the data have to share a lifetime. Either leave the ref (T047 removes the remount that made it look wrong), or lift both into a provider above the screen — a larger change than this story, and one US6 does not need.
+- [X] T052 [US6] Run `npm run lint`, `npm run check:screen-props` and `npm run check:main-return` against both modified files
+- [ ] T053 [D] [US6] Device-verify on both platforms: Home → Profile → back issues no request and does not remount; Home → Map → partner → offer → return still yields exactly one route named `Main`, and Android hardware back does not reveal the offer
+  - ⚠️ **BLOCKED — requires a dev build on physical devices.** The action shape is unit-asserted; that the screen genuinely does not remount is not.
+- [ ] T054 [US6] Commit T047–T051 separately from the other stories, per NFR-002
+  - ⚠️ Pending — not committed yet.
+
+**Checkpoint**: returning home is free, and US1's guarantee is unchanged.
+
+### Out of scope for US6
+
+- Caching `POST /v2/app/get-banners`. Feature 011 deliberately covers GETs only; a POST carries a
+  body that may be a command rather than a query, and `get-banners` takes a `user_id` payload. If it
+  is genuinely a read, the right fix is to make it a GET, which is a server change.
+- Reworking `Entertainer`'s own mount effects. US3 already covers what a covered screen does.
 
 ---
 
@@ -339,3 +402,6 @@ is the argument; the feature request did not know about it.
 - Do **not** fix the `TransactionSummary` back button here. It is recorded in `research.md` R8 and
   belongs to a flow this feature does not own
 - Commit after each phase; the phase boundaries are the checkpoints
+- US6 (Phase 9) was appended after US1 shipped, from a regression it caused. It is not a new
+  requirement — it is US1 finished properly, which is why it carries P1 and why the delivery order
+  pairs them
