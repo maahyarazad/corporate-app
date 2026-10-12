@@ -1,18 +1,9 @@
-import {
-  Dimensions,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  Touchable,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Dimensions, StyleSheet, TouchableOpacity, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { SafeArea } from "../../../components/safearea.component";
 import { Label } from "../../../components/typography/label.component";
 import { goback, navigate } from "../../../navigation/navigate";
-import { SafeArea } from "../../../components/safearea.component";
-import { Spacer } from "../../../components/spacer/spacer.component";
 import { theme } from "../../../infrastructure/theme";
 import useRequest from "../../../../hooks/useRequest";
 import { LoadingOverlay } from "../../../components/loading/loading.component";
@@ -111,20 +102,13 @@ const PostEntrySelect = () => {
         // style={{ width: "100%" }}
       >
         <View style={styles.categoryButton}>
-          <View
-            style={{
-              flexDirection: "row",
-              width: "100%",
-              gap: 12,
-              alignItems: "center",
-            }}
-          >
+          <View style={styles.rowCenter}>
             <MaterialCommunityIcons
               name={type.icon}
               size={50}
               color={theme.colors.icons.active}
             />
-            <View style={{ flex: 1 }}>
+            <View style={styles.fill}>
               <Label size={20} weight="bold">
                 {type.label}
               </Label>
@@ -141,7 +125,7 @@ const PostEntrySelect = () => {
   return (
     <>
       {loading && selectedType !== null && <LoadingOverlay display={true} />}
-      <SafeAreaView style={styles.container}>
+      <SafeArea style={styles.container}>
         <View style={styles.container}>
           {/* Header */}
           <View>
@@ -156,12 +140,12 @@ const PostEntrySelect = () => {
               </View>
             </TouchableOpacity>
           </View>
-          <View style={{marginTop: 10}}/>
+          <View style={styles.spacer}/>
 
           {/* Body */}
           <View style={styles.body}>
-            <View style={{ gap: 10 }}>
-              <Label size={25} weight="bold" style={{ textAlign: "center" }}>
+            <View style={styles.box}>
+              <Label size={25} weight="bold" style={styles.label}>
                 Was möchten Sie tun?
               </Label>
             </View>
@@ -172,7 +156,7 @@ const PostEntrySelect = () => {
             </View>
           </View>
         </View>
-      </SafeAreaView>
+      </SafeArea>
     </>
   );
 };
@@ -218,5 +202,23 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     gap: 50,
+  },
+  rowCenter: {
+    flexDirection: "row",
+    width: "100%",
+    gap: 12,
+    alignItems: "center",
+  },
+  fill: {
+    flex: 1,
+  },
+  spacer: {
+    marginTop: 10,
+  },
+  box: {
+    gap: 10,
+  },
+  label: {
+    textAlign: "center",
   },
 });

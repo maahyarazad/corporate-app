@@ -6,7 +6,16 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Animated, Image, Platform, StyleSheet, View } from "react-native";
+import { Image, Platform, StyleSheet, View } from "react-native";
+import Animated, {
+  cancelAnimation,
+  Easing,
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from "react-native-reanimated";
 import { File } from "expo-file-system";
 import { LinearGradient } from "expo-linear-gradient";
 import {
@@ -31,41 +40,47 @@ const SHIMMER_COLORS = [
 ];
 
 const SkeletonLoader = ({ style }) => {
-  const shimmer = useRef(new Animated.Value(0)).current;
+  const shimmer = useSharedValue(0);
   const [containerWidth, setContainerWidth] = useState(300);
 
   useEffect(() => {
-    const loop = Animated.loop(
-      Animated.timing(shimmer, {
-        toValue: 1,
-        duration: 1200,
-        useNativeDriver: true,
-      })
+    shimmer.value = 0;
+    // Easing spelled out because the legacy RN timing default was inOut(ease)
+    // while withTiming defaults to inOut(quad) - keep the original feel.
+    shimmer.value = withRepeat(
+      withTiming(1, { duration: 1200, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      false
     );
-    loop.start();
-    return () => loop.stop();
-  }, [shimmer]);
 
-  // Recreate the interpolation only when the measured width changes.
-  const translateX = useMemo(
-    () =>
-      shimmer.interpolate({
-        inputRange: [0, 1],
-        outputRange: [-SHIMMER_WIDTH, containerWidth + SHIMMER_WIDTH],
-      }),
-    [shimmer, containerWidth]
-  );
+    // withRepeat has no stoppable handle, unlike the RN loop it replaces.
+    return () => {
+      cancelAnimation(shimmer);
+    };
+  }, [shimmer]);
 
   const handleLayout = useCallback((e) => {
     setContainerWidth(e.nativeEvent.layout.width);
   }, []);
 
-  const animatedStyle = useMemo(
-    () => [
-      StyleSheet.absoluteFill,
-      { transform: [{ translateX }], opacity: SHIMMER_OPACITY },
+  // Reads containerWidth directly: useAnimatedStyle re-evaluates when the
+  // measured width changes, so the old useMemo interpolation is unnecessary.
+  const shimmerStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        translateX: interpolate(
+          shimmer.value,
+          [0, 1],
+          [-SHIMMER_WIDTH, containerWidth + SHIMMER_WIDTH]
+        ),
+      },
     ],
-    [translateX]
+    opacity: SHIMMER_OPACITY,
+  }));
+
+  const animatedStyle = useMemo(
+    () => [StyleSheet.absoluteFill, shimmerStyle],
+    [shimmerStyle]
   );
 
   return (

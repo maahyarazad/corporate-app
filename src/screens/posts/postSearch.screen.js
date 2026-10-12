@@ -1,14 +1,13 @@
 import {
   FlatList,
-  SafeAreaView,
   StyleSheet,
-  Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import React, { memo, useEffect, useRef, useState } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { SafeArea } from "../../components/safearea.component";
 import { goback, navigate } from "../../navigation/navigate";
 import useRequest from "../../../hooks/useRequest";
 import { Label } from "../../components/typography/label.component";
@@ -17,7 +16,7 @@ import PostCardMarketplace from "./post_card/postCardMarketplace.component";
 import { LoadingOverlay } from "../../components/loading/loading.component";
 import { theme } from "../../infrastructure/theme";
 import moment from "moment";
-import { Button } from "react-native-paper";
+import { REMOVE_CLIPPED_SUBVIEWS } from "../../utils/listPerf";
 
 const Searchbar = ({ onSearch, setValue }) => {
   const searchRef = useRef();
@@ -65,7 +64,7 @@ const Searchbar = ({ onSearch, setValue }) => {
       >
         <MaterialCommunityIcons name="magnify" size={25} />
         <TextInput
-          style={{ flex: 1 }}
+          style={styles.textInput}
           ref={searchRef}
           value={searchText}
           onChangeText={handleSearchChange}
@@ -196,20 +195,7 @@ const PostSearch = () => {
       remaining && (
         <TouchableOpacity onPress={loadMoreManual}>
           <View
-            style={{
-              height: 50,
-              justifyContent: "center",
-              alignItems: "center",
-              backgroundColor: theme.colors.icons.active,
-              shadowColor: "#000",
-              shadowOffset: {
-                width: 0,
-                height: 2,
-              },
-              shadowOpacity: 0.25,
-              shadowRadius: 3.84,
-              elevation: 5,
-            }}
+            style={[styles.centerBox2, { backgroundColor: theme.colors.icons.active }]}
           >
             <Label color="white" weight="bold">
               Click Here to Load More
@@ -221,30 +207,24 @@ const PostSearch = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={{ flex: 1 }}>
+    <SafeArea style={styles.container}>
+      <View style={styles.textInput}>
         <Searchbar setValue={setKeyword} onSearch={handleOnSearch} />
 
-        <View style={{ flex: 1 }}>
+        <View style={styles.textInput}>
           {isEmpty ? (
-            <View
-              style={{
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-                gap: 12,
-              }}
-            >
+            <View style={styles.centerBox}>
               <MaterialCommunityIcons name="emoticon-sad-outline" size={50} />
               <Label>No results found</Label>
             </View>
           ) : (
             <FlatList
+              removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
               data={posts}
               renderItem={renderResults}
               keyExtractor={(item) => item.id.toString()}
-              contentContainerStyle={{ gap: 8 }}
-              style={{ flex: 1, backgroundColor: "#eee" }}
+              contentContainerStyle={styles.flatListContentContainer}
+              style={styles.flatList}
               onEndReached={loadMore}
               onEndReachedThreshold={0.5}
               ListFooterComponent={LoadMoreButton}
@@ -253,7 +233,7 @@ const PostSearch = () => {
           <LoadingOverlay display={isLoading} />
         </View>
       </View>
-    </SafeAreaView>
+    </SafeArea>
   );
 };
 
@@ -267,5 +247,34 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     width: "100%",
+  },
+  textInput: {
+    flex: 1,
+  },
+  centerBox: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 12,
+  },
+  flatListContentContainer: {
+    gap: 8,
+  },
+  flatList: {
+    flex: 1,
+    backgroundColor: "#eee",
+  },
+  centerBox2: {
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });

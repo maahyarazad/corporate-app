@@ -1,12 +1,10 @@
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
-import React, { useContext } from "react";
+import React from "react";
 import { StyleSheet, View } from "react-native";
 import { Button } from "react-native-paper";
 import { SafeArea } from "../components/safearea.component";
-import { Spacer } from "../components/spacer/spacer.component";
 import { Label } from "../components/typography/label.component";
-import { AuthContext } from "../services/auth/auth.context";
 import useAuth from "../../hooks/useAuth";
 
 export const NoConnectionScreen = () => {
@@ -21,19 +19,19 @@ export const NoConnectionScreen = () => {
           Connection Error
         </Label>
         
-        <View style={{marginTop: 6}}/>
+        <View style={styles.spacer}/>
         <Label size="title" style={styles.label}>
           Couldn't connect to Server
         </Label>
         
 
-                <View style={{marginTop: 8}}/>
+                <View style={styles.spacer2}/>
 
         <Button
           mode="outlined"
           color="grey"
           onPress={noConnectionRetry.fn}
-          style={{ borderWidth: 2, borderColor: "grey", width: "50%" }}
+          style={styles.button}
         >
           Retry
         </Button>
@@ -49,5 +47,16 @@ const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: "center", alignItems: "center" },
   label: {
     color: "grey",
+  },
+  spacer: {
+    marginTop: 6,
+  },
+  spacer2: {
+    marginTop: 8,
+  },
+  button: {
+    borderWidth: 2,
+    borderColor: "grey",
+    width: "50%",
   },
 });

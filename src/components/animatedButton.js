@@ -1,7 +1,13 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
-import { Pressable, Touchable, View } from "react-native";
-import { Animated, StyleSheet } from "react-native";
+import { Pressable, View } from "react-native";
+import { StyleSheet } from "react-native";
+import Animated, {
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 import { Label } from "./typography/label.component";
 
 export const AnimatedButton = ({
@@ -19,39 +25,32 @@ export const AnimatedButton = ({
   scaleTo = 0.9,
   ...props
 }) => {
-  const buttonScale = new Animated.Value(1);
+  // Was a bare legacy animated value with no ref, so every re-render threw
+  // away the in-flight animation and snapped the scale back. A shared value
+  // survives re-renders.
+  const buttonScale = useSharedValue(1);
 
-  const buttonInterpolation = buttonScale.interpolate({
-    inputRange: [scaleTo, 1],
-    outputRange: [0, 1],
-  });
+  // The legacy spring took `speed`; Reanimated only implements the physical
+  // model, and there is no algebraic conversion from the speed/bounciness
+  // parameterisation. Map it so the `speed` prop keeps meaning "higher is
+  // faster" for existing callers.
+  const springConfig = { damping: 15, stiffness: Math.max(1, speed * 0.75) };
+
   const onPressIn = () => {
-    Animated.spring(buttonScale, {
-      toValue: scaleTo,
-      speed: speed,
-      useNativeDriver: true,
-    }).start();
+    buttonScale.value = withSpring(scaleTo, springConfig);
   };
 
   const onPressOut = () => {
-    Animated.spring(buttonScale, {
-      toValue: 1,
-      speed: speed,
-      useNativeDriver: true,
-    }).start();
+    buttonScale.value = withSpring(1, springConfig);
   };
 
-  const buttonAnimatedScaleStyle = {
-    transform: [
-      {
-        scale: buttonScale,
-      },
-    ],
-  };
+  const buttonAnimatedScaleStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: buttonScale.value }],
+  }));
 
-  const buttonAnimatedColorStyle = {
-    opacity: buttonInterpolation,
-  };
+  const buttonAnimatedColorStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(buttonScale.value, [scaleTo, 1], [0, 1]),
+  }));
 
   return (
     <>
@@ -77,19 +76,7 @@ export const AnimatedButton = ({
               { backgroundColor: buttonColorFrom },
             ]}
           ></Animated.View>
-          <View
-            style={{
-              position: "absolute",
-              flex: 1,
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              justifyContent: "center",
-              alignItems: "center",
-              flexDirection: "row",
-            }}
-          >
+          <View style={style.rowCenter}>
             <MaterialCommunityIcons
               color={textColor}
               name={iconName}
@@ -126,5 +113,16 @@ const style = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingVertical: 32,
+  },
+  rowCenter: {
+    position: "absolute",
+    flex: 1,
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
   },
 });

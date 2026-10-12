@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
-  FlatList,
   Linking,
   ScrollView,
   StyleSheet,
@@ -12,17 +11,14 @@ import { showToast } from "../../Toast";
 import { showConfirm } from "../../components/confirmDialog.component";
 import { Label } from "../../components/typography/label.component";
 import { theme } from "../../infrastructure/theme";
-import { UserService } from "../../services/user/user.service";
 import { EULAPrivacyLink } from "../../utils/constants";
 import { DELETE_ACCOUNT } from "../../utils/constants";
 import * as WebBrowser from "expo-web-browser";
 import * as Constants from "expo-constants";
-import { AuthContext } from "../../services/auth/auth.context";
 import { TranslationContext } from "../../services/translation/translation.context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import useAuth from "../../../hooks/useAuth";
 import { Switch } from "react-native-paper";
-import * as SecureStore from "expo-secure-store";
 import useBiometrics from "../../../hooks/useBiometrics";
 import useUser from "../../../hooks/useUser";
 import { clearAllCaches, getCacheSize } from "../../../utils/cacheDb";
@@ -36,6 +32,16 @@ const formatBytes = (bytes) => {
   );
   const value = bytes / 1024 ** i;
   return `${i === 0 ? value : value.toFixed(1)} ${units[i]}`;
+};
+
+// useBiometrics reports "face-id" on iOS, "face-recognition" on Android and
+// "fingerprint" for either. Those are hook values, not glyph names -
+// MaterialCommunityIcons has no "face-id" - so the two are mapped explicitly
+// rather than passed straight through.
+const BIOMETRIC_ICONS = {
+  "face-id": "face-recognition",
+  "face-recognition": "face-recognition",
+  fingerprint: "fingerprint",
 };
 
 export const ProfSettings = () => {
@@ -319,7 +325,7 @@ export const ProfSettings = () => {
             size={25}
           />
           <Label weight="bold">{label}</Label>
-          <View style={{ flex: 1 }}>
+          <View style={styles.fill}>
             {type === "switch" && (
               <Switch
                 value={switchValue}
@@ -328,14 +334,14 @@ export const ProfSettings = () => {
                   handleBiometric(x);
                   setSwitchValue(x);
                 }}
-                style={{ alignSelf: "flex-end" }}
+                style={styles.switch}
               />
             )}
             {detail != undefined && (
               <Label
                 size="subtitle"
                 color={theme.colors.ui.lightGray2}
-                style={{ alignSelf: "flex-end" }}
+                style={styles.switch}
               >
                 {detail}
               </Label>
@@ -374,23 +380,23 @@ export const ProfSettings = () => {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#f8f8f8" }}>
-      {biometric.available != null && biometric.type != null && (
-        <ScrollView contentContainerStyle={styles.container}>
+    <View style={styles.tint}>
+      <ScrollView contentContainerStyle={styles.container}>
           <Section title="General">
             <Settings
               icon="cog-outline"
               label={i18n.t("profile-tabs.settings-menu.settings-permission")}
               onPress={handleSettings}
             />
-            <Settings
-              icon={biometric.type}
-              label={`Login using ${
-                biometric.type === "fingerprint" ? "Fingerprint" : "Face ID"
-              }`}
-              onPress={handleSettings}
-              type="switch"
-            />
+            {biometric.type && (
+              <Settings
+                icon={BIOMETRIC_ICONS[biometric.type]}
+                label={i18n.t(
+                  `profile-tabs.settings-menu.login-${biometric.type}`
+                )}
+                type="switch"
+              />
+            )}
           </Section>
           <Section title="Legal">
             <Settings
@@ -432,7 +438,7 @@ export const ProfSettings = () => {
               onPress={handleLogout}
             />
           </Section>
-          <Label style={{ color: "#777", alignSelf: "flex-end" }}>
+          <Label style={styles.label}>
             v{Constants.default.expoConfig.version}
           </Label>
           {/* <FlatList
@@ -457,8 +463,7 @@ export const ProfSettings = () => {
           );
         }}
       /> */}
-        </ScrollView>
-      )}
+      </ScrollView>
     </View>
   );
 };
@@ -507,4 +512,18 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   scrollView: {},
+  fill: {
+    flex: 1,
+  },
+  switch: {
+    alignSelf: "flex-end",
+  },
+  tint: {
+    flex: 1,
+    backgroundColor: "#f8f8f8",
+  },
+  label: {
+    color: "#777",
+    alignSelf: "flex-end",
+  },
 });

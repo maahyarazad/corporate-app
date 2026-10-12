@@ -5,7 +5,8 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { View, Keyboard } from "react-native";
+import { View, Keyboard, StyleSheet } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import styled from "styled-components/native";
 import { Searchbar } from "react-native-paper";
 import { Label } from "../../components/typography/label.component";
@@ -32,7 +33,11 @@ const SUGGESTION_DEBOUNCE_MS = 300;
 const PARTNER_ENDPOINT = "/v2/partner/";
 const PARTNER_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 
-export const LocationListScreen = ({ navigation, route, ...props }) => {
+export const LocationListScreen = ({ route, ...props }) => {
+  // Static-config screens receive only `route` - the navigator renders them
+  // through a render callback, so `navigation` never arrives as a prop.
+  const navigation = useNavigation();
+
   const { type, search, limit, source } = route.params;
   const { lang } = useContext(TranslationContext);
 
@@ -109,12 +114,7 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <Label
-          numberOfLines={1}
-          size="title"
-          weight="bold"
-          style={{ paddingRight: 15 }}
-        >
+        <Label numberOfLines={1} size="title" weight="bold" style={styles.label}>
           {headerTitle}
         </Label>
       ),
@@ -422,12 +422,12 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
 
   // ---- render ------------------------------------------------------------
   return (
-    <View style={{ flex: 1 }}>
-      <View style={{ backgroundColor: "white" }}>
+    <View style={styles.fill}>
+      <View style={styles.tint}>
         <Search
           ref={searchRef}
           numberOfLines={1}
-          inputStyle={{ alignSelf: "center" }}
+          inputStyle={styles.searchInput}
           onClearIconPress={handleClear}
           value={filters}
           enablesReturnKeyAutomatically
@@ -443,7 +443,7 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
           autoCorrect={false}
           placeholder="Search"
         />
-        <View style={{ paddingVertical: 10, paddingHorizontal: 12 }}>
+        <View style={styles.pad}>
           <Label weight="bold">{resultCount} Results</Label>
         </View>
       </View>
@@ -463,3 +463,22 @@ export const LocationListScreen = ({ navigation, route, ...props }) => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  label: {
+    paddingRight: 15,
+  },
+  fill: {
+    flex: 1,
+  },
+  tint: {
+    backgroundColor: "white",
+  },
+  searchInput: {
+    alignSelf: "center",
+  },
+  pad: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+  },
+});

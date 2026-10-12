@@ -1,39 +1,33 @@
-import React, { useContext, useEffect } from "react";
-import { Alert, StyleSheet, View } from "react-native";
+import React, { useEffect } from "react";
+import { StyleSheet } from "react-native";
 import * as Linking from "expo-linking";
 import { navigate } from "../navigation/navigate";
-import { LocationContext } from "../services/location/location.context";
-import { config } from "./constants";
+import { resolvePushDestination } from "./pushDestination";
 
 export const UrlListener = () => {
-  const { eventList } = useContext(LocationContext);
   useEffect(() => {
     //Event Listener for Deep linking
     const handleOpenURL = async (event) => {
       const { url } = event;
-      const { path, queryParams: params } = Linking.parse(url);
+      const { hostname, path, queryParams: params } = Linking.parse(url);
 
-      switch (path) {
-        case "map":
-          navigate("Map");
-          // Alert.alert("DEEP LINKING WORKS!", params.location);
-          break;
-        case "partner":
-          navigate("Location View", {
-            locId: params.id,
-          });
-          break;
-        case "event":
-          const eventFound = eventList.find((event) => {
-            event.id === params.id;
-          });
+      // "gecmobile://event?id=720" parses to hostname "event" with a null path;
+      // "gecmobile:///event?id=720" parses to path "event". Accept both.
+      const target = path || hostname;
 
-        //   console.log(eventFound);
-          navigate("Event Detail", {
-            id: params.id,
-          });
-          break;
+      if (target === "map") {
+        navigate("Map");
+
+        return;
       }
+
+      // Deep links and push notifications share one destination mapping, so
+      // the two entry points cannot drift apart.
+      const destination = resolvePushDestination({ path: target, id: params?.id });
+
+      if (!destination) return;
+
+      navigate(destination.screen, destination.params);
     };
 
     const subscription = Linking.addEventListener("url", handleOpenURL);

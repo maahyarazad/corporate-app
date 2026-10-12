@@ -2,8 +2,6 @@ import {
   Dimensions,
   Image,
   StyleSheet,
-  Text,
-  Touchable,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
@@ -12,18 +10,16 @@ import React, { useState } from "react";
 import { CacheImage } from "./cacheImage";
 import Carousel from "react-native-reanimated-carousel";
 import Animated, {
-  Extrapolate,
+  Extrapolation,
   interpolate,
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
 import GalleryView from "react-native-image-viewing";
-import { theme } from "../infrastructure/theme";
 import { companyLogo } from "../utils/constants";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Label } from "./typography/label.component";
 import VideoPlayerModal from "./videoPlayerModal/videoPlayerModal.component";
-import { height } from "./styles";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
@@ -46,7 +42,7 @@ const PaginationItem = ({
             animValue?.value,
             inputRange,
             outputRange,
-            Extrapolate.CLAMP
+            Extrapolation.CLAMP
           ),
         },
       ],
@@ -55,18 +51,18 @@ const PaginationItem = ({
 
   return (
     <View
-      style={{
-        backgroundColor: "white",
-        width,
-        height: width,
-        borderRadius: 50,
-        overflow: "hidden",
-        transform: [
-          {
-            rotateZ: isRotate ? "90deg" : "0deg",
-          },
-        ],
-      }}
+      style={[
+        styles.bordered,
+        {
+          width,
+          height: width,
+          transform: [
+            {
+              rotateZ: isRotate ? "90deg" : "0deg",
+            },
+          ],
+        },
+      ]}
     >
       <Animated.View
         style={[
@@ -121,15 +117,7 @@ const SlideshowV2 = ({ images }) => {
             resizeMode="cover"
           />
           {item.type === "video" && (
-            <View
-              style={{
-                position: "absolute",
-                width: "100%",
-                height: "100%",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
+            <View style={styles.overlay}>
               <MaterialCommunityIcons
                 size={80}
                 name="play-circle-outline"
@@ -155,29 +143,9 @@ const SlideshowV2 = ({ images }) => {
           setImageIndex(Math.round(absoluteProgress));
         }}
       />
-      <View
-        pointerEvents="none"
-        style={{
-          position: "absolute",
-          bottom: 0,
-          right: 0,
-          left: 0,
-          top: 0,
-          zIndex: 200,
-          justifyContent: "flex-end",
-          alignItems: "flex-end",
-        }}
-      >
-        <View
-          style={{
-            backgroundColor: "#33333366",
-            height: 40,
-            width: 80,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Label style={{ color: "white" }} weight="medium" size="subtitle">
+      <View pointerEvents="none" style={styles.overlay2}>
+        <View style={styles.centerBox}>
+          <Label style={styles.label} weight="medium" size="subtitle">
             {`${imageIndex + 1} / ${images.length}`}
           </Label>
         </View>
@@ -207,25 +175,17 @@ const SlideshowV2 = ({ images }) => {
         imageIndex={imageIndex}
         HeaderComponent={(e) => {
           return (
-            <View
-              style={{
-                width: "100%",
-                marginTop: 40,
-                flexDirection: "row",
-                justifyContent: "space-between",
-                paddingHorizontal: 10,
-              }}
-            >
+            <View style={styles.rowBetween}>
               <Image
                 width={100}
                 height={100}
                 source={companyLogo}
                 resizeMode="contain"
-                style={{ width: 100, height: 100 }}
+                style={styles.image}
               ></Image>
-              <View style={{ top: 20 }}>
+              <View style={styles.offset}>
                 <TouchableOpacity activeOpacity={0.7} onPress={galleryClose}>
-                  <View style={{ padding: 10 }}>
+                  <View style={styles.pad}>
                     <MaterialCommunityIcons
                       name="close"
                       size={30}
@@ -258,5 +218,54 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     // right: 0,
     // left: 0,
+  },
+  overlay: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  overlay2: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    left: 0,
+    top: 0,
+    zIndex: 200,
+    justifyContent: "flex-end",
+    alignItems: "flex-end",
+  },
+  centerBox: {
+    backgroundColor: "#33333366",
+    height: 40,
+    width: 80,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  label: {
+    color: "white",
+  },
+  rowBetween: {
+    width: "100%",
+    marginTop: 40,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 10,
+  },
+  image: {
+    width: 100,
+    height: 100,
+  },
+  offset: {
+    top: 20,
+  },
+  pad: {
+    padding: 10,
+  },
+  bordered: {
+    backgroundColor: "white",
+    borderRadius: 50,
+    overflow: "hidden",
   },
 });

@@ -1,9 +1,5 @@
-import React, { createContext, useContext, useRef, useState } from "react";
-import { Alert } from "react-native";
-import { AuthContext } from "../auth/auth.context";
+import React, { createContext, useCallback, useMemo, useRef, useState } from "react";
 import * as SecureStore from "expo-secure-store";
-import { axiosInstance } from "../interceptor/axiosInstance";
-import { UserContext } from "../user/user.context";
 import useRequest from "../../../hooks/useRequest";
 import useAuth from "../../../hooks/useAuth";
 
@@ -18,7 +14,7 @@ export const UploadContextProvider = ({ children }) => {
 
   const controller = useRef();
 
-  const uploadCard = async (formData) => {
+  const uploadCard = useCallback(async (formData) => {
     controller.current = new AbortController();
 
     const signal = controller.current.signal;
@@ -71,20 +67,24 @@ export const UploadContextProvider = ({ children }) => {
     //       "Error in server, please contact the administrator"
     //     );
     //   });
-  };
+  }, [request, submittedCard]);
 
-  const abortUpload = () => {
+  const abortUpload = useCallback(() => {
     if (controller != undefined) {
       controller.current.abort();
     }
-  };
+  }, []);
 
-  const contextValue = {
-    uploadCard,
-    loading,
-    setLoading,
-    abortUpload,
-  };
+  // setLoading is a state setter, so only `loading` and the two callbacks move.
+  const contextValue = useMemo(
+    () => ({
+      uploadCard,
+      loading,
+      setLoading,
+      abortUpload,
+    }),
+    [uploadCard, loading, abortUpload]
+  );
 
   return (
     <UploadContext.Provider value={contextValue}>

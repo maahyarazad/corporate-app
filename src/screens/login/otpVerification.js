@@ -1,23 +1,15 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import React, { useContext, useEffect, useState } from "react";
 import { TouchableOpacity, View, StyleSheet } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { ActivityIndicator } from "react-native-paper";
-import { sub } from "react-native-reanimated";
 import { useTheme } from "styled-components/native";
 import Background from "../../components/background/background.component";
 import { CodeInputField } from "../../components/codeInputField";
 import { SafeArea } from "../../components/safearea.component";
-import { Spacer } from "../../components/spacer/spacer.component";
-import {
-  BottomHalf,
-  height,
-  IconBg,
-  TopHalf,
-  VerifyButton,
-  width,
-} from "../../components/styles";
+import { BottomHalf, IconBg, width } from "../../components/styles";
 import { Label } from "../../components/typography/label.component";
 import { AuthContext } from "../../services/auth/auth.context";
 import { TranslationContext } from "../../services/translation/translation.context";
@@ -27,8 +19,6 @@ import useAuth from "../../../hooks/useAuth";
 import useUser from "../../../hooks/useUser";
 import { useOtpAutoRead } from "../../../hooks/useOtpAutoRead";
 import { navigate } from "../../navigation/navigate";
-import { showToast } from "../../Toast";
-import { fontSizes } from "../../infrastructure/theme/fonts";
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -40,9 +30,45 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginBottom: 20,
   },
+  safeArea2: {
+    alignItems: "center",
+  },
+  keyboardAwareScrollView: {
+    flexGrow: 1,
+    overflow: "hidden",
+  },
+  keyboardAwareScrollViewContentContainer: {
+    paddingBottom: 32,
+  },
+  centered: {
+    height: "100%",
+    alignItems: "center",
+  },
+  tint: {
+    backgroundColor: "rgba(0,0,0,0)",
+    marginBottom: 20,
+  },
+  codeInputFieldCodeInputBox: {
+    width: 60,
+    height: 60,
+  },
+  codeInputFieldCodeInputText: {
+    fontSize: 30,
+  },
+  codeInputFieldInputBox: {
+    borderWidth: 4,
+    borderRadius: 50,
+  },
+  label: {
+    color: "white",
+  },
 });
 
-export const OtpVerification = ({ route, navigation }) => {
+export const OtpVerification = ({ route }) => {
+  // Static-config screens receive only `route` - the navigator renders them
+  // through a render callback, so `navigation` never arrives as a prop.
+  const navigation = useNavigation();
+
   const MAX_CODE_LENGTH = 4;
   const OTP_COOLDOWN = 120;
   const { resendOTP } = useContext(AuthContext);
@@ -157,20 +183,13 @@ export const OtpVerification = ({ route, navigation }) => {
 
   return (
     <Background>
-      <SafeArea style={{ alignItems: "center" }}>
+      <SafeArea style={styles.safeArea2}>
         <KeyboardAwareScrollView
           behavior="position"
-          style={{ flexGrow: 1, overflow: "hidden" }}
-          contentContainerStyle={{
-            paddingBottom: 32,
-          }}
+          style={styles.keyboardAwareScrollView}
+          contentContainerStyle={styles.keyboardAwareScrollViewContentContainer}
         >
-          <View
-            style={{
-              height: "100%",
-              alignItems: "center",
-            }}
-          >
+          <View style={styles.centered}>
             <IconBg>
               <StatusBar style="light" />
               <MaterialCommunityIcons
@@ -180,7 +199,7 @@ export const OtpVerification = ({ route, navigation }) => {
               />
             </IconBg>
             <BottomHalf>
-              <View style={{ alignItems: "center" }}>
+              <View style={styles.safeArea2}>
                 <Label
                   style={{
                     color: "white",
@@ -227,12 +246,10 @@ export const OtpVerification = ({ route, navigation }) => {
                 </Label>
               </TouchableOpacity>
 
-              <View
-                style={{ backgroundColor: "rgba(0,0,0,0)", marginBottom: 20 }}
-              >
+              <View style={styles.tint}>
                 <CodeInputField
-                  codeInputBoxStyle={{ width: 60, height: 60 }}
-                  codeInputTextStyle={{ fontSize: 30 }}
+                  codeInputBoxStyle={styles.codeInputFieldCodeInputBox}
+                  codeInputTextStyle={styles.codeInputFieldCodeInputText}
                   setPinReady={setPinReady}
                   setCode={handleCodeChange}
                   code={code}
@@ -241,7 +258,7 @@ export const OtpVerification = ({ route, navigation }) => {
                   containerStyle={{
                     width: Math.min(width - 64, INPUT_MAX_WIDTH),
                   }}
-                  inputBoxStyle={{ borderWidth: 4, borderRadius: 50 }}
+                  inputBoxStyle={styles.codeInputFieldInputBox}
                   onFulfill={(value) => {
                     handleVerify(value);
                   }}
@@ -281,7 +298,7 @@ export const OtpVerification = ({ route, navigation }) => {
                 </Label>
               ) : (
                 <TouchableOpacity onPress={handleResend}>
-                  <Label style={{ color: "white" }} size="title">
+                  <Label style={styles.label} size="title">
                     {i18n.t("auth.resend-code")}
                   </Label>
                 </TouchableOpacity>

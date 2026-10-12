@@ -1,9 +1,8 @@
 import { createStackNavigator } from "@react-navigation/stack";
-import React, { useContext, useEffect, useCallback, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import moment from "moment";
 import {
   Image,
-  SafeAreaView,
   TouchableOpacity,
   View,
   StyleSheet,
@@ -19,12 +18,13 @@ import useAuth from "../../../hooks/useAuth";
 import { Label } from "../../components/typography/label.component";
 import CustomButton from "../../components/customButton.component";
 import { theme } from "../../infrastructure/theme";
-import { goback } from "../../navigation/navigate";
+import { returnToMain } from "../../navigation/navigate";
 import { LinearGradient } from "expo-linear-gradient";
 import { TranslationContext } from "../../services/translation/translation.context";
 import { CacheImage } from "../../components/cacheImage";
 import { fontSizes } from "../../infrastructure/theme/fonts";
 import useRequest from "../../../hooks/useRequest";
+import { isCancel } from "../../utils/cancellation";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
@@ -34,63 +34,91 @@ const CARD_BOX_SIZE = 55;
 const CARD_ICON_SIZE = 45;
 const CARD_ICON_COLOR = "#fba918";
 
+// Wrapped rather than passed straight to onPress: TouchableOpacity hands its
+// callback a GestureResponderEvent, and returnToMain's first parameter is the
+// tab name. `onPress={returnToMain}` would therefore try to select a tab named
+// after a synthetic event object.
+//
+// returnToMain, not navigate("Main", ...): it drops every screen above Main
+// whatever the stack is. See the comment on the helper itself.
+const goHome = () => returnToMain();
+
 const ProfilePrimaryScreen = () => {
   const request = useRequest();
   const { userData } = useUser();
   const [partnerTitle, setPartnerTitle] = useState("");
-  
 
-  const getPartnerTitle = useCallback(async () => {
-    try {
-      const response = await request(
-        `/partners/partner-title/${userData.partner_id}`,
-        "get"
-      );
-      if (response && response.success) {
-        setPartnerTitle(response.data.title);
-      }
-    } catch (error) {
-      console.log("Failed to get partner title", error);
-    }
-  }, []);
-
+  // Declared inside the effect rather than as a useCallback above it, which is
+  // the same shape map.screen.js uses. useRequest returns a NEW function on
+  // every render (hooks/useRequest.js builds `httpRequest` as a plain const,
+  // not a useCallback), so a useCallback wrapper could never list `request` as
+  // a dependency without re-running forever - and omitting it captured a stale
+  // `request`, and with it a stale access token.
+  //
+  // Depends on partner_id alone, not the whole userData object: it is the only
+  // field read here, so an unrelated profile edit no longer refetches.
   useEffect(() => {
+    const controller = new AbortController();
+
+    const getPartnerTitle = async () => {
+      // Previously the URL was built from `userData.partner_id` unguarded. The
+      // TypeError on a null userData was swallowed by the catch below, so it
+      // read as "the title just did not load".
+      if (!userData?.partner_id) return;
+
+      try {
+        const response = await request(
+          `/partners/partner-title/${userData.partner_id}`,
+          "get",
+          undefined,
+          undefined,
+          controller.signal
+        );
+        if (response && response.success) {
+          setPartnerTitle(response.data.title);
+        }
+      } catch (error) {
+        // An abort is this screen being disposed, which is routine here - see
+        // specs/012-dispose-profile-and. Only real failures are worth logging.
+        if (isCancel(error)) return;
+        console.log("Failed to get partner title", error);
+      }
+    };
+
     getPartnerTitle();
-  }, [userData]);
+
+    return () => controller.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userData?.partner_id]);
 
   const { isSkip, goToVerification } = useAuth();
   const { i18n } = useContext(TranslationContext);
 
   return (
-    <SafeArea style={{ backgroundColor: "#efefef" }}>
-      <View style={{ paddingHorizontal: 12, marginBottom: 20 }}>
+    <View style={styles.safeArea}>
+      <View style={styles.box}>
         <TouchableOpacity
-          onPress={goback}
+          onPress={goHome}
           style={styles.backButton}
           activeOpacity={0.5}
         >
           <Ionicons name="arrow-back" size={35} color="#555" />
-          <Label
-            size="body"
-            weight="bold"
-            style={{ color: "#555", justifyContent: "center" }}
-          >
+          <Label size="body" weight="bold" style={styles.label}>
             {i18n.t("return")}
           </Label>
         </TouchableOpacity>
-      </View>
-
-      <View style={{ paddingHorizontal: 14, marginBottom: 20 }}>
-        <Label weight="bold" size="h5">
-          {i18n.t("profile-tabs.page-title")}
-        </Label>
+        <View>
+          <Label weight="bold" size="h5">
+            {i18n.t("profile-tabs.page-title")}
+          </Label>
+        </View>
       </View>
 
       <View style={styles.cardWrapper}>
         {!isSkip ? (
           <View style={styles.cardContainer}>
             {userData?.card_image && userData.card_image.startsWith("GEC-") ? (
-              <View style={styles.card_style_blue}>
+              <View style={styles.card_style}>
                 <Image
                   key={userData.card_image}
                   source={require("../../../assets/GE-LOGO-GOLD.png")}
@@ -177,7 +205,7 @@ const ProfilePrimaryScreen = () => {
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
-                     {`${userData?.honorifics || ""} ${userData?.first_name || ""} ${
+                    {`${userData?.honorifics || ""} ${userData?.first_name || ""} ${
                       userData?.last_name || ""
                     }`.trim()}
                   </Label>
@@ -207,7 +235,7 @@ const ProfilePrimaryScreen = () => {
                     numberOfLines={1}
                     ellipsizeMode="tail"
                   >
-                     {userData?.expiry
+                    {userData?.expiry
                       ? moment(userData.expiry).format("MM/YY")
                       : "--/--"}
                   </Label>
@@ -228,22 +256,33 @@ const ProfilePrimaryScreen = () => {
               onPress={goToVerification}
               style={{ backgroundColor: theme.colors.icons.active }}
               label="Zur Upload-Seite gehen"
-              labelStyle={{ color: "white" }}
+              labelStyle={styles.customButtonLabel}
             />
           </View>
         )}
       </View>
 
-      <View style={{ flex: 2 }}>
+      <View style={styles.flexBox}>
         <ProfTabs />
       </View>
-    </SafeArea>
+    </View>
   );
 };
 
+// The bottom edge is deliberately absent: nothing sits below this screen -
+// Profile is a stack route, not a tab, and ProfTabs puts its bar at the top -
+// so a bottom inset here is dead space. The scrollable tab content gets that
+// inset back as padding inside ProfTabs, where it is what content actually
+// needs.
+//
+// This is also the app's only safe-area boundary for this screen. Nesting a
+// second SafeAreaView inside would apply every inset twice; the library does
+// not subtract what an ancestor already consumed.
+const PROFILE_SAFE_AREA_EDGES = ["top", "left", "right"];
+
 export const ProfileScreen = () => {
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeArea style={styles.fill} edges={PROFILE_SAFE_AREA_EDGES}>
       <ProfileStack.Navigator
         screenOptions={{ headerShown: false, gestureEnabled: false }}
       >
@@ -257,7 +296,7 @@ export const ProfileScreen = () => {
           component={PrivacyPolicyScreen}
         />
       </ProfileStack.Navigator>
-    </SafeAreaView>
+    </SafeArea>
   );
 };
 
@@ -277,7 +316,7 @@ const styles = StyleSheet.create({
   cardContainer: {
     width: "90%",
     aspectRatio: 1.45,
-
+    marginBottom: 10,
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 10,
@@ -304,14 +343,8 @@ const styles = StyleSheet.create({
     gap: 12,
   },
 
-  card_style: {
-    width: "100%",
-    height: "100%",
-    borderRadius: 10,
-    backgroundColor: "#ccc",
-  },
 
-  card_style_blue: {
+  card_style: {
     width: "100%",
     height: "100%",
     borderRadius: 10,
@@ -460,4 +493,30 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.subtitle,
     textAlign: "right",
   },
+  fill: {
+    flex: 1,
+  },
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#efefef",
+  },
+  box: {
+    paddingHorizontal: 25,
+    paddingBottom: 25,
+    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  label: {
+    color: "#555",
+    justifyContent: "center",
+  },
+  
+  customButtonLabel: {
+    color: "white",
+  },
+  flexBox: {
+    flex: 2,
+  },
+  
 });

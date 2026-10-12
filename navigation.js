@@ -1,9 +1,5 @@
 import React, { useContext, useEffect } from "react";
-import {
-  CardStyleInterpolators,
-  createStackNavigator,
-} from "@react-navigation/stack";
-import { LoadingOverlay } from "./src/components/loading/loading.component";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 import { LoginScreen } from "./src/screens/login/login.screen";
 import { EntertainerScreen } from "./src/screens/entertainer.screen";
@@ -26,11 +22,12 @@ import { SectionContext } from "./src/services/section/section.context";
 import { AvailOfferScreen } from "./src/screens/offer/availOffer.screen";
 import { LocationViewScreen } from "./src/screens/location/location-view.screen";
 import {
-  Image,
+  
   TouchableOpacity,
   View,
   Dimensions,
   ImageBackground,
+  
 } from "react-native";
 import { TransactionSummaryScreen } from "./src/screens/offer/transactionSummary.screen";
 import { ForgotPasswordScreen } from "./src/screens/reset-password/forgotPassword";
@@ -41,7 +38,6 @@ import { UnverifiedEmailScreen } from "./src/screens/login/unverifiedEmail.scree
 import { PrivacyPolicyScreen } from "./src/screens/profile/privacyPolicy.screen";
 import { EventDetailScreen } from "./src/screens/events/eventDetail.screen";
 import { EventGuestsScreen } from "./src/screens/events/eventGuests.screen";
-import { TranslationContext } from "./src/services/translation/translation.context";
 import { UpdateMemberScreen } from "./src/screens/login/updateMember.screen";
 import { NoConnectionScreen } from "./src/screens/noConnection.screen";
 import { AppContext } from "./src/services/app/app.context";
@@ -63,610 +59,479 @@ import NotificationsScreen from "./src/screens/notifications.screen";
 import ChangeMobileNumberScreen from "./src/screens/profile/changeMobileNumber.screen";
 import PostDetailMagazine from "./src/screens/posts/postDetailMagazine.screen";
 import ChangeEmailAddressScreen from "./src/screens/profile/changeEmailAddress.screen ";
-import { useNavigation } from "@react-navigation/native";
 import * as SplashScreen from "expo-splash-screen";
 
-const AuthStack = createStackNavigator();
-const MainStack = createStackNavigator();
-const ApprovalStack = createStackNavigator();
-const TimeoutStack = createStackNavigator();
-const OverlappingStack = createStackNavigator();
 
-const TimeoutStackScreen = () => {
+const noHeader = { headerShown: false };
+
+// .getComponent() is required: createNativeStackNavigator(config) returns a
+// STATIC CONFIG OBJECT, not a component. createStaticNavigation() is the
+// documented way to turn one into a component, but it also creates its own
+// NavigationContainer and must be called exactly once at the root - and this
+// app swaps between five root navigators, so it cannot be used here yet.
+//
+// getComponent() is exactly what createStaticNavigation does internally
+// (native/createStaticNavigation.js: `const Component = tree.getComponent()`,
+// then wraps it in NavigationContainer). AppNavigation already provides the
+// container, and this app passes no `linking` config, so this is equivalent.
+const TimeoutStackScreen = createNativeStackNavigator({
+  screens: {
+    noconnection: { screen: NoConnectionScreen, options: noHeader },
+  },
+}).getComponent();
+
+// Shared stack screen options.
+//
+// forHorizontalIOS is the iOS default but not Android's - Android's stack
+// reveals from the bottom - so declaring it here is what gives both platforms
+// the same horizontal slide. It cannot be dropped and inferred.
+
+// Screens the user must not swipe away from mid-flow.
+const noSwipeBack = { gestureEnabled: false };
+
+// native-stack equivalent of `slideFromRight`, for navigators converted to the
+// static config. native-stack has no cardStyleInterpolator - the platform owns
+// the transition - so forHorizontalIOS becomes `animation: "slide_from_right"`.
+// gestureResponseDistance is a plain number here; v6's object form is gone.
+const slideFromRightNative = {
+  headerShown: false,
+  animation: "slide_from_right",
+  gestureDirection: "horizontal",
+  gestureResponseDistance: 200,
+};
+
+// The rest of the native-stack translations. Verified against
+// node_modules/@react-navigation/native-stack/lib/typescript/src/types.d.ts:
+// these five have NO native-stack equivalent and are dropped, not renamed —
+//   headerBackTitleVisible, headerLeftLabelVisible,
+//   headerLeftContainerStyle, headerRightContainerStyle, detachPreviousScreen
+// The v6 constants above stay until the last navigator converts, because
+// unconverted stacks still use them.
+
+const revealFromBottomNative = {
+  headerShown: false,
+  animation: "slide_from_bottom",
+  gestureDirection: "horizontal",
+  gestureResponseDistance: 200,
+};
+
+const plainBlackHeaderNative = {
+  headerShown: false,
+  // headerBackTitleVisible: false -> the supported spelling in v7
+  headerBackButtonDisplayMode: "minimal",
+  headerTitleAlign: "left",
+  headerTintColor: "black",
+  animation: "slide_from_right",
+  gestureDirection: "horizontal",
+  gestureResponseDistance: 200,
+};
+
+const locationListOptionsNative = {
+  headerBackTitle: "",
+  headerTitle: "",
+  headerTintColor: "black",
+  // headerStyle: { shadowColor: "transparent" } -> dedicated prop in native-stack
+  headerShadowVisible: false,
+  headerLeft: renderBackArrow,
+  animation: "slide_from_bottom",
+  gestureDirection: "horizontal",
+  gestureResponseDistance: 200,
+};
+
+const locationViewOptionsNative = {
+  ...plainBlackHeaderNative,
+  headerTitle: () => <LocationViewTitle />,
+  headerStyle: locationViewHeaderStyle,
+};
+
+// headerLeftLabelVisible dropped - no native-stack equivalent. It was inert
+// anyway on postEntry, where headerShown is false.
+const postDetailOptionsNative = {
+  headerTintColor: theme.colors.icons.active,
+  headerTitleStyle: { color: "black" },
+  headerTitle: "",
+};
+
+const postEntryOptionsNative = {
+  presentation: "modal",
+  headerShown: false,
+  headerTintColor: theme.colors.icons.active,
+  headerTitleStyle: { color: "black" },
+};
+
+// The Entertainer screen draws its own header (see HEADER_HEIGHT in
+// entertainer.screen.js). native-stack forwards only backgroundColor from
+// headerStyle to the native UINavigationBar, so header height was not
+// reachable from here.
+const entertainerScreenOptionsNative = {
+  headerShown: false,
+};
+
+
+
+// ---------------------------------------------------------------------------
+// Shared screen options.
+//
+// These are static - they read nothing from props, state or context - so they
+// are built once here rather than rebuilt on every navigator render. "Reads a
+// module import" (theme, goback, CardStyleInterpolators) is not the same test
+// as "depends on props or state"; only the second blocks hoisting.
+// ---------------------------------------------------------------------------
+
+// Same three motion fields as slideFromRight but revealing from the bottom.
+// The forVerticalIOS / gestureDirection "horizontal" mismatch is what ships
+// today on both callers and is preserved deliberately - changing the dismiss
+// direction is a product decision, not a refactor.
+
+const modalNoHeader = { presentation: "modal", headerShown: false };
+
+// headerTintColor / headerTitleStyle / headerLeftLabelVisible are inert while
+// headerShown is false. They ship today; removing them would be a behavioural
+// bet, so they stay.
+
+
+
+// The stack injects onPress (its own back action) into headerLeft - see
+// @react-navigation/stack HeaderSegment.js:121 - so this needs no closure over
+// `navigation` and can live out here. onPress is undefined at the root of a
+// stack, where goBack() was a no-op too; neither caller is ever root.
+const locationListBackStyle = { paddingLeft: 15 };
+
+const renderBackArrow = ({ onPress }) => (
+  <TouchableOpacity onPress={onPress} style={locationListBackStyle}>
+    <Ionicons name="arrow-back" size={24} color="black" />
+  </TouchableOpacity>
+);
+
+
+// goback is a module-level helper, so these never needed a closure either.
+const zurueckRowStyle = {
+  flexDirection: "row",
+  alignItems: "center",
+  gap: 6,
+  paddingHorizontal: 8,
+};
+
+const renderZurueckBack = () => (
+  <TouchableOpacity onPress={goback}>
+    <View style={zurueckRowStyle}>
+      <MaterialCommunityIcons name="arrow-left" size={24} color="black" />
+      <Label>Zuruck</Label>
+    </View>
+  </TouchableOpacity>
+);
+
+const zurueckHeaderOptions = {
+  headerShown: true,
+  title: "",
+  headerLeft: renderZurueckBack,
+};
+
+// Looks like zurueckHeaderOptions and is not: this View has no style, so the
+// arrow sits above the label instead of beside it. Do not merge the two.
+const renderPostSelectBack = () => (
+  <TouchableOpacity onPress={goback}>
+    <View>
+      <MaterialCommunityIcons name="arrow-left" size={24} color="black" />
+      <Label>Zuruck</Label>
+    </View>
+  </TouchableOpacity>
+);
+
+const postSelectOptions = {
+  presentation: "modal",
+  headerShown: false,
+  title: "",
+  headerLeft: renderPostSelectBack,
+};
+
+// Static configuration (React Navigation 7). `createNativeStackNavigator` given a
+// config object returns a renderable component, so this drops straight into the
+// existing dynamic root in AppNavigation - createStaticNavigation is only needed
+// when the static tree owns the container, which it does not here yet.
+//
+// Route names are byte-identical to the JSX version they replace. They are the
+// keys `navigate()` is called with from 75 call sites, spaces included.
+const AuthStackScreen = createNativeStackNavigator({
+  initialRouteName: "Login",
+  screenOptions: noHeader,
+  screens: {
+    Login: LoginScreen,
+    "Login Privacy Policy": PrivacyPolicyScreen,
+    "Unverified Email": {
+      screen: UnverifiedEmailScreen,
+      options: slideFromRightNative,
+    },
+    ChangePassword: {
+      screen: ChangePasswordScreen,
+      options: slideFromRightNative,
+    },
+    ForgotPassword: {
+      screen: ForgotPasswordScreen,
+      options: slideFromRightNative,
+    },
+    ForgotPasswordOTP: {
+      screen: ForgotPasswordOTPScreen,
+      options: slideFromRightNative,
+    },
+    UpdateMember: {
+      screen: UpdateMemberScreen,
+      options: slideFromRightNative,
+    },
+    RegisterDetails: {
+      screen: RegistrationDetailsScreen,
+      options: slideFromRightNative,
+    },
+    RegisterSuccess: {
+      screen: RegistrationSuccessfulScreen,
+      options: slideFromRightNative,
+    },
+    RegisterSuccessByServices: {
+      screen: RegistrationSuccessByServices,
+      options: slideFromRightNative,
+    },
+    VerifyInfo: {
+      screen: VerifyInfo,
+      options: slideFromRightNative,
+    },
+    Registration: {
+      screen: RegistrationScreen,
+      options: slideFromRightNative,
+    },
+    VerifyOTP: {
+      screen: OtpVerification,
+      options: slideFromRightNative,
+    },
+    MobileChange: {
+      screen: ChangeMobileNumberScreen,
+      options: slideFromRightNative,
+    },
+    EmailChange: {
+      screen: ChangeEmailAddressScreen,
+      options: slideFromRightNative,
+    },
+  },
+}).getComponent();
+
+// The <BottomSheetModalProvider> wrapper moves into the static config's `layout`
+// key, which exists for exactly this. screenOptions={keepPreviousScreenAttached}
+// is GONE: detachPreviousScreen has no native-stack equivalent. It was added by
+// 7a1b9f4 to stop the Entertainer screen jolting on return - if that jolt comes
+// back, this is why (tasks T014).
+const OverlappingNavigator = createNativeStackNavigator({
+  layout: ({ children }) => (
+    <BottomSheetModalProvider>{children}</BottomSheetModalProvider>
+  ),
+  screens: {
+    Entertainer: {
+      screen: EntertainerScreen,
+      options: entertainerScreenOptionsNative,
+    },
+    "post-tabs": { screen: PostTabsNavigationScreen, options: noHeader },
+    "post-detail": {
+      screen: PostDetailScreen,
+      options: postDetailOptionsNative,
+    },
+    "post-entry": { screen: PostEntryScreen, options: postEntryOptionsNative },
+    "post-search": { screen: PostSearch, options: revealFromBottomNative },
+    notifications: {
+      screen: NotificationsScreen,
+      options: slideFromRightNative,
+    },
+    "post-select-category": {
+      screen: PostEntryCategorySelect,
+      options: modalNoHeader,
+    },
+    "post-select": { screen: PostEntrySelect, options: postSelectOptions },
+    "marketplace-details": {
+      screen: PostDetailMarketplace,
+      options: zurueckHeaderOptions,
+    },
+    "magazine-details": {
+      screen: PostDetailMagazine,
+      options: zurueckHeaderOptions,
+    },
+  },
+});
+
+// A real component, not a callback body.
+//
+// headerTitle is invoked as a plain function call from inside Header's render
+// (@react-navigation/elements Header.js:208 - headerTitle({...}), not
+// createElement), so a hook written inline there runs as part of Header's
+// render and belongs to Header's fiber. Header.js:170 picks its title renderer
+// with `typeof customTitle !== 'function'`, so the moment this screen is given
+// a string title - one setOptions call, as postDetail.screen.js already does -
+// the same Header instance loses a hook and React throws "Rendered fewer hooks
+// than expected". Owning the hook here makes that impossible.
+const LocationViewTitle = () => {
+  const { sectionTitle } = useContext(SectionContext);
+
   return (
-    <TimeoutStack.Navigator>
-      <TimeoutStack.Screen
-        name="noconnection"
-        component={NoConnectionScreen}
-        options={{ headerShown: false }}
-      />
-    </TimeoutStack.Navigator>
+    <Label size="title" weight="bold">
+      {sectionTitle}
+    </Label>
   );
 };
 
-const AuthStackScreen = () => {
-  return (
-    <AuthStack.Navigator>
-      <AuthStack.Screen
-        name="Login"
-        component={LoginScreen}
-        options={{ headerShown: false }}
-      />
-
-      <AuthStack.Screen
-        name="Login Privacy Policy"
-        component={PrivacyPolicyScreen}
-        options={{ headerShown: false }}
-      />
-
-      <AuthStack.Screen
-        name="Unverified Email"
-        component={UnverifiedEmailScreen}
-        options={{ headerShown: false, gestureEnabled: false }}
-      />
-
-      <AuthStack.Screen
-        name="ChangePassword"
-        component={ChangePasswordScreen}
-        options={{ headerShown: false, gestureEnabled: false }}
-      />
-
-      <AuthStack.Screen
-        name="ForgotPassword"
-        component={ForgotPasswordScreen}
-        options={{
-          headerShown: false,
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
-      />
-
-      <AuthStack.Screen
-        name="ForgotPasswordOTP"
-        component={ForgotPasswordOTPScreen}
-        options={{ headerShown: false, gestureEnabled: false }}
-      />
-
-      <AuthStack.Screen
-        name="UpdateMember"
-        component={UpdateMemberScreen}
-        options={{
-          headerShown: false,
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
-      />
-
-      <AuthStack.Screen
-        name="RegisterDetails"
-        component={RegistrationDetailsScreen}
-        options={{
-          headerShown: false,
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
-      />
-
-      <AuthStack.Screen
-        name="RegisterSuccess"
-        component={RegistrationSuccessfulScreen}
-        options={{ headerShown: false, gestureEnabled: false }}
-      />
-
-      <AuthStack.Screen
-        name="RegisterSuccessByServices"
-        component={RegistrationSuccessByServices}
-        options={{ headerShown: false, gestureEnabled: false }}
-      />
-
-      <AuthStack.Screen
-        name="VerifyInfo"
-        component={VerifyInfo}
-        options={{
-          headerShown: false,
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
-      />
-
-      <AuthStack.Screen
-        name="Registration"
-        component={RegistrationScreen}
-        options={{ headerShown: false, gestureEnabled: false }}
-      />
-
-      <AuthStack.Screen
-        name="VerifyOTP"
-        component={OtpVerification}
-        options={{
-          headerShown: false,
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
-      />
-
-      <AuthStack.Screen
-        name="MobileChange"
-        component={ChangeMobileNumberScreen}
-        options={{
-          headerShown: false,
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
-      />
-
-      <AuthStack.Screen
-        name="EmailChange"
-        component={ChangeEmailAddressScreen}
-        options={{
-          headerShown: false,
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
-      />
-    </AuthStack.Navigator>
-  );
+const locationViewHeaderStyle = {
+  borderColor: "black",
+  shadowColor: "transparent",
+  backgroundColor: "transparent",
 };
 
-const OverlappingNavigator = () => {
-  const { i18n } = useContext(TranslationContext);
+// The spread runs once at module load, so composing costs nothing per render -
+// unlike a spread written inside JSX, which would rebuild the object every time
+// and defeat the point.
 
-  return (
-    <BottomSheetModalProvider>
-      <OverlappingStack.Navigator>
-        <OverlappingStack.Screen
-          name="Entertainer"
-          component={EntertainerScreen}
-          options={{
-            headerShown: true,
-            headerTitle: "",
-            headerLeftContainerStyle: { paddingLeft: 8 },
-            headerRightContainerStyle: { paddingRight: 4 },
-            headerLeft: () => (
-              <View
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  justifyContent: "center",
-                }}
-              >
-                <Image
-                  style={{
-                    height: 40,
-                    width: 80,
-                    resizeMode: "contain",
-                  }}
-                  source={require("./assets/GE-LOGO-GOLD.png")}
-                />
-              </View>
-            ),
-          }}
-        />
+// TransactionSummary's title moved into the screen itself
+// (src/screens/offer/transactionSummary.screen.js) via navigation.setOptions -
+// it reads i18n from context and a module-scope static config cannot call
+// hooks. That was the last thing keeping this navigator a component.
+const MainScreen = createNativeStackNavigator({
+  screens: {
+    Main: { screen: OverlappingNavigator, options: noHeader },
+    Profile: { screen: ProfileScreen, options: slideFromRightNative },
+    Logout: { screen: LogoutScreen, options: noHeader },
+    Map: { screen: MapScreen, options: slideFromRightNative },
+    LocationList: {
+      screen: LocationListScreen,
+      options: locationListOptionsNative,
+    },
+    AvailOffer: { screen: AvailOfferScreen, options: slideFromRightNative },
+    TransactionSummary: {
+      screen: TransactionSummaryScreen,
+      options: {
+        headerShown: true,
+        gestureEnabled: false,
+        // headerBackTitleVisible: false -> supported spelling in v7
+        headerBackButtonDisplayMode: "minimal",
+      },
+    },
+    "Location View": {
+      screen: LocationViewScreen,
+      options: locationViewOptionsNative,
+    },
+    "Event Detail": {
+      screen: EventDetailScreen,
+      options: plainBlackHeaderNative,
+    },
+    "Attend Guests": {
+      screen: EventGuestsScreen,
+      options: plainBlackHeaderNative,
+    },
+  },
+}).getComponent();
 
-        <OverlappingStack.Screen
-          name="post-tabs"
-          component={PostTabsNavigationScreen}
-          options={{ headerShown: false }}
-        />
-
-        <OverlappingStack.Screen
-          name="post-detail"
-          component={PostDetailScreen}
-          options={{
-            headerTintColor: theme.colors.icons.active,
-            headerTitleStyle: { color: "black" },
-            headerLeftLabelVisible: false,
-            headerTitle: "",
-          }}
-        />
-
-        <OverlappingStack.Screen
-          name="post-entry"
-          component={PostEntryScreen}
-          options={{
-            presentation: "modal",
-            headerShown: false,
-            headerTintColor: theme.colors.icons.active,
-            headerTitleStyle: { color: "black" },
-            headerLeftLabelVisible: false,
-          }}
-        />
-
-        <OverlappingStack.Screen
-          name="post-search"
-          component={PostSearch}
-          options={{
-            headerShown: false,
-            cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-            gestureDirection: "horizontal",
-            gestureResponseDistance: 200,
-          }}
-        />
-
-        <OverlappingStack.Screen
-          name="notifications"
-          component={NotificationsScreen}
-          options={{
-            headerShown: false,
-            cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-            gestureDirection: "horizontal",
-            gestureResponseDistance: 200,
-          }}
-        />
-
-        <OverlappingStack.Screen
-          name="post-select-category"
-          component={PostEntryCategorySelect}
-          options={{
-            presentation: "modal",
-            headerShown: false,
-          }}
-        />
-
-        <OverlappingStack.Screen
-          name="post-select"
-          component={PostEntrySelect}
-          options={{
-            presentation: "modal",
-            headerShown: false,
-            title: "",
-            headerLeft: () => (
-              <TouchableOpacity onPress={goback}>
-                <View>
-                  <MaterialCommunityIcons
-                    name="arrow-left"
-                    size={24}
-                    color="black"
-                  />
-                  <Label>Zuruck</Label>
-                </View>
-              </TouchableOpacity>
-            ),
-          }}
-        />
-
-        <OverlappingStack.Screen
-          name="marketplace-details"
-          component={PostDetailMarketplace}
-          options={{
-            headerShown: true,
-            title: "",
-            headerLeft: () => (
-              <TouchableOpacity onPress={goback}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: 6,
-                    paddingHorizontal: 8,
-                  }}
-                >
-                  <MaterialCommunityIcons
-                    name="arrow-left"
-                    size={24}
-                    color="black"
-                  />
-                  <Label>Zuruck</Label>
-                </View>
-              </TouchableOpacity>
-            ),
-          }}
-        />
-
-        <OverlappingStack.Screen
-          name="magazine-details"
-          component={PostDetailMagazine}
-          options={{
-            headerShown: true,
-            title: "",
-            headerLeft: () => (
-              <TouchableOpacity onPress={goback}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: 6,
-                    paddingHorizontal: 8,
-                  }}
-                >
-                  <MaterialCommunityIcons
-                    name="arrow-left"
-                    size={24}
-                    color="black"
-                  />
-                  <Label>Zuruck</Label>
-                </View>
-              </TouchableOpacity>
-            ),
-          }}
-        />
-      </OverlappingStack.Navigator>
-    </BottomSheetModalProvider>
-  );
-};
-
-const MainScreen = () => {
-  const { i18n } = useContext(TranslationContext);
-  const navigation = useNavigation();
-  return (
-    <MainStack.Navigator>
-      <MainStack.Screen
-        name="Main"
-        component={OverlappingNavigator}
-        options={{ headerShown: false }}
-      />
-
-      <MainStack.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{ headerShown: false }}
-      />
-
-      <MainStack.Screen
-        name="Logout"
-        component={LogoutScreen}
-        options={{ headerShown: false }}
-      />
-
-      <MainStack.Screen
-        name="Map"
-        component={MapScreen}
-        options={{
-          headerShown: false,
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
-      />
-
-      <MainStack.Screen
-        name="LocationList"
-        component={LocationListScreen}
-        options={{
-          headerBackTitle: "",
-          headerTitle: "",
-          headerTintColor: "black",
-          headerStyle: { shadowColor: "transparent" },
-
-          headerLeft: () => (
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              style={{ paddingLeft: 15 }}
-            >
-              <Ionicons name="arrow-back" size={24} color="black" />
-            </TouchableOpacity>
-          ),
-          cardStyleInterpolator: CardStyleInterpolators.forVerticalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
-      />
-
-      <MainStack.Screen
-        name="AvailOffer"
-        component={AvailOfferScreen}
-        options={{
-          headerShown: false,
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
-      />
-
-      <MainStack.Screen
-        name="TransactionSummary"
-        component={TransactionSummaryScreen}
-        options={{
-          headerShown: true,
-          title: i18n.t("redemption-success.transaction-summary"),
-          gestureEnabled: false,
-          headerBackTitleVisible: false,
-        }}
-      />
-
-      <MainStack.Screen
-        name="Location View"
-        component={LocationViewScreen}
-        options={{
-          headerShown: false,
-          headerBackTitleVisible: false,
-          headerTitleAlign: "left",
-          headerTintColor: "black",
-          headerTitle: () => {
-            const { sectionTitle } = useContext(SectionContext);
-            return (
-              <Label size="title" weight="bold">
-                {sectionTitle}
-              </Label>
-            );
-          },
-          headerStyle: {
-            borderColor: "black",
-            shadowColor: "transparent",
-            backgroundColor: "transparent",
-          },
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
-      />
-
-      <MainStack.Screen
-        name="Event Detail"
-        component={EventDetailScreen}
-        options={{
-          headerShown: false,
-          headerBackTitleVisible: false,
-          headerTitleAlign: "left",
-          headerTintColor: "black",
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
-      />
-
-      <MainStack.Screen
-        name="Attend Guests"
-        component={EventGuestsScreen}
-        options={{
-          headerShown: false,
-          headerBackTitleVisible: false,
-          headerTitleAlign: "left",
-          headerTintColor: "black",
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
-      />
-    </MainStack.Navigator>
-  );
-};
-
-const ApprovalScreen = () => {
-  return (
-    <ApprovalStack.Navigator>
-      <ApprovalStack.Screen
-        name="RequestApproval"
-        component={RequestApprovalScreen}
-        options={{ headerShown: false }}
-      />
-      <ApprovalStack.Screen
-        name="AuthEditProfile"
-        component={AuthEditProfileScreen}
-        options={{
-          headerShown: false,
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
-      />
-      <ApprovalStack.Screen
-        name="Camera"
-        component={CameraScreen}
-        options={{
-          headerShown: false,
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-          gestureDirection: "horizontal",
-          gestureResponseDistance: 200,
-        }}
-      />
-      <ApprovalStack.Screen
-        name="Logout"
-        component={LogoutScreen}
-        options={{ headerShown: false }}
-      />
-    </ApprovalStack.Navigator>
-  );
-};
+const ApprovalScreen = createNativeStackNavigator({
+  screens: {
+    RequestApproval: { screen: RequestApprovalScreen, options: noHeader },
+    AuthEditProfile: {
+      screen: AuthEditProfileScreen,
+      options: slideFromRightNative,
+    },
+    Camera: { screen: CameraScreen, options: slideFromRightNative },
+    Logout: { screen: LogoutScreen, options: noHeader },
+  },
+}).getComponent();
 
 SplashScreen.preventAutoHideAsync();
 export const AppNavigation = () => {
   const { isOutdated } = useContext(AppContext);
   const { width, height } = Dimensions.get("screen");
-  const { phoneVerified, refreshToken, isSkip, noConnection, isAuthorized } =
-    useAuth();
+  const { phoneVerified, refreshToken, isSkip, noConnection, isAuthorized } = useAuth();
 
-//   const assets = null;
- 
+  const [assets] = useAssets([
+    require("./assets/IFZA-Logo.png"),
+    require("./assets/ifza-login-bg2.jpg"),
+    require("./assets/ifza-login-bg.webp"),
+    require("./assets/GE-LOGO-GOLD.png"),
 
-  const renderNavigator = () => {
-       const [assets] = useAssets([
-      require("./assets/IFZA-Logo.png"),
-      require("./assets/ifza-login-bg2.jpg"),
-      require("./assets/ifza-login-bg.webp"),
-      require("./assets/GE-LOGO-GOLD.png"),
+    require("./assets/Food_Drinks.png"),
+    require("./assets/Beauty_Fitness.png"),
+    require("./assets/Attraction_Leisure.png"),
+    require("./assets/Fashion_Retail.png"),
+    require("./assets/EverydayServices.png"),
+    require("./assets/Travel.png"),
+    require("./assets/Education.png"),
+    require("./assets/Healthcare.png"),
+    require("./assets/FinancialServices.png"),
+    require("./assets/RealEstate.png"),
+    require("./assets/Consulting.png"),
 
-      require("./assets/Food_Drinks.png"),
-      require("./assets/Beauty_Fitness.png"),
-      require("./assets/Attraction_Leisure.png"),
-      require("./assets/Fashion_Retail.png"),
-      require("./assets/EverydayServices.png"),
-      require("./assets/Travel.png"),
-      require("./assets/Education.png"),
-      require("./assets/Healthcare.png"),
-      require("./assets/FinancialServices.png"),
-      require("./assets/RealEstate.png"),
-      require("./assets/Consulting.png"),
+    require("./assets/stamps/GEC_1_Off_Discount.png"),
+    require("./assets/stamps/GEC_2_Off_Discount.png"),
+    require("./assets/stamps/GEC_3_Off_Discount.png"),
+    require("./assets/stamps/GEC_4_Off_Discount.png"),
+    require("./assets/stamps/GEC_5_Off_Discount.png"),
+    require("./assets/stamps/GEC_6_Off_Discount.png"),
+    require("./assets/stamps/GEC_7_Off_Discount.png"),
+    require("./assets/stamps/GEC_8_Off_Discount.png"),
+    require("./assets/stamps/GEC_9_Off_Discount.png"),
+    require("./assets/stamps/GEC_10_Off_Discount.png"),
+    require("./assets/stamps/GEC_11_Off_Discount.png"),
+    require("./assets/stamps/GEC_12_Off_Discount.png"),
+    require("./assets/stamps/GEC_13_Off_Discount.png"),
+    require("./assets/stamps/GEC_14_Off_Discount.png"),
+    require("./assets/stamps/GEC_15_Off_Discount.png"),
+    require("./assets/stamps/GEC_16_Off_Discount.png"),
+    require("./assets/stamps/GEC_17_Off_Discount.png"),
+    require("./assets/stamps/GEC_18_Off_Discount.png"),
+    require("./assets/stamps/GEC_19_Off_Discount.png"),
+    require("./assets/stamps/GEC_20_Off_Discount.png"),
+    require("./assets/stamps/GEC_25_Off_Discount.png"),
+    require("./assets/stamps/GEC_30_Off_Discount.png"),
+    require("./assets/stamps/GEC_35_Off_Discount.png"),
+    require("./assets/stamps/GEC_40_Off_Discount.png"),
+    require("./assets/stamps/GEC_45_Off_Discount.png"),
+    require("./assets/stamps/GEC_50_Off_Discount.png"),
+    require("./assets/stamps/GEC_55_Off_Discount.png"),
+    require("./assets/stamps/GEC_60_Off_Discount.png"),
+    require("./assets/stamps/GEC_65_Off_Discount.png"),
+    require("./assets/stamps/GEC_70_Off_Discount.png"),
+    require("./assets/stamps/GEC_75_Off_Discount.png"),
+    require("./assets/stamps/GEC_80_Off_Discount.png"),
+    require("./assets/stamps/GEC_85_Off_Discount.png"),
+    require("./assets/stamps/GEC_90_Off_Discount.png"),
+    require("./assets/stamps/GEC_95_Off_Discount.png"),
+    require("./assets/stamps/GEC_100_Off_Discount.png"),
+    require("./assets/stamps/GEC_2_for_1.png"),
+    require("./assets/stamps/GEC_3_for_2.png"),
+    require("./assets/stamps/GEC_4_for_3.png"),
+    require("./assets/stamps/GEC_5_for_4.png"),
+    require("./assets/stamps/GEC_6_for_5.png"),
+    require("./assets/stamps/GEC_7_for_6.png"),
+    require("./assets/stamps/GEC_Freebie.png"),
 
-      require("./assets/stamps/GEC_1_Off_Discount.png"),
-      require("./assets/stamps/GEC_2_Off_Discount.png"),
-      require("./assets/stamps/GEC_3_Off_Discount.png"),
-      require("./assets/stamps/GEC_4_Off_Discount.png"),
-      require("./assets/stamps/GEC_5_Off_Discount.png"),
-      require("./assets/stamps/GEC_6_Off_Discount.png"),
-      require("./assets/stamps/GEC_7_Off_Discount.png"),
-      require("./assets/stamps/GEC_8_Off_Discount.png"),
-      require("./assets/stamps/GEC_9_Off_Discount.png"),
-      require("./assets/stamps/GEC_10_Off_Discount.png"),
-      require("./assets/stamps/GEC_11_Off_Discount.png"),
-      require("./assets/stamps/GEC_12_Off_Discount.png"),
-      require("./assets/stamps/GEC_13_Off_Discount.png"),
-      require("./assets/stamps/GEC_14_Off_Discount.png"),
-      require("./assets/stamps/GEC_15_Off_Discount.png"),
-      require("./assets/stamps/GEC_16_Off_Discount.png"),
-      require("./assets/stamps/GEC_17_Off_Discount.png"),
-      require("./assets/stamps/GEC_18_Off_Discount.png"),
-      require("./assets/stamps/GEC_19_Off_Discount.png"),
-      require("./assets/stamps/GEC_20_Off_Discount.png"),
-      require("./assets/stamps/GEC_25_Off_Discount.png"),
-      require("./assets/stamps/GEC_30_Off_Discount.png"),
-      require("./assets/stamps/GEC_35_Off_Discount.png"),
-      require("./assets/stamps/GEC_40_Off_Discount.png"),
-      require("./assets/stamps/GEC_45_Off_Discount.png"),
-      require("./assets/stamps/GEC_50_Off_Discount.png"),
-      require("./assets/stamps/GEC_55_Off_Discount.png"),
-      require("./assets/stamps/GEC_60_Off_Discount.png"),
-      require("./assets/stamps/GEC_65_Off_Discount.png"),
-      require("./assets/stamps/GEC_70_Off_Discount.png"),
-      require("./assets/stamps/GEC_75_Off_Discount.png"),
-      require("./assets/stamps/GEC_80_Off_Discount.png"),
-      require("./assets/stamps/GEC_85_Off_Discount.png"),
-      require("./assets/stamps/GEC_90_Off_Discount.png"),
-      require("./assets/stamps/GEC_95_Off_Discount.png"),
-      require("./assets/stamps/GEC_100_Off_Discount.png"),
-      require("./assets/stamps/GEC_2_for_1.png"),
-      require("./assets/stamps/GEC_3_for_2.png"),
-      require("./assets/stamps/GEC_4_for_3.png"),
-      require("./assets/stamps/GEC_5_for_4.png"),
-      require("./assets/stamps/GEC_6_for_5.png"),
-      require("./assets/stamps/GEC_7_for_6.png"),
-      require("./assets/stamps/GEC_Freebie.png"),
-
-      require("./assets/specials/Workspace.png"),
-      require("./assets/specials/Adrenaline.png"),
-      require("./assets/specials/Brand_New.png"),
-      require("./assets/specials/Breakfast.png"),
-      require("./assets/specials/Brunches.png"),
-      require("./assets/specials/Buffet.png"),
-      require("./assets/specials/Cuisine.png"),
-      require("./assets/specials/Daycations.png"),
-      require("./assets/specials/Delivery.png"),
-      require("./assets/specials/Flash_Sale.png"),
-      require("./assets/specials/Gourmet.png"),
-      require("./assets/specials/Hot_Pick.png"),
-      require("./assets/specials/Kids.png"),
-      require("./assets/specials/Monthly_Offers.png"),
-      require("./assets/specials/Pet_Friendly.png"),
-      require("./assets/specials/Shisha_Offers.png"),
-      require("./assets/specials/Staycations.png"),
-      require("./assets/specials/Summer_Super_Sale.png"),
-      require("./assets/specials/Takeaway.png"),
-      require("./assets/specials/Trending_Offers.png"),
-    ]);
+    require("./assets/specials/Workspace.png"),
+    require("./assets/specials/Adrenaline.png"),
+    require("./assets/specials/Brand_New.png"),
+    require("./assets/specials/Breakfast.png"),
+    require("./assets/specials/Brunches.png"),
+    require("./assets/specials/Buffet.png"),
+    require("./assets/specials/Cuisine.png"),
+    require("./assets/specials/Daycations.png"),
+    require("./assets/specials/Delivery.png"),
+    require("./assets/specials/Flash_Sale.png"),
+    require("./assets/specials/Gourmet.png"),
+    require("./assets/specials/Hot_Pick.png"),
+    require("./assets/specials/Kids.png"),
+    require("./assets/specials/Monthly_Offers.png"),
+    require("./assets/specials/Pet_Friendly.png"),
+    require("./assets/specials/Shisha_Offers.png"),
+    require("./assets/specials/Staycations.png"),
+    require("./assets/specials/Summer_Super_Sale.png"),
+    require("./assets/specials/Takeaway.png"),
+    require("./assets/specials/Trending_Offers.png"),
+  ]);
 
   useEffect(() => {
     if (assets) {
       SplashScreen.hideAsync();
     }
   }, [assets]);
-      if (!assets) {
+
+  if (!assets) {
     return (
       <ImageBackground
         source={require("./assets/splash.png")}
@@ -696,30 +561,35 @@ export const AppNavigation = () => {
     );
   }
 
-    if (noConnection) {
-      return <TimeoutStackScreen />;
+  if (noConnection) {
+    return <TimeoutStackScreen />;
+  }
+
+  if (isOutdated) {
+    return <VersionMismatchScreen />;
+  }
+
+  if (phoneVerified && refreshToken) {
+    if (isAuthorized || isSkip) {
+      return (
+        <NavigationContainer ref={navigationRef}>
+          <MainScreen />
+        </NavigationContainer>
+      );
     }
-
-    if (isOutdated) {
-      return <VersionMismatchScreen />;
-    }
-
-    if (phoneVerified && refreshToken) {
-      if (isAuthorized || isSkip) {
-        return <MainScreen />;
-      }
-
-      return <ApprovalScreen />;
-    }
-
-    return <AuthStackScreen />;
-  };
-
-
+    return (
+      <NavigationContainer ref={navigationRef}>
+        <ApprovalScreen />
+      </NavigationContainer>
+    );
+  }
 
   return (
     <NavigationContainer ref={navigationRef}>
-      {renderNavigator()}
+      <AuthStackScreen />
     </NavigationContainer>
   );
 };
+
+  
+

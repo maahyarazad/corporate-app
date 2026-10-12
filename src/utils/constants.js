@@ -1,4 +1,3 @@
-import Constants from "expo-constants";
 export const honorificList = ["Mr.", "Mrs.", "Ms.", "Dr.", "Engr."];
 
 export const offerChipIcon = {

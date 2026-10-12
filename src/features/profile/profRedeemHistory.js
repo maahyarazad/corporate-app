@@ -1,17 +1,21 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import moment from "moment";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   // ActivityIndicator,
-  Animated,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { ActivityIndicator } from "react-native-paper";
 import { BreakdownRow } from "../../components/breakdownRow";
-import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";
 import { theme } from "../../infrastructure/theme";
 import { AuthContext } from "../../services/auth/auth.context";
@@ -19,11 +23,9 @@ import {
   i18n,
   TranslationContext,
 } from "../../services/translation/translation.context";
-import { UserService } from "../../services/user/user.service";
 import { config } from "../../utils/constants";
 import useRequest from "../../../hooks/useRequest";
 import useUser from "../../../hooks/useUser";
-import { useTranslation } from "../../../hooks/useTranslation";
 import useMath from "../../../hooks/useMath";
 import { isCancel } from "../../utils/cancellation";
 
@@ -73,14 +75,7 @@ export const ProfRedeemHistory = () => {
 
   const renderTotal = (total) => {
     return (
-      <View
-        style={{
-          alignSelf: "flex-end",
-          justifyContent: "space-between",
-          width: "40%",
-          flexDirection: "row",
-        }}
-      >
+      <View style={styles.rowBetween}>
         <Label weight="bold">Total</Label>
         <Label>{parseFloat(total).toFixed(2)}</Label>
       </View>
@@ -90,17 +85,10 @@ export const ProfRedeemHistory = () => {
   const renderHeader = (item) => {
     return (
       <>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: 15,
-          }}
-        >
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <View style={styles.rowBetween2}>
+          <View style={styles.rowCenter}>
             <Label weight="bold">{item.title}</Label>
-            <View style={{marginLeft: 6}} />
+            <View style={styles.spacer} />
             
             <MaterialCommunityIcons
               name={
@@ -109,7 +97,7 @@ export const ProfRedeemHistory = () => {
               size={25}
             />
           </View>
-          <View style={{ alignItems: "flex-end" }}>
+          <View style={styles.box}>
             <Label size="mini" weight="regular">
               Total
             </Label>
@@ -138,26 +126,35 @@ export const ProfRedeemHistory = () => {
 
   const [viewHeight, setViewHeight] = useState(0);
 
-  const animatedValue = useRef(new Animated.Value(viewHeight)).current;
+  const animatedValue = useSharedValue(viewHeight);
 
   const [displayBreakdown, setDisplayBreakdown] = useState(false);
   const { limitToTwoDecimalPlaces } = useMath();
 
+  // Defect D3, behaviour preserved deliberately: the original wrote
+  // `.start(setDisplayBreakdown(...))`, which invokes the setter immediately
+  // and passes its undefined return as the completion callback, so the state
+  // flipped at animation START rather than end. Kept as-is rather than
+  // silently changing UX inside a refactor - see T045 for the follow-up.
   const showBreakdown = () => {
-    Animated.timing(animatedValue, {
-      toValue: TOGGLE_BUTTON_BREAKDOWN_HEIGHT,
-      useNativeDriver: true,
+    setDisplayBreakdown(!displayBreakdown);
+    animatedValue.value = withTiming(TOGGLE_BUTTON_BREAKDOWN_HEIGHT, {
       duration: 400,
-    }).start(setDisplayBreakdown(!displayBreakdown));
+      easing: Easing.inOut(Easing.ease),
+    });
   };
 
   const hideBreakdown = () => {
-    Animated.timing(animatedValue, {
-      toValue: viewHeight,
-      useNativeDriver: true,
+    setDisplayBreakdown(!displayBreakdown);
+    animatedValue.value = withTiming(viewHeight, {
       duration: 400,
-    }).start(setDisplayBreakdown(!displayBreakdown));
+      easing: Easing.inOut(Easing.ease),
+    });
   };
+
+  const breakdownAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: animatedValue.value }],
+  }));
 
   const toggleBreakdown = () => {
     if (displayBreakdown) {
@@ -174,23 +171,16 @@ export const ProfRedeemHistory = () => {
         const { x, y, width, height } = event.nativeEvent.layout;
         // console.log(x, y, width, height);
         setViewHeight(height);
-        animatedValue.setValue(height);
+        animatedValue.value = height;
       }}
     >
       <>
-        <View
-          style={{
-            justifyContent: "center",
-            alignItems: "center",
-            padding: 32,
-            flex: 1,
-          }}
-        >
+        <View style={styles.centerBox}>
           <Label size="subtitle">{i18n.t("profile-tabs.savings-text")}</Label>
           <Label size="subtitle">
             ({moment(new Date()).format("DD.MMM YYYY")})
           </Label>
-          <View style={{ paddingVertical: 16 }}>
+          <View style={styles.pad}>
             {overall != undefined ? (
               <>
                 <Label
@@ -225,36 +215,22 @@ export const ProfRedeemHistory = () => {
         </View>
 
         <Animated.View
-          style={{
-            position: "absolute",
-            bottom: TOGGLE_BUTTON_BREAKDOWN_HEIGHT,
-            width: "100%",
-            height: viewHeight,
-            transform: [
-              {
-                translateY: animatedValue,
-              },
-            ],
-          }}
+          style={[
+            {
+              position: "absolute",
+              bottom: TOGGLE_BUTTON_BREAKDOWN_HEIGHT,
+              width: "100%",
+              height: viewHeight,
+            },
+            breakdownAnimatedStyle,
+          ]}
         >
           <TouchableOpacity
             containerStyle={{}}
             onPress={toggleBreakdown}
-            style={{
-              alignItems: "center",
-              justifyContent: "center",
-              width: "auto",
-              height: TOGGLE_BUTTON_BREAKDOWN_HEIGHT,
-              backgroundColor: "#eee",
-            }}
+            style={[styles.centerBox3, { height: TOGGLE_BUTTON_BREAKDOWN_HEIGHT }]}
           >
-            <View
-              style={{
-                justifyContent: "center",
-                alignItems: "center",
-                flexDirection: "row",
-              }}
-            >
+            <View style={styles.rowCenter2}>
               <MaterialCommunityIcons
                 name={displayBreakdown ? "chevron-down" : "chevron-up"}
                 size={25}
@@ -270,31 +246,16 @@ export const ProfRedeemHistory = () => {
           </TouchableOpacity>
           <ScrollView
             stickyHeaderIndices={headerList}
-            contentContainerStyle={{
-              flex: 1,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-            style={{
-              alignSelf: "stretch",
-              height: "100%",
-              backgroundColor: "white",
-            }}
+            contentContainerStyle={styles.contentContainerCenterBox}
+            style={styles.box2}
           >
             {data ? (
-              <ScrollView style={{ alignSelf: "stretch", height: "100%" }}>
+              <ScrollView style={styles.box3}>
                 {data.map((item, index) => {
                   return <RenderRow key={index} item={item} />;
                 })}
-                <View
-                  style={{
-                    alignSelf: "stretch",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    paddingVertical: 16,
-                  }}
-                >
-                  <Label style={{ color: "#aaa" }}>
+                <View style={styles.centerBox2}>
+                  <Label style={styles.label}>
                     -- {i18n.t("end-of-list")} --
                   </Label>
                 </View>
@@ -319,5 +280,70 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#f8f8f8",
+  },
+  rowBetween: {
+    alignSelf: "flex-end",
+    justifyContent: "space-between",
+    width: "40%",
+    flexDirection: "row",
+  },
+  rowBetween2: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 15,
+  },
+  rowCenter: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  spacer: {
+    marginLeft: 6,
+  },
+  box: {
+    alignItems: "flex-end",
+  },
+  centerBox: {
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 32,
+    flex: 1,
+  },
+  pad: {
+    paddingVertical: 16,
+  },
+  rowCenter2: {
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+  },
+  contentContainerCenterBox: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  box2: {
+    alignSelf: "stretch",
+    height: "100%",
+    backgroundColor: "white",
+  },
+  box3: {
+    alignSelf: "stretch",
+    height: "100%",
+  },
+  centerBox2: {
+    alignSelf: "stretch",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 16,
+  },
+  label: {
+    color: "#aaa",
+  },
+  centerBox3: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: "auto",
+    backgroundColor: "#eee",
   },
 });

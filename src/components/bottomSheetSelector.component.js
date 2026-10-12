@@ -1,16 +1,6 @@
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
-} from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
-import BottomSheetComponent, {
-  BottomSheetBackdrop,
-  BottomSheetModal,
-} from "@gorhom/bottom-sheet";
+import { BottomSheetBackdrop, BottomSheetModal, BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { Label } from "./typography/label.component";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { theme } from "../infrastructure/theme";
@@ -22,10 +12,7 @@ const BottomSheetSelector = ({
   display = true,
 }) => {
   const bottomSheetRef = useRef(null);
-  const snapPoints = useMemo(() => [windowSize], []);
-  const handleSheetChanges = useCallback((index) => {
-    console.log("handleSheetChanges", index);
-  }, []);
+  const snapPoints = useMemo(() => [windowSize], [windowSize]);
 
   useEffect(() => {
     if (display && data) {
@@ -35,7 +22,7 @@ const BottomSheetSelector = ({
     }
 
     return () => {};
-  }, [display]);
+  }, [display, data]);
 
   const handleSelect = (onPress) => {
     onPress();
@@ -61,18 +48,16 @@ const BottomSheetSelector = ({
         ref={bottomSheetRef}
         index={0}
         snapPoints={snapPoints}
-        onChange={handleSheetChanges}
         backdropComponent={renderBackdrop}
         backgroundStyle={{}}
         onDismiss={onClose}
       >
-        <ScrollView style={{ marginHorizontal: 12 }}>
-          <View
-            style={{
-              borderRadius: 8,
-              backgroundColor: "#eee",
-            }}
-          >
+        {/* BottomSheetScrollView, not react-native's ScrollView: it wires the
+            scroll gesture into the sheet's own handler, so dragging at
+            scroll-top moves the sheet instead of the two fighting over the
+            same pan. */}
+        <BottomSheetScrollView style={styles.bottomSheetScrollView}>
+          <View style={styles.tint}>
             {data &&
               data.map((option, index) => {
                 if (!option) {
@@ -86,24 +71,14 @@ const BottomSheetSelector = ({
                         handleSelect(option.onPress);
                       }}
                     >
-                      <View
-                        style={{
-                          padding: 10,
-                          flexDirection: "row",
-                          gap: 12,
-                          alignItems: "center",
-                          borderColor: "#ddd",
-                        }}
-                      >
+                      <View style={styles.rowCenter}>
                         <View
-                          style={{
-                            backgroundColor: theme.colors.ui.gray,
-                            width: 50,
-                            height: 50,
-                            borderRadius: 50,
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
+                          style={[
+                            styles.centerBox,
+                            {
+                              backgroundColor: theme.colors.ui.gray,
+                            },
+                          ]}
                         >
                           <MaterialCommunityIcons
                             name={option.logo}
@@ -118,15 +93,13 @@ const BottomSheetSelector = ({
                       </View>
                     </TouchableOpacity>
                     {index < data.length - 1 && (
-                      <View
-                        style={{ flex: 1, height: 2, backgroundColor: "#ddd" }}
-                      ></View>
+                      <View style={styles.flexBox}></View>
                     )}
                   </View>
                 );
               })}
           </View>
-        </ScrollView>
+        </BottomSheetScrollView>
       </BottomSheetModal>
     </>
   );
@@ -148,5 +121,31 @@ const styles = StyleSheet.create({
     shadowRadius: 11.95,
 
     elevation: 18,
+  },
+  bottomSheetScrollView: {
+    marginHorizontal: 12,
+  },
+  tint: {
+    borderRadius: 8,
+    backgroundColor: "#eee",
+  },
+  rowCenter: {
+    padding: 10,
+    flexDirection: "row",
+    gap: 12,
+    alignItems: "center",
+    borderColor: "#ddd",
+  },
+  flexBox: {
+    flex: 1,
+    height: 2,
+    backgroundColor: "#ddd",
+  },
+  centerBox: {
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

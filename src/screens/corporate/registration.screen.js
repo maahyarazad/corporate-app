@@ -1,19 +1,17 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   TouchableOpacity,
   View,
   Image,
   StyleSheet,
-  Animated,
-  Easing,
-  Vibration,
   ActivityIndicator,
   BackHandler,
 } from "react-native";
+import Animated from "react-native-reanimated";
+import { useShakeAnimation } from "../../hooks/useShakeAnimation";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "styled-components/native";
 import { SafeArea } from "../../components/safearea.component";
-import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";
 import Background from "../../components/background/background.component";
 import { goback, navigate } from "../../navigation/navigate";
@@ -27,10 +25,7 @@ import {
   isFutureExpiry,
 } from "../../utils/validateCardExpiryDate";
 import { isValidEmail } from "../../utils/isEmailValid";
-import { PartnerPicker } from "../../components/partnerPicker";
-import { PartnerService } from "../../services/location/location.service";
 import { companyLogo, config } from "../../utils/constants";
-import { DropDown } from "../../components/DropDown";
 import { PhoneInput } from "../../components/PhoneInput";
 import { showToast } from "../../Toast";
 
@@ -109,35 +104,7 @@ export const RegistrationScreen = () => {
   const phoneRef = useRef(null);
   dateLimit.setFullYear(dateLimit.getFullYear() - 18);
   const [_isFutureExpiry, setIsFutureExpiry] = useState(false);
-  const animatedShake = useRef(new Animated.Value(0)).current;
-
-  const shakeInterpolate = animatedShake.interpolate({
-    inputRange: [0, 0.5, 1, 1.5, 2],
-    outputRange: [0, -10, 0, 10, 0],
-  });
-
-  const shake = () => {
-    Vibration.vibrate();
-    Animated.loop(
-      Animated.timing(animatedShake, {
-        toValue: 2,
-        useNativeDriver: true,
-        easing: Easing.linear,
-        duration: 120,
-      }),
-      {
-        iterations: 2,
-      }
-    ).start(animatedShake.setValue(0));
-  };
-
-  const shakeAnimatedStyle = {
-    transform: [
-      {
-        translateX: shakeInterpolate,
-      },
-    ],
-  };
+  const { shakeStyle, shake } = useShakeAnimation();
 
   const validateInfo = () => {
     const username = state.username.trim();
@@ -301,7 +268,7 @@ export const RegistrationScreen = () => {
     } catch (error) {
       console.log("Validation Error:", error);
       shake();
-      showToast("error", "Server Error", error);
+      showToast("error", error?.title ?? "Server Error", error?.message);
     } finally {
       setIsLoading(false);
     }
@@ -334,7 +301,7 @@ export const RegistrationScreen = () => {
         <SafeArea style={styles.safeArea}>
           <Image style={styles.companyLogo} source={companyLogo} />
 
-          <Animated.View style={[styles.safeArea, shakeAnimatedStyle]}>
+          <Animated.View style={[styles.safeArea, shakeStyle]}>
             <KeyboardAwareScrollView
               enableOnAndroid
               extraScrollHeight={20}
@@ -342,39 +309,20 @@ export const RegistrationScreen = () => {
               keyboardShouldPersistTaps="handled"
               keyboardDismissMode="on-drag"
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={{
-                flexGrow: 1,
-                paddingHorizontal: 16,
-                paddingBottom: 40,
-              }}
-              style={{ flex: 1 }}
+              contentContainerStyle={styles.keyboardAwareScrollViewContentContainer}
+              style={styles.keyboardAwareScrollView}
             >
-                <View style={{flex: 1, justifyContent:'center'}}>
+                <View style={styles.flexBox}>
 
-              <View
-                style={{
-                  flexDirection: "row",
-                  
-                  marginBottom: 16,
-                  marginTop: 10,
-                }}
-              >
+              <View style={styles.row}>
                 <TouchableOpacity
                   onPress={goback}
                   disabled={isLoading}
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    opacity: isLoading ? 0.5 : 1,
-                  }}
+                  style={[styles.rowCenter, { opacity: isLoading ? 0.5 : 1 }]}
                   activeOpacity={0.5}
                 >
                   <Ionicons name="arrow-back" size={35} color="#eee" />
-                  <Label
-                    size="body"
-                    weight="bold"
-                    style={{ color: "#dfdfdf", justifyContent: "center" }}
-                  >
+                  <Label size="body" weight="bold" style={styles.label}>
                     Login
                   </Label>
                 </TouchableOpacity>
@@ -383,7 +331,7 @@ export const RegistrationScreen = () => {
               <CustomTextInput
                 ref={usernameRef}
                 value={state.username}
-                style={{ marginTop: 8 }}
+                style={styles.customTextInput}
                 onChangeText={handleUsernameChange}
                 label="Username *"
                 error={isSubmitted && state.username.trim() === ""}
@@ -394,7 +342,7 @@ export const RegistrationScreen = () => {
               <CustomTextInput
                 ref={passwordRef}
                 value={state.password}
-                style={{ marginTop: 8 }}
+                style={styles.customTextInput}
                 onChangeText={handlePasswordChange}
                 label="Password *"
                 error={
@@ -411,7 +359,7 @@ export const RegistrationScreen = () => {
               <CustomTextInput
                 ref={confirmPasswordRef}
                 value={state.cpassword}
-                style={{ marginTop: 8 }}
+                style={styles.customTextInput}
                 onChangeText={handlCPasswordChange}
                 label="Confirm Password *"
                 error={
@@ -427,7 +375,7 @@ export const RegistrationScreen = () => {
 
               <CustomTextInput
                 label="E-mail *"
-                style={{ marginTop: 8 }}
+                style={styles.customTextInput}
                 value={state.email}
                 ref={emailRef}
                 onChangeText={handleEmailChange}
@@ -448,27 +396,17 @@ export const RegistrationScreen = () => {
                     ? "Mobile is required"
                     : null
                 }
-                containerStyle={{
-                  borderRadius: 5,
-                  width: "100%",
-                  height: 60,
-                  borderWidth: 2,
-                  borderColor:
-                    isSubmitted && state.mobile.trim() === ""
-                      ? "red"
-                      : "#00000099",
-                  marginTop: 8,
-                }}
-                textContainerStyle={{
-                  borderTopRightRadius: 5,
-                  borderBottomRightRadius: 5,
-                  backgroundColor: "white",
-                  paddingVertical: 0,
-                }}
-                textInputStyle={{
-                  color: "black",
-                  fontSize: 16,
-                }}
+                containerStyle={[
+                  styles.phoneInputContainer,
+                  {
+                    borderColor:
+                      isSubmitted && state.mobile.trim() === ""
+                        ? "red"
+                        : "#00000099",
+                  },
+                ]}
+                textContainerStyle={styles.phoneInputTextContainer}
+                textInputStyle={styles.phoneInputTextInput}
                 textInputProps={{
                   selectionColor: "#a6cdfb",
                 }}
@@ -478,20 +416,18 @@ export const RegistrationScreen = () => {
                 activeOpacity={0.8}
                 onPress={nextPage}
                 disabled={isLoading}
-                style={{
-                  height: 55,
-                  backgroundColor: theme.colors.ui.button,
-                  borderRadius: 5,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  marginVertical: 8,
-                  opacity: isLoading ? 0.7 : 1,
-                }}
+                style={[
+                  styles.centerBox,
+                  {
+                    backgroundColor: theme.colors.ui.button,
+                    opacity: isLoading ? 0.7 : 1,
+                  },
+                ]}
               >
                 {isLoading ? (
                   <ActivityIndicator color="white" />
                 ) : (
-                  <Label style={{ color: "white" }} size="body" weight="bold">
+                  <Label style={styles.label2} size="body" weight="bold">
                     Next
                   </Label>
                 )}
@@ -517,5 +453,60 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     justifyContent: "flex-start",
+  },
+  keyboardAwareScrollViewContentContainer: {
+    flexGrow: 1,
+    paddingHorizontal: 16,
+    paddingBottom: 40,
+  },
+  keyboardAwareScrollView: {
+    flex: 1,
+  },
+  flexBox: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  row: {
+    flexDirection: "row",
+    marginBottom: 16,
+    marginTop: 10,
+  },
+  label: {
+    color: "#dfdfdf",
+    justifyContent: "center",
+  },
+  customTextInput: {
+    marginTop: 8,
+  },
+  phoneInputTextContainer: {
+    borderTopRightRadius: 5,
+    borderBottomRightRadius: 5,
+    backgroundColor: "white",
+    paddingVertical: 0,
+  },
+  phoneInputTextInput: {
+    color: "black",
+    fontSize: 16,
+  },
+  label2: {
+    color: "white",
+  },
+  rowCenter: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  phoneInputContainer: {
+    borderRadius: 5,
+    width: "100%",
+    height: 60,
+    borderWidth: 2,
+    marginTop: 8,
+  },
+  centerBox: {
+    height: 55,
+    borderRadius: 5,
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 8,
   },
 });

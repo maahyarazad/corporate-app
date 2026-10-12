@@ -1,16 +1,22 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { useNavigation } from "@react-navigation/native";
 import { showToast } from "../../Toast";
 import {
-  Animated,
   Dimensions,
   Linking,
   RefreshControl,
   StyleSheet,
-  Text,
   TouchableOpacity,
-  TouchableWithoutFeedback,
-  View, Platform
+  View,
+  Platform
 } from "react-native";
+import Animated, {
+  Extrapolation,
+  interpolate,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from "react-native-reanimated";
 import { SafeArea } from "../../components/safearea.component";
 import { Label } from "../../components/typography/label.component";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
@@ -31,7 +37,11 @@ import { isCancel } from "../../utils/cancellation";
 
 const { width, height } = Dimensions.get("window");
 
-export const LocationViewScreen = ({ route, navigation }) => {
+export const LocationViewScreen = ({ route }) => {
+  // Static-config screens receive only `route` - the navigator renders them
+  // through a render callback, so `navigation` never arrives as a prop.
+  const navigation = useNavigation();
+
   const locationId = route.params.locId;
   const { getOneLocation, userLocation } = useContext(LocationContext);
   const [location, setLocation] = useState(null);
@@ -126,7 +136,7 @@ const SLIDESHOW_HEIGHT = Math.floor(width * 9 / 16);
   const renderPartner = () => {
     return (
       <>
-        <View style={{ backgroundColor: "#efefef" }}>
+        <View style={style.tint}>
              
           <View>
             <View style={{ height: SLIDESHOW_HEIGHT }}>
@@ -139,7 +149,7 @@ const SLIDESHOW_HEIGHT = Math.floor(width * 9 / 16);
 
             <View>
                
-              <View style={{ padding: 16 }}>
+              <View style={style.pad}>
               
                 <LocationInfo
                   location={location}
@@ -149,7 +159,7 @@ const SLIDESHOW_HEIGHT = Math.floor(width * 9 / 16);
                   infoSize={"subtitle"}
                 />
               </View>
-              <View style={{ padding: 16, paddingTop: 6 }}>
+              <View style={style.pad2}>
                 <Label numberOfLines={3} weight={"medium"}>
                   {location != undefined &&
                     location.tags != undefined &&
@@ -173,15 +183,11 @@ const SLIDESHOW_HEIGHT = Math.floor(width * 9 / 16);
                 location.lat != undefined &&
                 location.lng != undefined &&
                 location.zoom != undefined && (
-                  <View
-                    style={{
-                      paddingHorizontal: 16,
-                    }}
-                  >
+                  <View style={style.pad3}>
                     <Label size={"heading"} weight={"bold"}>
                       {i18n.t("offer-details.location")}
                     </Label>
-                    <View style={{ marginVertical: 8 }}>
+                    <View style={style.spacer}>
                       <Label weight={"medium"}>
                         {location != undefined &&
                         location?.contact_addition != undefined
@@ -204,19 +210,11 @@ const SLIDESHOW_HEIGHT = Math.floor(width * 9 / 16);
                       zoom={location.zoom}
                     />
 
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        flex: 1,
-                      }}
-                    >
+                    <View style={style.row}>
                       <Button
                         mode="contained"
-                        labelStyle={{
-                          color: "#1282FF",
-                          fontWeight: "bold",
-                        }}
-                        contentStyle={{ height: 50 }}
+                        labelStyle={style.buttonLabel}
+                        contentStyle={style.buttonContent}
                         style={[
                           style.mapButtons,
                           { borderBottomLeftRadius: 12 },
@@ -228,11 +226,8 @@ const SLIDESHOW_HEIGHT = Math.floor(width * 9 / 16);
                       {location != undefined && location.web != undefined && (
                         <Button
                           mode="contained"
-                          labelStyle={{
-                            color: "#1282FF",
-                            fontWeight: "bold",
-                          }}
-                          contentStyle={{ height: 50 }}
+                          labelStyle={style.buttonLabel}
+                          contentStyle={style.buttonContent}
                           style={[
                             style.mapButtons,
                             {
@@ -250,13 +245,7 @@ const SLIDESHOW_HEIGHT = Math.floor(width * 9 / 16);
                   </View>
                 )}
               {location && location.name && location.about_en && (
-                <View
-                  style={{
-                    paddingHorizontal: 16,
-                    paddingVertical: 16,
-                    gap: 8,
-                  }}
-                >
+                <View style={style.box}>
                   <Label size={"heading"} weight={"bold"}>
                     {`${i18n.t("offer-details.about", {
                       partner: location.name,
@@ -269,28 +258,14 @@ const SLIDESHOW_HEIGHT = Math.floor(width * 9 / 16);
               )}
             </View>
           </View>
-          <SafeArea style={{ position: "absolute", top: 0 }}>
-            <View style={{ paddingHorizontal: 16 }}>
+          <SafeArea style={style.safeArea}>
+            <View style={style.pad3}>
               <TouchableRipple
                 onPress={navigateBack}
-                style={{
-                  borderRadius: 50,
-                  // padding: 8,
-                  height: 50,
-                  width: 50,
-                  overflow: "hidden",
-                }}
+                style={style.touchableRipple}
                 rippleColor={"#444"}
               >
-                <View
-                  style={{
-                    height: "100%",
-                    width: "100%",
-                    backgroundColor: "#33333377",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
+                <View style={style.centerBox}>
                   <Ionicons name="arrow-back" color="white" size={35} />
                 </View>
               </TouchableRipple>
@@ -301,13 +276,24 @@ const SLIDESHOW_HEIGHT = Math.floor(width * 9 / 16);
     );
   };
 
-  const animatedValue = useRef(new Animated.Value(0)).current;
+  const scrollY = useSharedValue(0);
 
-  const headerInterpolated = animatedValue.interpolate({
-    inputRange: [100, 270],
-    outputRange: [-200, 0],
-    extrapolate: "clamp",
+  const scrollHandler = useAnimatedScrollHandler(({ contentOffset }) => {
+    scrollY.value = contentOffset.y;
   });
+
+  const headerAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        translateY: interpolate(
+          scrollY.value,
+          [100, 270],
+          [-200, 0],
+          Extrapolation.CLAMP
+        ),
+      },
+    ],
+  }));
 
   const callNumber = (phoneNumber) => {
     Linking.openURL(`tel:${encodeURIComponent(phoneNumber.trim())}`).catch(
@@ -317,47 +303,31 @@ const SLIDESHOW_HEIGHT = Math.floor(width * 9 / 16);
     );
   };
 
-  useEffect(() => {
-    if (animatedValue > 2) {
-    //   console.log("yey");
-    }
-  }, [animatedValue]);
-
   return (
     <>
       <SkeletonLocation display={loading} />
       {/* <LoadingOverlay display={loading} /> */}
       <Animated.View
-        style={{
-          backgroundColor: "white",
-          alignSelf: "stretch",
-          position: "absolute",
-          top: 0,
-          width: "100%",
-          zIndex: 999,
-          transform: [
-            {
-              translateY: headerInterpolated,
-            },
-          ],
-        }}
+        style={[
+          {
+            backgroundColor: "white",
+            alignSelf: "stretch",
+            position: "absolute",
+            top: 0,
+            width: "100%",
+            zIndex: 999,
+          },
+          headerAnimatedStyle,
+        ]}
       >
         <SafeArea>
-          <View
-            style={{
-              paddingVertical: 13,
-              paddingHorizontal: 6,
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <View style={style.rowBetween}>
+            <View style={style.offerContentContainer}>
               <TouchableOpacity onPress={navigateBack}>
                 <MaterialIcons
                   name="arrow-back-ios"
                   size={25}
-                  style={{ fontWeight: "bold" }}
+                  style={style.materialIcons}
                 />
               </TouchableOpacity>
               {itemSeparatorHS()}
@@ -365,7 +335,7 @@ const SLIDESHOW_HEIGHT = Math.floor(width * 9 / 16);
                 {location != undefined ? location.name : ""}
               </Label>
             </View>
-            <View style={{ paddingHorizontal: 16, alignItems: "center" }}>
+            <View style={style.centered}>
               <TouchableOpacity
                 onPress={() => {
                   callNumber(
@@ -373,28 +343,21 @@ const SLIDESHOW_HEIGHT = Math.floor(width * 9 / 16);
                   );
                 }}
               >
-                <MaterialIcons
-                  name="call"
-                  size={25}
-                  style={{ fontWeight: "bold" }}
-                />
+                <MaterialIcons name="call" size={25} style={style.materialIcons} />
               </TouchableOpacity>
             </View>
           </View>
         </SafeArea>
       </Animated.View>
-      <Animated.FlatList
+      <Animated.ScrollView
         scrollEventThrottle={16}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { y: animatedValue } } }],
-          { useNativeDriver: true }
-        )}
-        // ListHeaderComponent={renderPartnerHeader}
+        onScroll={scrollHandler}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
-        ListFooterComponent={renderPartner}
-      />
+      >
+        {renderPartner()}
+      </Animated.ScrollView>
     </>
   );
 };
@@ -425,5 +388,68 @@ const style = StyleSheet.create({
     flex: 1,
     backgroundColor: "#ddd",
     borderRadius: 0,
+  },
+  tint: {
+    backgroundColor: "#efefef",
+  },
+  pad: {
+    padding: 16,
+  },
+  pad2: {
+    padding: 16,
+    paddingTop: 6,
+  },
+  pad3: {
+    paddingHorizontal: 16,
+  },
+  spacer: {
+    marginVertical: 8,
+  },
+  row: {
+    flexDirection: "row",
+    flex: 1,
+  },
+  buttonLabel: {
+    color: "#1282FF",
+    fontWeight: "bold",
+  },
+  buttonContent: {
+    height: 50,
+  },
+  box: {
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    gap: 8,
+  },
+  safeArea: {
+    position: "absolute",
+    top: 0,
+  },
+  touchableRipple: {
+    borderRadius: 50,
+    height: 50,
+    width: 50,
+    overflow: "hidden",
+  },
+  centerBox: {
+    height: "100%",
+    width: "100%",
+    backgroundColor: "#33333377",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  rowBetween: {
+    paddingVertical: 13,
+    paddingHorizontal: 6,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  materialIcons: {
+    fontWeight: "bold",
+  },
+  centered: {
+    paddingHorizontal: 16,
+    alignItems: "center",
   },
 });

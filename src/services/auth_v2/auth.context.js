@@ -1,9 +1,8 @@
 import React, { createContext, useEffect, useState } from "react";
 import * as SecureStorage from "expo-secure-store";
-import useUser from "../../../hooks/useUser";
-import useRequest from "../../../hooks/useRequest";
 import axios from "axios";
 import { config } from "../../utils/constants";
+import { clearApiCache } from "../../../utils/cacheDb";
 
 export const AuthContext = createContext(null);
 
@@ -94,6 +93,16 @@ const AuthProvider = ({ children }) => {
       await SecureStorage.deleteItemAsync("isSkip");
       await SecureStorage.deleteItemAsync("isAuthorized");
       await SecureStorage.deleteItemAsync("userData"); //Not Sure to delete?
+
+      // The SQLite response cache is not user-scoped: its keys are built from
+      // the endpoint and body only, with no account in them. Left in place, a
+      // cached user-scoped response would be served to whoever signs in next on
+      // this device. Clearing it here is what makes the cache safe to widen.
+      //
+      // `clearApiCache` never throws, so this cannot block a signout. Only the
+      // API half is cleared - image bytes are not user-scoped and sweeping them
+      // would make every signout pay for a filesystem walk.
+      await clearApiCache();
 
       const logout = await axios
         .request({

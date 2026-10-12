@@ -3,22 +3,9 @@ import { Modal, StyleSheet, View } from "react-native";
 
 export const CustomModal = ({ children, showModal, type = "fade" }) => {
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        width: 200,
-        height: 200,
-        position: "absolute",
-      }}
-    >
+    <View style={styles.overlay}>
       <Modal
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-        }}
+        style={styles.modal}
         animationType={type}
         transparent={true}
         visible={showModal}
@@ -31,4 +18,17 @@ export const CustomModal = ({ children, showModal, type = "fade" }) => {
 
 const styles = StyleSheet.create({
   container: {},
+  overlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    width: 200,
+    height: 200,
+    position: "absolute",
+  },
+  modal: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });

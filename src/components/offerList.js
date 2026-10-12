@@ -1,12 +1,17 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
-  Animated,
-  Easing,
   FlatList,
   StyleSheet,
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated, {
+  Easing,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { Offer } from "../features/offers/components/offer.component";
 import { OfferModalInfo } from "../features/offers/components/offerModalForm";
 import { TranslationContext } from "../services/translation/translation.context";
@@ -14,6 +19,7 @@ import { CustomModal } from "./modal/customModal.component";
 import { itemSeparatorVS } from "./styles";
 import { Label } from "./typography/label.component";
 import { LinearGradient } from "expo-linear-gradient";
+import { REMOVE_CLIPPED_SUBVIEWS } from "../utils/listPerf";
 
 const OFFER_COMPONENT_HEIGHT = 120;
 
@@ -37,24 +43,41 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
       ? OFFER_COMPONENT_HEIGHT * minItems
       : OFFER_COMPONENT_HEIGHT * offers.length;
 
-  const animatedValue = useRef(new Animated.Value(initialHeight)).current;
+  const animatedValue = useSharedValue(initialHeight);
+
+  // useSharedValue only reads its argument once, but initialHeight is
+  // recomputed from offers.length on every render. Resync when it changes.
+  useEffect(() => {
+    if (!showAll) {
+      animatedValue.value = initialHeight;
+    }
+  }, [initialHeight]);
+
+  const containerAnimatedStyle = useAnimatedStyle(() => ({
+    overflow: "hidden",
+    height: animatedValue.value,
+  }));
 
   const expand = () => {
-    Animated.timing(animatedValue, {
-      toValue: OFFER_COMPONENT_HEIGHT * offers.length,
-      useNativeDriver: false,
+    animatedValue.value = withTiming(OFFER_COMPONENT_HEIGHT * offers.length, {
       duration: 300,
-    }).start(() => {});
+      easing: Easing.inOut(Easing.ease),
+    });
   };
 
   const collapse = () => {
-    Animated.timing(animatedValue, {
-      toValue: OFFER_COMPONENT_HEIGHT * minItems,
-      useNativeDriver: false,
-      duration: 300,
-    }).start(() => {
-      setShowAll(!showAll);
-    });
+    animatedValue.value = withTiming(
+      OFFER_COMPONENT_HEIGHT * minItems,
+      { duration: 300, easing: Easing.inOut(Easing.ease) },
+      (finished) => {
+        // Completion callbacks run on the UI thread, so the state setter must
+        // hop back to JS. Guarded on `finished` so an interrupted collapse
+        // does not commit a transition that never visually happened.
+        if (finished) {
+          runOnJS(setShowAll)(false);
+        }
+      }
+    );
   };
 
   // useEffect(() => {
@@ -67,19 +90,29 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
 
   useEffect(() => {
     setShortOfferList(offers.slice(0, minItems));
-  }, []);
+  }, [offers, minItems]);
 
-  const onSelectOffer = (item) => {
+  const onSelectOffer = useCallback((item) => {
     setSelectedOffer(item);
     setShowModal(true);
-  };
+  }, []);
+
+  const keyExtractor = useCallback((item) => String(item.id), []);
+
+  // Passes onSelectOffer directly rather than a per-item closure, so the
+  // memoized Offer can actually hit. See contracts/list-api.md C1.
+  const renderOffer = useCallback(
+    ({ item }) => <Offer onPress={onSelectOffer} offer={item} />,
+    [onSelectOffer]
+  );
 
   const onCloseModal = () => {
     setShowModal(false);
   };
 
   return (
-    <View style={{ gap: 8 }}>
+    <View style={styles.box}>
+        
       <CustomModal showModal={showModal}>
         <OfferModalInfo
           offerInfo={selectedOffer}
@@ -89,37 +122,21 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
         />
       </CustomModal>
       
-      <Label
-        style={{
-            
-          paddingHorizontal: 16,
-        }}
-        size="heading"
-        weight="bold"
-      >
-        {i18n.t("offer-details.offers")}
+      <Label style={styles.label} size="heading" weight="bold">
+         {i18n.t("offer-details.offers")}
       </Label>
       {/* <Offer /> */}
       {shortOfferList != undefined && (
-        <Animated.View style={{ overflow: "hidden", height: animatedValue }}>
+        <Animated.View style={containerAnimatedStyle}>
           <FlatList
+            removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
             collapsable={true}
             data={showAll ? offers : shortOfferList}
             scrollEnabled={false}
-            style={{
-              paddingHorizontal: 16,
-              paddingTop: 0,
-            }}
+            style={styles.flatList}
             ItemSeparatorComponent={itemSeparatorVS}
-            renderItem={({ item, index }) => {
-              return (
-                <Offer
-                  key={index}
-                  onPress={() => onSelectOffer(item)}
-                  offer={item}
-                />
-              );
-            }}
+            keyExtractor={keyExtractor}
+            renderItem={renderOffer}
           />
           {/* <View style={{ backgroundColor: "red", flex: 1, height: 300 }}></View>
           <LinearGradient
@@ -129,14 +146,7 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
           {!showAll && offers.length > 2 && (
             <LinearGradient
               colors={["#efefef00", "#efefef"]}
-              style={{
-                flex: 1,
-                position: "absolute",
-                width: "100%",
-                height: 140,
-                bottom: 0,
-                // backgroundColor: "red",
-              }}
+              style={styles.linearGradient}
               start={{ x: 0, y: 0 }}
               end={{ x: 0, y: 0.7 }}
             ></LinearGradient>
@@ -144,29 +154,12 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
         </Animated.View>
       )}
       {offers.length > 2 && (
-        <Animated.View
-          style={{
-            padding: 16,
-            paddingTop: 0,
-          }}
-        >
+        <Animated.View style={styles.pad}>
           <TouchableOpacity
             onPress={toggleShowAll}
-            style={{
-              margin: 16,
-              marginTop: 0,
-              borderRadius: 4,
-              justifyContent: "flex-start",
-              alignItems: "flex-end",
-              // shadowOpacity: 0.3,
-              shadowOffset: {
-                height: 3,
-                width: 2,
-              },
-              shadowRadius: 4,
-            }}
+            style={styles.bordered}
           >
-            <Label style={{ color: "#006EFF" }} size="subtitle" weight="bold">
+            <Label style={styles.label2} size="subtitle" weight="bold">
               {showAll ? "Show less" : "Show all"}
             </Label>
           </TouchableOpacity>
@@ -178,4 +171,40 @@ export const OfferList = ({ offers, location, distance, minItems }) => {
 
 const styles = StyleSheet.create({
   container: {},
+  box: {
+    gap: 8,
+  },
+  label: {
+    paddingHorizontal: 16,
+  },
+  flatList: {
+    paddingHorizontal: 16,
+    paddingTop: 0,
+  },
+  linearGradient: {
+    flex: 1,
+    position: "absolute",
+    width: "100%",
+    height: 140,
+    bottom: 0,
+  },
+  pad: {
+    padding: 16,
+    paddingTop: 0,
+  },
+  bordered: {
+    margin: 16,
+    marginTop: 0,
+    borderRadius: 4,
+    justifyContent: "flex-start",
+    alignItems: "flex-end",
+    shadowOffset: {
+      height: 3,
+      width: 2,
+    },
+    shadowRadius: 4,
+  },
+  label2: {
+    color: "#006EFF",
+  },
 });

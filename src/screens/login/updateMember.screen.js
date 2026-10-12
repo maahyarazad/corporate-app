@@ -1,35 +1,30 @@
-import React, { useContext, useRef, useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  Animated,
-  Vibration,
-  StyleSheet,
-  Easing,
-} from "react-native";
+import React, { useContext, useState } from "react";
+import { View, StyleSheet } from "react-native";
+import Animated from "react-native-reanimated";
+import { useShakeAnimation } from "../../hooks/useShakeAnimation";
 import { showToast } from "../../Toast";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import Background from "../../components/background/background.component";
 import { CustomTextInput } from "../../components/customTextInput";
 import { SafeArea } from "../../components/safearea.component";
-import { Spacer } from "../../components/spacer/spacer.component";
 import { Label } from "../../components/typography/label.component";
-import { goback, navigate } from "../../navigation/navigate";
+import { navigate } from "../../navigation/navigate";
 import { useTheme } from "styled-components/native";
 import PhoneInput from "react-native-phone-number-input";
 import { useEffect } from "react";
-import { useRoute } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { UserService } from "../../services/user/user.service";
 import { isCancel } from "../../utils/cancellation";
 import country from "country-list-js";
 import { AuthContext } from "../../services/auth/auth.context";
-import { UserContext } from "../../services/user/user.context";
 import useUser from "../../../hooks/useUser";
 
-export const UpdateMemberScreen = ({ navigation }) => {
+export const UpdateMemberScreen = () => {
+  // Static-config screens receive only `route` - the navigator renders them
+  // through a render callback, so `navigation` never arrives as a prop.
+  const navigation = useNavigation();
+
   const theme = useTheme();
   const { user, setUser } = useContext(AuthContext);
   const { getUserInfo } = useUser();
@@ -48,35 +43,7 @@ export const UpdateMemberScreen = ({ navigation }) => {
   const dateLimit = new Date();
   dateLimit.setFullYear(dateLimit.getFullYear() - 18);
 
-  const animatedShake = useRef(new Animated.Value(0)).current;
-
-  const shakeInterpolate = animatedShake.interpolate({
-    inputRange: [0, 0.5, 1, 1.5, 2],
-    outputRange: [0, -10, 0, 10, 0],
-  });
-
-  const shake = () => {
-    Vibration.vibrate();
-    Animated.loop(
-      Animated.timing(animatedShake, {
-        toValue: 2,
-        useNativeDriver: true,
-        easing: Easing.linear,
-        duration: 120,
-      }),
-      {
-        iterations: 2,
-      }
-    ).start(animatedShake.setValue(0));
-  };
-
-  const shakeAnimatedStyle = {
-    transform: [
-      {
-        translateX: shakeInterpolate,
-      },
-    ],
-  };
+  const { shakeStyle, shake } = useShakeAnimation();
 
   const handleFirstNameChange = (value) => {
     setState({ ...state, firstname: value });
@@ -203,28 +170,17 @@ export const UpdateMemberScreen = ({ navigation }) => {
   }, []);
 
   return (
-    <View style={{ flex: 1, backgroundColor: "black" }}>
+    <View style={styles.tint}>
       <Background>
-        <SafeArea
-          style={{
-            height: "100%",
-            backgroundColor: "transparent",
-            justifyContent: "flex-end",
-          }}
-        >
-          <Animated.View style={[styles.safeArea, shakeAnimatedStyle]}>
+        <SafeArea style={styles.safeArea2}>
+          <Animated.View style={[styles.safeArea, shakeStyle]}>
             <KeyboardAwareScrollView
               automaticallyAdjustKeyboardInsets={true}
               keyboardShouldPersistTaps="always"
-              style={{ height: "100%" }}
+              style={styles.keyboardAwareScrollView}
               // contentContainerStyle={{ flexGrow: 1 }}
             >
-              <View
-                style={{
-                  height: "100%",
-                  padding: 20,
-                }}
-              >
+              <View style={styles.box}>
                 <View>
                   <Label size="h4" weight="bold" style={{ color: "white" , ...styles.fixMargin}}>
                     Mitgliedsprofil aktualisieren
@@ -277,7 +233,7 @@ export const UpdateMemberScreen = ({ navigation }) => {
                     error={isSubmitted && state.email.trim() === ""}
                   />
 
-                  <View style={{marginTop: 8}}/>
+                  <View style={styles.fixMargin}/>
 
                   {state.mobileCountry || state.mobileNumber ? (
                     <>
@@ -288,23 +244,19 @@ export const UpdateMemberScreen = ({ navigation }) => {
                         placeholder="543248901"
                         onChangeText={handleMobileChange}
                         onChangeCountry={handleMobileCountryChange}
-                        containerStyle={{
-                          borderRadius: 5,
-                          width: "100%",
-                          borderWidth: 2,
-                          borderColor:
-                            isSubmitted && state.mobileNumber.trim() === ""
-                              ? "red"
-                              : "#fff",
-                          marginTop: 0,
-                        }}
-                        textContainerStyle={{
-                          borderTopRightRadius: 5,
-                          borderBottomRightRadius: 5,
-                        }}
+                        containerStyle={[
+                          styles.phoneInputContainer,
+                          {
+                            borderColor:
+                              isSubmitted && state.mobileNumber.trim() === ""
+                                ? "red"
+                                : "#fff",
+                          },
+                        ]}
+                        textContainerStyle={styles.phoneInputTextContainer}
                       />
 
-                      <View style={{marginTop: 8}}/>
+                      <View style={styles.fixMargin}/>
                     </>
                   ) : (
                     <></>
@@ -313,20 +265,14 @@ export const UpdateMemberScreen = ({ navigation }) => {
                   <TouchableOpacity
                     activeOpacity={0.8}
                     onPress={submit}
-                    style={{
-                      height: 60,
-                      backgroundColor: theme.colors.ui.button,
-                      borderRadius: 5,
-                      justifyContent: "center",
-                      alignItems: "center",
-                      marginVertical: 30,
-                    }}
+                    style={[
+                      styles.centerBox,
+                      {
+                        backgroundColor: theme.colors.ui.button,
+                      },
+                    ]}
                   >
-                    <Label
-                      style={{ color: "white" }}
-                      size="body"
-                      weight="bold"
-                    >
+                    <Label style={styles.label} size="body" weight="bold">
                       aktualisieren
                     </Label>
                   </TouchableOpacity>
@@ -348,5 +294,41 @@ const styles = StyleSheet.create({
 
   fixMargin: {
     marginTop: 8
-  }
+  },
+  tint: {
+    flex: 1,
+    backgroundColor: "black",
+  },
+  safeArea2: {
+    height: "100%",
+    backgroundColor: "transparent",
+    justifyContent: "flex-end",
+  },
+  keyboardAwareScrollView: {
+    height: "100%",
+  },
+  box: {
+    height: "100%",
+    padding: 20,
+  },
+  phoneInputTextContainer: {
+    borderTopRightRadius: 5,
+    borderBottomRightRadius: 5,
+  },
+  label: {
+    color: "white",
+  },
+  phoneInputContainer: {
+    borderRadius: 5,
+    width: "100%",
+    borderWidth: 2,
+    marginTop: 0,
+  },
+  centerBox: {
+    height: 60,
+    borderRadius: 5,
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 30,
+  },
 });

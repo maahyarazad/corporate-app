@@ -4,7 +4,7 @@ module.exports = function (api) {
     presets: ['babel-preset-expo'],
     plugins: [
       '@babel/plugin-proposal-optional-chaining',
-      'react-native-reanimated/plugin'
+      'react-native-worklets/plugin'
     ],
     // Strip all console.* statements from production bundles. They remain in
     // development builds for debugging but are removed entirely from production

@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View } from "react-native";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import { StyleSheet } from "react-native";
+import { useContext } from "react";
 import { PostContext } from "../../../services/post/post.context";
 
 export default function usePosts() {

@@ -10,13 +10,36 @@
 import shorthash from "shorthash";
 import { getDb } from "./cacheDb";
 
-const CACHE_VERSION = "v1"; // bump to invalidate every entry after a shape change
+// Cache activity is invisible by construction - a hit looks exactly like a fast
+// request. This makes it observable in development without shipping the noise:
+// __DEV__ is false in production and babel's transform-remove-console strips the
+// call entirely from the release bundle.
+const debug = (event, detail) => {
+  if (__DEV__) console.log(`[apiCache] ${event}`, detail);
+};
+
+const CACHE_VERSION = "v2"; // bump to invalidate every entry after a shape change
 const DEFAULT_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 // Stable key from the endpoint + the exact request body. Two requests that post
 // the same body (same page, filters, lang, ...) map to the same row.
-export const makeCacheKey = (endpoint, body) =>
-  shorthash.unique(`${CACHE_VERSION}::${endpoint}::${JSON.stringify(body)}`);
+//
+// `scopeId` is the account the response belongs to, folded into the hash so two
+// users on one device can never read each other's row. Omitted for shared data,
+// where a single row serving everyone is the point.
+//
+// `policyId` is optional and, when given, is kept as a readable prefix rather
+// than folded into the hash. That is what makes `clearCacheByPolicy` possible:
+// one policy covers many keys - every partner id, every language - and a hash
+// cannot be searched. Callers that pass no policyId (location-list.screen.js,
+// map.screen.js) get the original bare-hash behaviour.
+export const makeCacheKey = (endpoint, body, policyId, scopeId) => {
+  const hash = shorthash.unique(
+    `${CACHE_VERSION}::${endpoint}::${JSON.stringify(body)}::${scopeId ?? "shared"}`
+  );
+
+  return policyId ? `${policyId}::${hash}` : hash;
+};
 
 // Resolves to the cached payload if present and still fresh, otherwise null.
 // Any failure — including a row whose `value` won't parse — is just a miss.
@@ -28,16 +51,26 @@ export const readCache = async (key, ttl = DEFAULT_TTL_MS) => {
       key
     );
 
-    if (!row) return null;
+    if (!row) {
+      debug("miss", key);
+      return null;
+    }
 
     if (typeof row.saved_at !== "number" || Date.now() - row.saved_at > ttl) {
       // Stale (or a corrupt timestamp) -> drop it so it doesn't linger.
       await clearCache(key);
+      debug("stale", key);
       return null;
     }
 
-    return JSON.parse(row.value);
+    const value = JSON.parse(row.value);
+
+    debug("hit", key);
+    return value;
   } catch (_) {
+    // Includes a `value` that will not parse - a corrupt row is a miss, not a
+    // crash.
+    debug("error->miss", key);
     return null;
   }
 };
@@ -53,9 +86,26 @@ export const writeCache = async (key, data) => {
       JSON.stringify(data),
       Date.now()
     );
+    debug("write", key);
   } catch (_) {
     // ignore cache-write failures
   }
+};
+
+// Removes every entry belonging to one policy.
+//
+// Used by mutation-driven invalidation: a policy matches many urls, so its rows
+// are addressed by the prefix `makeCacheKey` writes rather than one at a time.
+// Policy ids are our own kebab-case constants, so they contain no LIKE
+// wildcards to escape.
+export const clearCacheByPolicy = async (policyId) => {
+  if (!policyId) return;
+
+  try {
+    const db = await getDb();
+    await db.runAsync("DELETE FROM api_cache WHERE key LIKE ?", `${policyId}::%`);
+    debug("invalidate", policyId);
+  } catch (_) {}
 };
 
 // Remove a single entry (e.g. to force a refetch).

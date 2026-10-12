@@ -1,28 +1,21 @@
 import {
-  Dimensions,
   FlatList,
   Linking,
   Platform,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
-  Text,
-  TouchableOpacity,
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
+import { SafeArea } from "../../components/safearea.component";
 import { goback } from "../../navigation/navigate";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Label } from "../../components/typography/label.component";
-import { Slideshow } from "../../components/slideshow";
-import Carousel from "react-native-reanimated-carousel";
-import { CacheImage } from "../../components/cacheImage";
 import SlideshowV2 from "../../components/slideshowV2.component";
 import { useRoute } from "@react-navigation/native";
 import { theme } from "../../infrastructure/theme";
 import { Button } from "react-native-paper";
 import moment from "moment";
-import PostCardHeader from "./post_card/postCardHeader.component";
 import Avatar from "./avatar/avatar.component";
 import CustomButton from "../../components/customButton.component";
 import useRequest from "../../../hooks/useRequest";
@@ -33,6 +26,7 @@ import {
 } from "../../utils/marketplaceConstants";
 import { Skeleton } from "../../components/skeleton";
 import PostPromptMessage from "./post_card/postPromptMessage/postPromptMessage.component";
+import { REMOVE_CLIPPED_SUBVIEWS } from "../../utils/listPerf";
 
 const PostDetailMarketplace = ({ item }) => {
   const router = useRoute();
@@ -195,7 +189,7 @@ const PostDetailMarketplace = ({ item }) => {
                       }
                       count={index}
                       highlightColor="#eaeaea"
-                      style={{ paddingHorizontal: 10 }}
+                      style={styles.detailRow}
                     />
                   );
                 })}
@@ -208,6 +202,7 @@ const PostDetailMarketplace = ({ item }) => {
                 </Label>
               </View>
               <FlatList
+                removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
                 scrollEnabled={false}
                 data={
                   state.art === "car"
@@ -257,7 +252,7 @@ const PostDetailMarketplace = ({ item }) => {
                       }
                       count={index}
                       highlightColor="#eaeaea"
-                      style={{ paddingHorizontal: 10 }}
+                      style={styles.detailRow}
                     />
                   );
                 })}
@@ -284,7 +279,7 @@ const PostDetailMarketplace = ({ item }) => {
                       value={state[field.value]}
                       count={index}
                       highlightColor="#eaeaea"
-                      style={{ paddingHorizontal: 10 }}
+                      style={styles.detailRow}
                     />
                   );
                 })}
@@ -297,7 +292,7 @@ const PostDetailMarketplace = ({ item }) => {
 
   const RenderInclusions = ({ item }) => {
     return (
-      <View style={{ flexDirection: "row", flex: 1, gap: 4 }}>
+      <View style={styles.row}>
         <MaterialCommunityIcons
           name={state[item.value] > 0 ? "check-bold" : "close-thick"}
           color={state[item.value] > 0 ? "green" : "red"}
@@ -388,7 +383,7 @@ const PostDetailMarketplace = ({ item }) => {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: "white" }]}>
+    <SafeArea style={styles.container}>
       {!loading ? (
         <>
           {!state ? (
@@ -399,11 +394,7 @@ const PostDetailMarketplace = ({ item }) => {
               </Label>
               <Button
                 mode="contained"
-                style={{
-                  backgroundColor: theme.colors.icons.active,
-                  borderRadius: 8,
-                  marginTop: 16,
-                }}
+                style={[styles.button, { backgroundColor: theme.colors.icons.active }]}
                 onPress={goback}
               >
                 <Label size={18} color="white" weight="bold">
@@ -418,7 +409,7 @@ const PostDetailMarketplace = ({ item }) => {
                   { gap: 8, backgroundColor: "#eee" },
                   Platform.OS === "android" && { margin: -14 },
                 ]}
-                contentContainerStyle={{ gap: 10 }}
+                contentContainerStyle={styles.contentContainer}
               >
                 {router.params.showPrompt && (
                   <PostPromptMessage
@@ -501,13 +492,7 @@ const PostDetailMarketplace = ({ item }) => {
                       {/* avatar */}
                       <Avatar size={30} image={state.prof_image} />
                       <View style={styles.authorContainer}>
-                        <View
-                          style={{
-                            alignSelf: "stretch",
-                            justifyContent: "space-between",
-                            flexDirection: "row",
-                          }}
-                        >
+                        <View style={styles.rowBetween}>
                           <View>
                             {/* name */}
                             <View style={styles.rows}>
@@ -548,7 +533,7 @@ const PostDetailMarketplace = ({ item }) => {
                   icon="message-outline"
                   onPress={handlePressSMS}
                   iconSize={18}
-                  style={{ flex: 1 }}
+                  style={styles.customButton}
                   color={theme.colors.icons.active}
                   label="SMS"
                 />
@@ -556,7 +541,7 @@ const PostDetailMarketplace = ({ item }) => {
                   icon="phone"
                   onPress={handlePressCall}
                   iconSize={18}
-                  style={{ flex: 1 }}
+                  style={styles.customButton}
                   color={theme.colors.icons.active}
                   label="Call"
                 />
@@ -565,12 +550,12 @@ const PostDetailMarketplace = ({ item }) => {
           )}
         </>
       ) : (
-        <View style={{ paddingVertical: 10, gap: 20 }}>
+        <View style={styles.box}>
           <PostSkeleton />
           <PostSkeleton />
         </View>
       )}
-    </SafeAreaView>
+    </SafeArea>
   );
 };
 
@@ -625,6 +610,33 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "white",
     gap: 16,
+  },
+  detailRow: {
+    paddingHorizontal: 10,
+  },
+  row: {
+    flexDirection: "row",
+    flex: 1,
+    gap: 4,
+  },
+  contentContainer: {
+    gap: 10,
+  },
+  rowBetween: {
+    alignSelf: "stretch",
+    justifyContent: "space-between",
+    flexDirection: "row",
+  },
+  customButton: {
+    flex: 1,
+  },
+  box: {
+    paddingVertical: 10,
+    gap: 20,
+  },
+  button: {
+    borderRadius: 8,
+    marginTop: 16,
   },
 });
 

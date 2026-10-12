@@ -1,5 +1,4 @@
-import { createContext, useEffect, useState } from "react";
-import * as Constants from "expo-constants";
+import { createContext, useEffect, useMemo, useState } from "react";
 import { AppServices } from "./app.services";
 import { config } from "../../utils/constants";
 import { Platform } from "react-native";
@@ -42,7 +41,9 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  const values = { isOutdated, appState };
- 
+  // Naming an allocation does not memoize it - this literal was rebuilt every
+  // render just like an inline one, re-rendering every consumer.
+  const values = useMemo(() => ({ isOutdated, appState }), [isOutdated, appState]);
+
   return <AppContext.Provider value={values}>{children}</AppContext.Provider>;
 };

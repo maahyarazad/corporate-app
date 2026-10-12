@@ -1,13 +1,8 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useRef, useState } from "react";
-import {
-  Alert,
-  Animated,
-  Easing,
-  StyleSheet,
-  Vibration,
-  Platform,
-} from "react-native";
+import React, { useState } from "react";
+import { StyleSheet, Platform } from "react-native";
+import Animated from "react-native-reanimated";
+import { useShakeAnimation } from "../../hooks/useShakeAnimation";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Button } from "react-native-paper";
 import Background from "../../components/background/background.component";
@@ -26,35 +21,7 @@ export const ChangePasswordScreen = ({ route }) => {
   const [cpassword, setCpassword] = useState("");
   const navigation = useNavigation();
 
-  const animatedShake = useRef(new Animated.Value(0)).current;
-
-  const shakeInterpolate = animatedShake.interpolate({
-    inputRange: [0, 0.5, 1, 1.5, 2],
-    outputRange: [0, -10, 0, 10, 0],
-  });
-
-  const shake = () => {
-    Vibration.vibrate();
-    Animated.loop(
-      Animated.timing(animatedShake, {
-        toValue: 2,
-        useNativeDriver: true,
-        easing: Easing.linear,
-        duration: 120,
-      }),
-      {
-        iterations: 2,
-      }
-    ).start(animatedShake.setValue(0));
-  };
-
-  const shakeAnimatedStyle = {
-    transform: [
-      {
-        translateX: shakeInterpolate,
-      },
-    ],
-  };
+  const { shakeStyle, shake } = useShakeAnimation();
 
   const handleSubmit = async () => {
     setIsSubmitted(true);
@@ -108,19 +75,15 @@ export const ChangePasswordScreen = ({ route }) => {
           }
           keyboardShouldPersistTaps="always"
           automaticallyAdjustKeyboardInsets
-          contentContainerStyle={{
-            flexGrow: 1,
-            justifyContent: "center",
-            alignItems: "center",
-          }}
+          contentContainerStyle={styles.keyboardAwareScrollViewContentContainer}
         >
-          <Animated.View style={[styles.container, shakeAnimatedStyle]}>
-            <Label style={{ color: "white", marginBottom: 10 }} size="title" weight="bold">
+          <Animated.View style={[styles.container, shakeStyle]}>
+            <Label style={styles.label} size="title" weight="bold">
               Enter your new password
             </Label>
             
             <CustomTextInput
-            style={{marginBottom: 10}}
+            style={styles.customTextInput}
               label="New Password *"
               value={password}
               onChangeText={setPassword}
@@ -133,7 +96,7 @@ export const ChangePasswordScreen = ({ route }) => {
             />
             
             <CustomTextInput
-            style={{marginBottom: 10}}
+            style={styles.customTextInput}
               label="Confirm New Password *"
               value={cpassword}
               onChangeText={setCpassword}
@@ -148,13 +111,14 @@ export const ChangePasswordScreen = ({ route }) => {
             <Button
               mode="contained"
               onPress={handleSubmit}
-              contentStyle={{
-                width: "100%",
-                paddingVertical: 8,
-                backgroundColor: theme.colors.ui.yellowGold,
-              }}
-              style={{ width: "100%" }}
-              labelStyle={{ fontSize: 16 }}
+              contentStyle={[
+                styles.buttonContent,
+                {
+                  backgroundColor: theme.colors.ui.yellowGold,
+                },
+              ]}
+              style={styles.button}
+              labelStyle={styles.buttonLabel}
             >
               Change Password
             </Button>
@@ -169,5 +133,27 @@ const styles = StyleSheet.create({
   container: {
     width: "100%",
     padding: 16,
+  },
+  keyboardAwareScrollViewContentContainer: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  label: {
+    color: "white",
+    marginBottom: 10,
+  },
+  customTextInput: {
+    marginBottom: 10,
+  },
+  button: {
+    width: "100%",
+  },
+  buttonLabel: {
+    fontSize: 16,
+  },
+  buttonContent: {
+    width: "100%",
+    paddingVertical: 8,
   },
 });

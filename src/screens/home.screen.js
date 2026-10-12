@@ -8,7 +8,6 @@ import React, {
 } from "react";
 import {
   RefreshControl,
-  SafeAreaView,
   ScrollView,
   TouchableHighlight,
   TouchableOpacity,
@@ -21,15 +20,14 @@ import { StatusBar } from "expo-status-bar";
 import moment from "moment";
 import * as SecureStore from "expo-secure-store";
 
+import { SafeArea } from "../components/safearea.component";
 import FeaturedBanner from "../features/home/components/banner.component";
 import { HomeCategory } from "../features/home/components/category.component";
 import TopPartners from "../features/home/components/toppartners.component";
 import Hotpicks from "../components/hotpick/hotpicks.component";
 import { UrlListener } from "../utils/urlRouter";
-import { navigate } from "../navigation/navigate";
-import { config, typeEnum } from "../utils/constants";
+import { config } from "../utils/constants";
 import { TranslationContext } from "../services/translation/translation.context";
-import { LocationContext } from "../services/location/location.context";
 import { Label } from "../components/typography/label.component";
 import CustomButton from "../components/customButton.component";
 import { theme } from "../infrastructure/theme";
@@ -449,12 +447,12 @@ export const HomeScreen = (props) => {
   ]);
 
   return (
-    <SafeAreaView style={safeAreaStyle}>
+    <SafeArea style={safeAreaStyle}>
       {warningContent}
       <CustomModal showModal={showModal}>
         <OrderCardModal onClose={closeModal} />
       </CustomModal>
       <MemoizedHome />
-    </SafeAreaView>
+    </SafeArea>
   );
 };

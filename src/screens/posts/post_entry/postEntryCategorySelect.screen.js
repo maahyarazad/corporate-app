@@ -1,20 +1,21 @@
-import {
-  FlatList,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableHighlight,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import React, { useEffect, useState } from "react";
+import { FlatList, StyleSheet, TouchableOpacity, View } from "react-native";
+import React, { useCallback, useEffect } from "react";
+import { SafeArea } from "../../../components/safearea.component";
 import { goback, navigate } from "../../../navigation/navigate";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Label } from "../../../components/typography/label.component";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import useRequest from "../../../../hooks/useRequest";
+import { REMOVE_CLIPPED_SUBVIEWS } from "../../../utils/listPerf";
 
 const PostEntryCategorySelect = () => {
+  const keyExtractor = useCallback((item) => String(item.id), []);
+
+  const renderCategoryItem = useCallback(
+    ({ item }) => <CategoryButton category={item} />,
+    []
+  );
+
   const router = useRoute();
   const { type, list } = router.params;
   const navigation = useNavigation();
@@ -37,7 +38,7 @@ const PostEntryCategorySelect = () => {
 
     return (
       <TouchableOpacity onPress={handleOnPress}>
-        <View style={{ paddingVertical: 20, paddingHorizontal: 20 }}>
+        <View style={styles.pad}>
           <Label>{category.category}</Label>
         </View>
       </TouchableOpacity>
@@ -58,22 +59,19 @@ const PostEntryCategorySelect = () => {
               </Label>
             </View>
             <FlatList
+              removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
               data={list}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => {
-                return <CategoryButton category={item} />;
-              }}
-              style={{ flex: 1, marginHorizontal: -20 }}
+              keyExtractor={keyExtractor}
+              renderItem={renderCategoryItem}
+              style={styles.flatList}
               overScrollMode="always"
-              fadingEdgeLength={100}
+              fadingEdgeLength={0}
               pagingEnabled
               snapToAlignment="start"
               snapToInterval={70}
               initialNumToRender={20}
               ItemSeparatorComponent={
-                <View
-                  style={{ backgroundColor: "#ddd", height: 1, width: "100%" }}
-                ></View>
+                <View style={styles.box}></View>
               }
             />
           </View>
@@ -93,22 +91,19 @@ const PostEntryCategorySelect = () => {
               </Label>
             </View>
             <FlatList
+              removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
               data={list}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => {
-                return <CategoryButton category={item} />;
-              }}
-              style={{ flex: 1, marginHorizontal: -20 }}
+              keyExtractor={keyExtractor}
+              renderItem={renderCategoryItem}
+              style={styles.flatList}
               overScrollMode="always"
-              fadingEdgeLength={100}
+              fadingEdgeLength={0}
               pagingEnabled
               snapToAlignment="start"
               snapToInterval={70}
               initialNumToRender={20}
               ItemSeparatorComponent={
-                <View
-                  style={{ backgroundColor: "#ddd", height: 1, width: "100%" }}
-                ></View>
+                <View style={styles.box}></View>
               }
             />
           </View>
@@ -117,7 +112,7 @@ const PostEntryCategorySelect = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeArea style={styles.container}>
       <View style={styles.container}>
         <View>
           <TouchableOpacity onPress={onReturn}>
@@ -133,7 +128,7 @@ const PostEntryCategorySelect = () => {
         </View>
         <RenderBody />
       </View>
-    </SafeAreaView>
+    </SafeArea>
   );
 };
 
@@ -160,5 +155,18 @@ const styles = StyleSheet.create({
     gap: 10,
     alignItems: "center",
     justifyContent: "center",
+  },
+  pad: {
+    paddingVertical: 20,
+    paddingHorizontal: 20,
+  },
+  flatList: {
+    flex: 1,
+    marginHorizontal: -20,
+  },
+  box: {
+    backgroundColor: "#ddd",
+    height: 1,
+    width: "100%",
   },
 });

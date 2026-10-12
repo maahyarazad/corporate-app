@@ -4,23 +4,18 @@ import {
   View,
   Image,
   StyleSheet,
-  Animated,
-  Easing,
-  Vibration,
   Keyboard,
-  Pressable,
-  TouchableWithoutFeedback,
   Platform,
   ActivityIndicator,
   BackHandler,
 } from "react-native";
+import Animated from "react-native-reanimated";
+import { useShakeAnimation } from "../../hooks/useShakeAnimation";
 import { useNavigation } from "@react-navigation/native";
 import { BlurView } from "expo-blur";
 import { companyLogo, honorificList } from "../../utils/constants";
 import { useTheme } from "styled-components/native";
-import { Button, TextInput } from "react-native-paper";
 import { SafeArea } from "../../components/safearea.component";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { Label } from "../../components/typography/label.component";
 import { showToast } from "../../Toast";
 
@@ -30,8 +25,6 @@ import { UserService } from "../../services/user/user.service";
 import { Ionicons } from "@expo/vector-icons";
 import { CustomTextInput } from "../../components/customTextInput";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import moment from "moment";
-import { CustomModal } from "../../components/modal/customModal.component";
 import { getRecaptchaToken } from "../../services/recaptcha/recaptcha.service";
 import { resetRegistrationState } from "./registration.screen";
 
@@ -58,15 +51,11 @@ const SubmittingLabel = () => {
     return () => clearInterval(id);
   }, []);
   return (
-    <View style={{ flexDirection: "row", alignItems: "center" }}>
-      <Label style={{ color: "white", paddingHorizontal: 2 }} size="body" weight="bold">
+    <View style={styles.rowCenter}>
+      <Label style={styles.label} size="body" weight="bold">
         Creating Your Account
       </Label>
-      <Label
-        style={{ color: "white", width: 22, textAlign: "left" }}
-        size="body"
-        weight="bold"
-      >
+      <Label style={styles.label2} size="body" weight="bold">
         {dots}
       </Label>
     </View>
@@ -123,35 +112,7 @@ export const RegistrationDetailsScreen = ({ route }) => {
   const firstname = useRef(null);
   const lastname = useRef(null);
   const middlename = useRef(null);
-  const animatedShake = useRef(new Animated.Value(0)).current;
-
-  const shakeInterpolate = animatedShake.interpolate({
-    inputRange: [0, 0.5, 1, 1.5, 2],
-    outputRange: [0, -10, 0, 10, 0],
-  });
-
-  const shake = () => {
-    Vibration.vibrate();
-    Animated.loop(
-      Animated.timing(animatedShake, {
-        toValue: 2,
-        useNativeDriver: true,
-        easing: Easing.linear,
-        duration: 120,
-      }),
-      {
-        iterations: 2,
-      }
-    ).start(animatedShake.setValue(0));
-  };
-
-  const shakeAnimatedStyle = {
-    transform: [
-      {
-        translateX: shakeInterpolate,
-      },
-    ],
-  };
+  const { shakeStyle, shake } = useShakeAnimation();
 
   const sendCaptcha = async () => {
     console.log("[Register] sendCaptcha pressed");
@@ -299,7 +260,7 @@ useEffect(() => {
       <Background>
         <SafeArea style={styles.safeArea}>
           <Image style={styles.companyLogo} source={companyLogo} />
-          <Animated.View style={[styles.safeArea, shakeAnimatedStyle]}>
+          <Animated.View style={[styles.safeArea, shakeStyle]}>
             <KeyboardAwareScrollView
               enableOnAndroid
               extraScrollHeight={20}
@@ -307,39 +268,22 @@ useEffect(() => {
               keyboardShouldPersistTaps="handled"
               keyboardDismissMode="on-drag"
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={{
-                flexGrow: 1,
-                paddingHorizontal: 16,
-                paddingBottom: 40,
-              }}
-              style={{ flex: 1 }}
+              contentContainerStyle={styles.keyboardAwareScrollViewContentContainer}
+              style={styles.safeArea}
             >
-              <View style={{ flex: 1, justifyContent: "center" }}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    marginBottom: 16,
-                  }}
-                >
+              <View style={styles.flexBox}>
+                <View style={styles.row}>
                   <TouchableOpacity
                     onPress={() => {
                       Keyboard.dismiss;
                       goback();
                     }}
                     disabled={isLoading}
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      opacity: isLoading ? 0.5 : 1,
-                    }}
+                    style={[styles.rowCenter, { opacity: isLoading ? 0.5 : 1 }]}
                     activeOpacity={0.5}
                   >
                     <Ionicons name="arrow-back" size={35} color="#eee" />
-                    <Label
-                      size="body"
-                      weight="bold"
-                      style={{ color: "#dfdfdf", justifyContent: "center" }}
-                    >
+                    <Label size="body" weight="bold" style={styles.label3}>
                       Go Back to Registration Data
                     </Label>
                   </TouchableOpacity>
@@ -359,9 +303,7 @@ useEffect(() => {
                     //   error={!state.honorifics && isSubmitted}
                   />
 
-                  <View
-                    style={{ zIndex: 2, position: "relative", width: "100%" }}
-                  ></View>
+                  <View style={styles.box}></View>
                 </View>
 
                 <View
@@ -424,7 +366,7 @@ useEffect(() => {
                     justifyContent: "space-between",
                   }}
                 >
-                  <View style={{ flex: 1, marginRight: 8 }}>
+                  <View style={styles.flexBox2}>
                     <BirthdatePicker
                       value={state.birthdate}
                       onChange={(date) =>
@@ -434,7 +376,7 @@ useEffect(() => {
                     />
                   </View>
 
-                  <View style={{ flex: 1, marginLeft: 8 }}>
+                  <View style={styles.flexBox3}>
                     <DropDown
                       items={genderItems}
                       onChange={(e) =>
@@ -452,24 +394,18 @@ useEffect(() => {
                   activeOpacity={0.8}
                   onPress={sendCaptcha}
                   disabled={isLoading || !hasRequiredFields}
-                  style={{
-                    height: 60,
-                    backgroundColor: theme.colors.ui.button,
-                    borderRadius: 5,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    marginVertical: 2,
-                    opacity: isLoading || !hasRequiredFields ? 0.5 : 1,
-                  }}
+                  style={[
+                    styles.centerBox,
+                    {
+                      backgroundColor: theme.colors.ui.button,
+                      opacity: isLoading || !hasRequiredFields ? 0.5 : 1,
+                    },
+                  ]}
                 >
                   {isLoading ? (
                     <SubmittingLabel />
                   ) : (
-                    <Label
-                      style={{ color: "white" }}
-                      size="body"
-                      weight="bold"
-                    >
+                    <Label style={styles.label4} size="body" weight="bold">
                       Next
                     </Label>
                   )}
@@ -519,5 +455,58 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     zIndex: 1000,
+  },
+  rowCenter: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  label: {
+    color: "white",
+    paddingHorizontal: 2,
+  },
+  label2: {
+    color: "white",
+    width: 22,
+    textAlign: "left",
+  },
+  keyboardAwareScrollViewContentContainer: {
+    flexGrow: 1,
+    paddingHorizontal: 16,
+    paddingBottom: 40,
+  },
+  flexBox: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  row: {
+    flexDirection: "row",
+    marginBottom: 16,
+  },
+  label3: {
+    color: "#dfdfdf",
+    justifyContent: "center",
+  },
+  box: {
+    zIndex: 2,
+    position: "relative",
+    width: "100%",
+  },
+  flexBox2: {
+    flex: 1,
+    marginRight: 8,
+  },
+  flexBox3: {
+    flex: 1,
+    marginLeft: 8,
+  },
+  label4: {
+    color: "white",
+  },
+  centerBox: {
+    height: 60,
+    borderRadius: 5,
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 2,
   },
 });

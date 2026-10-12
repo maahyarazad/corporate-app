@@ -1,29 +1,18 @@
 import {
   KeyboardAvoidingView,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
-  Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
+import { SafeArea } from "../../../components/safearea.component";
 import { showToast } from "../../../Toast";
-import {
-  CommonActions,
-  useNavigation,
-  useRoute,
-} from "@react-navigation/native";
-import PostEntryForm from "./postEntryForm.component";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { Label } from "../../../components/typography/label.component";
-import { theme } from "../../../infrastructure/theme";
 import usePosts from "../post_card/usePosts";
-import { Post } from "../postDetail.screen";
-import { goback, navigate } from "../../../navigation/navigate";
+import { goback } from "../../../navigation/navigate";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Spacer } from "../../../components/spacer/spacer.component";
-import { Button } from "react-native-paper";
 import PostEntryStandard from "./forms/postEntryStandard.component";
 import PostEntryMobil from "./forms/postEntryMobil.component";
 import PostEntryRealEstate from "./forms/postEntryRealEstate.component";
@@ -146,51 +135,34 @@ const PostEntryScreen = () => {
   };
 
   return (
-    <SafeAreaView style={[styles.container]}>
+    <SafeArea style={[styles.container]}>
       <StatusBar barStyle="light-content " />
       <View style={[styles.container, { marginBottom: -35 }]}>
         <BackButton />
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={{
-            flex: 1,
-          }}
+          style={styles.fill}
           keyboardVerticalOffset={48}
         >
           <ScrollView
             nestedScrollEnabled={true}
             keyboardDismissMode="interactive"
-            style={{
-              marginHorizontal: -20,
-              paddingHorizontal: 20,
-              marginBottom: -20,
-            }}
-            contentContainerStyle={{ paddingBottom: 40 }}
-            fadingEdgeLength={100}
+            style={styles.box}
+            contentContainerStyle={styles.contentContainerPad}
+            fadingEdgeLength={0}
           >
             <View style={styles.body}>
               {/* Title */}
-              <View
-                style={{
-                  justifyContent: "center",
-                  alignItems: "center",
-                  gap: 10,
-                  paddingHorizontal: 20,
-                }}
-              >
+              <View style={styles.centerBox}>
                 <Label size={25} weight="bold">
                   Sie sind fast am Ziel!
                 </Label>
-                <Label
-                  size="subtitle"
-                  weight="medium"
-                  style={{ textAlign: "center" }}
-                >
+                <Label size="subtitle" weight="medium" style={styles.label}>
                   Vervollständigen Sie die Details und schon kann es losgehen!
                 </Label>
               </View>
-              <View style={{marginTop: 10}}/>
-              <View style={{ alignSelf: "stretch", gap: 10, flex: 1 }}>
+              <View style={styles.spacer}/>
+              <View style={styles.flexBox}>
                 <View>
                   <Label
                     size={16}
@@ -213,7 +185,7 @@ const PostEntryScreen = () => {
           </ScrollView>
         </KeyboardAvoidingView>
       </View>
-    </SafeAreaView>
+    </SafeArea>
   );
 };
 export default PostEntryScreen;
@@ -271,5 +243,33 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingTop: 20,
     paddingBottom: 10,
+  },
+  fill: {
+    flex: 1,
+  },
+  box: {
+    marginHorizontal: -20,
+    paddingHorizontal: 20,
+    marginBottom: -20,
+  },
+  contentContainerPad: {
+    paddingBottom: 40,
+  },
+  centerBox: {
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 10,
+    paddingHorizontal: 20,
+  },
+  label: {
+    textAlign: "center",
+  },
+  spacer: {
+    marginTop: 10,
+  },
+  flexBox: {
+    alignSelf: "stretch",
+    gap: 10,
+    flex: 1,
   },
 });

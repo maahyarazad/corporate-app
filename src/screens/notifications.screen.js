@@ -1,28 +1,24 @@
 import {
   FlatList,
   Image,
-  SafeAreaView,
   StyleSheet,
-  Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import React, { memo, useEffect, useRef, useState } from "react";
+import React, { useCallback, memo, useEffect, useRef, useState } from "react";
 import { Label } from "../components/typography/label.component";
 import { goback, navigate } from "../navigation/navigate";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "../../hooks/useTranslation";
 import useRequest from "../../hooks/useRequest";
 import { theme } from "../infrastructure/theme";
-import { ResizeMode, Video } from "expo-av";
 import moment from "moment";
-import { companyLogo, config } from "../utils/constants";
-import { StatusBar } from "expo-status-bar";
-import { Button } from "react-native-paper";
+import { companyLogo } from "../utils/constants";
 import { CacheImage } from "../components/cacheImage";
 import { SafeArea } from "../components/safearea.component";
 import { isCancel } from "../utils/cancellation";
+import { REMOVE_CLIPPED_SUBVIEWS } from "../utils/listPerf";
 
 const RenderNotification = memo(({ item, index }) => {
   const [hasRead, setHasRead] = useState(item.read);
@@ -100,14 +96,7 @@ const RenderNotification = memo(({ item, index }) => {
           },
         ]}
       >
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: 15,
-            flex: 12,
-          }}
-        >
+        <View style={styles.rowCenter}>
           <View
             style={[
               styles.iconContainer,
@@ -123,44 +112,19 @@ const RenderNotification = memo(({ item, index }) => {
               <CacheImage
                 uri={`${item.image}_s1.jpg`}
                 resizeMode="contain"
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  borderRadius: 100,
-                }}
+                style={styles.cacheImage}
               />
             ) : (
-              <View
-                style={{
-                  width: "100%",
-                  height: "100%",
-
-                  backgroundColor: "white",
-                  borderRadius: 100,
-                  padding: 6,
-                }}
-              >
-                <Image
-                  source={companyLogo}
-                  style={{
-                    aspectRatio: 1,
-                    flex: 1,
-                  }}
-                  resizeMode="contain"
-                />
+              <View style={styles.bordered}>
+                <Image source={companyLogo} style={styles.image} resizeMode="contain" />
               </View>
             )}
           </View>
-          <Label
-            style={{
-              flexWrap: "wrap",
-              flex: 1,
-            }}
-          >
+          <Label style={styles.label}>
             {item.message}
           </Label>
         </View>
-        <View style={{ flex: 4, alignItems: "flex-end" }}>
+        <View style={styles.flexBox}>
           <Label>{item.time && calculateRemainingTime(item.time)}</Label>
         </View>
       </View>
@@ -205,15 +169,14 @@ const NotificationsScreen = () => {
     }
   };
 
+  const keyExtractor = useCallback(
+    (item) => String(item.msg_id ?? item.id),
+    []
+  );
+
   const renderSeparator = () => {
     return (
-      <View
-        style={{
-          height: 1,
-          width: "100%",
-          backgroundColor: "#ddd",
-        }}
-      />
+      <View style={styles.box} />
     );
   };
 
@@ -222,23 +185,16 @@ const NotificationsScreen = () => {
   );
 
   return (
-    <SafeArea style={{ backgroundColor: "white" }}>
+    <SafeArea style={styles.safeArea}>
       <View style={[styles.container]}>
-        <View style={{ paddingHorizontal: 0 }}>
+        <View style={styles.pad}>
           <TouchableOpacity
             onPress={goback}
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-            }}
+            style={styles.rowCenter2}
             activeOpacity={0.5}
           >
             <Ionicons name="arrow-back" size={35} color="#555" />
-            <Label
-              size="body"
-              weight="bold"
-              style={{ color: "#555", justifyContent: "center" }}
-            >
+            <Label size="body" weight="bold" style={styles.label2}>
               {i18n.t("return")}
             </Label>
           </TouchableOpacity>
@@ -246,7 +202,7 @@ const NotificationsScreen = () => {
         <Label weight="bold" size="h5">
           Benachrichtigungen
         </Label>
-        <View style={{ flex: 1 }}>
+        <View style={styles.fill}>
           {/* Test Video */}
           {/* <View>
             <Video
@@ -268,20 +224,15 @@ const NotificationsScreen = () => {
             />
           </View> */}
           <FlatList
+            removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
             data={notifications}
             renderItem={renderItem}
-            style={{ marginHorizontal: -8 }}
+            keyExtractor={keyExtractor}
+            style={styles.flatList}
             ItemSeparatorComponent={renderSeparator}
             ListEmptyComponent={() => {
               return (
-                <View
-                  style={{
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flex: 1,
-                    paddingVertical: 50,
-                  }}
-                >
+                <View style={styles.centerBox}>
                   <Label size={20} weight="bold" color="#bbb">
                     No notifications
                   </Label>
@@ -321,5 +272,66 @@ const styles = StyleSheet.create({
     maxWidth: 80,
     borderColor: "#ddd",
     borderWidth: 1,
+  },
+  rowCenter: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 15,
+    flex: 12,
+  },
+  cacheImage: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 100,
+  },
+  bordered: {
+    width: "100%",
+    height: "100%",
+    backgroundColor: "white",
+    borderRadius: 100,
+    padding: 6,
+  },
+  image: {
+    aspectRatio: 1,
+    flex: 1,
+  },
+  label: {
+    flexWrap: "wrap",
+    flex: 1,
+  },
+  flexBox: {
+    flex: 4,
+    alignItems: "flex-end",
+  },
+  box: {
+    height: 1,
+    width: "100%",
+    backgroundColor: "#ddd",
+  },
+  safeArea: {
+    backgroundColor: "white",
+  },
+  pad: {
+    paddingHorizontal: 0,
+  },
+  rowCenter2: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  label2: {
+    color: "#555",
+    justifyContent: "center",
+  },
+  fill: {
+    flex: 1,
+  },
+  flatList: {
+    marginHorizontal: -8,
+  },
+  centerBox: {
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+    paddingVertical: 50,
   },
 });

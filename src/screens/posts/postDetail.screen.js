@@ -1,23 +1,19 @@
 import {
-  Image,
   Keyboard,
   KeyboardAvoidingView,
-  RefreshControl,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import { SafeArea } from "../../components/safearea.component";
 import usePosts from "./post_card/usePosts";
 import PostCard from "./post_card/postCard.component";
 import { Label } from "../../components/typography/label.component";
 import { CustomTextInput } from "../../components/customTextInput";
 import { theme } from "../../infrastructure/theme";
 import { Button } from "react-native-paper";
-import { Spacer } from "../../components/spacer/spacer.component";
 import useUser from "../../../hooks/useUser";
 import PostPromptMessage from "./post_card/postPromptMessage/postPromptMessage.component";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -287,10 +283,10 @@ export default function PostDetailScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container]}>
+    <SafeArea style={[styles.container]}>
       {post && (
         <KeyboardAvoidingView
-          style={{ flex: 1 }}
+          style={styles.fill}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           keyboardVerticalOffset={85}
         >
@@ -302,11 +298,7 @@ export default function PostDetailScreen() {
               </Label>
               <Button
                 mode="contained"
-                style={{
-                  backgroundColor: theme.colors.icons.active,
-                  borderRadius: 8,
-                  marginTop: 16,
-                }}
+                style={[styles.button, { backgroundColor: theme.colors.icons.active }]}
                 onPress={goback}
               >
                 <Label size={18} color="white" weight="bold">
@@ -360,11 +352,12 @@ export default function PostDetailScreen() {
 
               {/* Comment Field */}
               <View
-                style={{
-                  paddingHorizontal: 12,
-                  paddingVertical: 10,
-                  backgroundColor: theme.colors.icons.active + "55",
-                }}
+                style={[
+                  styles.pad,
+                  {
+                    backgroundColor: theme.colors.icons.active + "55",
+                  },
+                ]}
               >
                 {replyTo && focus && (
                   <>
@@ -372,27 +365,16 @@ export default function PostDetailScreen() {
                       {`Replying to `}
                       <Label weight="bold">{replyTo.name}</Label>
                     </Label>
-                    <View style={{marginBottom: 6}}/>
+                    <View style={styles.spacer}/>
                   </>
                 )}
-                <View
-                  style={{
-                    flexDirection: "row",
-                  }}
-                >
-                  <View style={{ flex: 1, gap: 5 }}>
-                    <View style={{ flexDirection: "row" }}>
+                <View style={styles.row}>
+                  <View style={styles.flexBox}>
+                    <View style={styles.row}>
                       <CustomTextInput
                         ref={keyboardRef}
-                        inputStyle={{
-                          borderRadius: 8,
-                          backgroundColor: "white",
-                          paddingTop: 10,
-                        }}
-                        style={{
-                          backgroundColor: null,
-                          flex: 1,
-                        }}
+                        inputStyle={styles.customTextInput}
+                        style={styles.customTextInput2}
                         onBlur={fieldOnBlur}
                         multiline={true}
                         areaHeight={20}
@@ -404,27 +386,28 @@ export default function PostDetailScreen() {
                     </View>
                     {
                       <View
-                        style={{
-                          height: 2,
-                          width: `${
-                            (comment.length / COMMENT_MAXLENGTH) * 100
-                          }%`,
-                          backgroundColor:
-                            (comment.length / COMMENT_MAXLENGTH) * 100 > 90
-                              ? "red"
-                              : "#88CC00",
-                          borderRadius: 50,
-                        }}
+                        style={[
+                          styles.bordered,
+                          {
+                            width: `${
+                              (comment.length / COMMENT_MAXLENGTH) * 100
+                            }%`,
+                            backgroundColor:
+                              (comment.length / COMMENT_MAXLENGTH) * 100 > 90
+                                ? "red"
+                                : "#88CC00",
+                          },
+                        ]}
                       ></View>
                     }
                   </View>
 
-                  <View style={{marginRight: 6}}/>
+                  <View style={styles.spacer2}/>
 
                   <View>
                     <Button
                       mode="contained"
-                      labelStyle={{ color: "white" }}
+                      labelStyle={styles.buttonLabel}
                       contentStyle={{}}
                       style={styles.replyButton}
                       uppercase={false}
@@ -443,7 +426,7 @@ export default function PostDetailScreen() {
           )}
         </KeyboardAvoidingView>
       )}
-    </SafeAreaView>
+    </SafeArea>
   );
 }
 
@@ -488,5 +471,45 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "white",
     gap: 16,
+  },
+  fill: {
+    flex: 1,
+  },
+  spacer: {
+    marginBottom: 6,
+  },
+  row: {
+    flexDirection: "row",
+  },
+  flexBox: {
+    flex: 1,
+    gap: 5,
+  },
+  customTextInput: {
+    borderRadius: 8,
+    backgroundColor: "white",
+    paddingTop: 10,
+  },
+  customTextInput2: {
+    backgroundColor: null,
+    flex: 1,
+  },
+  spacer2: {
+    marginRight: 6,
+  },
+  buttonLabel: {
+    color: "white",
+  },
+  button: {
+    borderRadius: 8,
+    marginTop: 16,
+  },
+  pad: {
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  bordered: {
+    height: 2,
+    borderRadius: 50,
   },
 });

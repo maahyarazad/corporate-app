@@ -23,7 +23,7 @@ export const PasswordInput = ({ label, onChangeText, value, outlineColor }) => {
       label={label}
       right={
         <TextInput.Icon
-          name={hidePass ? "eye" : "eye-off"
+          name={hidePass ? "eye" : "eye-off"}
           onPress={() => {
             hidePass ? setHidePass(false) : setHidePass(true);
           }}

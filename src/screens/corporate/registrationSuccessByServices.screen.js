@@ -1,6 +1,15 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import React, { useEffect, useRef } from "react";
-import { Animated, Easing, StyleSheet, Text, View } from "react-native";
+import React, { useEffect } from "react";
+import { StyleSheet, View } from "react-native";
+import Animated, {
+  Easing,
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 import { Button } from "react-native-paper";
 import Background from "../../components/background/background.component";
 import useAuth from "../../../hooks/useAuth";
@@ -8,89 +17,57 @@ import { Label } from "../../components/typography/label.component";
 import { theme } from "../../infrastructure/theme";
 import { navigate } from "../../navigation/navigate";
 
-import { retrieveToken } from "../../services/auth/auth.service";
 
 export const RegistrationSuccessByServices = () => {
-  const bounceValue = useRef(new Animated.Value(0)).current;
-  const fadeInValue = useRef(new Animated.Value(0)).current;
-  const fadeInButton = useRef(new Animated.Value(0)).current;
+  const bounceValue = useSharedValue(0);
+  const fadeInValue = useSharedValue(0);
+  const fadeInButton = useSharedValue(0);
 
   const { signin, loading, verifyOTP, submittedCard, authorize } = useAuth();
 
-  const fadeInterpolation = bounceValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: [-100, 0],
-  });
-
-  const fadeInterpolationButton = fadeInButton.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.9, 1],
-  });
-
   useEffect(() => {
-    Animated.spring(bounceValue, {
-      toValue: 1,
-      useNativeDriver: true,
-      //   bounciness: 200,
-      delay: 500,
-      mass: 1,
-    }).start();
+    // withSpring/withTiming take no delay option - withDelay supplies it.
+    bounceValue.value = withDelay(500, withSpring(1, { mass: 1 }));
 
-    Animated.timing(fadeInValue, {
-      toValue: 1,
-      useNativeDriver: true,
-      duration: 800,
-      delay: 500,
-    }).start();
+    fadeInValue.value = withDelay(
+      500,
+      withTiming(1, { duration: 800, easing: Easing.inOut(Easing.ease) })
+    );
 
-    Animated.timing(fadeInButton, {
-      toValue: 1,
-      useNativeDriver: true,
-      duration: 700,
-      delay: 500,
-    }).start();
+    fadeInButton.value = withDelay(
+      500,
+      withTiming(1, { duration: 700, easing: Easing.inOut(Easing.ease) })
+    );
   }, []);
 
-  const bounceAnimationStyle = {
-    opacity: bounceValue,
+  const bounceAnimationStyle = useAnimatedStyle(() => ({
+    opacity: bounceValue.value,
     transform: [
-      {
-        translateY: fadeInterpolation,
-      },
+      { translateY: interpolate(bounceValue.value, [0, 1], [-100, 0]) },
     ],
-  };
+  }));
 
-  const fadeInAnimationStyle = {
-    opacity: fadeInValue,
-  };
+  const fadeInAnimationStyle = useAnimatedStyle(() => ({
+    opacity: fadeInValue.value,
+  }));
 
-  const fadeInButtonAnimationStyle = {
-    opacity: fadeInButton,
+  const fadeInButtonAnimationStyle = useAnimatedStyle(() => ({
+    opacity: fadeInButton.value,
     transform: [
-      {
-        scale: fadeInterpolationButton,
-      },
+      { scale: interpolate(fadeInButton.value, [0, 1], [0.9, 1]) },
     ],
-  };
+  }));
 
   return (
     <Background>
       <View style={styles.container}>
-        <View style={{ flex: 2, justifyContent: "flex-end" }}>
+        <View style={styles.flexBox}>
           <Animated.View style={bounceAnimationStyle}>
-            <Label
-              size="h4"
-              weight="bold"
-              style={{ color: "white", textAlign: "center" }}
-            >
+            <Label size="h4" weight="bold" style={styles.label}>
               BOOM!
             </Label>
 
-            <Label
-              size="h4"
-              weight="bold"
-              style={{ color: "white", textAlign: "center" }}
-            >
+            <Label size="h4" weight="bold" style={styles.label}>
               You are in
             </Label>
 
@@ -101,19 +78,9 @@ export const RegistrationSuccessByServices = () => {
             />
           </Animated.View>
         </View>
-        <View
-          style={{
-            paddingHorizontal: 32,
-            flex: 3,
-            justifyContent: "space-between",
-          }}
-        >
+        <View style={styles.flexBox2}>
           <Animated.View style={fadeInAnimationStyle}>
-            <Label
-              size="h4"
-              weight="bold"
-              style={{ color: "white", textAlign: "center" }}
-            >
+            <Label size="h4" weight="bold" style={styles.label}>
               Your account has been verified!
             </Label>
 
@@ -123,17 +90,13 @@ export const RegistrationSuccessByServices = () => {
             <Button
               mode="contained"
               buttonColor={theme.colors.icons.active}
-              labelStyle={{ paddingVertical: 14 }}
-              style={{ marginBottom: 100, borderRadius: 10 }}
+              labelStyle={styles.buttonLabel}
+              style={styles.button}
               onPress={() => {
                 navigate("Login");
               }}
             >
-              <Label
-                size="title"
-                weight="bold"
-                style={{ color: "black", textAlign: "center" }}
-              >
+              <Label size="title" weight="bold" style={styles.label2}>
                 Continue
               </Label>
             </Button>
@@ -152,5 +115,29 @@ const styles = StyleSheet.create({
   },
   marginFix: {
     marginTop: 8,
+  },
+  flexBox: {
+    flex: 2,
+    justifyContent: "flex-end",
+  },
+  label: {
+    color: "white",
+    textAlign: "center",
+  },
+  flexBox2: {
+    paddingHorizontal: 32,
+    flex: 3,
+    justifyContent: "space-between",
+  },
+  buttonLabel: {
+    paddingVertical: 14,
+  },
+  button: {
+    marginBottom: 100,
+    borderRadius: 10,
+  },
+  label2: {
+    color: "black",
+    textAlign: "center",
   },
 });

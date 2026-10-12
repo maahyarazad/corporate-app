@@ -58,6 +58,54 @@ export const getDb = () => {
   return dbPromise;
 };
 
+// Clears the API half of the cache and nothing else.
+//
+// Deliberately not `clearAllCaches`: this runs on signout, where the goal is
+// that a departing user leaves no data behind. Image bytes are not user-scoped
+// and deleting them would make every signout pay for a filesystem sweep it does
+// not need.
+//
+// Never throws. A cache that cannot be cleared must not be able to block a
+// signout - the auth state is torn down either way.
+export const clearApiCache = async () => {
+  try {
+    const db = await getDb();
+    await db.runAsync("DELETE FROM api_cache");
+  } catch (_) {
+    // best-effort, as everywhere else in this file
+  }
+};
+
+// Bounds the API cache.
+//
+// `readCache` only drops a stale row when something asks for it, so an entry
+// written once and never read again lives forever. Two passes fix that: age
+// first, then a hard row ceiling for whatever survives.
+//
+// `idx_api_cache_saved_at` already exists in the schema above and had no
+// consumer until now; both statements below are covered by it.
+export const sweepApiCache = async (maxAgeMs, rowCeiling = 500) => {
+  try {
+    const db = await getDb();
+
+    await db.runAsync(
+      "DELETE FROM api_cache WHERE saved_at < ?",
+      Date.now() - maxAgeMs
+    );
+
+    // Oldest-first, keeping the newest `rowCeiling` rows. SQLite has no
+    // DELETE ... LIMIT without a compile flag, so the subquery does the work.
+    await db.runAsync(
+      `DELETE FROM api_cache WHERE key IN (
+         SELECT key FROM api_cache ORDER BY saved_at DESC LIMIT -1 OFFSET ?
+       )`,
+      rowCeiling
+    );
+  } catch (_) {
+    // A sweep is housekeeping; failing it must not affect the app.
+  }
+};
+
 export const getImageCacheDir = () => {
   const dir = new Directory(Paths.cache, IMAGE_CACHE_DIR);
   dir.create({ idempotent: true, intermediates: true });

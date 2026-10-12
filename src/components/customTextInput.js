@@ -6,8 +6,14 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Animated, StyleSheet, TextInput, View } from "react-native";
-import { Label } from "./typography/label.component";
+import { StyleSheet, TextInput, View } from "react-native";
+import Animated, {
+  Easing,
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import usePosts from "../screens/posts/post_card/usePosts";
 
 export const CustomTextInput = forwardRef(
@@ -89,20 +95,23 @@ export const CustomTextInput = forwardRef(
       // expose the TextInput itself
       getNativeInput: () => inputRef.current,
     }));
-    const animatedValue = useRef(new Animated.Value(0)).current;
+    const animatedValue = useSharedValue(0);
 
-    const scaleInterpolation = animatedValue.interpolate({
-      inputRange: [0, 100],
-      outputRange: [1, 0.8],
-    });
-    const transXInterpolation = animatedValue.interpolate({
-      inputRange: [0, 100],
-      outputRange: [0, label.length * -1],
-    });
-    const transYInterpolation = animatedValue.interpolate({
-      inputRange: [0, 100],
-      outputRange: [0, -22],
-    });
+    // Reads `label` from the closure, so the style re-derives when the prop
+    // changes - translateX depends on label.length.
+    const labelAnimatedStyle = useAnimatedStyle(() => ({
+      transform: [
+        { scale: interpolate(animatedValue.value, [0, 100], [1, 0.8]) },
+        {
+          translateX: interpolate(
+            animatedValue.value,
+            [0, 100],
+            [0, label.length * -1]
+          ),
+        },
+        { translateY: interpolate(animatedValue.value, [0, 100], [0, -22]) },
+      ],
+    }));
 
     useLayoutEffect(() => {
       if (value != undefined && value.trim() != "") {
@@ -111,21 +120,26 @@ export const CustomTextInput = forwardRef(
       }
     }, [value]);
 
+    // Defect D3, behaviour preserved deliberately: the original wrote
+    // `.start(setFocused(true))`, which invokes the setter immediately and
+    // passes its undefined return as the completion callback. So the state
+    // change happened at animation START, not end. Kept as-is rather than
+    // silently changing UX inside a refactor - see T045 for the follow-up.
     const floatUp = () => {
-      Animated.timing(animatedValue, {
-        toValue: 100,
-        useNativeDriver: false,
+      setFocused(true);
+      animatedValue.value = withTiming(100, {
         duration: 200,
-      }).start(setFocused(true));
+        easing: Easing.inOut(Easing.ease),
+      });
     };
 
     const floatDown = () => {
       if (isEmpty()) {
-        Animated.timing(animatedValue, {
-          toValue: 0,
-          useNativeDriver: false,
+        setFocused(false);
+        animatedValue.value = withTiming(0, {
           duration: 200,
-        }).start(setFocused(false));
+          easing: Easing.inOut(Easing.ease),
+        });
       }
     };
 
@@ -154,16 +168,7 @@ export const CustomTextInput = forwardRef(
           },
         ]}
       >
-        <View
-          style={{
-            position: "absolute",
-            width: "100%",
-            height: "100%",
-            zIndex: 2,
-            alignItems: "center",
-            flexDirection: "row",
-          }}
-        >
+        <View style={staticStyles.rowCenter}>
           <TextInput
             ref={inputRef}
             returnKeyType={returnKeyType}
@@ -217,15 +222,7 @@ export const CustomTextInput = forwardRef(
             </View>
           )}
           {right && (
-            <View
-              style={{
-                paddingHorizontal: 24,
-                zIndex: 3,
-                justifyContent: "center",
-                alignItems: "center",
-                height: "100%",
-              }}
-            >
+            <View style={staticStyles.centerBox}>
               {right}
             </View>
           )}
@@ -243,12 +240,8 @@ export const CustomTextInput = forwardRef(
                     : isEmpty()
                       ? "#999"
                       : "#333",
-              transform: [
-                { scale: scaleInterpolation },
-                { translateX: transXInterpolation },
-                { translateY: transYInterpolation },
-              ],
             },
+            labelAnimatedStyle,
             multiline && { top: 18 },
           ]}
         >
@@ -258,3 +251,21 @@ export const CustomTextInput = forwardRef(
     );
   }
 );
+
+const staticStyles = StyleSheet.create({
+  rowCenter: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    zIndex: 2,
+    alignItems: "center",
+    flexDirection: "row",
+  },
+  centerBox: {
+    paddingHorizontal: 24,
+    zIndex: 3,
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100%",
+  },
+});

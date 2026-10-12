@@ -1,7 +1,6 @@
-import React, { useContext, useEffect, useState } from "react";
-import { View, FlatList } from "react-native";
+import React, { useCallback, useContext } from "react";
+import { View, FlatList, StyleSheet } from "react-native";
 import { Label } from "../../../components/typography/label.component";
-import { Spacer } from "../../../components/spacer/spacer.component";
 import {
   CategoryContentView,
   CategoryHeaderView,
@@ -14,13 +13,11 @@ import {
 } from "./category.styles";
 import { NavigationContext } from "@react-navigation/native";
 import { SectionContext } from "../../../services/section/section.context";
-import { categorylogo, config, typeEnum } from "../../../utils/constants";
+import { categorylogo, typeEnum } from "../../../utils/constants";
 import { Skeleton } from "../../../components/skeleton";
 import { itemSeparatorHM } from "../../../components/styles";
-import { PartnerService } from "../../../services/location/location.service";
-import { AuthContext } from "../../../services/auth/auth.context";
 import { TranslationContext } from "../../../services/translation/translation.context";
-import useRequest from "../../../../hooks/useRequest";
+import { REMOVE_CLIPPED_SUBVIEWS } from "../../../utils/listPerf";
 
 const renderCategory = ({ item, navigation }) => {
   const handleOnPress = () => {
@@ -52,7 +49,7 @@ const renderCategory = ({ item, navigation }) => {
           >
             <CategoryItemImages
               resizeMode="contain"
-              style={{ tintColor: "white"}}
+              style={styles.categoryItemImages}
               source={categorylogo[item.id]}
             />
           </CategoryImageContainer>
@@ -77,7 +74,7 @@ const SkeletonCategoryHome = () => {
         opacityMin={0.1}
         opacityMax={0.2}
         borderRadius={10}
-        style={{ marginRight: 16 }}
+        style={styles.skeleton}
       />
       <Skeleton
         variant="square"
@@ -86,7 +83,7 @@ const SkeletonCategoryHome = () => {
         opacityMin={0.1}
         opacityMax={0.2}
         borderRadius={10}
-        style={{ marginRight: 16 }}
+        style={styles.skeleton}
       />
       <Skeleton
         variant="square"
@@ -95,7 +92,7 @@ const SkeletonCategoryHome = () => {
         opacityMin={0.1}
         opacityMax={0.2}
         borderRadius={10}
-        style={{ marginRight: 16 }}
+        style={styles.skeleton}
       />
       <Skeleton
         variant="square"
@@ -104,7 +101,7 @@ const SkeletonCategoryHome = () => {
         opacityMin={0.1}
         opacityMax={0.2}
         borderRadius={10}
-        style={{ marginRight: 16 }}
+        style={styles.skeleton}
       />
     </>
   );
@@ -115,12 +112,19 @@ export const HomeCategory = ({ size, categoryData }) => {
   const { i18n, lang } = useContext(TranslationContext);
   const { setSectionTitle } = useContext(SectionContext);
 
+  const renderItem = useCallback(
+    ({ item }) => renderCategory({ item, navigation, setSectionTitle }),
+    [navigation, setSectionTitle]
+  );
+
+  const keyExtractor = useCallback((item) => String(item.id), []);
+
   return (
     <>
       <View>
         <CategoryHeaderView>
           
-            <Label size="heading" weight="bold" style={{marginLeft: 16}}>
+            <Label size="heading" weight="bold" style={styles.label}>
               {i18n.t("categories")}
             </Label>
           
@@ -129,42 +133,26 @@ export const HomeCategory = ({ size, categoryData }) => {
           {categoryData ? (
             <>
               <FlatList
+                removeClippedSubviews={REMOVE_CLIPPED_SUBVIEWS}
                 horizontal
                 pagingEnabled
                 data={categoryData}
-                fadingEdgeLength={100}
+                fadingEdgeLength={0}
                 snapToAlignment="start"
                 snapToInterval={100 + 16}
                 decelerationRate="fast"
                 overScrollMode="always"
-                renderItem={({ item }) =>
-                  renderCategory({
-                    item,
-                    navigation,
-                    setSectionTitle,
-                  })
-                }
-                keyExtractor={(item) => item.id}
+                renderItem={renderItem}
+                keyExtractor={keyExtractor}
                 keyboardDismissMode="interactive"
                 showsHorizontalScrollIndicator={false}
                 ItemSeparatorComponent={itemSeparatorHM}
-                contentContainerStyle={{
-                  padding: 16,
-                  paddingTop: 10,
-                }}
+                contentContainerStyle={styles.flatListContentContainer}
               />
             </>
           ) : (
             <>
-              <View
-                style={{
-                  flex: 1,
-                  paddingLeft: 16,
-                  paddingTop: 8,
-                  marginBottom: 18,
-                  flexDirection: "row",
-                }}
-              >
+              <View style={styles.row}>
                 <SkeletonCategoryHome />
               </View>
             </>
@@ -174,3 +162,26 @@ export const HomeCategory = ({ size, categoryData }) => {
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  categoryItemImages: {
+    tintColor: "white",
+  },
+  skeleton: {
+    marginRight: 16,
+  },
+  label: {
+    marginLeft: 16,
+  },
+  flatListContentContainer: {
+    padding: 16,
+    paddingTop: 10,
+  },
+  row: {
+    flex: 1,
+    paddingLeft: 16,
+    paddingTop: 8,
+    marginBottom: 18,
+    flexDirection: "row",
+  },
+});
