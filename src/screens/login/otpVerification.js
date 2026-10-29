@@ -2,7 +2,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import React, { useContext, useEffect, useState } from "react";
-import { TouchableOpacity, View, StyleSheet } from "react-native";
+import { AppState, TouchableOpacity, View, StyleSheet } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { ActivityIndicator } from "react-native-paper";
 import { useTheme } from "styled-components/native";
@@ -140,30 +140,32 @@ export const OtpVerification = ({ route }) => {
     },
   });
 
+  // Count down to a wall-clock end time rather than decrementing per tick:
+  // JS timers are paused while the app is backgrounded, so a tick count would
+  // freeze the cooldown until the user returns.
   useEffect(() => {
-    let subInterval = setInterval(() => {
-      cooldownTimer(subInterval);
-    }, 1000);
+    if (!resendStatus) return undefined;
 
-    return () => clearInterval(subInterval);
-  }, [resendStatus]);
+    const endsAt = Date.now() + OTP_COOLDOWN * 1000;
+    const tick = () => {
+      const left = Math.max(0, Math.ceil((endsAt - Date.now()) / 1000));
 
-  const cooldownTimer = (interval) => {
-    if (resendStatus) {
-      setOtpCooldown((prev) => {
-        if (prev > 0) {
-          return prev - 1;
-        } else {
-          setResendStatus(false);
-          clearInterval(interval);
-          return;
-        }
-      });
-    } else {
-      setOtpCooldown(OTP_COOLDOWN);
+      setOtpCooldown(left);
+      if (left === 0) setResendStatus(false);
+    };
+
+    tick();
+    const interval = setInterval(tick, 1000);
+    // Catch up the moment the app is foregrounded, not on the next tick.
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (state === "active") tick();
+    });
+
+    return () => {
       clearInterval(interval);
-    }
-  };
+      subscription.remove();
+    };
+  }, [resendStatus]);
 
   const handleResend = () => {
     resendOTP(userData.user_id).then((response) => {
