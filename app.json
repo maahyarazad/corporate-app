@@ -106,7 +106,7 @@
       "associatedDomains": [
         "applinks:buenapublica.com"
       ],
-      "buildNumber": "94",
+      "buildNumber": "95",
       "supportsTablet": true,
       "infoPlist": {
         "UIDesignRequiresCompatibility": true,
@@ -121,7 +121,7 @@
       "appleTeamId": "YQFY6269ZL"
     },
     "android": {
-      "versionCode": 94,
+      "versionCode": 95,
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyBdMYAFwnxqA6KI4AE31v8BWBsr1ZDRogQ"
