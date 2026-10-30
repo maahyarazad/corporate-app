@@ -54,6 +54,7 @@ google-services.json
 # GoogleService-Info.plist
 
 # Credentials / secrets
+credentials.json
 .env
 .env.*
 *.key
