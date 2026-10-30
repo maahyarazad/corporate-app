@@ -4,7 +4,7 @@
     "scheme": "gecmobile",
     "name": "GEC Mobile",
     "slug": "GEC-Rewards",
-    "version": "3.4.7",
+    "version": "3.5.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -83,11 +83,14 @@
             "extraProguardRules": "-repackageclasses ''"
           },
           "ios": {
-            "deploymentTarget": "17.0"
+            "deploymentTarget": "17.0",
+            "useFrameworks": "static"
           }
         }
       ],
-      "expo-maps"
+      "expo-maps",
+      ["@react-native-firebase/app", { "ios": { "disableSPM": true } }],
+      "@react-native-firebase/analytics"
     ],
     "updates": {
       "fallbackToCacheTimeout": 0,
@@ -106,7 +109,7 @@
       "associatedDomains": [
         "applinks:buenapublica.com"
       ],
-      "buildNumber": "93",
+      "buildNumber": "95",
       "supportsTablet": true,
       "infoPlist": {
         "UIDesignRequiresCompatibility": true,
@@ -117,11 +120,12 @@
         "NSFaceIDUsageDescription": "We use Face ID to securely authenticate your identity and provide quick access to your account.",
         "ITSAppUsesNonExemptEncryption": false
       },
+      "googleServicesFile": "./GoogleService-Info.plist",
       "bundleIdentifier": "com.buenapublica.GECRewards",
       "appleTeamId": "YQFY6269ZL"
     },
     "android": {
-      "versionCode": 93,
+      "versionCode": 95,
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyBdMYAFwnxqA6KI4AE31v8BWBsr1ZDRogQ"
