@@ -83,11 +83,14 @@
             "extraProguardRules": "-repackageclasses ''"
           },
           "ios": {
-            "deploymentTarget": "17.0"
+            "deploymentTarget": "17.0",
+            "useFrameworks": "static"
           }
         }
       ],
-      "expo-maps"
+      "expo-maps",
+      ["@react-native-firebase/app", { "ios": { "disableSPM": true } }],
+      "@react-native-firebase/analytics"
     ],
     "updates": {
       "fallbackToCacheTimeout": 0,
@@ -117,6 +120,7 @@
         "NSFaceIDUsageDescription": "We use Face ID to securely authenticate your identity and provide quick access to your account.",
         "ITSAppUsesNonExemptEncryption": false
       },
+      "googleServicesFile": "./GoogleService-Info.plist",
       "bundleIdentifier": "com.buenapublica.GECRewards",
       "appleTeamId": "YQFY6269ZL"
     },
