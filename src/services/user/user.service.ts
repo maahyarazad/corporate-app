@@ -105,4 +105,13 @@ export const UserService: UserServiceType = {
     );
     return responseData(response);
   },
+
+  async getMembershipEndTime(): Promise<any> {
+    // No params: the server reads req.user.user_id from the Bearer token the
+    // request interceptor attaches. Returns the { success, data } envelope.
+    const response = await axiosInstance.get(
+      `${API_URL}/membership-end-time`
+    );
+    return responseData(response);
+  },
 };

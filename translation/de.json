@@ -229,6 +229,12 @@
             "button": "Zurück zum Login",
             "link": "Link nicht erhalten? Jetzt erneut senden!",
             "link-pressed": "Ein neuer Verifizierungslink wurde gesendet!"
+        },
+        "membership-expired": {
+            "title": "Mitgliedschaft abgelaufen",
+            "message": "Ihre Mitgliedschaft ist abgelaufen. Bitte kontaktieren Sie +971 56 399 83 00 (Telefon/WhatsApp) oder senden Sie eine E-Mail an office2@german-emirates-club.com.",
+            "phone": "+971 56 399 83 00",
+            "email": "office2@german-emirates-club.com"
         }
     }
 }   

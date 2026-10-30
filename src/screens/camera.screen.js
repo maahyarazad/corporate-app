@@ -2,18 +2,15 @@ import { Camera, CameraType } from "expo-camera";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeArea } from "../components/safearea.component";
+import { UserService } from "../services/user/user.service";
+import MembershipExpiredSheet from "../components/membershipExpiredSheet.component";
 
 export const CameraScreen = () => {
   const [hasPermission, setHasPermission] = useState(false);
   const [type, setType] = useState(CameraType.back);
+  const [expired, setExpired] = useState(false);
 
   useEffect(() => {
-    // (async () => {
-    //   const { status } = await Camera.requestCameraPermissionsAsync();
-    //   setHasPermission(status === "granted");
-    // })();
-    // The permission prompt can't be aborted; it resolves whenever the user
-    // answers it. This only discards the answer if we're no longer listening.
     let cancelled = false;
 
     Camera.requestCameraPermissionsAsync().then(({ status }) => {
@@ -21,6 +18,34 @@ export const CameraScreen = () => {
         if (!cancelled) setHasPermission(true);
       }
     });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Membership-expiry guard. Fail-open: a null/404 response, a non-success
+  // payload, a missing end_time or any thrown error leaves the screen unblocked
+  // - only an end_time strictly in the past raises the expired sheet.
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const res = await UserService.getMembershipEndTime();
+        const end = res?.success ? res?.data?.end_time : null;
+        if (!end) return;
+
+        // MySQL DATETIME ("2027-03-08 16:23:20"): iOS rejects the space form,
+        // so normalise to ISO before parsing.
+        const endMs = new Date(String(end).replace(" ", "T")).getTime();
+        if (!Number.isNaN(endMs) && endMs < Date.now() && !cancelled) {
+          setExpired(true);
+        }
+      } catch {
+        // fail-open: never block a member on a failed check
+      }
+    })();
 
     return () => {
       cancelled = true;
@@ -50,6 +75,7 @@ export const CameraScreen = () => {
           </View>
         </SafeArea>
       </Camera>
+      {expired && <MembershipExpiredSheet />}
     </View>
   );
 };
