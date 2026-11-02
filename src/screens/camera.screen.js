@@ -1,72 +1,35 @@
-import { Camera, CameraType } from "expo-camera";
+import { CameraView, useCameraPermissions } from "expo-camera";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeArea } from "../components/safearea.component";
-import { UserService } from "../services/user/user.service";
-import MembershipExpiredSheet from "../components/membershipExpiredSheet.component";
 
 export const CameraScreen = () => {
-  const [hasPermission, setHasPermission] = useState(false);
-  const [type, setType] = useState(CameraType.back);
-  const [expired, setExpired] = useState(false);
+  // expo-camera 17 (SDK 54): Camera/CameraType were removed. Use the
+  // permission hook and CameraView, and a plain "back"/"front" string.
+  const [permission, requestPermission] = useCameraPermissions();
+  const [facing, setFacing] = useState("back");
 
   useEffect(() => {
-    let cancelled = false;
+    if (permission && !permission.granted && permission.canAskAgain) {
+      requestPermission();
+    }
+  }, [permission, requestPermission]);
 
-    Camera.requestCameraPermissionsAsync().then(({ status }) => {
-      if (status === "granted") {
-        if (!cancelled) setHasPermission(true);
-      }
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  // Membership-expiry guard. Fail-open: a null/404 response, a non-success
-  // payload, a missing end_time or any thrown error leaves the screen unblocked
-  // - only an end_time strictly in the past raises the expired sheet.
-  useEffect(() => {
-    let cancelled = false;
-
-    (async () => {
-      try {
-        const res = await UserService.getMembershipEndTime();
-        const end = res?.success ? res?.data?.end_time : null;
-        if (!end) return;
-
-        // MySQL DATETIME ("2027-03-08 16:23:20"): iOS rejects the space form,
-        // so normalise to ISO before parsing.
-        const endMs = new Date(String(end).replace(" ", "T")).getTime();
-        if (!Number.isNaN(endMs) && endMs < Date.now() && !cancelled) {
-          setExpired(true);
-        }
-      } catch {
-        // fail-open: never block a member on a failed check
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  if (hasPermission === null) {
+  if (!permission) {
     return <View />;
   }
-  if (hasPermission === false) {
+  if (!permission.granted) {
     return <Text>No access to camera</Text>;
   }
 
   const handlePress = () => {
-    setType(type === CameraType.back ? CameraType.front : CameraType.back);
+    setFacing((prev) => (prev === "back" ? "front" : "back"));
   };
 
   return (
     <View style={styles.container}>
-      <Camera style={styles.camera} type={type}>
-        <View style={styles.overlay}></View>
+      <CameraView style={styles.camera} facing={facing}>
+        <View style={styles.overlay} />
         <SafeArea style={styles.safeArea}>
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.button} onPress={handlePress}>
@@ -74,8 +37,7 @@ export const CameraScreen = () => {
             </TouchableOpacity>
           </View>
         </SafeArea>
-      </Camera>
-      {expired && <MembershipExpiredSheet />}
+      </CameraView>
     </View>
   );
 };

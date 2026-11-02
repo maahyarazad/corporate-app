@@ -57,5 +57,4 @@ export type UserServiceType = {
     removeUser: (userId: number) => Promise<boolean>;
     getMemberInfo: (user_id: number, signal?: AbortSignal) => Promise<any>;
     addMember: (data: IMemberInfo) => Promise<boolean>;
-    getMembershipEndTime: () => Promise<any>;
 }
