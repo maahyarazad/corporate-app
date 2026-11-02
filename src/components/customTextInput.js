@@ -1,12 +1,22 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, {
   forwardRef,
+  useContext,
+  useId,
   useImperativeHandle,
   useLayoutEffect,
   useRef,
   useState,
 } from "react";
-import { StyleSheet, TextInput, View } from "react-native";
+import {
+  InputAccessoryView,
+  Keyboard,
+  Platform,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  View,
+} from "react-native";
 import Animated, {
   Easing,
   interpolate,
@@ -15,6 +25,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import usePosts from "../screens/posts/post_card/usePosts";
+import { TranslationContext } from "../services/translation/translation.context";
 
 export const CustomTextInput = forwardRef(
   (
@@ -39,8 +50,12 @@ export const CustomTextInput = forwardRef(
       numberOfLines,
       areaHeight = 137,
       onBlur,
+      // Was called by the TextInput's onFocus handler but never destructured,
+      // so a parent's onFocus was silently ignored.
+      onFocus,
       labelLeftOffset = 5,
       onSubmitEditing,
+      showKeyboardDismiss = true,
     },
     ref
   ) => {
@@ -48,6 +63,15 @@ export const CustomTextInput = forwardRef(
     const [showText, setShowText] = useState(false);
     const [textAreaHeight, setTextAreaHeight] = useState(areaHeight);
     const { resetReply } = usePosts();
+    const { i18n } = useContext(TranslationContext);
+
+    // iOS-only bar above the keyboard with a dismiss button. Number-pad,
+    // phone-pad and multiline keyboards have no return key, so without it the
+    // member can't close the keyboard. Each instance needs its own nativeID or
+    // several fields on one screen would share a bar. Android's
+    // InputAccessoryView only logs a warning, so it is never rendered there.
+    const accessoryId = `cti-${useId()}`;
+    const showAccessory = Platform.OS === "ios" && showKeyboardDismiss;
     const styles = StyleSheet.create({
       container: {
         height: 55,
@@ -171,6 +195,7 @@ export const CustomTextInput = forwardRef(
         <View style={staticStyles.rowCenter}>
           <TextInput
             ref={inputRef}
+            inputAccessoryViewID={showAccessory ? accessoryId : undefined}
             returnKeyType={returnKeyType}
             maxLength={maxLength}
             keyboardType={keyboardType}
@@ -247,6 +272,28 @@ export const CustomTextInput = forwardRef(
         >
           {label}
         </Animated.Text>
+        {/* Mounted whenever the field is, not only while focused: iOS looks
+            the accessory up by ID at the moment the field focuses. It is not
+            laid out inline; iOS places it above the keyboard. Keyboard.dismiss
+            blurs the field, so `onBlur ?? floatDown` runs as usual. */}
+        {showAccessory && (
+          <InputAccessoryView nativeID={accessoryId}>
+            <View style={staticStyles.accessoryBar}>
+              <Pressable
+                onPress={Keyboard.dismiss}
+                hitSlop={10}
+                accessibilityRole="button"
+                accessibilityLabel={i18n.t("keyboard-dismiss")}
+              >
+                <MaterialCommunityIcons
+                  name="keyboard-close"
+                  size={24}
+                  color="#007AFF"
+                />
+              </Pressable>
+            </View>
+          </InputAccessoryView>
+        )}
       </View>
     );
   }
@@ -267,5 +314,15 @@ const staticStyles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     height: "100%",
+  },
+  accessoryBar: {
+    height: 44,
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    paddingHorizontal: 14,
+    backgroundColor: "#F1F1F3",
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: "#C7C7CC",
   },
 });

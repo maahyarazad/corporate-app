@@ -27,7 +27,7 @@ description: "Task list for the iOS keyboard dismiss bar on CustomTextInput"
 
 **Purpose**: Put the work on its own branch. `main` already contains 014 (PR #59 merged).
 
-- [ ] T001 Create branch `015-ios-keyboard-dismiss` from up-to-date `origin/main`, carrying the uncommitted `specs/015-ios-keyboard-dismiss/` directory and the `.specify/feature.json` change (`git fetch origin && git switch -c 015-ios-keyboard-dismiss origin/main`; the untracked/modified files come along). Commit them as `docs(015): spec, plan and tasks for the iOS keyboard dismiss bar`
+- [x] T001 Create branch `015-ios-keyboard-dismiss` from up-to-date `origin/main`, carrying the uncommitted `specs/015-ios-keyboard-dismiss/` directory and the `.specify/feature.json` change (`git fetch origin && git switch -c 015-ios-keyboard-dismiss origin/main`; the untracked/modified files come along). Commit them as `docs(015): spec, plan and tasks for the iOS keyboard dismiss bar`
 
 ---
 
@@ -35,9 +35,9 @@ description: "Task list for the iOS keyboard dismiss bar on CustomTextInput"
 
 **Purpose**: the string and imports that the US1 bar needs.
 
-- [ ] T002 [P] In translation/en.json add `"keyboard-dismiss": "Close keyboard",` to the `en` object on the line directly **after** the existing `"close": "Close",` key (line ~109), not at the end of the object. Keeping it mid-object avoids merge conflicts with other features that append to the end.
-- [ ] T003 [P] In translation/de.json add `"keyboard-dismiss": "Tastatur schließen",` to the `de` object directly after the existing `"close": "Schließen",` key (line ~110)
-- [ ] T004 In src/components/customTextInput.js update imports:
+- [x] T002 [P] In translation/en.json add `"keyboard-dismiss": "Close keyboard",` to the `en` object on the line directly **after** the existing `"close": "Close",` key (line ~109), not at the end of the object. Keeping it mid-object avoids merge conflicts with other features that append to the end.
+- [x] T003 [P] In translation/de.json add `"keyboard-dismiss": "Tastatur schließen",` to the `de` object directly after the existing `"close": "Schließen",` key (line ~110)
+- [x] T004 In src/components/customTextInput.js update imports:
   - add `useContext` and `useId` to the `react` named imports;
   - change the `react-native` import to `{ InputAccessoryView, Keyboard, Platform, Pressable, StyleSheet, TextInput, View }`;
   - add `import { TranslationContext } from "../services/translation/translation.context";`
@@ -53,14 +53,14 @@ keyboard-close button that closes the keyboard and keeps the text. Android is un
 
 **Independent Test**: quickstart Q1–Q8 on iOS; Q11–Q12 on Android (spec US1 scenarios 1–5).
 
-- [ ] T005 [US1] In src/components/customTextInput.js, inside the component body after the existing `useState` hooks, add:
+- [x] T005 [US1] In src/components/customTextInput.js, inside the component body after the existing `useState` hooks, add:
   - `const { i18n } = useContext(TranslationContext);`
   - `` const accessoryId = `cti-${useId()}`; ``
   - `const showAccessory = Platform.OS === "ios";`
 
   Use `useId`, not `Math.random`, and keep the Platform gate. See research R2/R3 for why.
-- [ ] T006 [US1] In src/components/customTextInput.js add `inputAccessoryViewID={showAccessory ? accessoryId : undefined}` to the `<TextInput>` props, directly under `ref={inputRef}`
-- [ ] T007 [US1] In src/components/customTextInput.js render the accessory as the last child of the outer container `<View>`, after the `<Animated.Text>` label:
+- [x] T006 [US1] In src/components/customTextInput.js add `inputAccessoryViewID={showAccessory ? accessoryId : undefined}` to the `<TextInput>` props, directly under `ref={inputRef}`
+- [x] T007 [US1] In src/components/customTextInput.js render the accessory as the last child of the outer container `<View>`, after the `<Animated.Text>` label:
   ```
   {showAccessory && (
     <InputAccessoryView nativeID={accessoryId}>
@@ -73,7 +73,7 @@ keyboard-close button that closes the keyboard and keeps the text. Android is un
   )}
   ```
   Render it unconditionally with respect to `focused`, because it must already exist when the field focuses (research R5). Do not change the `onBlur={onBlur ?? floatDown}` wiring: `Keyboard.dismiss` triggers it (FR-004).
-- [ ] T008 [US1] In src/components/customTextInput.js add an `accessoryBar` entry to the module-level `staticStyles` `StyleSheet.create`: `height: 44, flexDirection: "row", justifyContent: "flex-end", alignItems: "center", paddingHorizontal: 14, backgroundColor: "#F1F1F3", borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: "#C7C7CC"`
+- [x] T008 [US1] In src/components/customTextInput.js add an `accessoryBar` entry to the module-level `staticStyles` `StyleSheet.create`: `height: 44, flexDirection: "row", justifyContent: "flex-end", alignItems: "center", paddingHorizontal: 14, backgroundColor: "#F1F1F3", borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: "#C7C7CC"`
 - [ ] T009 [US1] Verify on an iOS simulator/device (hardware keyboard off) and an Android device: quickstart Q1–Q8 and Q11–Q12. In particular, Q5 (the post-reply field's own `onBlur` still runs), Q6 (never two bars) and Q12 (no `InputAccessoryView` warning in Metro on Android)
 
 **Checkpoint**: US1 is shippable on its own. Every field has the bar on iOS.
@@ -86,7 +86,7 @@ keyboard-close button that closes the keyboard and keeps the text. Android is un
 
 **Independent Test**: quickstart Q9 (spec US2 scenarios 1–2).
 
-- [ ] T010 [US2] In src/components/customTextInput.js add `showKeyboardDismiss = true,` to the destructured props, after `onSubmitEditing`, and change the gate from T005 to `const showAccessory = Platform.OS === "ios" && showKeyboardDismiss;`. Both the TextInput link (T006) and the render (T007) already read `showAccessory`, so nothing else changes.
+- [x] T010 [US2] In src/components/customTextInput.js add `showKeyboardDismiss = true,` to the destructured props, after `onSubmitEditing`, and change the gate from T005 to `const showAccessory = Platform.OS === "ios" && showKeyboardDismiss;`. Both the TextInput link (T006) and the render (T007) already read `showAccessory`, so nothing else changes.
 - [ ] T011 [US2] Verify quickstart Q9: temporarily pass `showKeyboardDismiss={false}` to one field (for example the first field in src/screens/profile/contactUs.screen.js), confirm that field has no bar and its siblings still do, then revert the temporary prop
 
 **Checkpoint**: US1 plus the opt-out. No screen opts out yet (research R7).
@@ -99,7 +99,7 @@ keyboard-close button that closes the keyboard and keeps the text. Android is un
 
 **Independent Test**: quickstart Q10 (spec US3 scenarios 1–2).
 
-- [ ] T012 [US3] In src/components/customTextInput.js add `onFocus,` to the destructured props, next to `onBlur`. Leave the existing TextInput `onFocus={(e) => { floatUp(); if (typeof onFocus === "function") onFocus(e); }}` handler unchanged. It now refers to the prop instead of an undeclared identifier (research R6).
+- [x] T012 [US3] In src/components/customTextInput.js add `onFocus,` to the destructured props, next to `onBlur`. Leave the existing TextInput `onFocus={(e) => { floatUp(); if (typeof onFocus === "function") onFocus(e); }}` handler unchanged. It now refers to the prop instead of an undeclared identifier (research R6).
 - [ ] T013 [US3] Verify quickstart Q10: temporarily pass `onFocus={() => console.log("cti focus")}` to one field, confirm exactly one log per focus and the label still floats, then revert the temporary prop
 
 **Checkpoint**: all three stories done.
@@ -108,9 +108,9 @@ keyboard-close button that closes the keyboard and keeps the text. Android is un
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T014 Run `npx eslint src/components/customTextInput.js` (uses the project's .eslintrc.json) and fix any new warnings, such as unused imports if a step was skipped
+- [x] T014 Run `npx eslint src/components/customTextInput.js` (uses the project's .eslintrc.json) and fix any new warnings, such as unused imports if a step was skipped
 - [ ] T015 Run the quickstart regression spot checks: Forgot Password → back to Login keeps the draft and label positions; the Birthdate picker field still opens the picker with no keyboard and no bar. Confirm `git diff` touches only src/components/customTextInput.js, translation/en.json, translation/de.json (plus specs)
-- [ ] T016 Commit as `feat(015): keyboard dismiss bar above the iOS keyboard on CustomTextInput` with a body noting the `onFocus` fix, and mark completed tasks `[x]` in specs/015-ios-keyboard-dismiss/tasks.md
+- [x] T016 Commit as `feat(015): keyboard dismiss bar above the iOS keyboard on CustomTextInput` with a body noting the `onFocus` fix, and mark completed tasks `[x]` in specs/015-ios-keyboard-dismiss/tasks.md
 
 ---
 
