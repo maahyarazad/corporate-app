@@ -1,13 +1,15 @@
 import { useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
-import { StyleSheet, Platform } from "react-native";
+import { StyleSheet, Platform, TouchableOpacity } from "react-native";
 import Animated from "react-native-reanimated";
+import { Ionicons } from "@expo/vector-icons";
 import { useShakeAnimation } from "../../hooks/useShakeAnimation";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { Button } from "react-native-paper";
 import Background from "../../components/background/background.component";
 import { CustomTextInput } from "../../components/customTextInput";
 import { SafeArea } from "../../components/safearea.component";
+import { showConfirm } from "../../components/confirmDialog.component";
 
 import { Label } from "../../components/typography/label.component";
 import { theme } from "../../infrastructure/theme";
@@ -22,6 +24,23 @@ export const ChangePasswordScreen = ({ route }) => {
   const navigation = useNavigation();
 
   const { shakeStyle, shake } = useShakeAnimation();
+
+  // Going back abandons the reset: the verification that got the user here is
+  // spent, so they would have to start over. Warn in plain language first.
+  const handleBack = () => {
+    showConfirm({
+      title: "Cancel password reset?",
+      message:
+        "If you go back now, your reset request will be cancelled and the code we sent will no longer work. You'll need to request a new code to set your password.",
+      confirmText: "Go back",
+      cancelText: "Stay here",
+      // Pop back to the forgot-password request screen (skipping the spent OTP
+      // screen between here and it). popTo returns to the existing instance in
+      // the stack rather than pushing a duplicate the way navigate() would.
+      onConfirm: () => navigation.popTo("ForgotPassword"),
+      onCancel: () => {},
+    });
+  };
 
   const handleSubmit = async () => {
     setIsSubmitted(true);
@@ -69,6 +88,16 @@ export const ChangePasswordScreen = ({ route }) => {
   return (
     <Background>
       <SafeArea>
+        <TouchableOpacity
+          onPress={handleBack}
+          style={styles.backRow}
+          activeOpacity={0.6}
+        >
+          <Ionicons name="arrow-back" size={32} color="#eee" />
+          <Label size="title" weight="bold" style={styles.backLabel}>
+            Back
+          </Label>
+        </TouchableOpacity>
         <KeyboardAwareScrollView
           keyboardDismissMode={
             Platform.OS === "ios" ? "interactive" : "on-drag"
@@ -133,6 +162,16 @@ const styles = StyleSheet.create({
   container: {
     width: "100%",
     padding: 16,
+  },
+  backRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingTop: 8,
+  },
+  backLabel: {
+    color: "#eee",
+    marginLeft: 4,
   },
   keyboardAwareScrollViewContentContainer: {
     flexGrow: 1,

@@ -1,8 +1,8 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import React, { useContext, useEffect, useState } from "react";
-import { TouchableOpacity, View, StyleSheet } from "react-native";
+import { AppState, TouchableOpacity, View, StyleSheet } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { ActivityIndicator } from "react-native-paper";
 import { useTheme } from "styled-components/native";
@@ -18,7 +18,8 @@ import useRequest from "../../../hooks/useRequest";
 import useAuth from "../../../hooks/useAuth";
 import useUser from "../../../hooks/useUser";
 import { useOtpAutoRead } from "../../../hooks/useOtpAutoRead";
-import { navigate } from "../../navigation/navigate";
+import { navigate, goback } from "../../navigation/navigate";
+import { showConfirm } from "../../components/confirmDialog.component";
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -61,6 +62,17 @@ const styles = StyleSheet.create({
   },
   label: {
     color: "white",
+  },
+  backRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    paddingHorizontal: 16,
+    paddingTop: 8,
+  },
+  backLabel: {
+    color: "#eee",
+    marginLeft: 4,
   },
 });
 
@@ -140,30 +152,32 @@ export const OtpVerification = ({ route }) => {
     },
   });
 
+  // Count down to a wall-clock end time rather than decrementing per tick:
+  // JS timers are paused while the app is backgrounded, so a tick count would
+  // freeze the cooldown until the user returns.
   useEffect(() => {
-    let subInterval = setInterval(() => {
-      cooldownTimer(subInterval);
-    }, 1000);
+    if (!resendStatus) return undefined;
 
-    return () => clearInterval(subInterval);
-  }, [resendStatus]);
+    const endsAt = Date.now() + OTP_COOLDOWN * 1000;
+    const tick = () => {
+      const left = Math.max(0, Math.ceil((endsAt - Date.now()) / 1000));
 
-  const cooldownTimer = (interval) => {
-    if (resendStatus) {
-      setOtpCooldown((prev) => {
-        if (prev > 0) {
-          return prev - 1;
-        } else {
-          setResendStatus(false);
-          clearInterval(interval);
-          return;
-        }
-      });
-    } else {
-      setOtpCooldown(OTP_COOLDOWN);
+      setOtpCooldown(left);
+      if (left === 0) setResendStatus(false);
+    };
+
+    tick();
+    const interval = setInterval(tick, 1000);
+    // Catch up the moment the app is foregrounded, not on the next tick.
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (state === "active") tick();
+    });
+
+    return () => {
       clearInterval(interval);
-    }
-  };
+      subscription.remove();
+    };
+  }, [resendStatus]);
 
   const handleResend = () => {
     resendOTP(userData.user_id).then((response) => {
@@ -181,9 +195,34 @@ export const OtpVerification = ({ route }) => {
     navigate("MobileChange");
   };
 
+  // Going back abandons the sign-in verification: the code already sent will
+  // not be reusable. Warn first, then pop (back to Login) - a pop, not
+  // navigate("Login"), so no duplicate screen is pushed.
+  const handleBack = () => {
+    showConfirm({
+      title: "Cancel sign-in?",
+      message:
+        "If you go back now, this verification will be cancelled and the code we sent will no longer work. You'll need to sign in again to receive a new code.",
+      confirmText: "Go back",
+      cancelText: "Stay here",
+      onConfirm: () => goback(),
+      onCancel: () => {},
+    });
+  };
+
   return (
     <Background>
       <SafeArea style={styles.safeArea2}>
+        <TouchableOpacity
+          onPress={handleBack}
+          style={styles.backRow}
+          activeOpacity={0.6}
+        >
+          <Ionicons name="arrow-back" size={32} color="#eee" />
+          <Label size="title" weight="bold" style={styles.backLabel}>
+            Back
+          </Label>
+        </TouchableOpacity>
         <KeyboardAwareScrollView
           behavior="position"
           style={styles.keyboardAwareScrollView}

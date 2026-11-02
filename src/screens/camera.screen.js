@@ -1,47 +1,35 @@
-import { Camera, CameraType } from "expo-camera";
+import { CameraView, useCameraPermissions } from "expo-camera";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeArea } from "../components/safearea.component";
 
 export const CameraScreen = () => {
-  const [hasPermission, setHasPermission] = useState(false);
-  const [type, setType] = useState(CameraType.back);
+  // expo-camera 17 (SDK 54): Camera/CameraType were removed. Use the
+  // permission hook and CameraView, and a plain "back"/"front" string.
+  const [permission, requestPermission] = useCameraPermissions();
+  const [facing, setFacing] = useState("back");
 
   useEffect(() => {
-    // (async () => {
-    //   const { status } = await Camera.requestCameraPermissionsAsync();
-    //   setHasPermission(status === "granted");
-    // })();
-    // The permission prompt can't be aborted; it resolves whenever the user
-    // answers it. This only discards the answer if we're no longer listening.
-    let cancelled = false;
+    if (permission && !permission.granted && permission.canAskAgain) {
+      requestPermission();
+    }
+  }, [permission, requestPermission]);
 
-    Camera.requestCameraPermissionsAsync().then(({ status }) => {
-      if (status === "granted") {
-        if (!cancelled) setHasPermission(true);
-      }
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  if (hasPermission === null) {
+  if (!permission) {
     return <View />;
   }
-  if (hasPermission === false) {
+  if (!permission.granted) {
     return <Text>No access to camera</Text>;
   }
 
   const handlePress = () => {
-    setType(type === CameraType.back ? CameraType.front : CameraType.back);
+    setFacing((prev) => (prev === "back" ? "front" : "back"));
   };
 
   return (
     <View style={styles.container}>
-      <Camera style={styles.camera} type={type}>
-        <View style={styles.overlay}></View>
+      <CameraView style={styles.camera} facing={facing}>
+        <View style={styles.overlay} />
         <SafeArea style={styles.safeArea}>
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.button} onPress={handlePress}>
@@ -49,7 +37,7 @@ export const CameraScreen = () => {
             </TouchableOpacity>
           </View>
         </SafeArea>
-      </Camera>
+      </CameraView>
     </View>
   );
 };

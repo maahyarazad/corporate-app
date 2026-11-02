@@ -16,6 +16,7 @@ import { StatusBar } from "expo-status-bar";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { navigate } from "../../navigation/navigate";
 import Background from "../../components/background/background.component";
+import MembershipExpiredSheet from "../../components/membershipExpiredSheet.component";
 import * as WebBrowser from "expo-web-browser";
 import { isValidURL } from "../../utils/isValidURL";
 import { companyLogo, config, EULAPrivacyLink } from "../../utils/constants";
@@ -59,6 +60,7 @@ export const LoginScreen = () => {
   const [loginLoading, setLoginLoading] = useState(false);
   const [biometricLoading, setBiometricLoading] = useState(false); // ✅ separate loading state
   const [canRegister, setCanRegister]   = useState(true);
+  const [expired, setExpired]           = useState(false);
 
   const request = useRequest();
   const { signin, loading } = useAuth();
@@ -137,6 +139,15 @@ export const LoginScreen = () => {
 
       // 6. Handle successful login
       setLang(response.member ? "de" : "en");
+
+      // Expired membership: block before signin. An expired response carries no
+      // tokens, so signin(undefined, undefined) would throw in SecureStore.
+      // Show the sheet and navigate nowhere.
+      if (response.expired) {
+        setExpired(true);
+        return;
+      }
+
       signin(response.refreshToken, response.accessToken);
 
       if (response.member_id) {
@@ -198,6 +209,15 @@ export const LoginScreen = () => {
       }
 
       setLang(response.member ? "de" : "en");
+
+      // Expired membership: block before signin. An expired response carries no
+      // tokens, so signin(undefined, undefined) would throw in SecureStore.
+      // Show the sheet and navigate nowhere.
+      if (response.expired) {
+        setExpired(true);
+        return;
+      }
+
       signin(response.refreshToken, response.accessToken); // ✅ called once
 
       if (response.member_id) {
@@ -306,6 +326,7 @@ export const LoginScreen = () => {
           </SafeArea>
         </Background>
       </View>
+      {expired && <MembershipExpiredSheet onClose={() => setExpired(false)} />}
     </>
   );
 };
