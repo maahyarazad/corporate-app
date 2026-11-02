@@ -6,18 +6,21 @@ import {
   TouchableOpacity,
   View,Platform
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { showToast } from "../../Toast";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import Background from "../../components/background/background.component";
 import { CodeInputField } from "../../components/codeInputField";
 import { SafeArea } from "../../components/safearea.component";
+import { showConfirm } from "../../components/confirmDialog.component";
 
 import { BottomHalf, VerifyButton } from "../../components/styles";
 import { Label } from "../../components/typography/label.component";
 import { colors } from "../../infrastructure/theme/colors";
-import { navigate } from "../../navigation/navigate";
+import { navigate, goback } from "../../navigation/navigate";
 import { UserService } from "../../services/user/user.service";
 import { config } from "../../utils/constants";
+import { useOtpAutoRead } from "../../../hooks/useOtpAutoRead";
 
 export const ForgotPasswordOTPScreen = ({ route }) => {
   const MAX_CODE_LENGTH = 6;
@@ -27,6 +30,23 @@ export const ForgotPasswordOTPScreen = ({ route }) => {
   //   const [mobileNum, setMobileNum] = useState("");
   const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Going back abandons this verification: the code already sent is tied to
+  // this request and will not be reusable. Warn in plain language first.
+  const handleBack = () => {
+    showConfirm({
+      title: "Cancel password reset?",
+      message:
+        "If you go back now, the code we sent will stop working and your reset request will be cancelled. You'll need to request a new code to continue.",
+      confirmText: "Go back",
+      cancelText: "Stay here",
+      // Pop one screen (back to the forgot-password request screen) rather than
+      // navigate("ForgotPassword"), which PUSHES a duplicate on top of this one
+      // and makes a later back land on this OTP screen again.
+      onConfirm: () => goback(),
+      onCancel: () => {},
+    });
+  };
 
   const handleResend = async () => {
     const data = {
@@ -42,14 +62,16 @@ export const ForgotPasswordOTPScreen = ({ route }) => {
     }
   };
 
-  const handleVerify = async () => {
+  const handleVerify = async (otp = code) => {
+    // Called both from the button (press event arg) and the auto-read (string
+    // code). Only accept a real string; otherwise fall back to the input state.
+    const submittedOtp = typeof otp === "string" ? otp : code;
+
     const data = {
-      otp: code,
+      otp: submittedOtp,
       mobileNum: `${mobileCode}${mobile}`,
       user_id,
     };
-
-    console.log("USER ID:", user_id);
 
     setIsLoading(true);
     const response = await UserService.verifyForgetPass(data);
@@ -62,9 +84,32 @@ export const ForgotPasswordOTPScreen = ({ route }) => {
     }
   };
 
+  // Android: auto-read the incoming OTP SMS (system "copy from Messages"
+  // consent prompt) and submit it. Paused while a verify request is in flight.
+  // No-ops on iOS, where CodeInputField's `oneTimeCode` keyboard autofill
+  // handles the incoming code.
+  useOtpAutoRead({
+    length: MAX_CODE_LENGTH,
+    enabled: !isLoading,
+    onCode: (otp) => {
+      setCode(otp); // populate the visible input boxes
+      handleVerify(otp); // auto-submit to the server
+    },
+  });
+
   return (
     <Background>
       <SafeArea>
+        <TouchableOpacity
+          onPress={handleBack}
+          style={styles.backRow}
+          activeOpacity={0.6}
+        >
+          <Ionicons name="arrow-back" size={32} color="#eee" />
+          <Label size="title" weight="bold" style={styles.backLabel}>
+            Back
+          </Label>
+        </TouchableOpacity>
         <KeyboardAwareScrollView
           keyboardDismissMode={
             Platform.OS === "ios" ? "interactive" : "on-drag"
@@ -120,7 +165,7 @@ export const ForgotPasswordOTPScreen = ({ route }) => {
                   : colors.ui.lightGreen,
                   marginBottom:8
               }}
-              onPress={handleVerify}
+              onPress={() => handleVerify()}
               activeOpacity={0.6}
             >
               {isLoading ? (
@@ -150,6 +195,16 @@ export const ForgotPasswordOTPScreen = ({ route }) => {
 
 const styles = StyleSheet.create({
   container: {},
+  backRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingTop: 8,
+  },
+  backLabel: {
+    color: "#eee",
+    marginLeft: 4,
+  },
   keyboardAwareScrollViewContentContainer: {
     flexGrow: 1,
     justifyContent: "center",

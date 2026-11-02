@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Platform,
   StyleSheet,
@@ -18,24 +18,40 @@ import { SafeArea } from "../../components/safearea.component";
 import { Label } from "../../components/typography/label.component";
 import { useTheme } from "styled-components/native";
 import { Ionicons } from "@expo/vector-icons";
-import { navigate } from "../../navigation/navigate";
+import { navigate, goback } from "../../navigation/navigate";
 import { UserService } from "../../services/user/user.service";
 import { LoadingOverlay } from "../../components/loading/loading.component";
 import { config } from "../../utils/constants";
 import { PhoneInput } from "../../components/PhoneInput";
+// Draft of the forgot-password inputs, kept at module scope so the fields
+// survive leaving and re-entering the screen (e.g. an accidental trip back to
+// Login). Cleared on a successful submit. Module scope is deliberate: it
+// outlives the component without a provider, and this form has a single
+// instance in the navigator.
+const DRAFT_DEFAULTS = { login: "", mobile: "", mobileCode: "971", mobileCountry: "AE" };
+let draft = { ...DRAFT_DEFAULTS };
+
 export const ForgotPasswordScreen = () => {
-  const [mobile, setMobile] = useState("");
-  const [mobileCode, setMobileCode] = useState("971");
-  const [mobileCountry, setMobileCountry] = useState("AE");
+  const [mobile, setMobile] = useState(draft.mobile);
+  const [mobileCode, setMobileCode] = useState(draft.mobileCode);
+  const [mobileCountry, setMobileCountry] = useState(draft.mobileCountry);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [login, setLogin] = useState("");
+  const [login, setLogin] = useState(draft.login);
   const [loading, setLoading] = useState(false);
   const theme = useTheme();
 
   const { shakeStyle, shake } = useShakeAnimation();
 
-  const goback = () => {
-    navigate("Login");
+  // Keep the module-level draft in step with the inputs so it is current if the
+  // screen unmounts (back to Login) and remounts.
+  useEffect(() => {
+    draft = { login, mobile, mobileCode, mobileCountry };
+  }, [login, mobile, mobileCode, mobileCountry]);
+
+  // Pop back to the already-mounted Login (preserving its username/password and
+  // playing the reverse slide) instead of pushing a fresh Login instance.
+  const handleBack = () => {
+    goback();
   };
 
   const handleSubmit = async () => {
@@ -62,6 +78,10 @@ export const ForgotPasswordScreen = () => {
 
       if (result.success) {
         setLoading(false);
+
+        // Submitted to the server: clear the preserved draft so a later visit
+        // starts empty.
+        draft = { ...DRAFT_DEFAULTS };
 
         navigate("ForgotPasswordOTP", {
           mobileCode,
@@ -94,7 +114,7 @@ export const ForgotPasswordScreen = () => {
             <View style={styles.row}>
               <View style={styles.fill}>
                 <TouchableOpacity
-                  onPress={goback}
+                  onPress={handleBack}
                   style={{
                     flexDirection: "row",
                     alignItems: "center",...styles.marginFix
@@ -135,7 +155,8 @@ export const ForgotPasswordScreen = () => {
             ></CustomTextInput>
             
               <PhoneInput
-                            defaultCode="AE"
+                            defaultCode={mobileCountry}
+                            value={mobile}
                             placeholder="541234567"
                             onChangeText={(prev) => {
                 setMobile(prev.replace(/[^0-9]/g, ``));

@@ -1,4 +1,4 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import React, { useContext, useEffect, useState } from "react";
@@ -18,7 +18,8 @@ import useRequest from "../../../hooks/useRequest";
 import useAuth from "../../../hooks/useAuth";
 import useUser from "../../../hooks/useUser";
 import { useOtpAutoRead } from "../../../hooks/useOtpAutoRead";
-import { navigate } from "../../navigation/navigate";
+import { navigate, goback } from "../../navigation/navigate";
+import { showConfirm } from "../../components/confirmDialog.component";
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -61,6 +62,17 @@ const styles = StyleSheet.create({
   },
   label: {
     color: "white",
+  },
+  backRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    paddingHorizontal: 16,
+    paddingTop: 8,
+  },
+  backLabel: {
+    color: "#eee",
+    marginLeft: 4,
   },
 });
 
@@ -183,9 +195,34 @@ export const OtpVerification = ({ route }) => {
     navigate("MobileChange");
   };
 
+  // Going back abandons the sign-in verification: the code already sent will
+  // not be reusable. Warn first, then pop (back to Login) - a pop, not
+  // navigate("Login"), so no duplicate screen is pushed.
+  const handleBack = () => {
+    showConfirm({
+      title: "Cancel sign-in?",
+      message:
+        "If you go back now, this verification will be cancelled and the code we sent will no longer work. You'll need to sign in again to receive a new code.",
+      confirmText: "Go back",
+      cancelText: "Stay here",
+      onConfirm: () => goback(),
+      onCancel: () => {},
+    });
+  };
+
   return (
     <Background>
       <SafeArea style={styles.safeArea2}>
+        <TouchableOpacity
+          onPress={handleBack}
+          style={styles.backRow}
+          activeOpacity={0.6}
+        >
+          <Ionicons name="arrow-back" size={32} color="#eee" />
+          <Label size="title" weight="bold" style={styles.backLabel}>
+            Back
+          </Label>
+        </TouchableOpacity>
         <KeyboardAwareScrollView
           behavior="position"
           style={styles.keyboardAwareScrollView}
