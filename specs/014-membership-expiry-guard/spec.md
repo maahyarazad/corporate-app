@@ -68,3 +68,52 @@ cannot be swiped away. Sign in as a current member and confirm the camera screen
 - **SC-001**: An expired member cannot reach the camera controls from the camera screen.
 - **SC-002**: A current member sees no change and no extra latency beyond one background request.
 - **SC-003**: Server errors never block a member.
+
+> Implementation note (2026-11-02): US1 shipped as a **login-time** gate, not on the
+> camera screen. The camera screen was dead code (never navigated to) and the OTP screen
+> is reached after the OTP is already sent. The expiry check now lives in
+> `login.screen.js` (`handleLogin`/`handleBiometricLogin`), reading `response.expired`.
+
+---
+
+## Added fixes (2026-11-02)
+
+### User Story 2 - Login and forgot-password keep what you typed (Priority: P1)
+
+A user types their username and password on the login screen, taps "Forgot password" by
+mistake, then comes back. Their username and password are still there. Likewise, anything typed
+on the forgot-password screen survives bouncing back to login and returning, until the
+forgot-password form is successfully submitted to the server.
+
+**Why this priority**: losing typed credentials on a mis-tap is a daily annoyance.
+
+**Root cause**: `src/screens/reset-password/forgotPassword.js` returns to login with
+`navigate("Login")`, which **pushes a new Login instance** (fresh state) instead of popping back
+to the existing one. Login → forgot is a push (Login stays mounted); the erasure happens on the
+way back.
+
+**Acceptance Scenarios**:
+
+1. **Given** username and password are typed on Login, **When** the user opens forgot-password
+   and returns, **Then** both fields still show what was typed.
+2. **Given** inputs are typed on forgot-password, **When** the user returns to Login and opens
+   forgot-password again, **Then** those inputs are still there.
+3. **Given** the forgot-password form is submitted successfully, **When** the flow continues,
+   **Then** the preserved draft is cleared (next visit starts empty).
+
+### User Story 3 - Back from forgot-password animates in reverse (Priority: P2)
+
+Login → forgot-password slides in from the right. Pressing back slides the **reverse** way
+(forgot-password slides out to the right, login reappears), instead of replaying a left-to-right
+forward slide.
+
+**Why this priority**: the wrong-direction "back" looks broken.
+
+**Root cause**: same `navigate("Login")` — a push replays `slide_from_right`. A stack **pop**
+makes native-stack reverse the `slideFromRightNative` animation automatically.
+
+**Acceptance Scenarios**:
+
+1. **Given** the user is on forgot-password, **When** they press the back arrow (or swipe, or
+   hardware back), **Then** the transition is the reverse of the forward slide, with no flash of
+   a newly-created login screen.

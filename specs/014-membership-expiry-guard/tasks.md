@@ -36,11 +36,35 @@
 
 - [x] T011 Run `npx eslint src/screens/camera.screen.js src/components/membershipExpiredSheet.component.js src/services/user/user.service.ts` and fix any new warnings
 
+## Phase 5: User Story 2 - Login and forgot-password keep what you typed (P1)
+
+**Goal**: credentials and forgot-password inputs survive navigating between the two screens, until a successful server submit.
+
+**Independent Test**: spec.md US2 acceptance scenarios 1-3.
+
+- [x] T012 [US2] In src/screens/reset-password/forgotPassword.js, change the local `goback` to pop the stack instead of pushing a new Login: replace `navigate("Login")` with the existing `goback` pop helper from `../../navigation/navigate` (import `goback`) — this reveals the still-mounted Login with its username/password intact (and also fixes US3). Remove the now-shadowing local `const goback`, or rename the local handler to `handleBack` calling the imported `goback`.
+- [x] T013 [US2] Confirm the forward path stays a push: `handleForgetPassword` in src/screens/login/login.screen.js uses `navigate("ForgotPassword")` (push), so Login is not unmounted on the way to forgot-password. No change expected; verify only.
+- [x] T014 [US2] Preserve the forgot-password inputs across leaving/re-entering the screen in src/screens/reset-password/forgotPassword.js: back the `login`, `mobile`, `mobileCode`, `mobileCountry` state with a module-level draft object (e.g. `let draft = {}` at module scope, or a tiny context) — initialise the `useState` from the draft and write the draft on each change. Clear the draft inside `handleSubmit` on a successful server response, right before `navigate("ForgotPasswordOTP", …)`.
+- [ ] T015 [US2] Verify on device: type username+password on Login → open Forgot Password → press back → both fields still populated; type email/mobile on Forgot Password → back to Login → reopen Forgot Password → inputs still there; submit successfully → reopening Forgot Password starts empty.
+
+## Phase 6: User Story 3 - Back from forgot-password animates in reverse (P2)
+
+**Goal**: returning from forgot-password plays the reverse of the forward slide.
+
+**Independent Test**: spec.md US3 acceptance scenario 1.
+
+- [x] T016 [US3] No code change beyond T012: with the back action now a stack pop, native-stack reverses the `slideFromRightNative` (`animation: "slide_from_right"`) transition automatically. Confirm `ForgotPassword` in navigation.js keeps `options: slideFromRightNative` (lines ~269-272) — do not switch it to a bottom/other animation.
+- [ ] T017 [US3] Verify on device: Login → Forgot Password slides in from the right; back arrow, swipe-back, and hardware back all slide the reverse direction, with no flash of a freshly-created Login screen.
+
+## Polish (added fixes)
+
+- [x] T018 Run `npx eslint src/screens/reset-password/forgotPassword.js src/screens/login/login.screen.js` and fix any new warnings.
+
 ## Dependencies
 
-- T001 → Phase 2 → T006 → T007 → T008 → T009 → T011 → T010
-- Phase 2: T002 and T003 are the service pair (T002 the type, then T003 the method); T004 and T005 are the translation pair. T002/T004/T005 can run in parallel (different files); T003 depends on T002. All of US1 touches `camera.screen.js` in sequence.
+- US1: T001 → Phase 2 → T006 → T007 → T008 → T009 → T011 → T010 (shipped; re-implemented as a login-time gate — see spec note).
+- US2/US3: T012 is the shared root-cause fix and must land first; T016 is satisfied by T012. T014 (draft preservation) is independent of T012 and can be done in parallel [P] (both touch `forgotPassword.js`, so coordinate the edits). T013 is verify-only. T015/T017/T018 are verification/polish after T012+T014.
 
 ## Implementation Strategy
 
-US1 is the whole feature and the MVP. The server route `getMembershipEndTime` is assumed to exist already (provided in the request) and is reached at `user/membership-end-time`; this branch is client-only. Ship as an OTA update once T010 passes.
+US1 shipped as a login-time gate (client-only; needs the server to return `expired`). US2 is the next MVP increment: a one-line navigation fix (T012) resolves both the login-state erasure and the reverse-animation bug (US3); T014 adds forgot-password draft preservation. Ship as an OTA update once T015/T017 pass.

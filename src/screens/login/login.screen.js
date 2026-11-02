@@ -326,7 +326,7 @@ export const LoginScreen = () => {
           </SafeArea>
         </Background>
       </View>
-      {expired && <MembershipExpiredSheet />}
+      {expired && <MembershipExpiredSheet onClose={() => setExpired(false)} />}
     </>
   );
 };
