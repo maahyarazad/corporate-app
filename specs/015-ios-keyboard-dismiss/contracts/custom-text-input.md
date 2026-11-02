@@ -12,8 +12,8 @@ onFocus?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void
 
 ## Guarantees
 
-1. **iOS, `showKeyboardDismiss` true or omitted**: while this field has focus, a bar 44 pt tall
-   is shown above the keyboard. Its only control is a right-aligned button with
+1. **iOS, `showKeyboardDismiss` true or omitted**: while this field has focus, a transparent strip 48 pt tall
+   sits above the keyboard (only the button is visible). Its only control is a right-aligned button with
    `accessibilityRole="button"` and the translated `keyboard-dismiss` label.
 2. **Pressing the button** closes the keyboard and blurs this field. The caller's `onBlur` runs if
    supplied; otherwise the built-in label float-down runs. `value` is not modified and

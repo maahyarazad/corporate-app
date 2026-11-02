@@ -48,8 +48,7 @@ description: "Task list for the iOS keyboard dismiss bar on CustomTextInput"
 
 ## Phase 3: User Story 1 - Close the keyboard from any text field on iOS (Priority: P1) 🎯 MVP
 
-**Goal**: every `CustomTextInput` on iOS shows a 44 pt grey bar above the keyboard with a blue
-keyboard-close button that closes the keyboard and keeps the text. Android is untouched.
+**Goal**: every `CustomTextInput` on iOS shows a floating keyboard-close button (white disc, no bar) above the keyboard; it that closes the keyboard and keeps the text. Android is untouched.
 
 **Independent Test**: quickstart Q1–Q8 on iOS; Q11–Q12 on Android (spec US1 scenarios 1–5).
 
@@ -73,7 +72,7 @@ keyboard-close button that closes the keyboard and keeps the text. Android is un
   )}
   ```
   Render it unconditionally with respect to `focused`, because it must already exist when the field focuses (research R5). Do not change the `onBlur={onBlur ?? floatDown}` wiring: `Keyboard.dismiss` triggers it (FR-004).
-- [x] T008 [US1] In src/components/customTextInput.js add an `accessoryBar` entry to the module-level `staticStyles` `StyleSheet.create`: `height: 44, flexDirection: "row", justifyContent: "flex-end", alignItems: "center", paddingHorizontal: 14, backgroundColor: "#F1F1F3", borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: "#C7C7CC"`
+- [x] T008 [US1] In src/components/customTextInput.js add an `accessoryBar` entry to the module-level `staticStyles` `StyleSheet.create`: `height: 48`, row, right-aligned, `paddingHorizontal: 10`, **no background or border** (icon-only, per review), plus an `accessoryButton` style: a 38 pt white circle with a soft shadow, applied to the Pressable (opacity 0.6 while pressed)
 - [ ] T009 [US1] Verify on an iOS simulator/device (hardware keyboard off) and an Android device: quickstart Q1–Q8 and Q11–Q12. In particular, Q5 (the post-reply field's own `onBlur` still runs), Q6 (never two bars) and Q12 (no `InputAccessoryView` warning in Metro on Android)
 
 **Checkpoint**: US1 is shippable on its own. Every field has the bar on iOS.

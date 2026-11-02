@@ -13,7 +13,7 @@
 
 | # | Steps | Expected | Covers |
 |---|-------|----------|--------|
-| 1 | Edit Profile → tap the numeric field | Grey bar above the number pad with a blue keyboard-close icon on the right | FR-001, FR-002, FR-009 |
+| 1 | Edit Profile → tap the numeric field | A white round keyboard-close button floats above the number pad's top-right corner; no grey bar | FR-001, FR-002, FR-009 |
 | 2 | Type `123`, tap the icon | Keyboard closes; `123` remains; label stays floated | FR-003 |
 | 3 | Tap an **empty** field, then the icon | Keyboard closes; label drops back to its resting position | FR-004 |
 | 4 | Contact Us → multi-line message → type two lines → icon | Keyboard closes; text intact | SC-001 |

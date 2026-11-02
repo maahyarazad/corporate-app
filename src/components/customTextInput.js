@@ -282,6 +282,10 @@ export const CustomTextInput = forwardRef(
               <Pressable
                 onPress={Keyboard.dismiss}
                 hitSlop={10}
+                style={({ pressed }) => [
+                  staticStyles.accessoryButton,
+                  pressed && { opacity: 0.6 },
+                ]}
                 accessibilityRole="button"
                 accessibilityLabel={i18n.t("keyboard-dismiss")}
               >
@@ -315,14 +319,26 @@ const staticStyles = StyleSheet.create({
     alignItems: "center",
     height: "100%",
   },
+  // No background: the accessory view itself is clear, so only the button
+  // shows, floating at the keyboard's top-right corner.
   accessoryBar: {
-    height: 44,
+    height: 48,
     flexDirection: "row",
     justifyContent: "flex-end",
     alignItems: "center",
-    paddingHorizontal: 14,
-    backgroundColor: "#F1F1F3",
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: "#C7C7CC",
+    paddingHorizontal: 10,
+  },
+  // A small white disc keeps the icon readable over any screen content.
+  accessoryButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.18,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 1 },
   },
 });

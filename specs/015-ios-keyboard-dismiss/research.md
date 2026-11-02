@@ -77,7 +77,7 @@ record the decisions taken and the facts checked in the codebase and `node_modul
     normal inline field. `eventGuests` / `registrationDetails` import modal components, but their
     inputs are not inside them.
   - `KeyboardAwareScrollView` uses the iOS keyboard frame, which includes the input accessory's
-    height, so focused-field scrolling already accounts for the extra 44 pt.
+    height, so focused-field scrolling already accounts for the extra 48 pt strip.
 - **Decision**: no opt-outs needed now. `showKeyboardDismiss={false}` remains available for future
   exceptions.
 

@@ -22,8 +22,8 @@ uses it, but never passes it on, so any screen that relies on it silently gets n
 
 ### User Story 1 - Close the keyboard from any text field on iOS (Priority: P1)
 
-A member typing into any of the app's standard text fields on an iPhone sees a slim bar along
-the top of the keyboard with a "close keyboard" button on the right. Tapping it closes the
+A member typing into any of the app's standard text fields on an iPhone sees a small round
+"close keyboard" button floating just above the keyboard's top-right corner. Tapping it closes the
 keyboard and leaves what they typed in place, so they can reach whatever the keyboard was covering.
 
 **Why this priority**: it is the core of the feature and removes a dead end on number-pad,
@@ -126,8 +126,8 @@ confirm the notification fires once and the label still floats up.
   change.
 - **FR-008**: When a screen asks to be notified that a field gained focus, the field MUST notify
   it once per focus, in addition to running its existing floating-label animation.
-- **FR-009**: The bar MUST visually match the iOS keyboard surroundings: a light grey background
-  with a hairline divider along its top edge.
+- **FR-009**: Only the button is visible, with no full-width bar behind it. The icon sits on a small white
+  circle with a soft shadow so it stays readable over any screen content.
 - **FR-010**: The close-keyboard control MUST be announced by screen readers as a button with a
   spoken label ("Close keyboard" / "Tastatur schließen") in the member's app language.
 

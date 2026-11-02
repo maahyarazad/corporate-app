@@ -6,8 +6,8 @@
 
 ## Summary
 
-On iOS, give every `CustomTextInput` its own React Native `InputAccessoryView`: a 44 pt light-grey
-bar above the keyboard holding one right-aligned "keyboard-close" icon button that calls
+On iOS, give every `CustomTextInput` its own React Native `InputAccessoryView`: a transparent 48 pt strip
+above the keyboard holding one right-aligned, white-disc "keyboard-close" icon button that calls
 `Keyboard.dismiss()`. Each instance gets a stable, unique `nativeID` from React's `useId()`. A new
 `showKeyboardDismiss` prop (default `true`) lets a screen opt a field out. On Android nothing is
 rendered. In the same file, destructure the `onFocus` prop that the focus handler already calls,
