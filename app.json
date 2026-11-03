@@ -57,6 +57,7 @@
       ],
       "./plugins/withCoreLibraryDesugaring",
       "./plugins/withRecaptchaModularHeaders",
+      "./plugins/withPodsDeploymentTarget",
       [
         "expo-sqlite",
         {
