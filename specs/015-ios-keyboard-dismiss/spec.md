@@ -157,8 +157,9 @@ confirm the notification fires once and the label still floats up.
 
 ## Assumptions
 
-- **Scope is the shared text field only.** Other inputs, such as the OTP code boxes and the
-  country/phone picker input, are out of scope. The OTP flow already auto-submits.
+- **Scope is the shared text field, plus the location-list search bar** (added on request). The
+  button is a shared component so other inputs can opt in later. Other inputs, such as the OTP
+  code boxes and the country/phone picker input, are out of scope. The OTP flow already auto-submits.
 - **Icon, not text.** The control is a "keyboard close" icon rather than a "Done" label. Swapping
   it for a text label later is a cosmetic change.
 - **No previous/next field arrows.** App-wide toolbars with field-to-field navigation (for example

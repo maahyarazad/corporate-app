@@ -96,6 +96,7 @@ specs/015-ios-keyboard-dismiss/
 
 ```text
 src/components/
+├── keyboardDismissAccessory.component.js  # NEW: shared iOS dismiss button + useKeyboardDismissId
 └── customTextInput.js     # MODIFIED: imports, onFocus + showKeyboardDismiss props,
                            #   useId nativeID, inputAccessoryViewID, accessory bar, style
 translation/

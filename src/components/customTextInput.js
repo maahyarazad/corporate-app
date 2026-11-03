@@ -1,22 +1,12 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, {
   forwardRef,
-  useContext,
-  useId,
   useImperativeHandle,
   useLayoutEffect,
   useRef,
   useState,
 } from "react";
-import {
-  InputAccessoryView,
-  Keyboard,
-  Platform,
-  Pressable,
-  StyleSheet,
-  TextInput,
-  View,
-} from "react-native";
+import { StyleSheet, TextInput, View } from "react-native";
 import Animated, {
   Easing,
   interpolate,
@@ -25,7 +15,10 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import usePosts from "../screens/posts/post_card/usePosts";
-import { TranslationContext } from "../services/translation/translation.context";
+import {
+  KeyboardDismissAccessory,
+  useKeyboardDismissId,
+} from "./keyboardDismissAccessory.component";
 
 export const CustomTextInput = forwardRef(
   (
@@ -63,15 +56,9 @@ export const CustomTextInput = forwardRef(
     const [showText, setShowText] = useState(false);
     const [textAreaHeight, setTextAreaHeight] = useState(areaHeight);
     const { resetReply } = usePosts();
-    const { i18n } = useContext(TranslationContext);
-
-    // iOS-only bar above the keyboard with a dismiss button. Number-pad,
-    // phone-pad and multiline keyboards have no return key, so without it the
-    // member can't close the keyboard. Each instance needs its own nativeID or
-    // several fields on one screen would share a bar. Android's
-    // InputAccessoryView only logs a warning, so it is never rendered there.
-    const accessoryId = `cti-${useId()}`;
-    const showAccessory = Platform.OS === "ios" && showKeyboardDismiss;
+    // iOS-only floating "close keyboard" button; undefined on Android or when
+    // showKeyboardDismiss is false. See keyboardDismissAccessory.component.js.
+    const accessoryId = useKeyboardDismissId(showKeyboardDismiss);
     const styles = StyleSheet.create({
       container: {
         height: 55,
@@ -195,7 +182,7 @@ export const CustomTextInput = forwardRef(
         <View style={staticStyles.rowCenter}>
           <TextInput
             ref={inputRef}
-            inputAccessoryViewID={showAccessory ? accessoryId : undefined}
+            inputAccessoryViewID={accessoryId}
             returnKeyType={returnKeyType}
             maxLength={maxLength}
             keyboardType={keyboardType}
@@ -272,32 +259,8 @@ export const CustomTextInput = forwardRef(
         >
           {label}
         </Animated.Text>
-        {/* Mounted whenever the field is, not only while focused: iOS looks
-            the accessory up by ID at the moment the field focuses. It is not
-            laid out inline; iOS places it above the keyboard. Keyboard.dismiss
-            blurs the field, so `onBlur ?? floatDown` runs as usual. */}
-        {showAccessory && (
-          <InputAccessoryView nativeID={accessoryId}>
-            <View style={staticStyles.accessoryBar}>
-              <Pressable
-                onPress={Keyboard.dismiss}
-                hitSlop={10}
-                style={({ pressed }) => [
-                  staticStyles.accessoryButton,
-                  pressed && { opacity: 0.6 },
-                ]}
-                accessibilityRole="button"
-                accessibilityLabel={i18n.t("keyboard-dismiss")}
-              >
-                <MaterialCommunityIcons
-                  name="keyboard-close"
-                  size={24}
-                  color="#007AFF"
-                />
-              </Pressable>
-            </View>
-          </InputAccessoryView>
-        )}
+        {/* Dismissing blurs the field, so `onBlur ?? floatDown` runs as usual. */}
+        {accessoryId && <KeyboardDismissAccessory nativeID={accessoryId} />}
       </View>
     );
   }
@@ -318,27 +281,5 @@ const staticStyles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     height: "100%",
-  },
-  // No background: the accessory view itself is clear, so only the button
-  // shows, floating at the keyboard's top-right corner.
-  accessoryBar: {
-    height: 48,
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "center",
-    paddingHorizontal: 10,
-  },
-  // A small white disc keeps the icon readable over any screen content.
-  accessoryButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: "#FFFFFF",
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.18,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 1 },
   },
 });

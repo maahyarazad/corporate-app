@@ -109,6 +109,7 @@ description: "Task list for the iOS keyboard dismiss bar on CustomTextInput"
 
 - [x] T014 Run `npx eslint src/components/customTextInput.js` (uses the project's .eslintrc.json) and fix any new warnings, such as unused imports if a step was skipped
 - [ ] T015 Run the quickstart regression spot checks: Forgot Password → back to Login keeps the draft and label positions; the Birthdate picker field still opens the picker with no keyboard and no bar. Confirm `git diff` touches only src/components/customTextInput.js, translation/en.json, translation/de.json (plus specs)
+- [x] T017 Extract the accessory into src/components/keyboardDismissAccessory.component.js (`useKeyboardDismissId(enabled)` + `<KeyboardDismissAccessory nativeID>`), switch src/components/customTextInput.js to it, and add it to the react-native-paper `Searchbar` in src/screens/location/location-list.screen.js via `inputAccessoryViewID` (Paper forwards unknown props to its TextInput)
 - [x] T016 Commit as `feat(015): keyboard dismiss bar above the iOS keyboard on CustomTextInput` with a body noting the `onFocus` fix, and mark completed tasks `[x]` in specs/015-ios-keyboard-dismiss/tasks.md
 
 ---
