@@ -108,6 +108,7 @@
             "error-merchant-pin": "Wrong Partner-Pin"
         },
         "close": "Schließen",
+        "keyboard-dismiss": "Tastatur schließen",
         "cancel": "Absagen",
         "redemption-success": {
             "transaction-summary": "Transaction Summary",

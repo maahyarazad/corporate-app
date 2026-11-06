@@ -12,6 +12,10 @@ import { Searchbar } from "react-native-paper";
 import { Label } from "../../components/typography/label.component";
 import { LocationList } from "../../features/locations/components/locationlist.component";
 import { Suggestion } from "../../components/suggestion";
+import {
+  KeyboardDismissAccessory,
+  useKeyboardDismissId,
+} from "../../components/keyboardDismissAccessory.component";
 import { config, searchSource } from "../../utils/constants";
 import { io } from "socket.io-client";
 import { TranslationContext } from "../../services/translation/translation.context";
@@ -56,6 +60,10 @@ export const LocationListScreen = ({ route, ...props }) => {
   const [searchBarFocused, setSearchBarFocused] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(true); // triggers the very first load
   const [headerTitle, setHeaderTitle] = useState(route.params.headerTitle);
+
+  // iOS-only floating "close keyboard" button above the keyboard. Dismissing
+  // blurs the search bar, so onSearchBlur hides the suggestions as usual.
+  const keyboardDismissId = useKeyboardDismissId();
 
   // ---- refs --------------------------------------------------------------
   const searchRef = useRef();
@@ -442,7 +450,12 @@ export const LocationListScreen = ({ route, ...props }) => {
           onChangeText={onFilterChange}
           autoCorrect={false}
           placeholder="Search"
+          // Paper's Searchbar forwards unknown props to its TextInput.
+          inputAccessoryViewID={keyboardDismissId}
         />
+        {keyboardDismissId && (
+          <KeyboardDismissAccessory nativeID={keyboardDismissId} />
+        )}
         <View style={styles.pad}>
           <Label weight="bold">{resultCount} Results</Label>
         </View>

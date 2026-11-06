@@ -15,6 +15,10 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import usePosts from "../screens/posts/post_card/usePosts";
+import {
+  KeyboardDismissAccessory,
+  useKeyboardDismissId,
+} from "./keyboardDismissAccessory.component";
 
 export const CustomTextInput = forwardRef(
   (
@@ -39,8 +43,12 @@ export const CustomTextInput = forwardRef(
       numberOfLines,
       areaHeight = 137,
       onBlur,
+      // Was called by the TextInput's onFocus handler but never destructured,
+      // so a parent's onFocus was silently ignored.
+      onFocus,
       labelLeftOffset = 5,
       onSubmitEditing,
+      showKeyboardDismiss = true,
     },
     ref
   ) => {
@@ -48,6 +56,9 @@ export const CustomTextInput = forwardRef(
     const [showText, setShowText] = useState(false);
     const [textAreaHeight, setTextAreaHeight] = useState(areaHeight);
     const { resetReply } = usePosts();
+    // iOS-only floating "close keyboard" button; undefined on Android or when
+    // showKeyboardDismiss is false. See keyboardDismissAccessory.component.js.
+    const accessoryId = useKeyboardDismissId(showKeyboardDismiss);
     const styles = StyleSheet.create({
       container: {
         height: 55,
@@ -171,6 +182,7 @@ export const CustomTextInput = forwardRef(
         <View style={staticStyles.rowCenter}>
           <TextInput
             ref={inputRef}
+            inputAccessoryViewID={accessoryId}
             returnKeyType={returnKeyType}
             maxLength={maxLength}
             keyboardType={keyboardType}
@@ -247,6 +259,8 @@ export const CustomTextInput = forwardRef(
         >
           {label}
         </Animated.Text>
+        {/* Dismissing blurs the field, so `onBlur ?? floatDown` runs as usual. */}
+        {accessoryId && <KeyboardDismissAccessory nativeID={accessoryId} />}
       </View>
     );
   }
